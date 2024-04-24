@@ -694,6 +694,11 @@ class AnimeScreenModel(
             LibraryPreferences.EpisodeSwipeAction.ToggleBookmark -> {
                 bookmarkEpisodes(listOf(episode), !episode.bookmark)
             }
+            // AM (FILLERMARK) -->
+            LibraryPreferences.EpisodeSwipeAction.ToggleFillermark -> {
+                fillermarkEpisodes(listOf(episode), !episode.fillermark)
+            }
+            // <-- AM (FILLERMARK)
             LibraryPreferences.EpisodeSwipeAction.Download -> {
                 val downloadAction: EpisodeDownloadAction = when (episodeItem.downloadState) {
                     Download.State.ERROR,
@@ -896,6 +901,22 @@ class AnimeScreenModel(
         toggleAllSelection(false)
     }
 
+    // AM (FILLERMARK) -->
+    /**
+     * Fillermarks the given list of episodes.
+     * @param episodes the list of episodes to fillermark.
+     */
+    fun fillermarkEpisodes(episodes: List<Episode>, fillermarked: Boolean) {
+        screenModelScope.launchIO {
+            episodes
+                .filterNot { it.fillermark == fillermarked }
+                .map { EpisodeUpdate(id = it.id, fillermark = fillermarked) }
+                .let { updateEpisode.awaitAll(it) }
+        }
+        toggleAllSelection(false)
+    }
+    // <-- AM (FILLERMARK)
+
     /**
      * Deletes the given list of episode.
      *
@@ -980,6 +1001,26 @@ class AnimeScreenModel(
             setAnimeEpisodeFlags.awaitSetBookmarkFilter(anime, flag)
         }
     }
+
+    // AM (FILLERMARK) -->
+    /**
+     * Sets the fillermark filter and requests an UI update.
+     * @param state whether to display only fillermarked episodes or all episodes.
+     */
+    fun setFillermarkedFilter(state: TriState) {
+        val anime = successState?.anime ?: return
+
+        val flag = when (state) {
+            TriState.DISABLED -> Anime.SHOW_ALL
+            TriState.ENABLED_IS -> Anime.EPISODE_SHOW_FILLERMARKED
+            TriState.ENABLED_NOT -> Anime.EPISODE_SHOW_NOT_FILLERMARKED
+        }
+
+        screenModelScope.launchNonCancellable {
+            setAnimeEpisodeFlags.awaitSetFillermarkFilter(anime, flag)
+        }
+    }
+    // <-- AM (FILLERMARK)
 
     /**
      * Sets the active display mode.
@@ -1312,9 +1353,15 @@ class AnimeScreenModel(
                 val unseenFilter = anime.unseenFilter
                 val downloadedFilter = anime.downloadedFilter
                 val bookmarkedFilter = anime.bookmarkedFilter
+                // AM (FILLERMARK) -->
+                val fillermarkedFilter = anime.fillermarkedFilter
+                // <-- AM (FILLERMARK)
                 return asSequence()
                     .filter { (episode) -> applyFilter(unseenFilter) { !episode.seen } }
                     .filter { (episode) -> applyFilter(bookmarkedFilter) { episode.bookmark } }
+                    // AM (FILLERMARK) -->
+                    .filter { (episode) -> applyFilter(fillermarkedFilter) { episode.fillermark } }
+                    // <-- AM (FILLERMARK)
                     .filter { applyFilter(downloadedFilter) { it.isDownloaded || isLocalAnime } }
                     .sortedWith { (episode1), (episode2) ->
                         getEpisodeSort(anime).invoke(

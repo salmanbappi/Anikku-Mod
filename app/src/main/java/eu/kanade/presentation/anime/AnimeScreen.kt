@@ -142,6 +142,9 @@ fun AnimeScreen(
 
     // For bottom action menu
     onMultiBookmarkClicked: (List<Episode>, bookmarked: Boolean) -> Unit,
+    // AM (FILLERMARK) -->
+    onMultiFillermarkClicked: (List<Episode>, fillermarked: Boolean) -> Unit,
+    // <-- AM (FILLERMARK)
     onMultiMarkAsSeenClicked: (List<Episode>, markAsSeen: Boolean) -> Unit,
     onMarkPreviousAsSeenClicked: (Episode) -> Unit,
     onMultiDeleteClicked: (List<Episode>) -> Unit,
@@ -202,6 +205,9 @@ fun AnimeScreen(
             // SY <--
             changeAnimeSkipIntro = changeAnimeSkipIntro,
             onMultiBookmarkClicked = onMultiBookmarkClicked,
+            // AM (FILLERMARK) -->
+            onMultiFillermarkClicked = onMultiFillermarkClicked,
+            // <-- AM (FILLERMARK)
             onMultiMarkAsSeenClicked = onMultiMarkAsSeenClicked,
             onMarkPreviousAsSeenClicked = onMarkPreviousAsSeenClicked,
             onMultiDeleteClicked = onMultiDeleteClicked,
@@ -247,6 +253,9 @@ fun AnimeScreen(
             onEditInfoClicked = onEditInfoClicked,
             // SY <--
             onMultiBookmarkClicked = onMultiBookmarkClicked,
+            // AM (FILLERMARK) -->
+            onMultiFillermarkClicked = onMultiFillermarkClicked,
+            // <-- AM (FILLERMARK)
             onMultiMarkAsSeenClicked = onMultiMarkAsSeenClicked,
             onMarkPreviousAsSeenClicked = onMarkPreviousAsSeenClicked,
             onMultiDeleteClicked = onMultiDeleteClicked,
@@ -307,6 +316,9 @@ private fun AnimeScreenSmallImpl(
 
     // For bottom action menu
     onMultiBookmarkClicked: (List<Episode>, bookmarked: Boolean) -> Unit,
+    // AM (FILLERMARK) -->
+    onMultiFillermarkClicked: (List<Episode>, fillermarked: Boolean) -> Unit,
+    // <-- AM (FILLERMARK)
     onMultiMarkAsSeenClicked: (List<Episode>, markAsSeen: Boolean) -> Unit,
     onMarkPreviousAsSeenClicked: (Episode) -> Unit,
     onMultiDeleteClicked: (List<Episode>) -> Unit,
@@ -388,6 +400,9 @@ private fun AnimeScreenSmallImpl(
                 selected = selectedEpisodes,
                 onEpisodeClicked = onEpisodeClicked,
                 onMultiBookmarkClicked = onMultiBookmarkClicked,
+                // AM (FILLERMARK) -->
+                onMultiFillermarkClicked = onMultiFillermarkClicked,
+                // <-- AM (FILLERMARK)
                 onMultiMarkAsSeenClicked = onMultiMarkAsSeenClicked,
                 onMarkPreviousAsSeenClicked = onMarkPreviousAsSeenClicked,
                 onDownloadEpisode = onDownloadEpisode,
@@ -611,6 +626,9 @@ fun AnimeScreenLargeImpl(
 
     // For bottom action menu
     onMultiBookmarkClicked: (List<Episode>, bookmarked: Boolean) -> Unit,
+    // AM (FILLERMARK) -->
+    onMultiFillermarkClicked: (List<Episode>, fillermarked: Boolean) -> Unit,
+    // <-- AM (FILLERMARK)
     onMultiMarkAsSeenClicked: (List<Episode>, markAsSeen: Boolean) -> Unit,
     onMarkPreviousAsSeenClicked: (Episode) -> Unit,
     onMultiDeleteClicked: (List<Episode>) -> Unit,
@@ -690,6 +708,9 @@ fun AnimeScreenLargeImpl(
                     selected = selectedEpisodes,
                     onEpisodeClicked = onEpisodeClicked,
                     onMultiBookmarkClicked = onMultiBookmarkClicked,
+                    // AM (FILLERMARK) -->
+                    onMultiFillermarkClicked = onMultiFillermarkClicked,
+                    // <-- AM (FILLERMARK)
                     onMultiMarkAsSeenClicked = onMultiMarkAsSeenClicked,
                     onMarkPreviousAsSeenClicked = onMarkPreviousAsSeenClicked,
                     onDownloadEpisode = onDownloadEpisode,
@@ -863,6 +884,9 @@ private fun SharedAnimeBottomActionMenu(
     selected: List<EpisodeList.Item>,
     onEpisodeClicked: (Episode, Boolean) -> Unit,
     onMultiBookmarkClicked: (List<Episode>, bookmarked: Boolean) -> Unit,
+    // AM (FILLERMARK) -->
+    onMultiFillermarkClicked: (List<Episode>, fillermarked: Boolean) -> Unit,
+    // <-- AM (FILLERMARK)
     onMultiMarkAsSeenClicked: (List<Episode>, markAsSeen: Boolean) -> Unit,
     onMarkPreviousAsSeenClicked: (Episode) -> Unit,
     onDownloadEpisode: ((List<EpisodeList.Item>, EpisodeDownloadAction) -> Unit)?,
@@ -880,6 +904,14 @@ private fun SharedAnimeBottomActionMenu(
         onRemoveBookmarkClicked = {
             onMultiBookmarkClicked.invoke(selected.fastMap { it.episode }, false)
         }.takeIf { selected.fastAll { it.episode.bookmark } },
+        // AM (FILLERMARK) -->
+        onFillermarkClicked = {
+            onMultiFillermarkClicked.invoke(selected.fastMap { it.episode }, true)
+        }.takeIf { selected.fastAny { !it.episode.fillermark } },
+        onRemoveFillermarkClicked = {
+            onMultiFillermarkClicked.invoke(selected.fastMap { it.episode }, false)
+        }.takeIf { selected.fastAll { it.episode.fillermark } },
+        // <-- AM (FILLERMARK)
         onMarkAsViewedClicked = {
             onMultiMarkAsSeenClicked(selected.fastMap { it.episode }, true)
         }.takeIf { selected.fastAny { !it.episode.seen } },
@@ -983,6 +1015,9 @@ private fun LazyListScope.sharedEpisodeItems(
                     scanlator = episodeItem.episode.scanlator.takeIf { !it.isNullOrBlank() },
                     seen = episodeItem.episode.seen,
                     bookmark = episodeItem.episode.bookmark,
+                    // AM (FILLERMARK) -->
+                    fillermark = episodeItem.episode.fillermark,
+                    // <-- AM (FILLERMARK)
                     selected = episodeItem.selected,
                     downloadIndicatorEnabled = !isAnyEpisodeSelected && !anime.isLocal(),
                     downloadStateProvider = { episodeItem.downloadState },

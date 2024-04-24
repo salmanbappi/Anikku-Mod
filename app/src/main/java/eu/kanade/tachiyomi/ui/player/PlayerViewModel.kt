@@ -832,7 +832,13 @@ class PlayerViewModel @JvmOverloads constructor(
                 anime.bookmarkedFilterRaw == Anime.EPISODE_SHOW_BOOKMARKED &&
                 !it.bookmark ||
                 anime.bookmarkedFilterRaw == Anime.EPISODE_SHOW_NOT_BOOKMARKED &&
-                it.bookmark
+                it.bookmark ||
+                // AM (FILLERMARK) -->
+                anime.fillermarkedFilterRaw == Anime.EPISODE_SHOW_FILLERMARKED &&
+                !it.fillermark ||
+                anime.fillermarkedFilterRaw == Anime.EPISODE_SHOW_NOT_FILLERMARKED &&
+                it.fillermark
+            // <-- AM (FILLERMARK)
         }.toMutableList()
 
         if (episodesForPlayer.all { it.id != episodeId }) {
@@ -1136,6 +1142,22 @@ class PlayerViewModel @JvmOverloads constructor(
             )
         }
     }
+
+    // AM (FILLERMARK) -->
+    /**
+     * Fillermarks the currently active episode.
+     */
+    fun fillermarkEpisode(episodeId: Long?, fillermarked: Boolean) {
+        viewModelScope.launchNonCancellable {
+            updateEpisode.await(
+                EpisodeUpdate(
+                    id = episodeId!!,
+                    fillermark = fillermarked,
+                ),
+            )
+        }
+    }
+    // <-- AM (FILLERMARK)
 
     fun takeScreenshot(cachePath: String, showSubtitles: Boolean): InputStream? {
         val filename = cachePath + "/${System.currentTimeMillis()}_mpv_screenshot_tmp.png"

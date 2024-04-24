@@ -10,6 +10,9 @@ data class UpdatesWithRelations(
     val scanlator: String?,
     val seen: Boolean,
     val bookmark: Boolean,
+    // AM (FILLERMARK) -->
+    val fillermark: Boolean,
+    // <-- AM (FILLERMARK)
     val lastSecondSeen: Long,
     val totalSeconds: Long,
     val sourceId: Long,

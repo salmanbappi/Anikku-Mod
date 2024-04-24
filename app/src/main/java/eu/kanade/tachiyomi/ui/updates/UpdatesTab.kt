@@ -106,6 +106,9 @@ data object UpdatesTab : Tab {
             onUpdateLibrary = screenModel::updateLibrary,
             onDownloadEpisode = screenModel::downloadEpisodes,
             onMultiBookmarkClicked = screenModel::bookmarkUpdates,
+            // AM (FILLERMARK) -->
+            onMultiFillermarkClicked = screenModel::fillermarkUpdates,
+            // <-- AM (FILLERMARK)
             onMultiMarkAsSeenClicked = screenModel::markUpdatesSeen,
             onMultiDeleteClicked = screenModel::showConfirmDeleteEpisodes,
             onUpdateSelected = screenModel::toggleSelection,

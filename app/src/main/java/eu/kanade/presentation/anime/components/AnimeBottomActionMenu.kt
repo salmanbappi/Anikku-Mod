@@ -72,6 +72,10 @@ fun AnimeBottomActionMenu(
     modifier: Modifier = Modifier,
     onBookmarkClicked: (() -> Unit)? = null,
     onRemoveBookmarkClicked: (() -> Unit)? = null,
+    // AM (FILLERMARK) -->
+    onFillermarkClicked: (() -> Unit)? = null,
+    onRemoveFillermarkClicked: (() -> Unit)? = null,
+    // <-- AM (FILLERMARK)
     onMarkAsViewedClicked: (() -> Unit)? = null,
     onMarkAsUnviewedClicked: (() -> Unit)? = null,
     onMarkPreviousAsViewedClicked: (() -> Unit)? = null,
@@ -96,11 +100,17 @@ fun AnimeBottomActionMenu(
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
         ) {
             val haptic = LocalHapticFeedback.current
-            val confirm = remember { mutableStateListOf(false, false, false, false, false, false, false, false, false) }
+            // AM (FILLERMARK) -->
+            val confirm =
+                remember {
+                    mutableStateListOf(false, false, false, false, false, false, false, false, false, false, false)
+                }
+            val confirmRange = 0..<11
+            // <-- AM (FILLERMARK)
             var resetJob: Job? = remember { null }
             val onLongClickItem: (Int) -> Unit = { toConfirmIndex ->
                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                (0..<9).forEach { i -> confirm[i] = i == toConfirmIndex }
+                (confirmRange).forEach { i -> confirm[i] = i == toConfirmIndex }
                 resetJob?.cancel()
                 resetJob = scope.launch {
                     delay(1.seconds)
@@ -140,13 +150,33 @@ fun AnimeBottomActionMenu(
                         onClick = onRemoveBookmarkClicked,
                     )
                 }
+                // AM (FILLERMARK) -->
+                if (onFillermarkClicked != null) {
+                    Button(
+                        title = stringResource(MR.strings.action_fillermark_episode),
+                        icon = ImageVector.vectorResource(id = R.drawable.ic_fillermark_24dp),
+                        toConfirm = confirm[2],
+                        onLongClick = { onLongClickItem(2) },
+                        onClick = onFillermarkClicked,
+                    )
+                }
+                if (onRemoveFillermarkClicked != null) {
+                    Button(
+                        title = stringResource(MR.strings.action_remove_fillermark_episode),
+                        icon = ImageVector.vectorResource(id = R.drawable.ic_fillermark_border_24dp),
+                        toConfirm = confirm[3],
+                        onLongClick = { onLongClickItem(3) },
+                        onClick = onRemoveFillermarkClicked,
+                    )
+                }
+                // <-- AM (FILLERMARK)
                 if (onMarkAsViewedClicked != null) {
                     val viewed = if (isManga) MR.strings.action_mark_as_read else MR.strings.action_mark_as_seen
                     Button(
                         title = stringResource(viewed),
                         icon = Icons.Outlined.DoneAll,
-                        toConfirm = confirm[2],
-                        onLongClick = { onLongClickItem(2) },
+                        toConfirm = confirm[4],
+                        onLongClick = { onLongClickItem(4) },
                         onClick = onMarkAsViewedClicked,
                     )
                 }
@@ -155,8 +185,8 @@ fun AnimeBottomActionMenu(
                     Button(
                         title = stringResource(unviewed),
                         icon = Icons.Outlined.RemoveDone,
-                        toConfirm = confirm[3],
-                        onLongClick = { onLongClickItem(3) },
+                        toConfirm = confirm[5],
+                        onLongClick = { onLongClickItem(5) },
                         onClick = onMarkAsUnviewedClicked,
                     )
                 }
@@ -169,8 +199,8 @@ fun AnimeBottomActionMenu(
                     Button(
                         title = stringResource(previousUnviewed),
                         icon = ImageVector.vectorResource(R.drawable.ic_done_prev_24dp),
-                        toConfirm = confirm[4],
-                        onLongClick = { onLongClickItem(4) },
+                        toConfirm = confirm[6],
+                        onLongClick = { onLongClickItem(6) },
                         onClick = onMarkPreviousAsViewedClicked,
                     )
                 }
@@ -178,8 +208,8 @@ fun AnimeBottomActionMenu(
                     Button(
                         title = stringResource(MR.strings.action_download),
                         icon = Icons.Outlined.Download,
-                        toConfirm = confirm[5],
-                        onLongClick = { onLongClickItem(5) },
+                        toConfirm = confirm[7],
+                        onLongClick = { onLongClickItem(7) },
                         onClick = onDownloadClicked,
                     )
                 }
@@ -187,8 +217,8 @@ fun AnimeBottomActionMenu(
                     Button(
                         title = stringResource(MR.strings.action_delete),
                         icon = Icons.Outlined.Delete,
-                        toConfirm = confirm[6],
-                        onLongClick = { onLongClickItem(6) },
+                        toConfirm = confirm[8],
+                        onLongClick = { onLongClickItem(8) },
                         onClick = onDeleteClicked,
                     )
                 }
@@ -196,8 +226,8 @@ fun AnimeBottomActionMenu(
                     Button(
                         title = stringResource(MR.strings.action_play_externally),
                         icon = Icons.AutoMirrored.Outlined.OpenInNew,
-                        toConfirm = confirm[7],
-                        onLongClick = { onLongClickItem(7) },
+                        toConfirm = confirm[9],
+                        onLongClick = { onLongClickItem(9) },
                         onClick = onExternalClicked,
                     )
                 }
@@ -205,8 +235,8 @@ fun AnimeBottomActionMenu(
                     Button(
                         title = stringResource(MR.strings.action_play_internally),
                         icon = Icons.AutoMirrored.Outlined.Input,
-                        toConfirm = confirm[8],
-                        onLongClick = { onLongClickItem(8) },
+                        toConfirm = confirm[10],
+                        onLongClick = { onLongClickItem(10) },
                         onClick = onInternalClicked,
                     )
                 }
@@ -225,7 +255,7 @@ private fun RowScope.Button(
     content: (@Composable () -> Unit)? = null,
 ) {
     val animatedWeight by animateFloatAsState(
-        targetValue = if (toConfirm) 2f else 1f,
+        targetValue = if (toConfirm) 3f else 1f,
         label = "weight",
     )
     Column(

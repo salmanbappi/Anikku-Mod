@@ -232,6 +232,22 @@ class UpdatesScreenModel(
         toggleAllSelection(false)
     }
 
+    // AM (FILLERMARK) -->
+    /**
+     * Fillermarks the given list of episodes.
+     * @param updates the list of episodes to fillermark.
+     */
+    fun fillermarkUpdates(updates: List<UpdatesItem>, fillermark: Boolean) {
+        screenModelScope.launchIO {
+            updates
+                .filterNot { it.update.fillermark == fillermark }
+                .map { EpisodeUpdate(id = it.update.episodeId, fillermark = fillermark) }
+                .let { updateEpisode.awaitAll(it) }
+        }
+        toggleAllSelection(false)
+    }
+    // <-- AM (FILLERMARK)
+
     /**
      * Downloads the given list of episodes with the manager.
      * @param updatesItem the list of episodes to download.

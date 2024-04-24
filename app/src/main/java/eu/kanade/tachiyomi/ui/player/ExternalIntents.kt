@@ -489,6 +489,9 @@ class ExternalIntents {
                     id = currEp.id,
                     seen = seen,
                     bookmark = currEp.bookmark,
+                    // AM (FILLERMARK) -->
+                    fillermark = currEp.fillermark,
+                    // <-- AM (FILLERMARK)
                     lastSecondSeen = lastSecondSeen,
                     totalSeconds = totalSeconds,
                 ),

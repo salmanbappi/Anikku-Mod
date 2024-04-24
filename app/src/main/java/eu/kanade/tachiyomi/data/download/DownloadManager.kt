@@ -143,7 +143,10 @@ class DownloadManager(
         alt: Boolean = false,
         video: Video? = null,
     ) {
-        downloader.queueEpisodes(anime, episodes, autoStart, alt, video)
+        // AM (FILLERMARK) -->
+        val filteredEpisodes = getEpisodesToDownload(episodes)
+        downloader.queueEpisodes(anime, filteredEpisodes, autoStart, alt, video)
+        // <-- AM (FILLERMARK)
     }
 
     /**
@@ -425,6 +428,16 @@ class DownloadManager(
             filteredCategoryAnime
         }
     }
+
+    // AM (FILLERMARK) -->
+    private fun getEpisodesToDownload(episodes: List<Episode>): List<Episode> {
+        return if (!downloadPreferences.notDownloadFillermarkedItems().get()) {
+            episodes.filterNot { it.fillermark }
+        } else {
+            episodes
+        }
+    }
+    // <-- AM (FILLERMARK)
 
     fun statusFlow(): Flow<Download> = queueState
         .flatMapLatest { downloads ->

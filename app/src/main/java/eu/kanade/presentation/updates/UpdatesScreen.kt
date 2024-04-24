@@ -55,6 +55,9 @@ fun UpdateScreen(
     onUpdateLibrary: () -> Boolean,
     onDownloadEpisode: (List<UpdatesItem>, EpisodeDownloadAction) -> Unit,
     onMultiBookmarkClicked: (List<UpdatesItem>, bookmark: Boolean) -> Unit,
+    // AM (FILLERMARK) -->
+    onMultiFillermarkClicked: (List<UpdatesItem>, fillermark: Boolean) -> Unit,
+    // <-- AM (FILLERMARK)
     onMultiMarkAsSeenClicked: (List<UpdatesItem>, seen: Boolean) -> Unit,
     onMultiDeleteClicked: (List<UpdatesItem>) -> Unit,
     onUpdateSelected: (UpdatesItem, Boolean, Boolean, Boolean) -> Unit,
@@ -81,6 +84,9 @@ fun UpdateScreen(
                 selected = state.selected,
                 onDownloadEpisode = onDownloadEpisode,
                 onMultiBookmarkClicked = onMultiBookmarkClicked,
+                // AM (FILLERMARK) -->
+                onMultiFillermarkClicked = onMultiFillermarkClicked,
+                // <-- AM (FILLERMARK)
                 onMultiMarkAsSeenClicked = onMultiMarkAsSeenClicked,
                 onMultiDeleteClicked = onMultiDeleteClicked,
                 onOpenEpisode = onOpenEpisode,
@@ -193,6 +199,9 @@ private fun UpdatesBottomBar(
     selected: List<UpdatesItem>,
     onDownloadEpisode: (List<UpdatesItem>, EpisodeDownloadAction) -> Unit,
     onMultiBookmarkClicked: (List<UpdatesItem>, bookmark: Boolean) -> Unit,
+    // AM (FILLERMARK) -->
+    onMultiFillermarkClicked: (List<UpdatesItem>, fillermark: Boolean) -> Unit,
+    // <-- AM (FILLERMARK)
     onMultiMarkAsSeenClicked: (List<UpdatesItem>, seen: Boolean) -> Unit,
     onMultiDeleteClicked: (List<UpdatesItem>) -> Unit,
     onOpenEpisode: (UpdatesItem, altPlayer: Boolean) -> Unit,
@@ -207,6 +216,14 @@ private fun UpdatesBottomBar(
         onRemoveBookmarkClicked = {
             onMultiBookmarkClicked.invoke(selected, false)
         }.takeIf { selected.fastAll { it.update.bookmark } },
+        // AM (FILLERMARK) -->
+        onFillermarkClicked = {
+            onMultiFillermarkClicked.invoke(selected, true)
+        }.takeIf { selected.fastAny { !it.update.fillermark } },
+        onRemoveFillermarkClicked = {
+            onMultiFillermarkClicked.invoke(selected, false)
+        }.takeIf { selected.fastAll { it.update.fillermark } },
+        // <-- AM (FILLERMARK)
         onMarkAsViewedClicked = {
             onMultiMarkAsSeenClicked(selected, true)
         }.takeIf { selected.fastAny { !it.update.seen } },

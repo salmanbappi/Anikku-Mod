@@ -181,6 +181,9 @@ class LibraryScreenModel(
                     prefs.filterUnseen,
                     prefs.filterStarted,
                     prefs.filterBookmarked,
+                    // AM (FILLERMARK) -->
+                    prefs.filterFillermarked,
+                    // <-- AM (FILLERMARK)
                     prefs.filterCompleted,
                     prefs.filterIntervalCustom,
                 ) + trackFilter.values
@@ -216,6 +219,9 @@ class LibraryScreenModel(
         val filterUnseen = prefs.filterUnseen
         val filterStarted = prefs.filterStarted
         val filterBookmarked = prefs.filterBookmarked
+        // AM (FILLERMARK) -->
+        val filterFillermarked = prefs.filterFillermarked
+        // <-- AM (FILLERMARK)
         val filterCompleted = prefs.filterCompleted
         val filterIntervalCustom = prefs.filterIntervalCustom
 
@@ -244,6 +250,12 @@ class LibraryScreenModel(
         val filterFnBookmarked: (LibraryItem) -> Boolean = {
             applyFilter(filterBookmarked) { it.libraryAnime.hasBookmarks }
         }
+
+        // AM (FILLERMARK) -->
+        val filterFnFillermarked: (LibraryItem) -> Boolean = {
+            applyFilter(filterFillermarked) { it.libraryAnime.hasFillermarks }
+        }
+        // <-- AM (FILLERMARK)
 
         val filterFnCompleted: (LibraryItem) -> Boolean = {
             applyFilter(filterCompleted) { it.libraryAnime.anime.status.toInt() == SAnime.COMPLETED }
@@ -275,6 +287,9 @@ class LibraryScreenModel(
                 filterFnUnseen(it) &&
                 filterFnStarted(it) &&
                 filterFnBookmarked(it) &&
+                // AM (FILLERMARK) -->
+                filterFnFillermarked(it) &&
+                // <-- AM (FILLERMARK)
                 filterFnCompleted(it) &&
                 filterFnIntervalCustom(it) &&
                 filterFnTracking(it)
@@ -384,6 +399,9 @@ class LibraryScreenModel(
             libraryPreferences.filterUnseen().changes(),
             libraryPreferences.filterStartedAnime().changes(),
             libraryPreferences.filterBookmarkedAnime().changes(),
+            // AM (FILLERMARK) -->
+            libraryPreferences.filterFillermarkedAnime().changes(),
+            // <-- AM (FILLERMARK)
             libraryPreferences.filterCompletedAnime().changes(),
             libraryPreferences.filterIntervalCustom().changes(),
             transform = {
@@ -397,8 +415,11 @@ class LibraryScreenModel(
                     filterUnseen = it[6] as TriState,
                     filterStarted = it[7] as TriState,
                     filterBookmarked = it[8] as TriState,
-                    filterCompleted = it[9] as TriState,
-                    filterIntervalCustom = it[10] as TriState,
+                    // AM (FILLERMARK) -->
+                    filterFillermarked = it[9] as TriState,
+                    filterCompleted = it[10] as TriState,
+                    filterIntervalCustom = it[11] as TriState,
+                    // <-- AM (FILLERMARK)
                 )
             },
         )
@@ -941,6 +962,9 @@ class LibraryScreenModel(
         val filterUnseen: TriState,
         val filterStarted: TriState,
         val filterBookmarked: TriState,
+        // AM (FILLERMARK) -->
+        val filterFillermarked: TriState,
+        // <-- AM (FILLERMARK)
         val filterCompleted: TriState,
         val filterIntervalCustom: TriState,
     )

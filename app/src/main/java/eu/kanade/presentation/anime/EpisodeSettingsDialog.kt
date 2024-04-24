@@ -38,6 +38,9 @@ fun EpisodeSettingsDialog(
     onDownloadFilterChanged: (TriState) -> Unit,
     onUnseenFilterChanged: (TriState) -> Unit,
     onBookmarkedFilterChanged: (TriState) -> Unit,
+    // AM (FILLERMARK) -->
+    onFillermarkedFilterChanged: (TriState) -> Unit,
+    // <-- AM (FILLERMARK)
     onSortModeChanged: (Long) -> Unit,
     onDisplayModeChanged: (Long) -> Unit,
     onSetAsDefault: (applyToExistingAnime: Boolean) -> Unit,
@@ -82,6 +85,10 @@ fun EpisodeSettingsDialog(
                         onUnseenFilterChanged = onUnseenFilterChanged,
                         bookmarkedFilter = anime?.bookmarkedFilter ?: TriState.DISABLED,
                         onBookmarkedFilterChanged = onBookmarkedFilterChanged,
+                        // AM (FILLERMARK) -->
+                        fillermarkedFilter = anime?.fillermarkedFilter ?: TriState.DISABLED,
+                        onFillermarkedFilterChanged = onFillermarkedFilterChanged,
+                        // <-- AM (FILLERMARK)
                     )
                 }
                 1 -> {
@@ -110,6 +117,10 @@ private fun ColumnScope.FilterPage(
     onUnseenFilterChanged: (TriState) -> Unit,
     bookmarkedFilter: TriState,
     onBookmarkedFilterChanged: (TriState) -> Unit,
+    // AM (FILLERMARK) -->
+    fillermarkedFilter: TriState,
+    onFillermarkedFilterChanged: (TriState) -> Unit,
+    // <-- AM (FILLERMARK)
 ) {
     TriStateItem(
         label = stringResource(MR.strings.label_downloaded),
@@ -126,6 +137,13 @@ private fun ColumnScope.FilterPage(
         state = bookmarkedFilter,
         onClick = onBookmarkedFilterChanged,
     )
+    // AM (FILLERMARK) -->
+    TriStateItem(
+        label = stringResource(MR.strings.action_filter_fillermarked),
+        state = fillermarkedFilter,
+        onClick = onFillermarkedFilterChanged,
+    )
+    // <-- AM (FILLERMARK)
 }
 
 @Composable

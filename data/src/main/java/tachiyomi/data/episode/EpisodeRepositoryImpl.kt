@@ -23,6 +23,9 @@ class EpisodeRepositoryImpl(
                         episode.scanlator,
                         episode.seen,
                         episode.bookmark,
+                        // AM (FILLERMARK) -->
+                        episode.fillermark,
+                        // <-- AM (FILLERMARK)
                         episode.lastSecondSeen,
                         episode.totalSeconds,
                         episode.episodeNumber,
@@ -59,6 +62,9 @@ class EpisodeRepositoryImpl(
                     scanlator = episodeUpdate.scanlator,
                     seen = episodeUpdate.seen,
                     bookmark = episodeUpdate.bookmark,
+                    // AM (FILLERMARK) -->
+                    fillermark = episodeUpdate.fillermark,
+                    // <-- AM (FILLERMARK)
                     lastSecondSeen = episodeUpdate.lastSecondSeen,
                     totalSeconds = episodeUpdate.totalSeconds,
                     episodeNumber = episodeUpdate.episodeNumber,
@@ -94,6 +100,12 @@ class EpisodeRepositoryImpl(
         }
     }
 
+    // AM (FILLERMARK) -->
+    override suspend fun getFillermarkedEpisodesByAnimeId(animeId: Long): List<Episode> {
+        return handler.awaitList { episodesQueries.getFillermarkedEpisodesByAnimeId(animeId, ::mapEpisode) }
+    }
+    // <-- AM (FILLERMARK)
+
     override suspend fun getEpisodeById(id: Long): Episode? {
         return handler.awaitOneOrNull { episodesQueries.getEpisodeById(id, ::mapEpisode) }
     }
@@ -125,6 +137,9 @@ class EpisodeRepositoryImpl(
         scanlator: String?,
         seen: Boolean,
         bookmark: Boolean,
+        // AM (FILLERMARK) -->
+        fillermark: Boolean,
+        // <-- AM (FILLERMARK)
         lastSecondSeen: Long,
         totalSeconds: Long,
         episodeNumber: Double,
@@ -140,6 +155,9 @@ class EpisodeRepositoryImpl(
         animeId = animeId,
         seen = seen,
         bookmark = bookmark,
+        // AM (FILLERMARK) -->
+        fillermark = fillermark,
+        // <-- AM (FILLERMARK)
         lastSecondSeen = lastSecondSeen,
         totalSeconds = totalSeconds,
         dateFetch = dateFetch,

@@ -176,6 +176,9 @@ class AnimeRestorer(
             episode.copy(
                 id = dbEpisode.id,
                 bookmark = episode.bookmark || dbEpisode.bookmark,
+                // AM (FILLERMARK) -->
+                fillermark = episode.fillermark || dbEpisode.fillermark,
+                // <-- AM (FILLERMARK)
                 seen = episode.seen,
                 lastSecondSeen = episode.lastSecondSeen,
             )
@@ -189,6 +192,15 @@ class AnimeRestorer(
                     else -> it
                 }
             }
+                // KMK -->
+                .copy(
+                    id = dbEpisode.id,
+                    bookmark = episode.bookmark || dbEpisode.bookmark,
+                    // AM (FILLERMARK) -->
+                    fillermark = episode.fillermark || dbEpisode.fillermark,
+                    // <-- AM (FILLERMARK)
+                )
+            // KMK <--
         }
     }
 
@@ -205,6 +217,9 @@ class AnimeRestorer(
                     episode.scanlator,
                     episode.seen,
                     episode.bookmark,
+                    // AM (FILLERMARK) -->
+                    episode.fillermark,
+                    // <-- AM (FILLERMARK)
                     episode.lastSecondSeen,
                     episode.totalSeconds,
                     episode.episodeNumber,
@@ -227,6 +242,9 @@ class AnimeRestorer(
                     scanlator = null,
                     seen = episode.seen,
                     bookmark = episode.bookmark,
+                    // AM (FILLERMARK) -->
+                    fillermark = episode.fillermark,
+                    // <-- AM (FILLERMARK)
                     lastSecondSeen = episode.lastSecondSeen,
                     totalSeconds = episode.totalSeconds,
                     episodeNumber = null,

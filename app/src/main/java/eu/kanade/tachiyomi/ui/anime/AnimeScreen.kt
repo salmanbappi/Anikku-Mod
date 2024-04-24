@@ -200,6 +200,9 @@ class AnimeScreen(
             }.takeIf { successState.anime.favorite },
             changeAnimeSkipIntro = screenModel::showAnimeSkipIntroDialog.takeIf { successState.anime.favorite },
             onMultiBookmarkClicked = screenModel::bookmarkEpisodes,
+            // AM (FILLERMARK) -->
+            onMultiFillermarkClicked = screenModel::fillermarkEpisodes,
+            // <-- AM (FILLERMARK)
             onMultiMarkAsSeenClicked = screenModel::markEpisodesSeen,
             onMarkPreviousAsSeenClicked = screenModel::markPreviousEpisodeSeen,
             onMultiDeleteClicked = screenModel::showDeleteEpisodeDialog,
@@ -265,6 +268,9 @@ class AnimeScreen(
                 onDownloadFilterChanged = screenModel::setDownloadedFilter,
                 onUnseenFilterChanged = screenModel::setUnseenFilter,
                 onBookmarkedFilterChanged = screenModel::setBookmarkedFilter,
+                // AM (FILLERMARK) -->
+                onFillermarkedFilterChanged = screenModel::setFillermarkedFilter,
+                // <-- AM (FILLERMARK)
                 onSortModeChanged = screenModel::setSorting,
                 onDisplayModeChanged = screenModel::setDisplayMode,
                 onSetAsDefault = screenModel::setCurrentSettingsAsDefault,
