@@ -103,7 +103,10 @@ internal class ExtensionApi {
         }
 
         if (extensionsWithUpdate.isNotEmpty()) {
-            ExtensionUpdateNotifier(context).promptUpdates(extensionsWithUpdate.map { it.name })
+            ExtensionUpdateNotifier(context).promptUpdates(
+                names = extensionsWithUpdate.map { it.name },
+                anime = true,
+            )
         }
 
         return extensionsWithUpdate

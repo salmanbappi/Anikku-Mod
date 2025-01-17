@@ -51,10 +51,14 @@ data object BrowseTab : Tab {
         navigator.push(GlobalSearchScreen())
     }
 
-    private val switchToExtensionTabChannel = Channel<Unit>(1, BufferOverflow.DROP_OLDEST)
+    private val switchToTabNumberChannel = Channel<Int>(1, BufferOverflow.DROP_OLDEST)
 
     fun showExtension() {
-        switchToExtensionTabChannel.trySend(Unit)
+        switchToTabNumberChannel.trySend(3) // Manga extensions: tab no. 3
+    }
+
+    fun showAnimeExtension() {
+        switchToTabNumberChannel.trySend(2) // Anime extensions: tab no. 2
     }
 
     @Composable
@@ -82,8 +86,8 @@ data object BrowseTab : Tab {
             scrollable = true,
         )
         LaunchedEffect(Unit) {
-            switchToExtensionTabChannel.receiveAsFlow()
-                .collectLatest { state.scrollToPage(1) }
+            switchToTabNumberChannel.receiveAsFlow()
+                .collectLatest { state.scrollToPage(it) }
         }
 
         LaunchedEffect(Unit) {
