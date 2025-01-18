@@ -425,12 +425,6 @@ class PlayerActivity : BaseActivity() {
         }
     }
 
-    private fun executeMPVCommand(commands: Array<String>) {
-        if (!player.isExiting) {
-            MPVLib.command(commands)
-        }
-    }
-
     private fun setupPlayerMPV() {
         val logLevel = if (networkPreferences.verboseLogging().get()) "info" else "warn"
 
