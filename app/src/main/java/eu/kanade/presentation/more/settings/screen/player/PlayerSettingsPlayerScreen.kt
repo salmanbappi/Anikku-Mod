@@ -28,11 +28,14 @@ import eu.kanade.tachiyomi.ui.player.VLC_PLAYER
 import eu.kanade.tachiyomi.ui.player.WEB_VIDEO_CASTER
 import eu.kanade.tachiyomi.ui.player.X_PLAYER
 import eu.kanade.tachiyomi.ui.player.settings.PlayerPreferences
+import eu.kanade.tachiyomi.util.LocalHttpServerHolder
+import eu.kanade.tachiyomi.util.LocalHttpServerService
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentMap
 import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.i18n.MR
+import tachiyomi.i18n.tail.TLMR
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt
@@ -51,6 +54,7 @@ object PlayerSettingsPlayerScreen : SearchableSettings {
         val basePreferences = remember { Injekt.get<BasePreferences>() }
         val torrentServerPreferences = remember { Injekt.get<TorrentServerPreferences>() }
         val deviceSupportsPip = basePreferences.deviceHasPip()
+        val localHttpServerHolder = remember { Injekt.get<LocalHttpServerHolder>() }
 
         return listOfNotNull(
             Preference.PreferenceItem.ListPreference(
@@ -86,6 +90,7 @@ object PlayerSettingsPlayerScreen : SearchableSettings {
                 basePreferences = basePreferences,
             ),
             getTorrentServerGroup(torrentServerPreferences),
+            geCastServerGroup(localHttpServerHolder),
         )
     }
 
@@ -316,6 +321,30 @@ object PlayerSettingsPlayerScreen : SearchableSettings {
                     onClick = {
                         trackersPref.delete()
                         context.stringResource(MR.strings.requires_app_restart)
+                    },
+                ),
+            ),
+        )
+    }
+
+    @Composable
+    private fun geCastServerGroup(
+        localHttpServerHolder: LocalHttpServerHolder,
+    ): Preference.PreferenceGroup {
+        return Preference.PreferenceGroup(
+            title = stringResource(TLMR.strings.pref_category_castserver),
+            preferenceItems = persistentListOf(
+                Preference.PreferenceItem.EditTextPreference(
+                    pref = localHttpServerHolder.port(),
+                    title = stringResource(TLMR.strings.pref_cast_server_port),
+                    onValueChanged = {
+                        try {
+                            Integer.parseInt(it)
+                            LocalHttpServerService.stop()
+                            true
+                        } catch (e: Exception) {
+                            false
+                        }
                     },
                 ),
             ),

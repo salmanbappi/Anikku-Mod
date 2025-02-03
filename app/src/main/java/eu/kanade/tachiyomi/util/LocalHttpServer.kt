@@ -9,9 +9,9 @@ import tachiyomi.core.common.util.system.logcat
 import java.net.URLConnection
 
 class LocalHttpServer(
-    port: Int,
+    port: String,
     private val contentResolver: ContentResolver,
-) : NanoHTTPD(port) {
+) : NanoHTTPD(port.toInt()) {
 
     @SuppressLint("Recycle")
     override fun serve(session: IHTTPSession): Response {
@@ -41,7 +41,6 @@ class LocalHttpServer(
         val rangeHeader = session.headers["range"]
         if (rangeHeader != null && fileLength > 0) {
             try {
-
                 val range = rangeHeader.replace("bytes=", "").split("-")
                 val start = range.getOrNull(0)?.toLongOrNull() ?: 0L
                 val end = range.getOrNull(1)?.toLongOrNull() ?: (fileLength - 1)
@@ -68,8 +67,4 @@ class LocalHttpServer(
             newFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "File not found")
         }
     }
-}
-
-object LocalHttpServerHolder {
-    const val PORT = 8181
 }
