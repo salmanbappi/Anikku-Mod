@@ -46,6 +46,8 @@ class ConnectionPreferences(
 
     fun discordShowDiscordButton() = preferenceStore.getBoolean("pref_discord_show_discord_button", true)
 
+    fun discordAccounts() = preferenceStore.getString("discord_accounts", "")
+
     companion object {
 
         fun connectionUsername(connectionId: Long) = "pref_anime_connections_username_$connectionId"
