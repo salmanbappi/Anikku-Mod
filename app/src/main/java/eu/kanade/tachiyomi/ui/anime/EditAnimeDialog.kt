@@ -67,11 +67,11 @@ fun EditAnimeDialog(
                     val binding = binding ?: return@TextButton
                     onPositiveClick(
                         binding.title.text.toString(),
-                        binding.animeAuthor.text.toString(),
-                        binding.animeArtist.text.toString(),
+                        binding.mangaAuthor.text.toString(),
+                        binding.mangaArtist.text.toString(),
                         binding.thumbnailUrl.text.toString(),
-                        binding.animeDescription.text.toString(),
-                        binding.animeGenresTags.getTextStrings(),
+                        binding.mangaDescription.text.toString(),
+                        binding.mangaGenresTags.getTextStrings(),
                         binding.status.selectedItemPosition.let {
                             when (it) {
                                 1 -> SAnime.ONGOING
@@ -162,35 +162,35 @@ private fun onViewCreated(
         }
 
         binding.title.hint = context.getString(R.string.title_hint, anime.url)
-        binding.animeAuthor.setText(anime.author.orEmpty())
-        binding.animeArtist.setText(anime.artist.orEmpty())
-        binding.animeDescription.setText(anime.description.orEmpty())
-        binding.animeGenresTags.setChips(anime.genre.orEmpty().dropBlank(), scope)
+        binding.mangaAuthor.setText(anime.author.orEmpty())
+        binding.mangaArtist.setText(anime.artist.orEmpty())
+        binding.mangaDescription.setText(anime.description.orEmpty())
+        binding.mangaGenresTags.setChips(anime.genre.orEmpty().dropBlank(), scope)
     } else {
         if (anime.title != anime.ogTitle) {
             binding.title.append(anime.title)
         }
         if (anime.author != anime.ogAuthor) {
-            binding.animeAuthor.append(anime.author.orEmpty())
+            binding.mangaAuthor.append(anime.author.orEmpty())
         }
         if (anime.artist != anime.ogArtist) {
-            binding.animeArtist.append(anime.artist.orEmpty())
+            binding.mangaArtist.append(anime.artist.orEmpty())
         }
         if (anime.description != anime.ogDescription) {
-            binding.animeDescription.append(anime.description.orEmpty())
+            binding.mangaDescription.append(anime.description.orEmpty())
         }
-        binding.animeGenresTags.setChips(anime.genre.orEmpty().dropBlank(), scope)
+        binding.mangaGenresTags.setChips(anime.genre.orEmpty().dropBlank(), scope)
 
         binding.title.hint = context.getString(R.string.title_hint, anime.ogTitle)
-        binding.animeAuthor.hint = context.getString(R.string.author_hint, anime.ogAuthor ?: "")
-        binding.animeArtist.hint = context.getString(R.string.artist_hint, anime.ogArtist ?: "")
-        binding.animeDescription.hint =
+        binding.mangaAuthor.hint = context.getString(R.string.author_hint, anime.ogAuthor ?: "")
+        binding.mangaArtist.hint = context.getString(R.string.artist_hint, anime.ogArtist ?: "")
+        binding.mangaDescription.hint =
             context.getString(
                 R.string.description_hint,
                 anime.ogDescription?.takeIf { it.isNotBlank() }?.replace("\n", " ")?.chop(20) ?: "",
             )
     }
-    binding.animeGenresTags.clearFocus()
+    binding.mangaGenresTags.clearFocus()
 
     binding.resetTags.setOnClickListener { resetTags(anime, binding, scope) }
     // SY -->
@@ -200,22 +200,22 @@ private fun onViewCreated(
 
 private fun resetTags(anime: Anime, binding: EditAnimeDialogBinding, scope: CoroutineScope) {
     if (anime.genre.isNullOrEmpty() || anime.isLocal()) {
-        binding.animeGenresTags.setChips(emptyList(), scope)
+        binding.mangaGenresTags.setChips(emptyList(), scope)
     } else {
-        binding.animeGenresTags.setChips(anime.ogGenre.orEmpty(), scope)
+        binding.mangaGenresTags.setChips(anime.ogGenre.orEmpty(), scope)
     }
 }
 
 private fun resetInfo(anime: Anime, binding: EditAnimeDialogBinding, scope: CoroutineScope) {
     binding.title.setText("")
-    binding.animeAuthor.setText("")
-    binding.animeArtist.setText("")
-    binding.animeDescription.setText("")
+    binding.mangaAuthor.setText("")
+    binding.mangaArtist.setText("")
+    binding.mangaDescription.setText("")
     resetTags(anime, binding, scope)
 }
 
 private fun loadCover(anime: Anime, binding: EditAnimeDialogBinding) {
-    binding.animeCover.load(anime) {
+    binding.mangaCover.load(anime) {
         transformations(RoundedCornersTransformation(4.dpToPx.toFloat()))
     }
 }
