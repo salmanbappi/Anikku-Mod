@@ -206,7 +206,7 @@ class CastManager(
 
     // Quality Selection
     fun handleQualitySelection() {
-        viewModel?.videoList?.filter { it.isNotEmpty() }
+        viewModel?.currentPlaylist?.filter { it.isNotEmpty() }
             ?.onEach { videos ->
                 val hasQueueItems = (castSession?.remoteMediaClient?.mediaQueue?.itemCount ?: 0) > 0
                 val hasMultipleQualities = videos.size > 1
@@ -245,8 +245,8 @@ class CastManager(
             try {
                 isLoadingMedia = true
                 _isLoading.value = true
-                val selectedIndex = viewModel!!.selectedVideoIndex.value
-                val mediaInfo = mediaBuilder!!.buildMediaInfo(selectedIndex)
+                val selectedIndex = viewModel!!.selectedHosterVideoIndex.value
+                val mediaInfo = mediaBuilder!!.buildMediaInfo(selectedIndex.second)
                 val currentLocalPosition = (player?.timePos ?: 0).toLong()
 
                 updateQueueItems()

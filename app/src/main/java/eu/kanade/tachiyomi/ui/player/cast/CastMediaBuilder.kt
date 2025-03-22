@@ -31,10 +31,10 @@ class CastMediaBuilder(
     private val port = prefserver.port().get()
 
     suspend fun buildMediaInfo(index: Int): MediaInfo = withContext(Dispatchers.IO) {
-        val video = viewModel.videoList.value.getOrNull(index)
+        val video = viewModel.hosterList.value.getOrNull(index)
             ?: throw IllegalStateException("Invalid video index: $index")
 
-        var videoUrl = video.videoUrl ?: throw IllegalStateException("Video URL is null")
+        var videoUrl = video.hosterUrl
         logcat(LogPriority.DEBUG) { "Video URL: $videoUrl" }
 
         videoUrl = when {
@@ -42,7 +42,7 @@ class CastMediaBuilder(
             videoUrl.startsWith(
                 "magnet",
             ) ||
-                videoUrl.endsWith(".torrent") -> torrentLinkHandler(videoUrl, video.quality)
+                videoUrl.endsWith(".torrent") -> torrentLinkHandler(videoUrl, video.hosterUrl)
             else -> videoUrl
         }
 
