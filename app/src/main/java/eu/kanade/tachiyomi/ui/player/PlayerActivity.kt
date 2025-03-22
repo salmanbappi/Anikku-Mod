@@ -297,17 +297,23 @@ class PlayerActivity : BaseActivity() {
     }
 
     override fun onDestroy() {
+        player.isExiting = true
+
         audioFocusRequest?.let {
             AudioManagerCompat.abandonAudioFocusRequest(audioManager, it)
         }
         audioFocusRequest = null
-        mediaSession?.release()
+
+        mediaSession?.let {
+            it.isActive = false
+            it.release()
+        }
+
         if (noisyReceiver.initialized) {
             unregisterReceiver(noisyReceiver)
             noisyReceiver.initialized = false
         }
 
-        player.isExiting = true
         MPVLib.removeLogObserver(playerObserver)
         MPVLib.removeObserver(playerObserver)
         player.destroy()
@@ -320,19 +326,27 @@ class PlayerActivity : BaseActivity() {
     }
 
     override fun onPause() {
+        viewModel.saveCurrentEpisodeWatchingProgress()
+
         // Mantener sesión Cast activa
         castManager.maintainCastSessionBackground()
-        if (!isInPictureInPictureMode) {
-            viewModel.pause()
+
+        if (isInPictureInPictureMode) {
+            super.onPause()
+            return
         }
-        viewModel.saveCurrentEpisodeWatchingProgress()
+
+        player.isExiting = true
+        if (isFinishing) {
+            MPVLib.command(arrayOf("stop"))
+        }
+
         updateDiscordRPC(exitingPlayer = false)
+
         super.onPause()
     }
 
     override fun onStop() {
-        viewModel.pause()
-        viewModel.saveCurrentEpisodeWatchingProgress()
         window.attributes.screenBrightness.let {
             if (playerPreferences.rememberPlayerBrightness().get() && it != -1f) {
                 playerPreferences.playerBrightnessValue().set(it)
