@@ -1950,7 +1950,7 @@ class PlayerViewModel @JvmOverloads constructor(
                     waitingSkipIntro--
                 } else if (autoSkip) {
                     seekToWithText(
-                        seekDuration = nextChapterPos.toInt(),
+                        seekValue = nextChapterPos.toInt(),
                         text = activity.stringResource(MR.strings.player_intro_skipped, chapter.name),
                     )
                 } else {
@@ -1978,8 +1978,8 @@ class PlayerViewModel @JvmOverloads constructor(
             if (waitingTime > 0) {
                 _skipIntroText.update { _ -> activity.stringResource(MR.strings.player_aniskip_dontskip) }
             } else {
-                rightSeekToWithText(
-                    seekDuration = nextChapterPos.toInt(),
+                seekToWithText(
+                    seekValue = nextChapterPos.toInt(),
                     text = activity.stringResource(MR.strings.player_aniskip_skip, chapter.name),
                 )
             }
@@ -1999,8 +1999,8 @@ class PlayerViewModel @JvmOverloads constructor(
 
             val nextChapterPos = chapters.value.getOrNull(chapterIndex + 1)?.start ?: pos.value
 
-            rightSeekToWithText(
-                seekDuration = nextChapterPos.toInt(),
+            seekToWithText(
+                seekValue = nextChapterPos.toInt(),
                 text = activity.stringResource(MR.strings.player_aniskip_skip, chapter.name),
             )
         }
