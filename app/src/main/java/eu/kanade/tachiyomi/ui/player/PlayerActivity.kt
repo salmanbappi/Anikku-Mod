@@ -348,6 +348,8 @@ class PlayerActivity : BaseActivity() {
         player.isExiting = true
         if (isFinishing) {
             MPVLib.command(arrayOf("stop"))
+        } else {
+            viewModel.pause()
         }
 
         updateDiscordRPC(exitingPlayer = false)
@@ -650,6 +652,12 @@ class PlayerActivity : BaseActivity() {
             reconnect()
             registerSessionListener()
         }
+        if (!player.isExiting) {
+            super.onResume()
+            return
+        }
+
+        player.isExiting = false
         super.onResume()
 
         viewModel.currentVolume.update {
