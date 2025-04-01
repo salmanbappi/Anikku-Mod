@@ -625,7 +625,7 @@ class PlayerViewModel @JvmOverloads constructor(
         _areControlsLocked.update { false }
     }
 
-    private fun dismissSheet() {
+    fun dismissSheet() {
         _dismissSheet.update { _ -> true }
     }
 
