@@ -77,6 +77,9 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.mikepenz.markdown.model.markdownAnnotator
+import com.mikepenz.markdown.model.markdownAnnotatorConfig
+import eu.kanade.presentation.manga.components.MarkdownRender
 import eu.kanade.presentation.components.DropdownMenu
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.source.model.SAnime
@@ -93,8 +96,6 @@ import tachiyomi.presentation.core.util.secondaryItemAlpha
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import kotlin.math.roundToInt
-
-private val whitespaceLineRegex = Regex("[\\r\\n]{2,}", setOf(RegexOption.MULTILINE))
 
 @Composable
 fun AnimeInfoBox(
@@ -247,14 +248,9 @@ fun ExpandableAnimeDescription(
         }
         val desc =
             description.takeIf { !it.isNullOrBlank() } ?: stringResource(MR.strings.description_placeholder)
-        val trimmedDescription = remember(desc) {
-            desc
-                .replace(whitespaceLineRegex, "\n")
-                .trimEnd()
-        }
+
         AnimeSummary(
-            expandedDescription = desc,
-            shrunkDescription = trimmedDescription,
+            description = desc,
             expanded = expanded,
             modifier = Modifier
                 .padding(top = 8.dp)
@@ -556,10 +552,15 @@ private fun ColumnScope.AnimeContentInfo(
     }
 }
 
+private val descriptionAnnotator = markdownAnnotator(
+    config = markdownAnnotatorConfig(
+        eolAsNewLine = true,
+    ),
+)
+
 @Composable
 private fun AnimeSummary(
-    expandedDescription: String,
-    shrunkDescription: String,
+    description: String,
     expanded: Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -574,18 +575,19 @@ private fun AnimeSummary(
                 )
             },
             {
-                Text(
-                    text = expandedDescription,
-                    style = MaterialTheme.typography.bodyMedium,
+                // expanded: calculate maximum size when expanded
+                MarkdownRender(
+                    content = description,
+                    annotator = descriptionAnnotator,
+                    modifier = Modifier.secondaryItemAlpha(),
                 )
             },
             {
+                // actual: the actual displayed content
                 SelectionContainer {
-                    Text(
-                        text = if (expanded) expandedDescription else shrunkDescription,
-                        maxLines = Int.MAX_VALUE,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onBackground,
+                    MarkdownRender(
+                        content = description,
+                        annotator = descriptionAnnotator,
                         modifier = Modifier.secondaryItemAlpha(),
                     )
                 }
