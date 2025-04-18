@@ -39,12 +39,12 @@ import eu.kanade.presentation.util.AssistContentScreen
 import eu.kanade.presentation.util.Screen
 import eu.kanade.presentation.util.formatEpisodeNumber
 import eu.kanade.presentation.util.isTabletUi
-import eu.kanade.tachiyomi.animesource.AnimeSource
-import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import eu.kanade.tachiyomi.data.torrentServer.TorrentServerUtils
 import eu.kanade.tachiyomi.data.torrentServer.service.TorrentServerService
+import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.source.isLocalOrStub
 import eu.kanade.tachiyomi.source.isSourceForTorrents
+import eu.kanade.tachiyomi.source.online.HttpSource
 import eu.kanade.tachiyomi.ui.anime.track.TrackInfoDialogHomeScreen
 import eu.kanade.tachiyomi.ui.browse.migration.search.MigrateDialog
 import eu.kanade.tachiyomi.ui.browse.migration.search.MigrateDialogScreenModel
@@ -105,10 +105,10 @@ class AnimeScreen(
         }
 
         val successState = state as AnimeScreenModel.State.Success
-        val isAnimeHttpSource = remember { successState.source is AnimeHttpSource }
+        val isHttpSource = remember { successState.source is HttpSource }
 
         LaunchedEffect(successState.anime, screenModel.source) {
-            if (isAnimeHttpSource) {
+            if (isHttpSource) {
                 try {
                     withIOContext {
                         assistUrl = getAnimeUrl(screenModel.anime, screenModel.source)
@@ -154,14 +154,14 @@ class AnimeScreen(
                     screenModel.anime,
                     screenModel.source,
                 )
-            }.takeIf { isAnimeHttpSource },
+            }.takeIf { isHttpSource },
             onWebViewLongClicked = {
                 copyAnimeUrl(
                     context,
                     screenModel.anime,
                     screenModel.source,
                 )
-            }.takeIf { isAnimeHttpSource },
+            }.takeIf { isHttpSource },
             onTrackingClicked = {
                 if (!successState.hasLoggedInTrackers) {
                     navigator.push(SettingsScreen(SettingsScreen.Destination.Tracking))
@@ -186,7 +186,7 @@ class AnimeScreen(
                     screenModel.anime,
                     screenModel.source,
                 )
-            }.takeIf { isAnimeHttpSource },
+            }.takeIf { isHttpSource },
             onDownloadActionClicked = screenModel::runDownloadAction.takeIf { !successState.source.isLocalOrStub() },
             onEditCategoryClicked = screenModel::showChangeCategoryDialog.takeIf { successState.anime.favorite },
             // SY -->
@@ -328,7 +328,6 @@ class AnimeScreen(
                     interval = dialog.anime.fetchInterval,
                     nextUpdate = dialog.anime.expectedNextUpdate,
                     onDismissRequest = onDismissRequest,
-                    isManga = false,
                     onValueChanged = { interval: Int -> screenModel.setFetchInterval(dialog.anime, interval) }
                         .takeIf { screenModel.isUpdateIntervalEnabled },
                 )
@@ -394,9 +393,9 @@ class AnimeScreen(
         }
     }
 
-    private fun getAnimeUrl(anime_: Anime?, source_: AnimeSource?): String? {
+    private fun getAnimeUrl(anime_: Anime?, source_: Source?): String? {
         val anime = anime_ ?: return null
-        val source = source_ as? AnimeHttpSource ?: return null
+        val source = source_ as? HttpSource ?: return null
 
         return try {
             source.getAnimeUrl(anime.toSAnime())
@@ -405,7 +404,7 @@ class AnimeScreen(
         }
     }
 
-    private fun openAnimeInWebView(navigator: Navigator, anime_: Anime?, source_: AnimeSource?) {
+    private fun openAnimeInWebView(navigator: Navigator, anime_: Anime?, source_: Source?) {
         getAnimeUrl(anime_, source_)?.let { url ->
             navigator.push(
                 WebViewScreen(
@@ -417,7 +416,7 @@ class AnimeScreen(
         }
     }
 
-    private fun shareAnime(context: Context, anime_: Anime?, source_: AnimeSource?) {
+    private fun shareAnime(context: Context, anime_: Anime?, source_: Source?) {
         try {
             getAnimeUrl(anime_, source_)?.let { url ->
                 val intent = url.toUri().toShareIntent(context, type = "text/plain")
@@ -468,14 +467,14 @@ class AnimeScreen(
     private suspend fun performGenreSearch(
         navigator: Navigator,
         genreName: String,
-        source: AnimeSource,
+        source: Source,
     ) {
         if (navigator.size < 2) {
             return
         }
 
         val previousController = navigator.items[navigator.size - 2]
-        if (previousController is BrowseSourceScreen && source is AnimeHttpSource) {
+        if (previousController is BrowseSourceScreen && source is HttpSource) {
             navigator.pop()
             previousController.searchGenre(genreName)
         } else {
@@ -486,9 +485,9 @@ class AnimeScreen(
     /**
      * Copy Anime URL to Clipboard
      */
-    private fun copyAnimeUrl(context: Context, anime_: Anime?, source_: AnimeSource?) {
+    private fun copyAnimeUrl(context: Context, anime_: Anime?, source_: Source?) {
         val anime = anime_ ?: return
-        val source = source_ as? AnimeHttpSource ?: return
+        val source = source_ as? HttpSource ?: return
         val url = source.getAnimeUrl(anime.toSAnime())
         context.copyToClipboard(url, url)
     }

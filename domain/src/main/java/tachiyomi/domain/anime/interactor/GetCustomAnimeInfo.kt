@@ -6,5 +6,5 @@ class GetCustomAnimeInfo(
     private val customAnimeRepository: CustomAnimeRepository,
 ) {
 
-    fun get(animeId: Long) = customAnimeRepository.get(animeId)
+    fun get(mangaId: Long) = customAnimeRepository.get(mangaId)
 }

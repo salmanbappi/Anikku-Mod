@@ -20,9 +20,40 @@ SELECT
     episodes.date_fetch AS datefetch
 FROM animes JOIN episodes
 ON animes._id = episodes.anime_id
-WHERE favorite = 1
+WHERE favorite = 1 AND source <> 6969
 AND date_fetch > date_added
-ORDER BY date_fetch DESC;
+UNION
+SELECT
+    animes._id AS animeId,
+    animes.title AS animeTitle,
+    episodes._id AS episodeId,
+    episodes.name AS episodeName,
+    episodes.scanlator,
+    episodes.seen,
+    episodes.bookmark,
+    -- AM (FILLERMARK) -->
+    episodes.fillermark,
+    -- <-- AM (FILLERMARK)
+    episodes.last_second_seen,
+    episodes.total_seconds AS totalSeconds,
+    animes.source,
+    animes.favorite,
+    animes.thumbnail_url AS thumbnailUrl,
+    animes.cover_last_modified AS coverLastModified,
+    episodes.date_upload AS dateUpload,
+    episodes.date_fetch AS datefetch
+FROM animes
+LEFT JOIN (
+    SELECT merged.anime_id,merged.merge_id
+    FROM merged
+    GROUP BY merged.merge_id
+) AS ME
+ON ME.merge_id = animes._id
+JOIN episodes
+ON animes._id = episodes.anime_id
+WHERE favorite = 1 AND source = 6969
+AND date_fetch > date_added
+ORDER BY datefetch DESC;
 
 getRecentUpdates:
 SELECT *
@@ -35,5 +66,4 @@ SELECT *
 FROM updatesView
 WHERE seen = :seen
 AND dateUpload > :after
-
 LIMIT :limit;

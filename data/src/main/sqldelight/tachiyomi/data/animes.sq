@@ -1,7 +1,7 @@
-import eu.kanade.tachiyomi.animesource.model.AnimeUpdateStrategy;
+import eu.kanade.tachiyomi.source.model.UpdateStrategy;
+import kotlin.collections.List;
 import kotlin.Boolean;
 import kotlin.String;
-import kotlin.collections.List;
 
 CREATE TABLE animes(
     _id INTEGER NOT NULL PRIMARY KEY,
@@ -22,7 +22,8 @@ CREATE TABLE animes(
     episode_flags INTEGER NOT NULL,
     cover_last_modified INTEGER NOT NULL,
     date_added INTEGER NOT NULL,
-    update_strategy INTEGER AS AnimeUpdateStrategy NOT NULL DEFAULT 0,
+    filtered_scanlators TEXT,
+    update_strategy INTEGER AS UpdateStrategy NOT NULL DEFAULT 0,
     calculate_interval INTEGER DEFAULT 0 NOT NULL,
     last_modified_at INTEGER NOT NULL DEFAULT 0,
     favorite_modified_at INTEGER,
@@ -30,7 +31,7 @@ CREATE TABLE animes(
     is_syncing INTEGER NOT NULL DEFAULT 0
 );
 
-CREATE INDEX animelib_favorite_index ON animes(favorite) WHERE favorite = 1;
+CREATE INDEX library_favorite_index ON animes(favorite) WHERE favorite = 1;
 CREATE INDEX animes_url_index ON animes(url);
 
 CREATE TRIGGER update_last_favorite_at_animes
@@ -69,7 +70,8 @@ WHERE _id = :id;
 getAnimeByUrlAndSource:
 SELECT *
 FROM animes
-WHERE url = :url AND source = :source
+WHERE url = :url
+AND source = :source
 LIMIT 1;
 
 getFavorites:
@@ -145,7 +147,19 @@ GROUP BY source;
 
 deleteAnimesNotInLibraryBySourceIds:
 DELETE FROM animes
-WHERE favorite = 0 AND source IN :sourceIds;
+WHERE favorite = 0
+AND source IN :sourceIds
+AND _id NOT IN (
+    SELECT anime_id FROM merged WHERE anime_id != merge_id
+);
+
+deleteAnimesNotInLibraryAndNotSeenBySourceIds:
+DELETE FROM animes
+WHERE favorite = 0 AND source IN :sourceIdsAND AND _id NOT IN (
+    SELECT anime_id FROM merged WHERE anime_id != merge_id
+) AND _id NOT IN (
+    SELECT anime_id FROM episodes WHERE seen = 1 OR last_second_seen != 0
+);
 
 insert:
 INSERT INTO animes(source, url, artist, author, description, genre, title, status, thumbnail_url, favorite, last_update, next_update, initialized, viewer, episode_flags, cover_last_modified, date_added, update_strategy, calculate_interval, last_modified_at, version)
@@ -178,3 +192,21 @@ WHERE _id = :animeId;
 
 selectLastInsertedRowId:
 SELECT last_insert_rowid();
+getBySource:
+SELECT * FROM animes WHERE source = :sourceId;
+
+getAll:
+SELECT * FROM animes;
+
+deleteById:
+DELETE FROM animes WHERE _id = :id;
+
+selectLastInsertRow:
+SELECT *
+FROM animes
+WHERE _id = last_insert_rowid();
+
+getIdByUrlAndSource:
+SELECT _id
+FROM animes
+WHERE url = :url AND source = :source;

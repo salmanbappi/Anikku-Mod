@@ -45,8 +45,8 @@ internal fun Project.configureAndroid(commonExtension: CommonExtension<*, *, *, 
         compilerOptions {
             jvmTarget.set(AndroidConfig.JvmTarget)
             freeCompilerArgs.addAll(
-                "-opt-in=kotlin.RequiresOptIn",
                 "-Xcontext-receivers",
+                "-opt-in=kotlin.RequiresOptIn",
             )
 
             // Treat all Kotlin warnings as errors (disabled by default)
@@ -92,6 +92,7 @@ internal fun Project.configureCompose(commonExtension: CommonExtension<*, *, *, 
             rootBuildDir.resolve("compose-reports").resolve(relativePath).let(reportsDestination::set)
         }
     }
+
 }
 
 internal fun Project.configureTest() {

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="splash">@color/accent_blue</color>
+    <color name="splash">#FBEDED</color>
 
-    <color name="cover_placeholder">#1F888888</color>
+    <color name="cover_placeholder">#4F888888</color>
 
     <!-- Default Theme -->
     <color name="divider_default">@color/md_black_1000_12</color>

@@ -30,49 +30,54 @@ object EpisodeRecognition {
      */
     private val unwantedWhiteSpace = Regex("""\s(?=extra|special|omake)""")
 
-    fun parseEpisodeNumber(animeTitle: String, episodeName: String, episodeNumber: Double? = null): Double {
-        // If episode number is known return.
-        if (episodeNumber != null && (episodeNumber == -2.0 || episodeNumber > -1.0)) {
-            return episodeNumber
+    fun parseEpisodeNumber(
+        mangaTitle: String,
+        chapterName: String,
+        chapterNumber: Double? = null,
+    ): Double {
+        // If chapter number is known return.
+        if (chapterNumber != null && (chapterNumber == -2.0 || chapterNumber > -1.0)) {
+            return chapterNumber
         }
 
-        // Get episode title with lower case
-        val cleanEpisodeName = episodeName.lowercase()
-            // Remove anime title from episode title.
-            .replace(animeTitle.lowercase(), "").trim()
+        // Get chapter title with lower case
+        val cleanChapterName = chapterName.lowercase()
+            // Remove manga title from chapter title.
+            .replace(mangaTitle.lowercase(), "").trim()
             // Remove comma's or hyphens.
             .replace(',', '.')
             .replace('-', '.')
             // Remove unwanted white spaces.
             .replace(unwantedWhiteSpace, "")
 
-        val numberMatch = number.findAll(cleanEpisodeName)
+        val numberMatch = number.findAll(cleanChapterName)
 
         when {
             numberMatch.none() -> {
-                return episodeNumber ?: -1.0
+                return chapterNumber ?: -1.0
             }
             numberMatch.count() > 1 -> {
                 // Remove unwanted tags.
-                unwanted.replace(cleanEpisodeName, "").let { name ->
+                unwanted.replace(cleanChapterName, "").let { name ->
                     // Check base case ep.xx
-                    basic.find(name)?.let { return getEpisodeNumberFromMatch(it) }
+                    basic.find(name)?.let { return getChapterNumberFromMatch(it) }
 
                     // need to find again first number might already removed
-                    number.find(name)?.let { return getEpisodeNumberFromMatch(it) }
+                    number.find(name)?.let { return getChapterNumberFromMatch(it) }
                 }
             }
         }
 
-        return getEpisodeNumberFromMatch(numberMatch.first())
+        // return the first number encountered
+        return getChapterNumberFromMatch(numberMatch.first())
     }
 
     /**
-     * Check if episode number is found and return it
+     * Check if chapter number is found and return it
      * @param match result of regex
      * @return chapter number if found else null
      */
-    private fun getEpisodeNumberFromMatch(match: MatchResult): Double {
+    private fun getChapterNumberFromMatch(match: MatchResult): Double {
         return match.let {
             val initial = it.groups[1]?.value?.toDouble()!!
             val subChapterDecimal = it.groups[2]?.value

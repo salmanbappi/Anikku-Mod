@@ -2,10 +2,12 @@ package tachiyomi.presentation.widget.components
 
 import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
+import androidx.glance.background
 import androidx.glance.layout.Box
 import androidx.glance.layout.ContentScale
 import androidx.glance.layout.fillMaxSize
@@ -20,10 +22,16 @@ val CoverHeight = 87.dp
 fun UpdatesAnimeCover(
     cover: Bitmap?,
     modifier: GlanceModifier = GlanceModifier,
+    // KMK -->
+    color: Color? = null,
+    // KMK <--
 ) {
     Box(
         modifier = modifier
             .size(width = CoverWidth, height = CoverHeight)
+            // KMK -->
+            .background(color ?: Color.Unspecified)
+            // KMK <--
             .appWidgetInnerRadius(),
     ) {
         if (cover != null) {

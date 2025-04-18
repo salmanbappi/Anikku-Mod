@@ -12,7 +12,7 @@ class DelayedTrackingStore(context: Context) {
      */
     private val preferences = context.getSharedPreferences("tracking_queue", Context.MODE_PRIVATE)
 
-    fun addAnime(trackId: Long, lastEpisodeSeen: Double) {
+    fun add(trackId: Long, lastEpisodeSeen: Double) {
         val previousLastEpisodeSeen = preferences.getFloat(trackId.toString(), 0f)
         if (lastEpisodeSeen > previousLastEpisodeSeen) {
             logcat(LogPriority.DEBUG) { "Queuing track item: $trackId, last episode seen: $lastEpisodeSeen" }
@@ -22,22 +22,22 @@ class DelayedTrackingStore(context: Context) {
         }
     }
 
-    fun removeAnimeItem(trackId: Long) {
+    fun remove(trackId: Long) {
         preferences.edit {
             remove(trackId.toString())
         }
     }
 
-    fun getAnimeItems(): List<DelayedAnimeTrackingItem> {
+    fun getItems(): List<DelayedTrackingItem> {
         return preferences.all.mapNotNull {
-            DelayedAnimeTrackingItem(
+            DelayedTrackingItem(
                 trackId = it.key.toLong(),
                 lastEpisodeSeen = it.value.toString().toFloat(),
             )
         }
     }
 
-    data class DelayedAnimeTrackingItem(
+    data class DelayedTrackingItem(
         val trackId: Long,
         val lastEpisodeSeen: Float,
     )

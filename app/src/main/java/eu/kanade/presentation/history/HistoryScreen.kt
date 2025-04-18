@@ -103,7 +103,7 @@ fun HistoryScreen(
 
 @Composable
 private fun HistoryScreenContent(
-    history: List<AnimeHistoryUiModel>,
+    history: List<HistoryUiModel>,
     contentPadding: PaddingValues,
     onClickCover: (HistoryWithRelations) -> Unit,
     onClickResume: (HistoryWithRelations) -> Unit,
@@ -117,19 +117,19 @@ private fun HistoryScreenContent(
             key = { "history-${it.hashCode()}" },
             contentType = {
                 when (it) {
-                    is AnimeHistoryUiModel.Header -> "header"
-                    is AnimeHistoryUiModel.Item -> "item"
+                    is HistoryUiModel.Header -> "header"
+                    is HistoryUiModel.Item -> "item"
                 }
             },
         ) { item ->
             when (item) {
-                is AnimeHistoryUiModel.Header -> {
+                is HistoryUiModel.Header -> {
                     ListGroupHeader(
                         modifier = Modifier.animateItemFastScroll(),
                         text = relativeDateText(item.date),
                     )
                 }
-                is AnimeHistoryUiModel.Item -> {
+                is HistoryUiModel.Item -> {
                     val value = item.item
                     HistoryItem(
                         modifier = Modifier.animateItemFastScroll(),
@@ -144,9 +144,9 @@ private fun HistoryScreenContent(
     }
 }
 
-sealed interface AnimeHistoryUiModel {
-    data class Header(val date: LocalDate) : AnimeHistoryUiModel
-    data class Item(val item: HistoryWithRelations) : AnimeHistoryUiModel
+sealed interface HistoryUiModel {
+    data class Header(val date: LocalDate) : HistoryUiModel
+    data class Item(val item: HistoryWithRelations) : HistoryUiModel
 }
 
 @PreviewLightDark

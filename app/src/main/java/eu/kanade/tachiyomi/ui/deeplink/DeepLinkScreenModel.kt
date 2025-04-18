@@ -6,11 +6,11 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import eu.kanade.domain.anime.model.toDomainAnime
 import eu.kanade.domain.anime.model.toSAnime
 import eu.kanade.domain.episode.interactor.SyncEpisodesWithSource
-import eu.kanade.tachiyomi.animesource.AnimeSource
-import eu.kanade.tachiyomi.animesource.model.SAnime
-import eu.kanade.tachiyomi.animesource.model.SEpisode
-import eu.kanade.tachiyomi.animesource.online.ResolvableAnimeSource
 import eu.kanade.tachiyomi.animesource.online.UriType
+import eu.kanade.tachiyomi.source.Source
+import eu.kanade.tachiyomi.source.model.SAnime
+import eu.kanade.tachiyomi.source.model.SEpisode
+import eu.kanade.tachiyomi.source.online.ResolvableSource
 import kotlinx.coroutines.flow.update
 import tachiyomi.core.common.util.lang.launchIO
 import tachiyomi.domain.anime.interactor.GetAnimeByUrlAndSourceId
@@ -34,7 +34,7 @@ class DeepLinkScreenModel(
     init {
         screenModelScope.launchIO {
             val source = sourceManager.getCatalogueSources()
-                .filterIsInstance<ResolvableAnimeSource>()
+                .filterIsInstance<ResolvableSource>()
                 .firstOrNull { it.getUriType(query) != UriType.Unknown }
 
             val anime = source?.getAnime(query)?.let {
@@ -61,7 +61,7 @@ class DeepLinkScreenModel(
         }
     }
 
-    private suspend fun getEpisodeFromSEpisode(sEpisode: SEpisode, anime: Anime, source: AnimeSource): Episode? {
+    private suspend fun getEpisodeFromSEpisode(sEpisode: SEpisode, anime: Anime, source: Source): Episode? {
         val localEpisode = getEpisodeByUrlAndAnimeId.await(sEpisode.url, anime.id)
 
         return if (localEpisode == null) {

@@ -68,7 +68,6 @@ import kotlin.time.Duration.Companion.seconds
 @Composable
 fun AnimeBottomActionMenu(
     visible: Boolean,
-    isManga: Boolean,
     modifier: Modifier = Modifier,
     onBookmarkClicked: (() -> Unit)? = null,
     onRemoveBookmarkClicked: (() -> Unit)? = null,
@@ -76,9 +75,9 @@ fun AnimeBottomActionMenu(
     onFillermarkClicked: (() -> Unit)? = null,
     onRemoveFillermarkClicked: (() -> Unit)? = null,
     // <-- AM (FILLERMARK)
-    onMarkAsViewedClicked: (() -> Unit)? = null,
-    onMarkAsUnviewedClicked: (() -> Unit)? = null,
-    onMarkPreviousAsViewedClicked: (() -> Unit)? = null,
+    onMarkAsSeenClicked: (() -> Unit)? = null,
+    onMarkAsUnseenClicked: (() -> Unit)? = null,
+    onMarkPreviousAsSeenClicked: (() -> Unit)? = null,
     onDownloadClicked: (() -> Unit)? = null,
     onDeleteClicked: (() -> Unit)? = null,
     onExternalClicked: (() -> Unit)? = null,
@@ -101,10 +100,7 @@ fun AnimeBottomActionMenu(
         ) {
             val haptic = LocalHapticFeedback.current
             // AM (FILLERMARK) -->
-            val confirm =
-                remember {
-                    mutableStateListOf(false, false, false, false, false, false, false, false, false, false, false)
-                }
+            val confirm = remember { mutableStateListOf(false, false, false, false, false, false, false, false, false, false, false) }
             val confirmRange = 0..<11
             // <-- AM (FILLERMARK)
             var resetJob: Job? = remember { null }
@@ -127,9 +123,8 @@ fun AnimeBottomActionMenu(
                     .padding(horizontal = 8.dp, vertical = 12.dp),
             ) {
                 if (onBookmarkClicked != null) {
-                    val bookmark = if (isManga) MR.strings.action_bookmark else MR.strings.action_bookmark_episode
                     Button(
-                        title = stringResource(bookmark),
+                        title = stringResource(MR.strings.action_bookmark_episode),
                         icon = Icons.Outlined.BookmarkAdd,
                         toConfirm = confirm[0],
                         onLongClick = { onLongClickItem(0) },
@@ -137,13 +132,8 @@ fun AnimeBottomActionMenu(
                     )
                 }
                 if (onRemoveBookmarkClicked != null) {
-                    val removeBookmark = if (isManga) {
-                        MR.strings.action_remove_bookmark
-                    } else {
-                        MR.strings.action_remove_bookmark_episode
-                    }
                     Button(
-                        title = stringResource(removeBookmark),
+                        title = stringResource(MR.strings.action_remove_bookmark_episode),
                         icon = Icons.Outlined.BookmarkRemove,
                         toConfirm = confirm[1],
                         onLongClick = { onLongClickItem(1) },
@@ -170,38 +160,31 @@ fun AnimeBottomActionMenu(
                     )
                 }
                 // <-- AM (FILLERMARK)
-                if (onMarkAsViewedClicked != null) {
-                    val viewed = if (isManga) MR.strings.action_mark_as_read else MR.strings.action_mark_as_seen
+                if (onMarkAsSeenClicked != null) {
                     Button(
-                        title = stringResource(viewed),
+                        title = stringResource(MR.strings.action_mark_as_seen),
                         icon = Icons.Outlined.DoneAll,
                         toConfirm = confirm[4],
                         onLongClick = { onLongClickItem(4) },
-                        onClick = onMarkAsViewedClicked,
+                        onClick = onMarkAsSeenClicked,
                     )
                 }
-                if (onMarkAsUnviewedClicked != null) {
-                    val unviewed = if (isManga) MR.strings.action_mark_as_unread else MR.strings.action_mark_as_unseen
+                if (onMarkAsUnseenClicked != null) {
                     Button(
-                        title = stringResource(unviewed),
+                        title = stringResource(MR.strings.action_mark_as_unseen),
                         icon = Icons.Outlined.RemoveDone,
                         toConfirm = confirm[5],
                         onLongClick = { onLongClickItem(5) },
-                        onClick = onMarkAsUnviewedClicked,
+                        onClick = onMarkAsUnseenClicked,
                     )
                 }
-                if (onMarkPreviousAsViewedClicked != null) {
-                    val previousUnviewed = if (isManga) {
-                        MR.strings.action_mark_previous_as_read
-                    } else {
-                        MR.strings.action_mark_previous_as_seen
-                    }
+                if (onMarkPreviousAsSeenClicked != null) {
                     Button(
-                        title = stringResource(previousUnviewed),
+                        title = stringResource(MR.strings.action_mark_previous_as_seen),
                         icon = ImageVector.vectorResource(R.drawable.ic_done_prev_24dp),
                         toConfirm = confirm[6],
                         onLongClick = { onLongClickItem(6) },
-                        onClick = onMarkPreviousAsViewedClicked,
+                        onClick = onMarkPreviousAsSeenClicked,
                     )
                 }
                 if (onDownloadClicked != null) {
@@ -222,7 +205,7 @@ fun AnimeBottomActionMenu(
                         onClick = onDeleteClicked,
                     )
                 }
-                if (!isManga && onExternalClicked != null && !playerPreferences.alwaysUseExternalPlayer().get()) {
+                if (onExternalClicked != null && !playerPreferences.alwaysUseExternalPlayer().get()) {
                     Button(
                         title = stringResource(MR.strings.action_play_externally),
                         icon = Icons.AutoMirrored.Outlined.OpenInNew,
@@ -231,7 +214,7 @@ fun AnimeBottomActionMenu(
                         onClick = onExternalClicked,
                     )
                 }
-                if (!isManga && onInternalClicked != null && playerPreferences.alwaysUseExternalPlayer().get()) {
+                if (onInternalClicked != null && playerPreferences.alwaysUseExternalPlayer().get()) {
                     Button(
                         title = stringResource(MR.strings.action_play_internally),
                         icon = Icons.AutoMirrored.Outlined.Input,
@@ -246,7 +229,7 @@ fun AnimeBottomActionMenu(
 }
 
 @Composable
-private fun RowScope.Button(
+internal fun RowScope.Button(
     title: String,
     icon: ImageVector,
     toConfirm: Boolean,
@@ -295,14 +278,13 @@ private fun RowScope.Button(
 fun LibraryBottomActionMenu(
     visible: Boolean,
     onChangeCategoryClicked: () -> Unit,
-    onMarkAsViewedClicked: () -> Unit,
-    onMarkAsUnviewedClicked: () -> Unit,
+    onMarkAsSeenClicked: () -> Unit,
+    onMarkAsUnseenClicked: () -> Unit,
     onDownloadClicked: ((DownloadAction) -> Unit)?,
     onDeleteClicked: () -> Unit,
     // SY -->
     onClickResetInfo: (() -> Unit)?,
     // SY <--
-    isManga: Boolean,
     modifier: Modifier = Modifier,
 ) {
     AnimatedVisibility(
@@ -313,14 +295,14 @@ fun LibraryBottomActionMenu(
         val scope = rememberCoroutineScope()
         Surface(
             modifier = modifier,
-            shape = MaterialTheme.shapes.large.copy(
-                bottomEnd = ZeroCornerSize,
-                bottomStart = ZeroCornerSize,
-            ),
+            shape = MaterialTheme.shapes.large.copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize),
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
         ) {
             val haptic = LocalHapticFeedback.current
-            val confirm = remember { mutableStateListOf(false, false, false, false, false) }
+            val confirm =
+                remember {
+                    mutableStateListOf(false, false, false, false, false)
+                }
             var resetJob: Job? = remember { null }
             val onLongClickItem: (Int) -> Unit = { toConfirmIndex ->
                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -347,21 +329,19 @@ fun LibraryBottomActionMenu(
                     onLongClick = { onLongClickItem(0) },
                     onClick = onChangeCategoryClicked,
                 )
-                val viewed = if (isManga) MR.strings.action_mark_as_read else MR.strings.action_mark_as_seen
                 Button(
-                    title = stringResource(viewed),
+                    title = stringResource(MR.strings.action_mark_as_seen),
                     icon = Icons.Outlined.DoneAll,
                     toConfirm = confirm[1],
                     onLongClick = { onLongClickItem(1) },
-                    onClick = onMarkAsViewedClicked,
+                    onClick = onMarkAsSeenClicked,
                 )
-                val unviewed = if (isManga) MR.strings.action_mark_as_unread else MR.strings.action_mark_as_unseen
                 Button(
-                    title = stringResource(unviewed),
+                    title = stringResource(MR.strings.action_mark_as_unseen),
                     icon = Icons.Outlined.RemoveDone,
                     toConfirm = confirm[2],
                     onLongClick = { onLongClickItem(2) },
-                    onClick = onMarkAsUnviewedClicked,
+                    onClick = onMarkAsUnseenClicked,
                 )
                 if (onDownloadClicked != null) {
                     var downloadExpanded by remember { mutableStateOf(false) }
@@ -377,7 +357,6 @@ fun LibraryBottomActionMenu(
                             expanded = downloadExpanded,
                             onDismissRequest = onDismissRequest,
                             onDownloadClicked = onDownloadClicked,
-                            isManga = isManga,
                         )
                     }
                 }

@@ -3,9 +3,9 @@ package tachiyomi.data.anime
 import kotlinx.coroutines.flow.Flow
 import logcat.LogPriority
 import tachiyomi.core.common.util.system.logcat
-import tachiyomi.data.AnimeUpdateStrategyColumnAdapter
 import tachiyomi.data.DatabaseHandler
 import tachiyomi.data.StringListColumnAdapter
+import tachiyomi.data.UpdateStrategyColumnAdapter
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.anime.model.AnimeUpdate
 import tachiyomi.domain.anime.repository.AnimeRepository
@@ -45,11 +45,11 @@ class AnimeRepositoryImpl(
         }
     }
 
-    override suspend fun getAnimeFavorites(): List<Anime> {
+    override suspend fun getFavorites(): List<Anime> {
         return handler.awaitList { animesQueries.getFavorites(AnimeMapper::mapAnime) }
     }
 
-    override suspend fun getWatchedAnimeNotInLibrary(): List<Anime> {
+    override suspend fun getSeenAnimeNotInLibrary(): List<Anime> {
         return handler.awaitList { animesQueries.getSeenAnimeNotInLibrary(AnimeMapper::mapAnime) }
     }
 
@@ -61,7 +61,7 @@ class AnimeRepositoryImpl(
         return handler.subscribeToList { libraryViewQueries.library(AnimeMapper::mapLibraryAnime) }
     }
 
-    override fun getAnimeFavoritesBySourceId(sourceId: Long): Flow<List<Anime>> {
+    override fun getFavoritesBySourceId(sourceId: Long): Flow<List<Anime>> {
         return handler.subscribeToList { animesQueries.getFavoriteBySourceId(sourceId, AnimeMapper::mapAnime) }
     }
 
@@ -78,7 +78,7 @@ class AnimeRepositoryImpl(
         }
     }
 
-    override suspend fun resetAnimeViewerFlags(): Boolean {
+    override suspend fun resetViewerFlags(): Boolean {
         return try {
             handler.await { animesQueries.resetViewerFlags() }
             true
@@ -97,8 +97,13 @@ class AnimeRepositoryImpl(
         }
     }
 
-    override suspend fun insertAnime(anime: Anime): Long? {
+    override suspend fun insert(anime: Anime): Long? {
         return handler.awaitOneOrNullExecutable(inTransaction = true) {
+            // SY -->
+            if (animesQueries.getIdByUrlAndSource(anime.url, anime.source).executeAsOneOrNull() != null) {
+                return@awaitOneOrNullExecutable animesQueries.getIdByUrlAndSource(anime.url, anime.source)
+            }
+            // SY <--
             animesQueries.insert(
                 source = anime.source,
                 url = anime.url,
@@ -125,9 +130,9 @@ class AnimeRepositoryImpl(
         }
     }
 
-    override suspend fun updateAnime(update: AnimeUpdate): Boolean {
+    override suspend fun update(update: AnimeUpdate): Boolean {
         return try {
-            partialUpdateAnime(update)
+            partialUpdate(update)
             true
         } catch (e: Exception) {
             logcat(LogPriority.ERROR, e)
@@ -135,9 +140,9 @@ class AnimeRepositoryImpl(
         }
     }
 
-    override suspend fun updateAllAnime(animeUpdates: List<AnimeUpdate>): Boolean {
+    override suspend fun updateAll(animeUpdates: List<AnimeUpdate>): Boolean {
         return try {
-            partialUpdateAnime(*animeUpdates.toTypedArray())
+            partialUpdate(*animeUpdates.toTypedArray())
             true
         } catch (e: Exception) {
             logcat(LogPriority.ERROR, e)
@@ -145,7 +150,7 @@ class AnimeRepositoryImpl(
         }
     }
 
-    private suspend fun partialUpdateAnime(vararg animeUpdates: AnimeUpdate) {
+    private suspend fun partialUpdate(vararg animeUpdates: AnimeUpdate) {
         handler.await(inTransaction = true) {
             animeUpdates.forEach { value ->
                 animesQueries.update(
@@ -168,11 +173,29 @@ class AnimeRepositoryImpl(
                     coverLastModified = value.coverLastModified,
                     dateAdded = value.dateAdded,
                     animeId = value.id,
-                    updateStrategy = value.updateStrategy?.let(AnimeUpdateStrategyColumnAdapter::encode),
+                    updateStrategy = value.updateStrategy?.let(UpdateStrategyColumnAdapter::encode),
                     version = value.version,
                     isSyncing = 0,
                 )
             }
         }
     }
+
+    // SY -->
+    override suspend fun getAnimeBySourceId(sourceId: Long): List<Anime> {
+        return handler.awaitList { animesQueries.getBySource(sourceId, AnimeMapper::mapAnime) }
+    }
+
+    override suspend fun getAll(): List<Anime> {
+        return handler.awaitList { animesQueries.getAll(AnimeMapper::mapAnime) }
+    }
+
+    override suspend fun deleteAnime(animeId: Long) {
+        handler.await { animesQueries.deleteById(animeId) }
+    }
+
+    override suspend fun getSeenAnimeNotInLibraryView(): List<LibraryAnime> {
+        return handler.awaitList { libraryViewQueries.seenAnimeNonLibrary(AnimeMapper::mapLibraryAnime) }
+    }
+    // SY <--
 }

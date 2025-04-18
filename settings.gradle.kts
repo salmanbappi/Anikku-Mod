@@ -26,6 +26,9 @@ dependencyResolutionManagement {
         create("compose") {
             from(files("gradle/compose.versions.toml"))
         }
+        create("sylibs") {
+            from(files("gradle/sy.versions.toml"))
+        }
     }
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -45,6 +48,13 @@ include(":core:common")
 include(":data")
 include(":domain")
 include(":i18n")
+// KMK -->
+include(":i18n-kmk")
+include(":flagkit")
+// KMK <--
+// SY -->
+include(":i18n-sy")
+// SY <--
 include(":macrobenchmark")
 include(":presentation-core")
 include(":presentation-widget")

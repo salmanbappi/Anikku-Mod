@@ -1,10 +1,10 @@
 package eu.kanade.tachiyomi.ui.player.loader
 
 import eu.kanade.domain.episode.model.toSEpisode
-import eu.kanade.tachiyomi.animesource.AnimeSource
 import eu.kanade.tachiyomi.animesource.model.Video
-import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import eu.kanade.tachiyomi.data.download.DownloadManager
+import eu.kanade.tachiyomi.source.Source
+import eu.kanade.tachiyomi.source.online.HttpSource
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.episode.model.Episode
 import tachiyomi.source.local.LocalSource
@@ -28,11 +28,11 @@ class EpisodeLoader {
          * @param anime the anime of the episode.
          * @param source the source of the anime.
          */
-        suspend fun getLinks(episode: Episode, anime: Anime, source: AnimeSource): List<Video> {
+        suspend fun getLinks(episode: Episode, anime: Anime, source: Source): List<Video> {
             val isDownloaded = isDownload(episode, anime)
             return when {
                 isDownloaded -> isDownload(episode, anime, source)
-                source is AnimeHttpSource -> isHttp(episode, source)
+                source is HttpSource -> isHttp(episode, source)
                 source is LocalSource -> isLocal(episode)
                 else -> error("source not supported")
             }
@@ -61,7 +61,7 @@ class EpisodeLoader {
          * @param episode the episode being parsed.
          * @param source the online source of the episode.
          */
-        private suspend fun isHttp(episode: Episode, source: AnimeHttpSource): List<Video> {
+        private suspend fun isHttp(episode: Episode, source: HttpSource): List<Video> {
             val videos = source.getVideoList(episode.toSEpisode())
 
             videos.filter { it.videoUrl.isNullOrEmpty() }.forEach { video ->
@@ -88,7 +88,7 @@ class EpisodeLoader {
         private fun isDownload(
             episode: Episode,
             anime: Anime,
-            source: AnimeSource,
+            source: Source,
         ): List<Video> {
             val downloadManager: DownloadManager = Injekt.get()
             return try {

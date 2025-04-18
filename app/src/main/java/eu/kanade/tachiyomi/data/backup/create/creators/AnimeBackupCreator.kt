@@ -34,6 +34,7 @@ class AnimeBackupCreator(
             handler.awaitList {
                 episodesQueries.getEpisodesByAnimeId(
                     animeId = anime.id,
+                    applyScanlatorFilter = 0, // false
                     mapper = backupEpisodeMapper,
                 )
             }

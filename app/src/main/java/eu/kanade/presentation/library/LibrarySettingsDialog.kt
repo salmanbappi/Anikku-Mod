@@ -46,7 +46,6 @@ import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.collectAsState
 
 @Composable
-@Suppress("MagicNumber")
 fun LibrarySettingsDialog(
     onDismissRequest: () -> Unit,
     screenModel: LibrarySettingsScreenModel,
@@ -97,9 +96,9 @@ fun LibrarySettingsDialog(
 private fun ColumnScope.FilterPage(
     screenModel: LibrarySettingsScreenModel,
 ) {
-    val filterDownloaded by screenModel.libraryPreferences.filterDownloadedAnime().collectAsState()
+    val filterDownloaded by screenModel.libraryPreferences.filterDownloaded().collectAsState()
     val downloadedOnly by screenModel.preferences.downloadedOnly().collectAsState()
-    val autoUpdateAnimeRestrictions by screenModel.libraryPreferences.autoUpdateItemRestrictions().collectAsState()
+    val autoUpdateAnimeRestrictions by screenModel.libraryPreferences.autoUpdateAnimeRestrictions().collectAsState()
 
     TriStateItem(
         label = stringResource(MR.strings.label_downloaded),
@@ -109,7 +108,7 @@ private fun ColumnScope.FilterPage(
             filterDownloaded
         },
         enabled = !downloadedOnly,
-        onClick = { screenModel.toggleFilter(LibraryPreferences::filterDownloadedAnime) },
+        onClick = { screenModel.toggleFilter(LibraryPreferences::filterDownloaded) },
     )
     val filterUnseen by screenModel.libraryPreferences.filterUnseen().collectAsState()
     TriStateItem(
@@ -117,28 +116,28 @@ private fun ColumnScope.FilterPage(
         state = filterUnseen,
         onClick = { screenModel.toggleFilter(LibraryPreferences::filterUnseen) },
     )
-    val filterStarted by screenModel.libraryPreferences.filterStartedAnime().collectAsState()
+    val filterStarted by screenModel.libraryPreferences.filterStarted().collectAsState()
     TriStateItem(
         label = stringResource(MR.strings.label_started),
         state = filterStarted,
-        onClick = { screenModel.toggleFilter(LibraryPreferences::filterStartedAnime) },
+        onClick = { screenModel.toggleFilter(LibraryPreferences::filterStarted) },
     )
-    val filterBookmarked by screenModel.libraryPreferences.filterBookmarkedAnime().collectAsState()
+    val filterBookmarked by screenModel.libraryPreferences.filterBookmarked().collectAsState()
     TriStateItem(
         label = stringResource(MR.strings.action_filter_bookmarked),
         state = filterBookmarked,
-        onClick = { screenModel.toggleFilter(LibraryPreferences::filterBookmarkedAnime) },
+        onClick = { screenModel.toggleFilter(LibraryPreferences::filterBookmarked) },
     )
-    val filterCompleted by screenModel.libraryPreferences.filterCompletedAnime().collectAsState()
+    val filterCompleted by screenModel.libraryPreferences.filterCompleted().collectAsState()
     TriStateItem(
         label = stringResource(MR.strings.completed),
         state = filterCompleted,
-        onClick = { screenModel.toggleFilter(LibraryPreferences::filterCompletedAnime) },
+        onClick = { screenModel.toggleFilter(LibraryPreferences::filterCompleted) },
     )
     // TODO: re-enable when custom intervals are ready for stable
     if (
         (isDevFlavor || isPreviewBuildType) &&
-        LibraryPreferences.ENTRY_OUTSIDE_RELEASE_PERIOD in autoUpdateAnimeRestrictions
+        LibraryPreferences.ANIME_OUTSIDE_RELEASE_PERIOD in autoUpdateAnimeRestrictions
     ) {
         val filterIntervalCustom by screenModel.libraryPreferences.filterIntervalCustom().collectAsState()
         TriStateItem(
@@ -155,9 +154,7 @@ private fun ColumnScope.FilterPage(
         }
         1 -> {
             val service = trackers[0]
-            val filterTracker by screenModel.libraryPreferences.filterTrackedAnime(
-                service.id.toInt(),
-            ).collectAsState()
+            val filterTracker by screenModel.libraryPreferences.filterTracking(service.id.toInt()).collectAsState()
             TriStateItem(
                 label = stringResource(MR.strings.action_filter_tracked),
                 state = filterTracker,
@@ -167,9 +164,7 @@ private fun ColumnScope.FilterPage(
         else -> {
             HeadingItem(MR.strings.action_filter_tracked)
             trackers.map { service ->
-                val filterTracker by screenModel.libraryPreferences.filterTrackedAnime(
-                    service.id.toInt(),
-                ).collectAsState()
+                val filterTracker by screenModel.libraryPreferences.filterTracking(service.id.toInt()).collectAsState()
                 TriStateItem(
                     label = service.name,
                     state = filterTracker,
@@ -187,7 +182,7 @@ private fun ColumnScope.SortPage(
 ) {
     val trackers by screenModel.trackersFlow.collectAsState()
     // SY -->
-    val globalSortMode by screenModel.libraryPreferences.animeSortingMode().collectAsState()
+    val globalSortMode by screenModel.libraryPreferences.sortingMode().collectAsState()
     val sortingMode = if (screenModel.grouping == LibraryGroup.BY_DEFAULT) {
         category.sort.type
     } else {
@@ -209,11 +204,11 @@ private fun ColumnScope.SortPage(
         listOfNotNull(
             MR.strings.action_sort_alpha to LibrarySort.Type.Alphabetical,
             MR.strings.action_sort_total to LibrarySort.Type.TotalEpisodes,
-            MR.strings.action_sort_last_read to LibrarySort.Type.LastSeen,
-            MR.strings.action_sort_last_manga_update to LibrarySort.Type.LastUpdate,
-            MR.strings.action_sort_unread_count to LibrarySort.Type.UnseenCount,
-            MR.strings.action_sort_latest_chapter to LibrarySort.Type.LatestEpisode,
-            MR.strings.action_sort_chapter_fetch_date to LibrarySort.Type.EpisodeFetchDate,
+            MR.strings.action_sort_last_seen to LibrarySort.Type.LastSeen,
+            MR.strings.action_sort_last_anime_update to LibrarySort.Type.LastUpdate,
+            MR.strings.action_sort_unseen_count to LibrarySort.Type.UnseenCount,
+            MR.strings.action_sort_latest_episode to LibrarySort.Type.LatestEpisode,
+            MR.strings.action_sort_episode_fetch_date to LibrarySort.Type.EpisodeFetchDate,
             MR.strings.action_sort_date_added to LibrarySort.Type.DateAdded,
             trackerMeanPair,
             MR.strings.action_sort_airing_time to LibrarySort.Type.AiringTime,
@@ -282,9 +277,9 @@ private fun ColumnScope.DisplayPage(
         val configuration = LocalConfiguration.current
         val columnPreference = remember {
             if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                screenModel.libraryPreferences.animeLandscapeColumns()
+                screenModel.libraryPreferences.landscapeColumns()
             } else {
-                screenModel.libraryPreferences.animePortraitColumns()
+                screenModel.libraryPreferences.portraitColumns()
             }
         }
 
@@ -316,8 +311,8 @@ private fun ColumnScope.DisplayPage(
         pref = screenModel.libraryPreferences.languageBadge(),
     )
     CheckboxItem(
-        label = stringResource(MR.strings.action_display_show_continue_reading_button),
-        pref = screenModel.libraryPreferences.showContinueViewingButton(),
+        label = stringResource(MR.strings.action_display_show_continue_watching_button),
+        pref = screenModel.libraryPreferences.showContinueWatchingButton(),
     )
 
     HeadingItem(MR.strings.tabs_header)
@@ -354,7 +349,6 @@ private fun ColumnScope.GroupPage(
     hasCategories: Boolean,
 ) {
     val trackers by screenModel.trackersFlow.collectAsState()
-
     val groups = remember(hasCategories, trackers) {
         buildList {
             add(LibraryGroup.BY_DEFAULT)
@@ -387,3 +381,4 @@ private fun ColumnScope.GroupPage(
         )
     }
 }
+// SY <--

@@ -18,7 +18,7 @@ class GetSourcesWithFavoriteCount(
         return combine(
             preferences.migrationSortingDirection().changes(),
             preferences.migrationSortingMode().changes(),
-            repository.getAnimeSourcesWithFavoriteCount(),
+            repository.getSourcesWithFavoriteCount(),
         ) { direction, mode, list ->
             list
                 .filterNot { it.first.id == LocalSource.ID }

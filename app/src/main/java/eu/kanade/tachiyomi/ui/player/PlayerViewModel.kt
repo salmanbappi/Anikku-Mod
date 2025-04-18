@@ -42,10 +42,7 @@ import eu.kanade.domain.episode.model.toDbEpisode
 import eu.kanade.domain.track.interactor.TrackEpisode
 import eu.kanade.domain.track.service.TrackPreferences
 import eu.kanade.domain.ui.UiPreferences
-import eu.kanade.tachiyomi.animesource.AnimeSource
-import eu.kanade.tachiyomi.animesource.model.SerializableVideo.Companion.toVideoList
 import eu.kanade.tachiyomi.animesource.model.Video
-import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import eu.kanade.tachiyomi.data.database.models.Episode
 import eu.kanade.tachiyomi.data.database.models.toDomainEpisode
 import eu.kanade.tachiyomi.data.download.DownloadManager
@@ -56,6 +53,9 @@ import eu.kanade.tachiyomi.data.saver.Location
 import eu.kanade.tachiyomi.data.track.TrackerManager
 import eu.kanade.tachiyomi.data.track.anilist.Anilist
 import eu.kanade.tachiyomi.data.track.myanimelist.MyAnimeList
+import eu.kanade.tachiyomi.source.Source
+import eu.kanade.tachiyomi.source.model.toVideoList
+import eu.kanade.tachiyomi.source.online.HttpSource
 import eu.kanade.tachiyomi.ui.player.controls.components.IndexedSegment
 import eu.kanade.tachiyomi.ui.player.loader.EpisodeLoader
 import eu.kanade.tachiyomi.ui.player.settings.GesturePreferences
@@ -155,7 +155,7 @@ class PlayerViewModel @JvmOverloads constructor(
     private val _currentAnime = MutableStateFlow<Anime?>(null)
     val currentAnime = _currentAnime.asStateFlow()
 
-    private val _currentSource = MutableStateFlow<AnimeSource?>(null)
+    private val _currentSource = MutableStateFlow<Source?>(null)
     val currentSource = _currentSource.asStateFlow()
 
     private val _isLoadingEpisode = MutableStateFlow(false)
@@ -271,7 +271,7 @@ class PlayerViewModel @JvmOverloads constructor(
         val anime = currentAnime.value ?: return null
         val episode = currentEpisode.value ?: return null
         val source = currentSource.value ?: return null
-        return source is AnimeHttpSource &&
+        return source is HttpSource &&
             !EpisodeLoader.isDownload(
                 episode.toDomainEpisode()!!,
                 anime,
@@ -769,7 +769,7 @@ class PlayerViewModel @JvmOverloads constructor(
     val eventFlow = eventChannel.receiveAsFlow()
 
     val incognitoMode = basePreferences.incognitoMode().get()
-    private val downloadAheadAmount = downloadPreferences.autoDownloadWhileWatching().get()
+    private val downloadAheadAmount = downloadPreferences.autoDownloadWhileReading().get()
 
     internal val relativeTime = uiPreferences.relativeTime().get()
     internal val dateFormat = UiPreferences.dateFormat(uiPreferences.dateFormat().get())
@@ -1124,7 +1124,7 @@ class PlayerViewModel @JvmOverloads constructor(
             val episodeId = episode.id!!
             val seenAt = Date()
             upsertHistory.await(
-                HistoryUpdate(episodeId, seenAt),
+                HistoryUpdate(episodeId, seenAt, 0),
             )
         }
     }

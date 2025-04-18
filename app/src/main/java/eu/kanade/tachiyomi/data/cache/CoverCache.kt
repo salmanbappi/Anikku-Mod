@@ -18,8 +18,8 @@ import java.io.InputStream
 class CoverCache(private val context: Context) {
 
     companion object {
-        private const val COVERS_DIR = "animecovers"
-        private const val CUSTOM_COVERS_DIR = "animecovers/custom"
+        private const val COVERS_DIR = "covers"
+        private const val CUSTOM_COVERS_DIR = "covers/custom"
     }
 
     /**
@@ -32,7 +32,7 @@ class CoverCache(private val context: Context) {
     /**
      * Returns the cover from cache.
      *
-     * @param animeThumbnailUrl the anime.
+     * @param animeThumbnailUrl thumbnail url for the anime.
      * @return cover image.
      */
     fun getCoverFile(animeThumbnailUrl: String?): File? {

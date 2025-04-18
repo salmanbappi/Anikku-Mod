@@ -7,17 +7,25 @@ import tachiyomi.domain.history.model.HistoryWithRelations
 
 interface HistoryRepository {
 
-    fun getAnimeHistory(query: String): Flow<List<HistoryWithRelations>>
+    fun getHistory(query: String): Flow<List<HistoryWithRelations>>
 
-    suspend fun getLastAnimeHistory(): HistoryWithRelations?
+    suspend fun getLastHistory(): HistoryWithRelations?
 
-    suspend fun resetAnimeHistory(historyId: Long)
+    suspend fun getTotalWatchDuration(): Long
 
     suspend fun getHistoryByAnimeId(animeId: Long): List<History>
 
+    suspend fun resetHistory(historyId: Long)
+
     suspend fun resetHistoryByAnimeId(animeId: Long)
 
-    suspend fun deleteAllAnimeHistory(): Boolean
+    suspend fun deleteAllHistory(): Boolean
 
-    suspend fun upsertAnimeHistory(historyUpdate: HistoryUpdate)
+    suspend fun upsertHistory(historyUpdate: HistoryUpdate)
+
+    // SY -->
+    suspend fun upsertHistory(historyUpdates: List<HistoryUpdate>)
+
+    suspend fun getByAnimeId(animeId: Long): List<History>
+    // SY <--
 }

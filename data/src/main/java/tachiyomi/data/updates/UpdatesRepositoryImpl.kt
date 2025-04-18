@@ -10,7 +10,11 @@ class UpdatesRepositoryImpl(
     private val databaseHandler: DatabaseHandler,
 ) : UpdatesRepository {
 
-    override suspend fun awaitWithSeen(seen: Boolean, after: Long, limit: Long): List<UpdatesWithRelations> {
+    override suspend fun awaitWithSeen(
+        seen: Boolean,
+        after: Long,
+        limit: Long,
+    ): List<UpdatesWithRelations> {
         return databaseHandler.awaitList {
             updatesViewQueries.getUpdatesBySeenStatus(
                 seen = seen,
@@ -21,17 +25,17 @@ class UpdatesRepositoryImpl(
         }
     }
 
-    override fun subscribeAllAnimeUpdates(after: Long, limit: Long): Flow<List<UpdatesWithRelations>> {
+    override fun subscribeAll(after: Long, limit: Long): Flow<List<UpdatesWithRelations>> {
         return databaseHandler.subscribeToList {
-            updatesViewQueries.getRecentUpdates(
-                after,
-                limit,
-                ::mapUpdatesWithRelations,
-            )
+            updatesViewQueries.getRecentUpdates(after, limit, ::mapUpdatesWithRelations)
         }
     }
 
-    override fun subscribeWithSeen(seen: Boolean, after: Long, limit: Long): Flow<List<UpdatesWithRelations>> {
+    override fun subscribeWithSeen(
+        seen: Boolean,
+        after: Long,
+        limit: Long,
+    ): Flow<List<UpdatesWithRelations>> {
         return databaseHandler.subscribeToList {
             updatesViewQueries.getUpdatesBySeenStatus(
                 seen = seen,
@@ -59,11 +63,13 @@ class UpdatesRepositoryImpl(
         favorite: Boolean,
         thumbnailUrl: String?,
         coverLastModified: Long,
-        dateUpload: Long,
+        @Suppress("UNUSED_PARAMETER") dateUpload: Long,
         dateFetch: Long,
     ): UpdatesWithRelations = UpdatesWithRelations(
         animeId = animeId,
-        animeTitle = animeTitle,
+        // SY -->
+        ogAnimeTitle = animeTitle,
+        // SY <--
         episodeId = episodeId,
         episodeName = episodeName,
         scanlator = scanlator,
@@ -80,7 +86,7 @@ class UpdatesRepositoryImpl(
             animeId = animeId,
             sourceId = sourceId,
             isAnimeFavorite = favorite,
-            url = thumbnailUrl,
+            ogUrl = thumbnailUrl,
             lastModified = coverLastModified,
         ),
     )

@@ -105,7 +105,7 @@ fun AnimeCoverDialog(
                                 ),
                             ),
                         )
-                        if (onEditClick != null) {
+                        if (onEditClick != null && anime.favorite) {
                             Box {
                                 var expanded by remember { mutableStateOf(false) }
                                 IconButton(
@@ -119,9 +119,7 @@ fun AnimeCoverDialog(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Outlined.Edit,
-                                        contentDescription = stringResource(
-                                            MR.strings.action_edit_cover,
-                                        ),
+                                        contentDescription = stringResource(MR.strings.action_edit_cover),
                                     )
                                 }
                                 DropdownMenu(
@@ -201,7 +199,9 @@ private fun ActionsPill(content: @Composable () -> Unit) {
     Row(
         modifier = Modifier
             .clip(MaterialTheme.shapes.extraLarge)
-            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.95f)),
+            // KMK -->
+            .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.95f)),
+        // KMK <--
     ) {
         content()
     }

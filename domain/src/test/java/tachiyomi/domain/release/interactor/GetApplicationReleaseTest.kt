@@ -16,9 +16,9 @@ import java.time.Instant
 
 class GetApplicationReleaseTest {
 
-    lateinit var getApplicationRelease: GetApplicationRelease
-    lateinit var releaseService: ReleaseService
-    lateinit var preference: Preference<Long>
+    private lateinit var getApplicationRelease: GetApplicationRelease
+    private lateinit var releaseService: ReleaseService
+    private lateinit var preference: Preference<Long>
 
     @BeforeEach
     fun beforeEach() {
@@ -31,31 +31,62 @@ class GetApplicationReleaseTest {
     }
 
     @Test
+    fun `When has update but is third party expect third party installation`() = runTest {
+        every { preference.get() } returns 0
+        every { preference.set(any()) }.answers { }
+
+        val releases = listOf(
+            Release(
+                "v2.0.0",
+                "info",
+                "http://example.com/release_link",
+                listOf("http://example.com/assets"),
+            ),
+        )
+
+        coEvery { releaseService.releaseNotes(any()) } returns releases
+
+        val result = getApplicationRelease.await(
+            GetApplicationRelease.Arguments(
+                isPreview = false,
+                isThirdParty = true,
+                commitCount = 0,
+                versionName = "v1.0.0",
+                repository = "test",
+            ),
+        )
+
+        result shouldBe GetApplicationRelease.Result.ThirdPartyInstallation
+    }
+
+    @Test
     fun `When has update but is preview expect new update`() = runTest {
         every { preference.get() } returns 0
         every { preference.set(any()) }.answers { }
 
-        val release = Release(
-            "r2000",
-            "info",
-            "http://example.com/release_link",
-            listOf("http://example.com/assets"),
+        val releases = listOf(
+            Release(
+                "r2000",
+                "info",
+                "http://example.com/release_link",
+                listOf("http://example.com/assets"),
+            ),
         )
 
-        coEvery { releaseService.latest(any()) } returns release
+        coEvery { releaseService.releaseNotes(any()) } returns releases
 
         val result = getApplicationRelease.await(
             GetApplicationRelease.Arguments(
                 isPreview = true,
+                isThirdParty = false,
                 commitCount = 1000,
                 versionName = "",
-                repoUrl = "test",
+                repository = "test",
             ),
         )
 
-        (result as GetApplicationRelease.Result.NewUpdate).release shouldBe GetApplicationRelease.Result.NewUpdate(
-            release,
-        ).release
+        // KMK: Don't cast, will throw exception if the result is different from expected
+        result shouldBe GetApplicationRelease.Result.NewUpdate(releases.getLatest()!!)
     }
 
     @Test
@@ -63,27 +94,30 @@ class GetApplicationReleaseTest {
         every { preference.get() } returns 0
         every { preference.set(any()) }.answers { }
 
-        val release = Release(
-            "v2.0.0",
-            "info",
-            "http://example.com/release_link",
-            listOf("http://example.com/assets"),
-        )
+        val releases =
+            listOf(
+                Release(
+                    "v2.0.0",
+                    "info",
+                    "http://example.com/release_link",
+                    listOf("http://example.com/assets"),
+                ),
+            )
 
-        coEvery { releaseService.latest(any()) } returns release
+        coEvery { releaseService.releaseNotes(any()) } returns releases
 
         val result = getApplicationRelease.await(
             GetApplicationRelease.Arguments(
                 isPreview = false,
+                isThirdParty = false,
                 commitCount = 0,
                 versionName = "v1.0.0",
-                repoUrl = "test",
+                repository = "test",
             ),
         )
 
-        (result as GetApplicationRelease.Result.NewUpdate).release shouldBe GetApplicationRelease.Result.NewUpdate(
-            release,
-        ).release
+        // KMK: Don't cast, will throw exception if the result is different from expected
+        result shouldBe GetApplicationRelease.Result.NewUpdate(releases.getLatest()!!)
     }
 
     @Test
@@ -91,21 +125,24 @@ class GetApplicationReleaseTest {
         every { preference.get() } returns 0
         every { preference.set(any()) }.answers { }
 
-        val release = Release(
-            "v1.0.0",
-            "info",
-            "http://example.com/release_link",
-            listOf("http://example.com/assets"),
+        val releases = listOf(
+            Release(
+                "v1.0.0",
+                "info",
+                "http://example.com/release_link",
+                listOf("http://example.com/assets"),
+            ),
         )
 
-        coEvery { releaseService.latest(any()) } returns release
+        coEvery { releaseService.releaseNotes(any()) } returns releases
 
         val result = getApplicationRelease.await(
             GetApplicationRelease.Arguments(
                 isPreview = false,
+                isThirdParty = false,
                 commitCount = 0,
                 versionName = "v2.0.0",
-                repoUrl = "test",
+                repository = "test",
             ),
         )
 
@@ -113,29 +150,33 @@ class GetApplicationReleaseTest {
     }
 
     @Test
-    fun `When now is before three days expect no new update`() = runTest {
+    fun `When now is before two days expect no new update`() = runTest {
         every { preference.get() } returns Instant.now().toEpochMilli()
         every { preference.set(any()) }.answers { }
 
-        val release = Release(
-            "v1.0.0",
-            "info",
-            "http://example.com/release_link",
-            listOf("http://example.com/assets"),
+        val releases = listOf(
+            Release(
+                "v2.0.0",
+                "info",
+                "http://example.com/release_link",
+                listOf("http://example.com/assets"),
+            ),
         )
 
-        coEvery { releaseService.latest(any()) } returns release
+        coEvery { releaseService.releaseNotes(any()) } returns releases
 
         val result = getApplicationRelease.await(
             GetApplicationRelease.Arguments(
                 isPreview = false,
+                isThirdParty = false,
                 commitCount = 0,
-                versionName = "v2.0.0",
-                repoUrl = "test",
+                versionName = "v1.0.0",
+                repository = "test",
             ),
         )
 
         coVerify(exactly = 0) { releaseService.latest(any()) }
+        coVerify(exactly = 0) { releaseService.releaseNotes(any()) }
         result shouldBe GetApplicationRelease.Result.NoNewUpdate
     }
 }

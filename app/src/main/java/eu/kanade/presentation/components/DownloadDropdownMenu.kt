@@ -15,17 +15,16 @@ fun DownloadDropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     onDownloadClicked: (DownloadAction) -> Unit,
-    isManga: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val downloadAmount = if (isManga) MR.plurals.download_amount else MR.plurals.download_amount_anime
-    val downloadUnviewed = if (isManga) MR.strings.download_unread else MR.strings.download_unseen
+    val downloadAmount = MR.plurals.download_amount_anime
+    val downloadUnviewed = MR.strings.download_unseen
     val options = persistentListOf(
-        DownloadAction.NEXT_1_ITEM to pluralStringResource(downloadAmount, 1, 1),
-        DownloadAction.NEXT_5_ITEMS to pluralStringResource(downloadAmount, 5, 5),
-        DownloadAction.NEXT_10_ITEMS to pluralStringResource(downloadAmount, 10, 10),
-        DownloadAction.NEXT_25_ITEMS to pluralStringResource(downloadAmount, 25, 25),
-        DownloadAction.UNVIEWED_ITEMS to stringResource(downloadUnviewed),
+        DownloadAction.NEXT_1_EPISODE to pluralStringResource(downloadAmount, 1, 1),
+        DownloadAction.NEXT_5_EPISODES to pluralStringResource(downloadAmount, 5, 5),
+        DownloadAction.NEXT_10_EPISODES to pluralStringResource(downloadAmount, 10, 10),
+        DownloadAction.NEXT_25_EPISODES to pluralStringResource(downloadAmount, 25, 25),
+        DownloadAction.UNSEEN_EPISODES to stringResource(downloadUnviewed),
     )
 
     DropdownMenu(

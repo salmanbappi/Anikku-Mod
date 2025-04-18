@@ -4,18 +4,18 @@ import eu.kanade.domain.anime.interactor.UpdateAnime
 import eu.kanade.domain.anime.model.toSAnime
 import eu.kanade.domain.episode.model.copyFromSEpisode
 import eu.kanade.domain.episode.model.toSEpisode
-import eu.kanade.tachiyomi.animesource.AnimeSource
-import eu.kanade.tachiyomi.animesource.model.SEpisode
-import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import eu.kanade.tachiyomi.data.download.DownloadManager
 import eu.kanade.tachiyomi.data.download.DownloadProvider
+import eu.kanade.tachiyomi.source.Source
+import eu.kanade.tachiyomi.source.model.SEpisode
+import eu.kanade.tachiyomi.source.online.HttpSource
 import tachiyomi.data.episode.EpisodeSanitizer
+import tachiyomi.data.source.NoResultsException
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.episode.interactor.GetEpisodesByAnimeId
 import tachiyomi.domain.episode.interactor.ShouldUpdateDbEpisode
 import tachiyomi.domain.episode.interactor.UpdateEpisode
 import tachiyomi.domain.episode.model.Episode
-import tachiyomi.domain.episode.model.NoEpisodesException
 import tachiyomi.domain.episode.model.toEpisodeUpdate
 import tachiyomi.domain.episode.repository.EpisodeRepository
 import tachiyomi.domain.episode.service.EpisodeRecognition
@@ -45,12 +45,12 @@ class SyncEpisodesWithSource(
     suspend fun await(
         rawSourceEpisodes: List<SEpisode>,
         anime: Anime,
-        source: AnimeSource,
+        source: Source,
         manualFetch: Boolean = false,
         fetchWindow: Pair<Long, Long> = Pair(0, 0),
     ): List<Episode> {
         if (rawSourceEpisodes.isEmpty() && !source.isLocal()) {
-            throw NoEpisodesException()
+            throw NoResultsException()
         }
 
         val now = ZonedDateTime.now()
@@ -83,7 +83,7 @@ class SyncEpisodesWithSource(
             var episode = sourceEpisode
 
             // Update metadata from source if necessary.
-            if (source is AnimeHttpSource) {
+            if (source is HttpSource) {
                 val sEpisode = episode.toSEpisode()
                 source.prepareNewEpisode(sEpisode, anime.toSAnime())
                 episode = episode.copyFromSEpisode(sEpisode)
@@ -117,7 +117,9 @@ class SyncEpisodesWithSource(
                         downloadManager.isEpisodeDownloaded(
                             dbEpisode.name,
                             dbEpisode.scanlator,
-                            anime.title,
+                            // SY -->
+                            anime.ogTitle,
+                            // SY <--
                             anime.source,
                         )
 
@@ -131,9 +133,7 @@ class SyncEpisodesWithSource(
                         sourceOrder = episode.sourceOrder,
                     )
                     if (episode.dateUpload != 0L) {
-                        toChangeEpisode = toChangeEpisode.copy(
-                            dateUpload = sourceEpisode.dateUpload,
-                        )
+                        toChangeEpisode = toChangeEpisode.copy(dateUpload = episode.dateUpload)
                     }
                     updatedEpisodes.add(toChangeEpisode)
                 }
@@ -196,7 +196,7 @@ class SyncEpisodesWithSource(
         }
 
         if (updatedToAdd.isNotEmpty()) {
-            updatedToAdd = episodeRepository.addAllEpisodes(updatedToAdd)
+            updatedToAdd = episodeRepository.addAll(updatedToAdd)
         }
 
         if (updatedEpisodes.isNotEmpty()) {

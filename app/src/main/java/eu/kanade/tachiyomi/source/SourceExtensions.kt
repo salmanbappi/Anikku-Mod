@@ -2,20 +2,19 @@ package eu.kanade.tachiyomi.source
 
 import android.graphics.drawable.Drawable
 import eu.kanade.domain.source.service.SourcePreferences
-import eu.kanade.tachiyomi.animesource.AnimeSource
 import eu.kanade.tachiyomi.extension.ExtensionManager
 import tachiyomi.domain.source.model.StubSource
 import tachiyomi.source.local.isLocal
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
-fun AnimeSource.icon(): Drawable? = Injekt.get<ExtensionManager>().getAppIconForSource(this.id)
+fun Source.icon(): Drawable? = Injekt.get<ExtensionManager>().getAppIconForSource(this.id)
 
-fun AnimeSource.getPreferenceKey(): String = "source_$id"
+fun Source.getPreferenceKey(): String = "source_$id"
 
-fun AnimeSource.toStubSource(): StubSource = StubSource(id = id, lang = lang, name = name)
+fun Source.toStubSource(): StubSource = StubSource(id = id, lang = lang, name = name)
 
-fun AnimeSource.getNameForAnimeInfo(): String {
+fun Source.getNameForAnimeInfo(): String {
     val preferences = Injekt.get<SourcePreferences>()
     val enabledLanguages = preferences.enabledLanguages().get()
         .filterNot { it in listOf("all", "other") }
@@ -30,10 +29,10 @@ fun AnimeSource.getNameForAnimeInfo(): String {
     }
 }
 
-fun AnimeSource.isLocalOrStub(): Boolean = isLocal() || this is StubSource
+fun Source.isLocalOrStub(): Boolean = isLocal() || this is StubSource
 
 // AM (DISCORD) -->
-fun AnimeSource?.isNsfw(): Boolean {
+fun Source?.isNsfw(): Boolean {
     if (this == null || this.isLocalOrStub()) return false
     val sourceUsed = Injekt.get<ExtensionManager>().installedExtensionsFlow.value
         .find { ext -> ext.sources.any { it.id == this.id } }!!
@@ -42,7 +41,7 @@ fun AnimeSource?.isNsfw(): Boolean {
 // <-- AM (DISCORD)
 
 // (TORRENT) -->
-fun AnimeSource?.isSourceForTorrents(): Boolean {
+fun Source?.isSourceForTorrents(): Boolean {
     if (this == null || this.isLocalOrStub()) return false
     val sourceUsed = Injekt.get<ExtensionManager>().installedExtensionsFlow.value
         .find { ext -> ext.sources.any { it.id == this.id } }!!

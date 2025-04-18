@@ -2,6 +2,7 @@ package tachiyomi.data.episode
 
 import kotlinx.coroutines.flow.Flow
 import logcat.LogPriority
+import tachiyomi.core.common.util.lang.toLong
 import tachiyomi.core.common.util.system.logcat
 import tachiyomi.data.DatabaseHandler
 import tachiyomi.domain.episode.model.Episode
@@ -12,7 +13,7 @@ class EpisodeRepositoryImpl(
     private val handler: DatabaseHandler,
 ) : EpisodeRepository {
 
-    override suspend fun addAllEpisodes(episodes: List<Episode>): List<Episode> {
+    override suspend fun addAll(episodes: List<Episode>): List<Episode> {
         return try {
             handler.await(inTransaction = true) {
                 episodes.map { episode ->
@@ -44,11 +45,11 @@ class EpisodeRepositoryImpl(
         }
     }
 
-    override suspend fun updateEpisode(episodeUpdate: EpisodeUpdate) {
+    override suspend fun update(episodeUpdate: EpisodeUpdate) {
         partialUpdate(episodeUpdate)
     }
 
-    override suspend fun updateAllEpisodes(episodeUpdates: List<EpisodeUpdate>) {
+    override suspend fun updateAll(episodeUpdates: List<EpisodeUpdate>) {
         partialUpdate(*episodeUpdates.toTypedArray())
     }
 
@@ -87,35 +88,46 @@ class EpisodeRepositoryImpl(
         }
     }
 
-    override suspend fun getEpisodeByAnimeId(animeId: Long): List<Episode> {
-        return handler.awaitList { episodesQueries.getEpisodesByAnimeId(animeId, ::mapEpisode) }
+    override suspend fun getEpisodeByAnimeId(animeId: Long, applyScanlatorFilter: Boolean): List<Episode> {
+        return handler.awaitList {
+            episodesQueries.getEpisodesByAnimeId(animeId, applyScanlatorFilter.toLong(), EpisodeMapper::mapEpisode)
+        }
+    }
+
+    override suspend fun getScanlatorsByAnimeId(animeId: Long): List<String> {
+        return handler.awaitList {
+            episodesQueries.getScanlatorsByAnimeId(animeId) { it.orEmpty() }
+        }
+    }
+
+    override fun getScanlatorsByAnimeIdAsFlow(animeId: Long): Flow<List<String>> {
+        return handler.subscribeToList {
+            episodesQueries.getScanlatorsByAnimeId(animeId) { it.orEmpty() }
+        }
     }
 
     override suspend fun getBookmarkedEpisodesByAnimeId(animeId: Long): List<Episode> {
         return handler.awaitList {
             episodesQueries.getBookmarkedEpisodesByAnimeId(
                 animeId,
-                ::mapEpisode,
+                EpisodeMapper::mapEpisode,
             )
         }
     }
 
     // AM (FILLERMARK) -->
     override suspend fun getFillermarkedEpisodesByAnimeId(animeId: Long): List<Episode> {
-        return handler.awaitList { episodesQueries.getFillermarkedEpisodesByAnimeId(animeId, ::mapEpisode) }
+        return handler.awaitList { episodesQueries.getFillermarkedEpisodesByAnimeId(animeId, EpisodeMapper::mapEpisode) }
     }
     // <-- AM (FILLERMARK)
 
     override suspend fun getEpisodeById(id: Long): Episode? {
-        return handler.awaitOneOrNull { episodesQueries.getEpisodeById(id, ::mapEpisode) }
+        return handler.awaitOneOrNull { episodesQueries.getEpisodeById(id, EpisodeMapper::mapEpisode) }
     }
 
-    override suspend fun getEpisodeByAnimeIdAsFlow(animeId: Long): Flow<List<Episode>> {
+    override suspend fun getEpisodeByAnimeIdAsFlow(animeId: Long, applyScanlatorFilter: Boolean): Flow<List<Episode>> {
         return handler.subscribeToList {
-            episodesQueries.getEpisodesByAnimeId(
-                animeId,
-                ::mapEpisode,
-            )
+            episodesQueries.getEpisodesByAnimeId(animeId, applyScanlatorFilter.toLong(), EpisodeMapper::mapEpisode)
         }
     }
 
@@ -124,50 +136,49 @@ class EpisodeRepositoryImpl(
             episodesQueries.getEpisodeByUrlAndAnimeId(
                 url,
                 animeId,
-                ::mapEpisode,
+                EpisodeMapper::mapEpisode,
             )
         }
     }
 
-    private fun mapEpisode(
-        id: Long,
+    // SY -->
+    override suspend fun getEpisodeByUrl(url: String): List<Episode> {
+        return handler.awaitList { episodesQueries.getEpisodeByUrl(url, EpisodeMapper::mapEpisode) }
+    }
+
+    override suspend fun getMergedEpisodeByAnimeId(animeId: Long, applyScanlatorFilter: Boolean): List<Episode> {
+        return handler.awaitList {
+            episodesQueries.getMergedEpisodesByAnimeId(
+                animeId,
+                applyScanlatorFilter.toLong(),
+                EpisodeMapper::mapEpisode,
+            )
+        }
+    }
+
+    override suspend fun getMergedEpisodeByAnimeIdAsFlow(
         animeId: Long,
-        url: String,
-        name: String,
-        scanlator: String?,
-        seen: Boolean,
-        bookmark: Boolean,
-        // AM (FILLERMARK) -->
-        fillermark: Boolean,
-        // <-- AM (FILLERMARK)
-        lastSecondSeen: Long,
-        totalSeconds: Long,
-        episodeNumber: Double,
-        sourceOrder: Long,
-        dateFetch: Long,
-        dateUpload: Long,
-        lastModifiedAt: Long,
-        version: Long,
-        @Suppress("UNUSED_PARAMETER")
-        isSyncing: Long,
-    ): Episode = Episode(
-        id = id,
-        animeId = animeId,
-        seen = seen,
-        bookmark = bookmark,
-        // AM (FILLERMARK) -->
-        fillermark = fillermark,
-        // <-- AM (FILLERMARK)
-        lastSecondSeen = lastSecondSeen,
-        totalSeconds = totalSeconds,
-        dateFetch = dateFetch,
-        sourceOrder = sourceOrder,
-        url = url,
-        name = name,
-        dateUpload = dateUpload,
-        episodeNumber = episodeNumber,
-        scanlator = scanlator,
-        lastModifiedAt = lastModifiedAt,
-        version = version,
-    )
+        applyScanlatorFilter: Boolean,
+    ): Flow<List<Episode>> {
+        return handler.subscribeToList {
+            episodesQueries.getMergedEpisodesByAnimeId(
+                animeId,
+                applyScanlatorFilter.toLong(),
+                EpisodeMapper::mapEpisode,
+            )
+        }
+    }
+
+    override suspend fun getScanlatorsByMergeId(animeId: Long): List<String> {
+        return handler.awaitList {
+            episodesQueries.getScanlatorsByMergeId(animeId) { it.orEmpty() }
+        }
+    }
+
+    override fun getScanlatorsByMergeIdAsFlow(animeId: Long): Flow<List<String>> {
+        return handler.subscribeToList {
+            episodesQueries.getScanlatorsByMergeId(animeId) { it.orEmpty() }
+        }
+    }
+    // SY <--
 }

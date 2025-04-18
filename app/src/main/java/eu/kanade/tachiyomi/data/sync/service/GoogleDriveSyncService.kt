@@ -12,8 +12,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse
 import com.google.api.client.http.InputStreamContent
 import com.google.api.client.http.javanet.NetHttpTransport
-import com.google.api.client.json.JsonFactory
-import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import com.google.api.services.drive.model.File
@@ -28,6 +27,7 @@ import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.core.common.util.lang.withIOContext
 import tachiyomi.core.common.util.system.logcat
 import tachiyomi.i18n.MR
+import tachiyomi.i18n.sy.SYMR
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import java.io.IOException
@@ -65,7 +65,6 @@ class GoogleDriveSyncService(context: Context, json: Json, syncPreferences: Sync
 
     private val protoBuf: ProtoBuf = Injekt.get()
 
-    @Suppress("ReturnCount", "TooGenericExceptionCaught")
     override suspend fun doSync(syncData: SyncData): Backup? {
         beforeSync()
 
@@ -82,8 +81,7 @@ class GoogleDriveSyncService(context: Context, json: Json, syncPreferences: Sync
                     "Local device ID: $localDeviceId, Last sync device ID: $lastSyncDeviceId"
                 }
 
-                // check if the last sync was done by the same device if so
-                // overwrite the remote data with the local data
+                // check if the last sync was done by the same device if so overwrite the remote data with the local data
                 return if (lastSyncDeviceId == localDeviceId) {
                     pushSyncData(syncData)
                     syncData.backup
@@ -107,10 +105,9 @@ class GoogleDriveSyncService(context: Context, json: Json, syncPreferences: Sync
         googleDriveService.refreshToken()
     }
 
-    @Suppress("TooGenericExceptionThrown", "TooGenericExceptionCaught")
     private fun pullSyncData(): SyncData? {
         val drive = googleDriveService.driveService
-            ?: throw Exception(context.stringResource(MR.strings.google_drive_not_signed_in))
+            ?: throw Exception(context.stringResource(SYMR.strings.google_drive_not_signed_in))
 
         val fileList = getAppDataFileList(drive)
         if (fileList.isEmpty()) {
@@ -131,15 +128,14 @@ class GoogleDriveSyncService(context: Context, json: Json, syncPreferences: Sync
                 }
             }
         } catch (e: Exception) {
-            logcat(LogPriority.ERROR, throwable = e) { "Error downloading file: ${e.message}" }
+            logcat(LogPriority.ERROR, throwable = e) { "Error downloading file" }
             throw Exception("Failed to download sync data: ${e.message}", e)
         }
     }
 
-    @Suppress("TooGenericExceptionThrown")
     private suspend fun pushSyncData(syncData: SyncData) {
         val drive = googleDriveService.driveService
-            ?: throw Exception(context.stringResource(MR.strings.google_drive_not_signed_in))
+            ?: throw Exception(context.stringResource(SYMR.strings.google_drive_not_signed_in))
 
         val fileList = getAppDataFileList(drive)
         val backup = syncData.backup ?: return
@@ -168,9 +164,9 @@ class GoogleDriveSyncService(context: Context, json: Json, syncPreferences: Sync
                             appProperties = mapOf("deviceId" to syncData.deviceId)
                         }
                         drive.files().update(fileId, fileMetadata, mediaContent).execute()
-                        logcat(
-                            LogPriority.DEBUG,
-                        ) { "Updated existing sync data file in Google Drive with file ID: $fileId" }
+                        logcat(LogPriority.DEBUG) {
+                            "Updated existing sync data file in Google Drive with file ID: $fileId"
+                        }
                     } else {
                         val fileMetadata = File().apply {
                             name = remoteFileName
@@ -181,16 +177,15 @@ class GoogleDriveSyncService(context: Context, json: Json, syncPreferences: Sync
                         val uploadedFile = drive.files().create(fileMetadata, mediaContent)
                             .setFields("id")
                             .execute()
-                        logcat(
-                            LogPriority.DEBUG,
-                        ) { "Created new sync data file in Google Drive with file ID: ${uploadedFile.id}" }
+                        logcat(LogPriority.DEBUG) {
+                            "Created new sync data file in Google Drive with file ID: ${uploadedFile.id}"
+                        }
                     }
                 }
             }
         }
     }
 
-    @Suppress("TooGenericExceptionCaught")
     private fun getAppDataFileList(drive: Drive): MutableList<File> {
         try {
             // Search for the existing file by name in the appData folder
@@ -211,7 +206,6 @@ class GoogleDriveSyncService(context: Context, json: Json, syncPreferences: Sync
         }
     }
 
-    @Suppress("TooGenericExceptionCaught")
     suspend fun deleteSyncDataFromGoogleDrive(): DeleteSyncDataStatus {
         val drive = googleDriveService.driveService
 
@@ -297,9 +291,8 @@ class GoogleDriveService(private val context: Context) {
      * even if they have previously granted access.
      * @return The authorization URL.
      */
-    @Suppress("TooGenericExceptionThrown")
     private fun generateAuthorizationUrl(): String {
-        val jsonFactory: JsonFactory = JacksonFactory.getDefaultInstance()
+        val jsonFactory: GsonFactory = GsonFactory.getDefaultInstance()
         val secrets = GoogleClientSecrets.load(
             jsonFactory,
             context.assets.open("client_secrets.json").reader(),
@@ -317,12 +310,10 @@ class GoogleDriveService(private val context: Context) {
             .setApprovalPrompt("force")
             .build()
     }
-
-    @Suppress("TooGenericExceptionThrown")
     internal suspend fun refreshToken() = withIOContext {
         val refreshToken = syncPreferences.googleDriveRefreshToken().get()
 
-        val jsonFactory: JsonFactory = JacksonFactory.getDefaultInstance()
+        val jsonFactory: GsonFactory = GsonFactory.getDefaultInstance()
         val secrets = GoogleClientSecrets.load(
             jsonFactory,
             context.assets.open("client_secrets.json").reader(),
@@ -335,7 +326,7 @@ class GoogleDriveService(private val context: Context) {
             .build()
 
         if (refreshToken == "") {
-            throw Exception(context.stringResource(MR.strings.google_drive_not_signed_in))
+            throw Exception(context.stringResource(SYMR.strings.google_drive_not_signed_in))
         }
 
         credential.refreshToken = refreshToken
@@ -373,7 +364,7 @@ class GoogleDriveService(private val context: Context) {
      * @param refreshToken The refresh token obtained from the SyncPreferences.
      */
     private fun setupGoogleDriveService(accessToken: String, refreshToken: String) {
-        val jsonFactory: JsonFactory = JacksonFactory.getDefaultInstance()
+        val jsonFactory: GsonFactory = GsonFactory.getDefaultInstance()
         val secrets = GoogleClientSecrets.load(
             jsonFactory,
             context.assets.open("client_secrets.json").reader(),
@@ -397,24 +388,22 @@ class GoogleDriveService(private val context: Context) {
     }
 
     /**
-     * Handles the authorization code returned after the user has granted the
-     * application permission to access their Google Drive account.
-     * It obtains the access token and refresh token using the authorization code,
-     * saves the tokens to the SyncPreferences,
-     * sets up the Google Drive service using the obtained tokens, and initializes the service.
+     * Handles the authorization code returned after the user has granted the application permission to access their
+     * Google Drive account.
+     * It obtains the access token and refresh token using the authorization code, saves the tokens to the
+     * SyncPreferences, sets up the Google Drive service using the obtained tokens, and initializes the service.
      * @param authorizationCode The authorization code obtained from the OAuthCallbackServer.
      * @param activity The current activity.
      * @param onSuccess A callback function to be called on successful authorization.
      * @param onFailure A callback function to be called on authorization failure.
      */
-    @Suppress("TooGenericExceptionCaught")
     fun handleAuthorizationCode(
         authorizationCode: String,
         activity: Activity,
         onSuccess: () -> Unit,
         onFailure: (String) -> Unit,
     ) {
-        val jsonFactory: JsonFactory = JacksonFactory.getDefaultInstance()
+        val jsonFactory: GsonFactory = GsonFactory.getDefaultInstance()
         val secrets = GoogleClientSecrets.load(
             jsonFactory,
             context.assets.open("client_secrets.json").reader(),

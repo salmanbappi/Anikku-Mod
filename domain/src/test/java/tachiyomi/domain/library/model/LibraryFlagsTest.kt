@@ -18,52 +18,40 @@ class LibraryFlagsTest {
 
     @Test
     fun `Test Flag plus operator (LibrarySort)`() {
-        val animecurrent = LibrarySort(
-            LibrarySort.Type.LastSeen,
-            LibrarySort.Direction.Ascending,
-        )
-        val newanime = LibrarySort(
-            LibrarySort.Type.DateAdded,
-            LibrarySort.Direction.Ascending,
-        )
-        val animeflag = animecurrent + newanime
+        val current = LibrarySort(LibrarySort.Type.LastSeen, LibrarySort.Direction.Ascending)
+        val new = LibrarySort(LibrarySort.Type.DateAdded, LibrarySort.Direction.Ascending)
+        val flag = current + new
 
-        animeflag shouldBe 0b01011100
+        flag shouldBe 0b01011100
     }
 
     @Test
     fun `Test Flag plus operator`() {
-        val animesort = LibrarySort(
-            LibrarySort.Type.DateAdded,
-            LibrarySort.Direction.Ascending,
-        )
+        val sort = LibrarySort(LibrarySort.Type.DateAdded, LibrarySort.Direction.Ascending)
 
-        animesort.flag shouldBe 0b01011100
+        sort.flag shouldBe 0b01011100
     }
 
     @Test
     fun `Test Flag plus operator with old flag as base`() {
-        val currentanimeSort = LibrarySort(
+        val currentSort = LibrarySort(
             LibrarySort.Type.UnseenCount,
             LibrarySort.Direction.Descending,
         )
-        currentanimeSort.flag shouldBe 0b00001100
+        currentSort.flag shouldBe 0b00001100
 
-        val animesort = LibrarySort(
-            LibrarySort.Type.DateAdded,
-            LibrarySort.Direction.Ascending,
-        )
-        val animeflag = animesort.flag + animesort
+        val sort = LibrarySort(LibrarySort.Type.DateAdded, LibrarySort.Direction.Ascending)
+        val flag = currentSort.flag + sort
 
-        animeflag shouldBe 0b01011100
-        animeflag shouldNotBe currentanimeSort.flag
+        flag shouldBe 0b01011100
+        flag shouldNotBe currentSort.flag
     }
 
     @Test
     fun `Test default flags`() {
-        val animesort = LibrarySort.default
-        val animeflag = animesort.type + animesort.direction
+        val sort = LibrarySort.default
+        val flag = sort.type + sort.direction
 
-        animeflag shouldBe 0b01000000
+        flag shouldBe 0b01000000
     }
 }

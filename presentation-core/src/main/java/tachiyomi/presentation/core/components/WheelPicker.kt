@@ -161,13 +161,16 @@ private fun <T> WheelPicker(
                     showManualInput = false
                 }
             }
-
             BasicTextField(
                 modifier = Modifier
                     .align(Alignment.Center)
                     .showSoftKeyboard(true)
+                    // KMK -->
                     .clearFocusOnSoftKeyboardHide(processManualInput),
+                /* clearFocusOnSoftKeyboardHide doesn't work because onSoftKeyboardHide won't trigger
+                    a recomposition => use keyboardActions instead */
                 onKeyboardAction = { processManualInput() },
+                // KMK <--
                 state = value,
                 lineLimits = TextFieldLineLimits.SingleLine,
                 keyboardOptions = KeyboardOptions(
@@ -192,9 +195,7 @@ private fun <T> WheelPicker(
                         }
                     },
                 state = lazyListState,
-                contentPadding = PaddingValues(
-                    vertical = size.height / ROW_COUNT * ((ROW_COUNT - 1) / 2),
-                ),
+                contentPadding = PaddingValues(vertical = size.height / ROW_COUNT * ((ROW_COUNT - 1) / 2)),
                 flingBehavior = rememberSnapFlingBehavior(lazyListState = lazyListState),
             ) {
                 itemsIndexed(items) { index, item ->

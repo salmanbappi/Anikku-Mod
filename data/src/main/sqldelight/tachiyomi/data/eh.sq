@@ -1,0 +1,28 @@
+deleteBySyncId:
+DELETE FROM anime_sync WHERE sync_id = :syncId;
+
+migrateSource:
+UPDATE animes
+SET source = :newId
+WHERE source = :oldId;
+
+getEpisodesByAnimeIds:
+SELECT * FROM episodes WHERE anime_id IN :animeIds;
+
+migrateAllNhentaiToOtherLang:
+UPDATE animes
+SET source = :nh
+WHERE favorite = 1 AND source IN :sources;
+
+resetReaderViewerForAllAnime:
+UPDATE animes
+SET viewer = 0;
+
+fixReaderViewerBackupBug:
+UPDATE animes
+SET viewer = 0
+WHERE viewer = -1;
+
+addAllAnimeInDatabaseToLibrary:
+UPDATE animes
+SET favorite = 1;

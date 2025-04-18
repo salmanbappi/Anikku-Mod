@@ -11,7 +11,7 @@ class SetAnimeViewerFlags(
 
     suspend fun awaitSetSkipIntroLength(id: Long, flag: Long) {
         val anime = animeRepository.getAnimeById(id)
-        animeRepository.updateAnime(
+        animeRepository.update(
             AnimeUpdate(
                 id = id,
                 viewerFlags = anime.viewerFlags.setFlag(flag, Anime.ANIME_INTRO_MASK),
@@ -26,7 +26,7 @@ class SetAnimeViewerFlags(
 
     private suspend fun awaitSetNextEpisodeToAir(id: Long, flag: Long) {
         val anime = animeRepository.getAnimeById(id)
-        animeRepository.updateAnime(
+        animeRepository.update(
             AnimeUpdate(
                 id = id,
                 viewerFlags = anime.viewerFlags.setFlag(flag, Anime.ANIME_AIRING_EPISODE_MASK),
@@ -36,7 +36,7 @@ class SetAnimeViewerFlags(
 
     private suspend fun awaitSetNextEpisodeAiringAt(id: Long, flag: Long) {
         val anime = animeRepository.getAnimeById(id)
-        animeRepository.updateAnime(
+        animeRepository.update(
             AnimeUpdate(
                 id = id,
                 viewerFlags = anime.viewerFlags.setFlag(flag, Anime.ANIME_AIRING_TIME_MASK),

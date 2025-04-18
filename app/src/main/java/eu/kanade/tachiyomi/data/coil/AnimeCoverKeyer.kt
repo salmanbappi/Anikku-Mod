@@ -12,9 +12,9 @@ import tachiyomi.domain.anime.model.Anime as DomainAnime
 class AnimeKeyer : Keyer<DomainAnime> {
     override fun key(data: DomainAnime, options: Options): String {
         return if (data.hasCustomCover()) {
-            "anime;${data.id};${data.coverLastModified}"
+            "${data.id};${data.coverLastModified}"
         } else {
-            "anime;${data.thumbnailUrl};${data.coverLastModified}"
+            "${data.thumbnailUrl};${data.coverLastModified}"
         }
     }
 }
@@ -24,9 +24,9 @@ class AnimeCoverKeyer(
 ) : Keyer<AnimeCover> {
     override fun key(data: AnimeCover, options: Options): String {
         return if (coverCache.getCustomCoverFile(data.animeId).exists()) {
-            "anime;${data.animeId};${data.lastModified}"
+            "${data.animeId};${data.lastModified}"
         } else {
-            "anime;${data.url};${data.lastModified}"
+            "${data.url};${data.lastModified}"
         }
     }
 }

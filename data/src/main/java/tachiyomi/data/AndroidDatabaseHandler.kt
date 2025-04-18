@@ -33,6 +33,15 @@ class AndroidDatabaseHandler(
         return dispatch(inTransaction) { block(db).executeAsList() }
     }
 
+    // SY -->
+    override suspend fun <T : Any> awaitListExecutable(
+        inTransaction: Boolean,
+        block: suspend Database.() -> ExecutableQuery<T>,
+    ): List<T> {
+        return dispatch(inTransaction) { block(db).executeAsList() }
+    }
+    // SY <--
+
     override suspend fun <T : Any> awaitOne(
         inTransaction: Boolean,
         block: suspend Database.() -> Query<T>,
@@ -89,7 +98,7 @@ class AndroidDatabaseHandler(
     private suspend fun <T> dispatch(inTransaction: Boolean, block: suspend Database.() -> T): T {
         // Create a transaction if needed and run the calling block inside it.
         if (inTransaction) {
-            return withAnimeTransaction { block(db) }
+            return withTransaction { block(db) }
         }
 
         // If we're currently in the transaction thread, there's no need to dispatch our query.
@@ -98,7 +107,7 @@ class AndroidDatabaseHandler(
         }
 
         // Get the current database context and run the calling block.
-        val context = getCurrentAnimeDatabaseContext()
+        val context = getCurrentDatabaseContext()
         return withContext(context) { block(db) }
     }
 }

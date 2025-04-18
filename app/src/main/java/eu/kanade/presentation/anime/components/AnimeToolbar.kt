@@ -33,7 +33,6 @@ import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.theme.active
 
 @Composable
-@Suppress("LongMethod", "CyclomaticComplexMethod")
 fun AnimeToolbar(
     title: String,
     titleAlphaProvider: () -> Float,
@@ -46,16 +45,15 @@ fun AnimeToolbar(
     onClickRefresh: () -> Unit,
     onClickMigrate: (() -> Unit)?,
     onClickSettings: (() -> Unit)?,
-    // Anime only
-    changeAnimeSkipIntro: (() -> Unit)?,
     // SY -->
     onClickEditInfo: (() -> Unit)?,
     // SY <--
+    // Anime only
+    changeAnimeSkipIntro: (() -> Unit)?,
     // For action mode
     actionModeCounter: Int,
     onSelectAll: () -> Unit,
     onInvertSelection: () -> Unit,
-    isManga: Boolean,
     modifier: Modifier = Modifier,
     backgroundAlphaProvider: () -> Float = titleAlphaProvider,
 ) {
@@ -101,7 +99,6 @@ fun AnimeToolbar(
                             expanded = downloadExpanded,
                             onDismissRequest = onDismissRequest,
                             onDownloadClicked = onClickDownload,
-                            isManga = isManga,
                         )
                     }
 

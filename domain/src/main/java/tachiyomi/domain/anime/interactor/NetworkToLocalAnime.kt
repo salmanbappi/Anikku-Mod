@@ -7,29 +7,37 @@ class NetworkToLocalAnime(
     private val animeRepository: AnimeRepository,
 ) {
 
-    suspend fun await(anime: Anime): Anime {
-        val localAnime = getAnime(anime.url, anime.source)
+    suspend fun await(manga: Anime): Anime {
+        val localManga = getManga(manga.url, manga.source)
         return when {
-            localAnime == null -> {
-                val id = insertAnime(anime)
-                anime.copy(id = id!!)
+            localManga == null -> {
+                val id = insertManga(manga)
+                manga.copy(id = id!!)
             }
-            !localAnime.favorite -> {
-                // if the anime isn't a favorite, set its display title from source
+            !localManga.favorite -> {
+                // if the manga isn't a favorite, set its display title from source
                 // if it later becomes a favorite, updated title will go to db
-                localAnime.copy(ogTitle = anime.title)
+                localManga.copy(/* SY --> */ogTitle/* SY <-- */ = manga.title)
             }
             else -> {
-                localAnime
+                localManga
             }
         }
     }
 
-    private suspend fun getAnime(url: String, sourceId: Long): Anime? {
+    // KMK -->
+    suspend fun getLocal(manga: Anime): Anime = if (manga.id <= 0) {
+        await(manga)
+    } else {
+        manga
+    }
+    // KMK <--
+
+    private suspend fun getManga(url: String, sourceId: Long): Anime? {
         return animeRepository.getAnimeByUrlAndSourceId(url, sourceId)
     }
 
-    private suspend fun insertAnime(anime: Anime): Long? {
-        return animeRepository.insertAnime(anime)
+    private suspend fun insertManga(manga: Anime): Long? {
+        return animeRepository.insert(manga)
     }
 }

@@ -3,12 +3,12 @@ package eu.kanade.tachiyomi.data.track.jellyfin
 import android.graphics.Color
 import dev.icerock.moko.resources.StringResource
 import eu.kanade.tachiyomi.R
-import eu.kanade.tachiyomi.animesource.AnimeSource
 import eu.kanade.tachiyomi.data.database.models.Track
 import eu.kanade.tachiyomi.data.track.AnimeTracker
 import eu.kanade.tachiyomi.data.track.BaseTracker
 import eu.kanade.tachiyomi.data.track.EnhancedTracker
 import eu.kanade.tachiyomi.data.track.model.TrackSearch
+import eu.kanade.tachiyomi.source.Source
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import okhttp3.Dns
@@ -91,10 +91,10 @@ class Jellyfin(id: Long) : BaseTracker(id, "Jellyfin"), EnhancedTracker, AnimeTr
             null
         }
 
-    override fun isTrackFrom(track: DomainTrack, anime: Anime, source: AnimeSource?): Boolean =
+    override fun isTrackFrom(track: DomainTrack, anime: Anime, source: Source?): Boolean =
         track.remoteUrl == anime.url && source?.let { accept(it) } == true
 
-    override fun migrateTrack(track: DomainTrack, anime: Anime, newSource: AnimeSource): DomainTrack? {
+    override fun migrateTrack(track: DomainTrack, anime: Anime, newSource: Source): DomainTrack? {
         return if (accept(newSource)) {
             track.copy(remoteUrl = anime.url)
         } else {

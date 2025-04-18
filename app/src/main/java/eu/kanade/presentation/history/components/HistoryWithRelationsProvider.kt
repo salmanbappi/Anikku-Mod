@@ -11,14 +11,17 @@ internal class HistoryWithRelationsProvider : PreviewParameterProvider<HistoryWi
         id = 1L,
         episodeId = 2L,
         animeId = 3L,
-        title = "Test Title",
+        // SY -->
+        ogTitle = "Test Title",
+        // SY <--
         episodeNumber = 10.2,
         seenAt = Date(1697247357L),
+        watchDuration = 123L,
         coverData = AnimeCover(
             animeId = 3L,
             sourceId = 4L,
             isAnimeFavorite = false,
-            url = "https://example.com/cover.png",
+            ogUrl = "https://example.com/cover.png",
             lastModified = 5L,
         ),
     )
@@ -27,14 +30,17 @@ internal class HistoryWithRelationsProvider : PreviewParameterProvider<HistoryWi
         id = 1L,
         episodeId = 2L,
         animeId = 3L,
-        title = "Test Title",
+        // SY -->
+        ogTitle = "Test Title",
+        // SY <--
         episodeNumber = 10.2,
         seenAt = null,
+        watchDuration = 123L,
         coverData = AnimeCover(
             animeId = 3L,
             sourceId = 4L,
             isAnimeFavorite = false,
-            url = "https://example.com/cover.png",
+            ogUrl = "https://example.com/cover.png",
             lastModified = 5L,
         ),
     )
@@ -43,14 +49,17 @@ internal class HistoryWithRelationsProvider : PreviewParameterProvider<HistoryWi
         id = 1L,
         episodeId = 2L,
         animeId = 3L,
-        title = "Test Title",
+        // SY -->
+        ogTitle = "Test Title",
+        // SY <--
         episodeNumber = -2.0,
         seenAt = Date(1697247357L),
+        watchDuration = 123L,
         coverData = AnimeCover(
             animeId = 3L,
             sourceId = 4L,
             isAnimeFavorite = false,
-            url = "https://example.com/cover.png",
+            ogUrl = "https://example.com/cover.png",
             lastModified = 5L,
         ),
     )

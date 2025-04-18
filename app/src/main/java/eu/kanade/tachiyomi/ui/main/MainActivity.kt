@@ -75,6 +75,7 @@ import eu.kanade.tachiyomi.data.connection.discord.DiscordScreen
 import eu.kanade.tachiyomi.data.download.DownloadCache
 import eu.kanade.tachiyomi.data.notification.NotificationReceiver
 import eu.kanade.tachiyomi.data.updater.AppUpdateChecker
+import eu.kanade.tachiyomi.data.updater.AppUpdateJob
 import eu.kanade.tachiyomi.data.updater.RELEASE_URL
 import eu.kanade.tachiyomi.extension.api.ExtensionApi
 import eu.kanade.tachiyomi.ui.anime.AnimeScreen
@@ -342,7 +343,10 @@ class MainActivity : BaseActivity() {
         LaunchedEffect(Unit) {
             if (BuildConfig.INCLUDE_UPDATER) {
                 try {
-                    val result = AppUpdateChecker(context).checkForUpdates()
+                    // KMK -->
+                    AppUpdateJob.setupTask(context)
+                    // KMK <--
+                    val result = AppUpdateChecker().checkForUpdate(context)
                     if (result is GetApplicationRelease.Result.NewUpdate) {
                         val updateScreen = NewUpdateScreen(
                             versionName = result.release.version,

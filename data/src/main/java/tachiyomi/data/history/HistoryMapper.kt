@@ -10,10 +10,12 @@ object HistoryMapper {
         id: Long,
         episodeId: Long,
         seenAt: Date?,
+        watchDuration: Long,
     ): History = History(
         id = id,
         episodeId = episodeId,
         seenAt = seenAt,
+        watchDuration = watchDuration,
     )
 
     fun mapHistoryWithRelations(
@@ -27,18 +29,22 @@ object HistoryMapper {
         coverLastModified: Long,
         episodeNumber: Double,
         seenAt: Date?,
+        watchDuration: Long,
     ): HistoryWithRelations = HistoryWithRelations(
         id = historyId,
         episodeId = episodeId,
         animeId = animeId,
-        title = title,
+        // SY -->
+        ogTitle = title,
+        // SY <--
         episodeNumber = episodeNumber,
         seenAt = seenAt,
+        watchDuration = watchDuration,
         coverData = AnimeCover(
             animeId = animeId,
             sourceId = sourceId,
             isAnimeFavorite = isFavorite,
-            url = thumbnailUrl,
+            ogUrl = thumbnailUrl,
             lastModified = coverLastModified,
         ),
     )

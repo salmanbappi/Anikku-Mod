@@ -77,8 +77,8 @@ data object BrowseTab : Tab {
             titleRes = MR.strings.browse,
             tabs = tabs,
             state = state,
-            animeSearchQuery = animeExtensionsState.searchQuery,
-            onChangeAnimeSearchQuery = extensionsScreenModel::search,
+            searchQuery = animeExtensionsState.searchQuery,
+            onChangeSearchQuery = extensionsScreenModel::search,
             scrollable = true,
         )
         LaunchedEffect(Unit) {

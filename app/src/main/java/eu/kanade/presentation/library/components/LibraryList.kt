@@ -51,7 +51,7 @@ internal fun LibraryList(
                     animeId = anime.id,
                     sourceId = anime.source,
                     isAnimeFavorite = anime.favorite,
-                    url = anime.thumbnailUrl,
+                    ogUrl = anime.thumbnailUrl,
                     lastModified = anime.coverLastModified,
                 ),
                 badge = {

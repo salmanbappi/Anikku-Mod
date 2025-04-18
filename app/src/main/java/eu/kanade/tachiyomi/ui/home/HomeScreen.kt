@@ -255,7 +255,7 @@ object HomeScreen : Screen() {
                         val count by produceState(initialValue = 0) {
                             val pref = Injekt.get<LibraryPreferences>()
                             combine(
-                                pref.newAnimeUpdatesCount().changes(),
+                                pref.newUpdatesCount().changes(),
                                 pref.newMangaUpdatesCount().changes(),
                             ) { countAnime, countManga -> countAnime + countManga }
                                 .collectLatest { value = if (pref.newShowUpdatesCount().get()) it else 0 }
@@ -277,11 +277,7 @@ object HomeScreen : Screen() {
                     BrowseTab::class.isInstance(tab) -> {
                         val count by produceState(initialValue = 0) {
                             val pref = Injekt.get<SourcePreferences>()
-                            combine(
-                                pref.mangaExtensionUpdatesCount().changes(),
-                                pref.animeExtensionUpdatesCount().changes(),
-                            ) { extCount, animeExtCount -> extCount + animeExtCount }
-                                .collectLatest { value = it }
+                            pref.animeExtensionUpdatesCount().changes().collectLatest { value = it }
                         }
                         if (count > 0) {
                             Badge {

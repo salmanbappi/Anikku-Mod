@@ -262,7 +262,7 @@ private fun UpdatesUiItem(
                         null,
                         update.scanlator,
                         // AM (CUSTOM_INFORMATION) -->
-                        update.animeTitle,
+                        update.ogAnimeTitle,
                         // <-- AM (CUSTOM_INFORMATION)
                         sourceManager.getOrStub(update.sourceId),
                     )

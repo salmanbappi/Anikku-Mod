@@ -13,9 +13,7 @@ import com.arthenica.ffmpegkit.LogCallback
 import com.arthenica.ffmpegkit.SessionState
 import com.hippo.unifile.UniFile
 import eu.kanade.domain.episode.model.toSEpisode
-import eu.kanade.tachiyomi.animesource.UnmeteredSource
 import eu.kanade.tachiyomi.animesource.model.Video
-import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import eu.kanade.tachiyomi.data.download.model.Download
 import eu.kanade.tachiyomi.data.download.model.DownloadPart
 import eu.kanade.tachiyomi.data.library.LibraryUpdateNotifier
@@ -24,6 +22,8 @@ import eu.kanade.tachiyomi.data.torrentServer.TorrentServerApi
 import eu.kanade.tachiyomi.data.torrentServer.TorrentServerUtils
 import eu.kanade.tachiyomi.data.torrentServer.service.TorrentServerService
 import eu.kanade.tachiyomi.network.ProgressListener
+import eu.kanade.tachiyomi.source.UnmeteredSource
+import eu.kanade.tachiyomi.source.online.HttpSource
 import eu.kanade.tachiyomi.util.size
 import eu.kanade.tachiyomi.util.storage.DiskUtil
 import eu.kanade.tachiyomi.util.storage.toFFmpegString
@@ -228,7 +228,7 @@ class Downloader(
                     activeDownloadsErroredFlow.first()
                 }
 
-                if (areAllAnimeDownloadsFinished()) stop()
+                if (areAllDownloadsFinished()) stop()
             }.distinctUntilChanged()
 
             // Use supervisorScope to cancel child jobs when the downloader job is cancelled
@@ -304,7 +304,7 @@ class Downloader(
     ) {
         if (episodes.isEmpty()) return
 
-        val source = sourceManager.get(anime.source) as? AnimeHttpSource ?: return
+        val source = sourceManager.get(anime.source) as? HttpSource ?: return
         val wasEmpty = queueState.value.isEmpty()
 
         val episodesToQueue = episodes.asSequence()
@@ -1198,7 +1198,7 @@ class Downloader(
      */
     private fun downloadVideoExternal(
         video: Video,
-        source: AnimeHttpSource,
+        source: HttpSource,
         tmpDir: UniFile,
         filename: String,
     ): UniFile {
@@ -1261,7 +1261,7 @@ class Downloader(
                                 // Remove downloaded episode from queue
                                 removeFromQueue(download)
                             }
-                            if (areAllAnimeDownloadsFinished()) {
+                            if (areAllDownloadsFinished()) {
                                 stop()
                             }
                         }
@@ -1317,7 +1317,7 @@ class Downloader(
     /**
      * Returns true if all the queued downloads are in DOWNLOADED or ERROR state.
      */
-    private fun areAllAnimeDownloadsFinished(): Boolean {
+    private fun areAllDownloadsFinished(): Boolean {
         return queueState.value.none { it.status.value <= Download.State.DOWNLOADING.value }
     }
 

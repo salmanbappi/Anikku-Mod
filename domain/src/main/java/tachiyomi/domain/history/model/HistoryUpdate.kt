@@ -5,4 +5,5 @@ import java.util.Date
 data class HistoryUpdate(
     val episodeId: Long,
     val seenAt: Date,
+    val sessionWatchDuration: Long,
 )

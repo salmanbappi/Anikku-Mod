@@ -56,7 +56,7 @@ fun BrowseSourceComfortableGrid(
 }
 
 @Composable
-private fun BrowseSourceComfortableGridItem(
+internal fun BrowseSourceComfortableGridItem(
     anime: Anime,
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = onClick,
@@ -67,7 +67,7 @@ private fun BrowseSourceComfortableGridItem(
             animeId = anime.id,
             sourceId = anime.source,
             isAnimeFavorite = anime.favorite,
-            url = anime.thumbnailUrl,
+            ogUrl = anime.thumbnailUrl,
             lastModified = anime.coverLastModified,
         ),
         coverAlpha = if (anime.favorite) CommonAnimeItemDefaults.BrowseFavoriteCoverAlpha else 1f,

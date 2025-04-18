@@ -1,8 +1,8 @@
 package eu.kanade.tachiyomi.data.track.jellyfin
 
 import eu.kanade.tachiyomi.BuildConfig
-import eu.kanade.tachiyomi.animesource.ConfigurableAnimeSource
-import eu.kanade.tachiyomi.animesource.sourcePreferences
+import eu.kanade.tachiyomi.source.ConfigurableSource
+import eu.kanade.tachiyomi.source.sourcePreferences
 import okhttp3.Interceptor
 import okhttp3.Response
 import tachiyomi.domain.source.service.SourceManager
@@ -51,7 +51,7 @@ class JellyfinInterceptor : Interceptor {
     private fun getApiKey(userId: String): String? {
         for (i in 1..MAX_JELLYFIN_SOURCES) {
             val sourceId = getId(i)
-            val preferences = (sourceManager.get(sourceId) as ConfigurableAnimeSource).sourcePreferences()
+            val preferences = (sourceManager.get(sourceId) as ConfigurableSource).sourcePreferences()
             val sourceUserId = preferences.getString("user_id", "")
 
             if (sourceUserId.isNullOrEmpty()) {

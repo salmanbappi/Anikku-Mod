@@ -14,12 +14,12 @@ class CreateCategoryWithName(
 
     private val initialFlags: Long
         get() {
-            val sort = preferences.animeSortingMode().get()
+            val sort = preferences.sortingMode().get()
             return sort.type.flag or sort.direction.flag
         }
 
     suspend fun await(name: String): Result = withNonCancellableContext {
-        val categories = categoryRepository.getAllAnimeCategories()
+        val categories = categoryRepository.getAll()
         val nextOrder = categories.maxOfOrNull { it.order }?.plus(1) ?: 0
         val newCategory = Category(
             id = 0,
@@ -30,8 +30,8 @@ class CreateCategoryWithName(
         )
 
         try {
-            categoryRepository.insertAnimeCategory(newCategory)
-            Result.Success
+            categoryRepository.insert(newCategory)
+            Result.Success(/* SY --> */newCategory/* SY <-- */)
         } catch (e: Exception) {
             logcat(LogPriority.ERROR, e)
             Result.InternalError(e)
@@ -39,7 +39,10 @@ class CreateCategoryWithName(
     }
 
     sealed interface Result {
-        data object Success : Result
+        // SY -->
+        data class Success(val category: Category) : Result
+        // SY <--
+
         data class InternalError(val error: Throwable) : Result
     }
 }

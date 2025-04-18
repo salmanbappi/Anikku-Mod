@@ -23,9 +23,9 @@ import kotlin.time.toDurationUnit
  * @since extension-lib 1.3
  *
  * @param httpUrl [HttpUrl] The url host that this interceptor should handle. Will get url's host by using HttpUrl.host()
- * @param permits [Int]   Number of requests allowed within a period of units.
- * @param period [Long]   The limiting duration. Defaults to 1.
- * @param unit [TimeUnit] The unit of time for the period. Defaults to seconds.
+ * @param permits [Int]     Number of requests allowed within a period of units.
+ * @param period [Long]     The limiting duration. Defaults to 1.
+ * @param unit [TimeUnit]   The unit of time for the period. Defaults to seconds.
  */
 @Deprecated("Use the version with kotlin.time APIs instead.")
 fun OkHttpClient.Builder.rateLimitHost(

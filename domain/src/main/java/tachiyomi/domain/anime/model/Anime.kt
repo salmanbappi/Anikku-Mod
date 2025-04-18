@@ -1,14 +1,15 @@
 package tachiyomi.domain.anime.model
 
 import androidx.compose.runtime.Immutable
-import eu.kanade.tachiyomi.animesource.model.AnimeUpdateStrategy
-import eu.kanade.tachiyomi.animesource.model.SAnime
+import eu.kanade.tachiyomi.source.model.UpdateStrategy
 import tachiyomi.core.common.preference.TriState
 import tachiyomi.domain.anime.interactor.GetCustomAnimeInfo
 import uy.kohesive.injekt.injectLazy
 import java.io.Serializable
 import java.time.Instant
 import kotlin.math.pow
+
+typealias Manga = Anime
 
 @Immutable
 data class Anime(
@@ -27,12 +28,12 @@ data class Anime(
     val ogTitle: String,
     val ogArtist: String?,
     val ogAuthor: String?,
+    val ogThumbnailUrl: String?,
     val ogDescription: String?,
     val ogGenre: List<String>?,
     val ogStatus: Long,
     // SY <--
-    val thumbnailUrl: String?,
-    val updateStrategy: AnimeUpdateStrategy,
+    val updateStrategy: UpdateStrategy,
     val initialized: Boolean,
     val lastModifiedAt: Long,
     val favoriteModifiedAt: Long?,
@@ -45,23 +46,35 @@ data class Anime(
     } else {
         null
     }
+
     val title: String
         get() = customAnimeInfo?.title ?: ogTitle
+
     val author: String?
         get() = customAnimeInfo?.author ?: ogAuthor
+
     val artist: String?
         get() = customAnimeInfo?.artist ?: ogArtist
+
+    val thumbnailUrl: String?
+        get() = customAnimeInfo?.thumbnailUrl ?: ogThumbnailUrl
+
     val description: String?
         get() = customAnimeInfo?.description ?: ogDescription
+
     val genre: List<String>?
         get() = customAnimeInfo?.genre ?: ogGenre
+
     val status: Long
         get() = customAnimeInfo?.status ?: ogStatus
-
     // SY <--
+
     val expectedNextUpdate: Instant?
         get() = nextUpdate
+            /* KMK -->
+            Always predict release date even for Completed entries
             .takeIf { status != SAnime.COMPLETED.toLong() }
+             KMK <-- */
             ?.let { Instant.ofEpochMilli(it) }
 
     val sorting: Long
@@ -151,10 +164,10 @@ data class Anime(
         const val EPISODE_FILLERMARKED_MASK = 0x00000180L
 
         const val EPISODE_SORTING_SOURCE = 0x00000000L
-        const val EPISODE_SORTING_NUMBER = 0x00000200L
-        const val EPISODE_SORTING_UPLOAD_DATE = 0x00000400L
-        const val EPISODE_SORTING_ALPHABET = 0x00000600L
-        const val EPISODE_SORTING_MASK = 0x00000600L
+        const val EPISODE_SORTING_NUMBER = 0x00000100L
+        const val EPISODE_SORTING_UPLOAD_DATE = 0x00000200L
+        const val EPISODE_SORTING_ALPHABET = 0x00000300L
+        const val EPISODE_SORTING_MASK = 0x00000300L
         // <-- AM (FILLERMARK)
 
         const val EPISODE_DISPLAY_NAME = 0x00000000L
@@ -183,12 +196,12 @@ data class Anime(
             // SY -->
             ogArtist = null,
             ogAuthor = null,
+            ogThumbnailUrl = null,
             ogDescription = null,
             ogGenre = null,
             ogStatus = 0L,
             // SY <--
-            thumbnailUrl = null,
-            updateStrategy = AnimeUpdateStrategy.ALWAYS_UPDATE,
+            updateStrategy = UpdateStrategy.ALWAYS_UPDATE,
             initialized = false,
             lastModifiedAt = 0L,
             favoriteModifiedAt = null,

@@ -29,6 +29,10 @@ spotless {
                 "ktlint_standard_discouraged-comment-location" to "disabled",
                 "ktlint_standard_function-expression-body" to "disabled",
                 "ktlint_standard_function-signature" to "disabled",
+                "ktlint_standard_max-line-length" to "disabled",
+                "ktlint_standard_type-argument-comment" to "disabled",
+                "ktlint_standard_value-argument-comment" to "disabled",
+                "ktlint_standard_value-parameter-comment" to "disabled",
             ))
         trimTrailingWhitespace()
         endWithNewline()

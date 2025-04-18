@@ -1,6 +1,6 @@
 package tachiyomi.data.anime
 
-import eu.kanade.tachiyomi.animesource.model.AnimeUpdateStrategy
+import eu.kanade.tachiyomi.source.model.UpdateStrategy
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.library.model.LibraryAnime
 
@@ -21,10 +21,14 @@ object AnimeMapper {
         nextUpdate: Long?,
         initialized: Boolean,
         viewerFlags: Long,
-        chapterFlags: Long,
+        episodeFlags: Long,
         coverLastModified: Long,
         dateAdded: Long,
-        updateStrategy: AnimeUpdateStrategy,
+        // SY -->
+        @Suppress("UNUSED_PARAMETER")
+        filteredScanlators: String?,
+        // SY <--
+        updateStrategy: UpdateStrategy,
         calculateInterval: Long,
         lastModifiedAt: Long,
         favoriteModifiedAt: Long?,
@@ -40,18 +44,18 @@ object AnimeMapper {
         fetchInterval = calculateInterval.toInt(),
         dateAdded = dateAdded,
         viewerFlags = viewerFlags,
-        episodeFlags = chapterFlags,
+        episodeFlags = episodeFlags,
         coverLastModified = coverLastModified,
         url = url,
         // SY -->
         ogTitle = title,
         ogArtist = artist,
         ogAuthor = author,
+        ogThumbnailUrl = thumbnailUrl,
         ogDescription = description,
         ogGenre = genre,
         ogStatus = status,
         // SY <--
-        thumbnailUrl = thumbnailUrl,
         updateStrategy = updateStrategy,
         initialized = initialized,
         lastModifiedAt = lastModifiedAt,
@@ -75,10 +79,14 @@ object AnimeMapper {
         nextUpdate: Long?,
         initialized: Boolean,
         viewerFlags: Long,
-        chapterFlags: Long,
+        episodeFlags: Long,
         coverLastModified: Long,
         dateAdded: Long,
-        updateStrategy: AnimeUpdateStrategy,
+        // SY -->
+        @Suppress("UNUSED_PARAMETER")
+        filteredScanlators: String?,
+        // SY <--
+        updateStrategy: UpdateStrategy,
         calculateInterval: Long,
         lastModifiedAt: Long,
         favoriteModifiedAt: Long?,
@@ -111,9 +119,12 @@ object AnimeMapper {
             nextUpdate,
             initialized,
             viewerFlags,
-            chapterFlags,
+            episodeFlags,
             coverLastModified,
             dateAdded,
+            // SY -->
+            null,
+            // SY <--
             updateStrategy,
             calculateInterval,
             lastModifiedAt,

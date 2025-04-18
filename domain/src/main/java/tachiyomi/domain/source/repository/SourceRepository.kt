@@ -1,27 +1,27 @@
 package tachiyomi.domain.source.repository
 
 import androidx.paging.PagingSource
-import eu.kanade.tachiyomi.animesource.model.AnimeFilterList
-import eu.kanade.tachiyomi.animesource.model.SAnime
+import eu.kanade.tachiyomi.source.model.FilterList
+import eu.kanade.tachiyomi.source.model.SAnime
 import kotlinx.coroutines.flow.Flow
 import tachiyomi.domain.source.model.Source
 import tachiyomi.domain.source.model.SourceWithCount
 
-typealias AnimeSourcePagingSourceType = PagingSource<Long, SAnime>
+typealias SourcePagingSourceType = PagingSource<Long, SAnime>
 
 interface SourceRepository {
 
-    fun getAnimeSources(): Flow<List<Source>>
+    fun getSources(): Flow<List<Source>>
 
-    fun getOnlineAnimeSources(): Flow<List<Source>>
+    fun getOnlineSources(): Flow<List<Source>>
 
-    fun getAnimeSourcesWithFavoriteCount(): Flow<List<Pair<Source, Long>>>
+    fun getSourcesWithFavoriteCount(): Flow<List<Pair<Source, Long>>>
 
     fun getSourcesWithNonLibraryAnime(): Flow<List<SourceWithCount>>
 
-    fun searchAnime(sourceId: Long, query: String, filterList: AnimeFilterList): AnimeSourcePagingSourceType
+    fun search(sourceId: Long, query: String, filterList: FilterList): SourcePagingSourceType
 
-    fun getPopularAnime(sourceId: Long): AnimeSourcePagingSourceType
+    fun getPopular(sourceId: Long): SourcePagingSourceType
 
-    fun getLatestAnime(sourceId: Long): AnimeSourcePagingSourceType
+    fun getLatest(sourceId: Long): SourcePagingSourceType
 }

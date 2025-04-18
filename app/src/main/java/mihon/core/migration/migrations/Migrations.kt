@@ -5,5 +5,9 @@ import mihon.core.migration.Migration
 val migrations: List<Migration>
     get() = listOf(
         SetupBackupCreateMigration(),
-        SetupAnimeLibraryUpdateMigration(),
+        SetupLibraryUpdateMigration(),
+        SetupSyncDataMigration(),
+        // KMK -->
+        SetupAppUpdateMigration(),
+        // KMK <--
     )

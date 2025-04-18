@@ -15,30 +15,43 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import androidx.work.Configuration
+import androidx.work.WorkManager
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.request.allowRgb565
 import coil3.request.crossfade
 import coil3.util.DebugLogger
+import com.elvishew.xlog.LogConfiguration
+import com.elvishew.xlog.LogLevel
+import com.elvishew.xlog.XLog
+import com.elvishew.xlog.printer.AndroidPrinter
+import com.elvishew.xlog.printer.Printer
+import com.elvishew.xlog.printer.file.backup.NeverBackupStrategy
+import com.elvishew.xlog.printer.file.naming.DateFileNameGenerator
 import dev.mihon.injekt.patchInjekt
 import eu.kanade.domain.DomainModule
+import eu.kanade.domain.KMKDomainModule
 import eu.kanade.domain.SYDomainModule
 import eu.kanade.domain.base.BasePreferences
 import eu.kanade.domain.sync.SyncPreferences
 import eu.kanade.domain.ui.UiPreferences
 import eu.kanade.domain.ui.model.setAppCompatDelegateThemeMode
+import eu.kanade.tachiyomi.core.security.PrivacyPreferences
 import eu.kanade.tachiyomi.crash.CrashActivity
 import eu.kanade.tachiyomi.crash.GlobalExceptionHandler
 import eu.kanade.tachiyomi.data.coil.AnimeCoverFetcher
 import eu.kanade.tachiyomi.data.coil.AnimeCoverKeyer
 import eu.kanade.tachiyomi.data.coil.AnimeKeyer
 import eu.kanade.tachiyomi.data.coil.BufferedSourceFetcher
+import eu.kanade.tachiyomi.data.coil.TachiyomiImageDecoder
 import eu.kanade.tachiyomi.data.connection.discord.DiscordRPCService
 import eu.kanade.tachiyomi.data.notification.Notifications
 import eu.kanade.tachiyomi.data.sync.SyncDataJob
 import eu.kanade.tachiyomi.di.AppModule
 import eu.kanade.tachiyomi.di.PreferenceModule
+import eu.kanade.tachiyomi.di.SYPreferenceModule
 import eu.kanade.tachiyomi.network.NetworkHelper
 import eu.kanade.tachiyomi.network.NetworkPreferences
 import eu.kanade.tachiyomi.ui.base.delegate.SecureActivityDelegate
@@ -47,12 +60,17 @@ import eu.kanade.tachiyomi.util.system.WebViewUtil
 import eu.kanade.tachiyomi.util.system.animatorDurationScale
 import eu.kanade.tachiyomi.util.system.cancelNotification
 import eu.kanade.tachiyomi.util.system.notify
+import exh.log.CrashlyticsPrinter
+import exh.log.EHLogLevel
+import exh.log.EnhancedFilePrinter
+import exh.log.XLogLogcatLogger
+import exh.log.xLogD
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import logcat.AndroidLogcatLogger
 import logcat.LogPriority
 import logcat.LogcatLogger
+import mihon.core.firebase.FirebaseConfig
 import mihon.core.migration.Migrator
 import mihon.core.migration.migrations.migrations
 import org.conscrypt.Conscrypt
@@ -60,25 +78,34 @@ import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.core.common.preference.Preference
 import tachiyomi.core.common.preference.PreferenceStore
 import tachiyomi.core.common.util.system.logcat
+import tachiyomi.domain.storage.service.StorageManager
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.widget.WidgetManager
+import timber.log.Timber
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import uy.kohesive.injekt.injectLazy
 import java.security.Security
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factory {
 
     private val basePreferences: BasePreferences by injectLazy()
+    private val privacyPreferences: PrivacyPreferences by injectLazy()
     private val networkPreferences: NetworkPreferences by injectLazy()
 
     private val disableIncognitoReceiver = DisableIncognitoReceiver()
 
     @SuppressLint("LaunchActivityFromNotification")
-    @Suppress("LongMethod")
     override fun onCreate() {
         super<Application>.onCreate()
         patchInjekt()
+        FirebaseConfig.init(applicationContext)
+
+        // KMK -->
+        if (BuildConfig.DEBUG) Timber.plant(Timber.DebugTree())
+        // KMK <--
 
         GlobalExceptionHandler.initialize(applicationContext, CrashActivity::class.java)
 
@@ -97,12 +124,21 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
         Injekt.importModule(AppModule(this))
         Injekt.importModule(DomainModule())
         // SY -->
+        Injekt.importModule(SYPreferenceModule(this))
         Injekt.importModule(SYDomainModule())
         // SY <--
+        // KMK -->
+        Injekt.importModule(KMKDomainModule())
+        // KMK <--
+
+        setupExhLogging() // EXH logging
+        LogcatLogger.install(XLogLogcatLogger()) // SY Redirect Logcat to XLog
 
         setupNotificationChannels()
 
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
+
+        val scope = ProcessLifecycleOwner.get().lifecycleScope
 
         // Show notification to disable Incognito Mode when it's enabled
         basePreferences.incognitoMode().changes()
@@ -131,27 +167,41 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
                     cancelNotification(Notifications.ID_INCOGNITO_MODE)
                 }
             }
-            .launchIn(ProcessLifecycleOwner.get().lifecycleScope)
+            .launchIn(scope)
+
+        privacyPreferences.analytics()
+            .changes()
+            .onEach(FirebaseConfig::setAnalyticsEnabled)
+            .launchIn(scope)
+
+        privacyPreferences.crashlytics()
+            .changes()
+            .onEach(FirebaseConfig::setCrashlyticsEnabled)
+            .launchIn(scope)
 
         setAppCompatDelegateThemeMode(Injekt.get<UiPreferences>().themeMode().get())
 
-        // Updates widget update
-        with(WidgetManager(Injekt.get(), Injekt.get())) {
-            init(ProcessLifecycleOwner.get().lifecycleScope)
-        }
+        // KMK -->
+//        AnimeCoverMetadata.load()
+        // KMK <--
 
-        if (!LogcatLogger.isInstalled && networkPreferences.verboseLogging().get()) {
+        // Updates widget update
+        WidgetManager(Injekt.get(), Injekt.get()).apply { init(scope) }
+
+        /*if (!LogcatLogger.isInstalled && networkPreferences.verboseLogging().get()) {
             LogcatLogger.install(AndroidLogcatLogger(LogPriority.VERBOSE))
+        }*/
+
+        if (!WorkManager.isInitialized()) {
+            WorkManager.initialize(this, Configuration.Builder().build())
+        }
+        val syncPreferences: SyncPreferences = Injekt.get()
+        val syncTriggerOpt = syncPreferences.getSyncTriggerOptions()
+        if (syncPreferences.isSyncEnabled() && syncTriggerOpt.syncOnAppStart) {
+            SyncDataJob.startNow(this@App)
         }
 
         initializeMigrator()
-
-        val syncPreferences: SyncPreferences = Injekt.get()
-        val syncTriggerOpt = syncPreferences.getSyncTriggerOptions()
-        if (syncPreferences.isSyncEnabled() && syncTriggerOpt.syncOnAppStart
-        ) {
-            SyncDataJob.startNow(this@App)
-        }
     }
 
     private fun initializeMigrator() {
@@ -175,13 +225,15 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
             components {
                 // NetworkFetcher.Factory
                 add(OkHttpNetworkFetcherFactory(callFactoryLazy::value))
+                // Decoder.Factory
+                add(TachiyomiImageDecoder.Factory())
                 // Fetcher.Factory
                 add(BufferedSourceFetcher.Factory())
-                add(AnimeCoverFetcher.AnimeFactory(callFactoryLazy))
                 add(AnimeCoverFetcher.AnimeCoverFactory(callFactoryLazy))
+                add(AnimeCoverFetcher.AnimeFactory(callFactoryLazy))
                 // Keyer
-                add(AnimeKeyer())
                 add(AnimeCoverKeyer())
+                add(AnimeKeyer())
             }
 
             crossfade((300 * this@App.animatorDurationScale).toInt())
@@ -200,8 +252,7 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
 
         val syncPreferences: SyncPreferences = Injekt.get()
         val syncTriggerOpt = syncPreferences.getSyncTriggerOptions()
-        if (syncPreferences.isSyncEnabled() && syncTriggerOpt.syncOnAppResume
-        ) {
+        if (syncPreferences.isSyncEnabled() && syncTriggerOpt.syncOnAppResume) {
             SyncDataJob.startNow(this@App)
         }
 
@@ -249,6 +300,72 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
         } catch (e: Exception) {
             logcat(LogPriority.ERROR, e) { "Failed to modify notification channels" }
         }
+    }
+
+    // EXH
+    private fun setupExhLogging() {
+        EHLogLevel.init(this)
+
+        val logLevel = when {
+            EHLogLevel.shouldLog(EHLogLevel.EXTREME) -> LogLevel.ALL
+            EHLogLevel.shouldLog(EHLogLevel.EXTRA) || BuildConfig.DEBUG -> LogLevel.DEBUG
+            else -> LogLevel.WARN
+        }
+
+        val logConfig = LogConfiguration.Builder()
+            .logLevel(logLevel)
+            .disableStackTrace()
+            .disableBorder()
+            .build()
+
+        val printers = mutableListOf<Printer>(AndroidPrinter())
+
+        val logFolder = Injekt.get<StorageManager>().getLogsDirectory()
+
+        if (logFolder != null) {
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
+
+            printers += EnhancedFilePrinter
+                .Builder(logFolder) {
+                    fileNameGenerator = object : DateFileNameGenerator() {
+                        override fun generateFileName(logLevel: Int, timestamp: Long): String {
+                            return super.generateFileName(
+                                logLevel,
+                                timestamp,
+                            ) + "-${BuildConfig.BUILD_TYPE}.log"
+                        }
+                    }
+                    flattener { timeMillis, level, tag, message ->
+                        "${dateFormat.format(timeMillis)} ${LogLevel.getShortLevelName(level)}/$tag: $message"
+                    }
+                    backupStrategy = NeverBackupStrategy()
+                }
+        }
+
+        // Install Crashlytics in prod
+        if (!BuildConfig.DEBUG) {
+            printers += CrashlyticsPrinter(LogLevel.ERROR)
+        }
+
+        XLog.init(
+            logConfig,
+            *printers.toTypedArray(),
+        )
+
+        xLogD("Application booting...")
+        xLogD(
+            """
+                App version: ${BuildConfig.VERSION_NAME} (${BuildConfig.FLAVOR}, ${BuildConfig.COMMIT_SHA}, ${BuildConfig.VERSION_CODE})
+                Build version: ${BuildConfig.COMMIT_COUNT}
+                Android version: ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})
+                Android build ID: ${Build.DISPLAY}
+                Device brand: ${Build.BRAND}
+                Device manufacturer: ${Build.MANUFACTURER}
+                Device name: ${Build.DEVICE}
+                Device model: ${Build.MODEL}
+                Device product name: ${Build.PRODUCT}
+            """.trimIndent(),
+        )
     }
 
     private inner class DisableIncognitoReceiver : BroadcastReceiver() {

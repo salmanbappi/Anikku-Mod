@@ -8,7 +8,7 @@ actual class LocalSourceFileSystem(
 ) {
 
     actual fun getBaseDirectory(): UniFile? {
-        return storageManager.getLocalAnimeSourceDirectory()
+        return storageManager.getLocalSourceDirectory()
     }
 
     actual fun getFilesInBaseDirectory(): List<UniFile> {

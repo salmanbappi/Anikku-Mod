@@ -11,7 +11,7 @@ import tachiyomi.core.common.util.lang.withIOContext
 class JavaScriptEngine(context: Context) {
 
     /**
-     * Evaluate arbitrary JavaScript code and get the result as a primtive type
+     * Evaluate arbitrary JavaScript code and get the result as a primitive type
      * (e.g., String, Int).
      *
      * @since extensions-lib 1.4

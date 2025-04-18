@@ -37,10 +37,9 @@ import kotlin.system.measureTimeMillis
  *
  * @property context The application context.
  */
-@Suppress("TooManyFunctions")
 class SyncManager(
     private val context: Context,
-    private val animeHandler: DatabaseHandler = Injekt.get(),
+    private val handler: DatabaseHandler = Injekt.get(),
     private val syncPreferences: SyncPreferences = Injekt.get(),
     private var json: Json = Json {
         encodeDefaults = true
@@ -66,13 +65,12 @@ class SyncManager(
     /**
      * Syncs data with a sync service.
      *
-     * This function retrieves local data (favorites, manga, extensions, and categories)
+     * This function retrieves local data (favorites, anime, extensions, and categories)
      * from the database using the BackupManager, then synchronizes the data with a sync service.
      */
-    @Suppress("ReturnCount", "LongMethod")
     suspend fun syncData() {
         // Reset isSyncing in case it was left over or failed syncing during restore.
-        animeHandler.await(inTransaction = true) {
+        handler.await(inTransaction = true) {
             animesQueries.resetIsSyncing()
             episodesQueries.resetIsSyncing()
         }
@@ -220,16 +218,15 @@ class SyncManager(
      * @return a list of all manga stored in the database
      */
     private suspend fun getAllAnimeFromDB(): List<Anime> {
-        return animeHandler.awaitList { animesQueries.getAllAnime(::mapAnime) }
+        return handler.awaitList { animesQueries.getAllAnime(::mapAnime) }
     }
 
     private suspend fun getAllAnimeThatNeedsSync(): List<Anime> {
-        return animeHandler.awaitList { animesQueries.getAnimesWithFavoriteTimestamp(::mapAnime) }
+        return handler.awaitList { animesQueries.getAnimesWithFavoriteTimestamp(::mapAnime) }
     }
 
-    @Suppress("ReturnCount")
     private suspend fun isAnimeDifferent(localAnime: Anime, remoteAnime: BackupAnime): Boolean {
-        val localEpisodes = animeHandler.await { episodesQueries.getEpisodesByAnimeId(localAnime.id).executeAsList() }
+        val localEpisodes = handler.await { episodesQueries.getEpisodesByAnimeId(localAnime.id, 0).executeAsList() }
         val localCategories = getCategories.await(localAnime.id).map { it.order }
 
         if (areEpisodesDifferent(localEpisodes, remoteAnime.episodes)) {

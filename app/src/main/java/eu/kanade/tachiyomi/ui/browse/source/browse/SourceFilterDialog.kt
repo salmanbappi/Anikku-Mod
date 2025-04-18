@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import eu.kanade.presentation.components.AdaptiveSheet
 import eu.kanade.tachiyomi.animesource.model.AnimeFilter
-import eu.kanade.tachiyomi.animesource.model.AnimeFilterList
+import eu.kanade.tachiyomi.source.model.FilterList
 import tachiyomi.core.common.preference.TriState
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.CheckboxItem
@@ -33,10 +33,10 @@ import tachiyomi.presentation.core.i18n.stringResource
 @Composable
 fun SourceFilterDialog(
     onDismissRequest: () -> Unit,
-    filters: AnimeFilterList,
+    filters: FilterList,
     onReset: () -> Unit,
     onFilter: () -> Unit,
-    onUpdate: (AnimeFilterList) -> Unit,
+    onUpdate: (FilterList) -> Unit,
 ) {
     val updateFilters = { onUpdate(filters) }
 

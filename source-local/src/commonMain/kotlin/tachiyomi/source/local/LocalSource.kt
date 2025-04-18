@@ -1,5 +1,5 @@
 package tachiyomi.source.local
 
-import eu.kanade.tachiyomi.animesource.AnimeCatalogueSource
+import eu.kanade.tachiyomi.source.CatalogueSource
 
-expect class LocalSource : AnimeCatalogueSource
+expect class LocalSource : CatalogueSource

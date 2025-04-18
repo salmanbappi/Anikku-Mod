@@ -2,7 +2,6 @@ package tachiyomi.data.track
 
 import kotlinx.coroutines.flow.Flow
 import tachiyomi.data.DatabaseHandler
-import tachiyomi.data.track.TrackMapper.mapTrack
 import tachiyomi.domain.track.model.Track
 import tachiyomi.domain.track.repository.TrackRepository
 
@@ -10,20 +9,20 @@ class TrackRepositoryImpl(
     private val handler: DatabaseHandler,
 ) : TrackRepository {
 
-    override suspend fun getTrackByAnimeId(id: Long): Track? {
+    override suspend fun getTrackById(id: Long): Track? {
         return handler.awaitOneOrNull { anime_syncQueries.getTrackById(id, TrackMapper::mapTrack) }
     }
 
     // SY -->
-    override suspend fun getAnimeTracks(): List<Track> {
+    override suspend fun getTracks(): List<Track> {
         return handler.awaitList {
-            anime_syncQueries.getTracks(::mapTrack)
+            anime_syncQueries.getTracks(TrackMapper::mapTrack)
         }
     }
 
     override suspend fun getTracksByAnimeIds(animeIds: List<Long>): List<Track> {
         return handler.awaitList {
-            anime_syncQueries.getTracksByAnimeIds(animeIds, ::mapTrack)
+            anime_syncQueries.getTracksByAnimeIds(animeIds, TrackMapper::mapTrack)
         }
     }
     // SY <--
@@ -34,7 +33,7 @@ class TrackRepositoryImpl(
         }
     }
 
-    override fun getAnimeTracksAsFlow(): Flow<List<Track>> {
+    override fun getTracksAsFlow(): Flow<List<Track>> {
         return handler.subscribeToList {
             anime_syncQueries.getTracks(TrackMapper::mapTrack)
         }
@@ -55,11 +54,11 @@ class TrackRepositoryImpl(
         }
     }
 
-    override suspend fun insertAnime(track: Track) {
+    override suspend fun insert(track: Track) {
         insertValues(track)
     }
 
-    override suspend fun insertAllAnime(tracks: List<Track>) {
+    override suspend fun insertAll(tracks: List<Track>) {
         insertValues(*tracks.toTypedArray())
     }
 

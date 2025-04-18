@@ -1,7 +1,7 @@
 package eu.kanade.tachiyomi.data.track
 
-import eu.kanade.tachiyomi.animesource.AnimeSource
 import eu.kanade.tachiyomi.data.track.model.TrackSearch
+import eu.kanade.tachiyomi.source.Source
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.track.model.Track
 
@@ -13,7 +13,7 @@ interface EnhancedTracker {
     /**
      * This Tracker will only work with the sources that are accepted by this filter function.
      */
-    fun accept(source: AnimeSource): Boolean {
+    fun accept(source: Source): Boolean {
         return source::class.qualifiedName in getAcceptedSources()
     }
 
@@ -32,10 +32,10 @@ interface EnhancedTracker {
     /**
      * Checks whether the provided source/track/anime triplet is from this AnimeTracker
      */
-    fun isTrackFrom(track: Track, anime: Anime, source: AnimeSource?): Boolean
+    fun isTrackFrom(track: Track, anime: Anime, source: Source?): Boolean
 
     /**
      * Migrates the given track for the anime to the newSource, if possible
      */
-    fun migrateTrack(track: Track, anime: Anime, newSource: AnimeSource): Track?
+    fun migrateTrack(track: Track, anime: Anime, newSource: Source): Track?
 }

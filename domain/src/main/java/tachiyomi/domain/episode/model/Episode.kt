@@ -1,5 +1,7 @@
 package tachiyomi.domain.episode.model
 
+typealias Chapter = Episode
+
 data class Episode(
     val id: Long,
     val animeId: Long,

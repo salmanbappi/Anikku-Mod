@@ -3,7 +3,7 @@ package eu.kanade.tachiyomi.ui.browse.migration.anime
 import androidx.compose.runtime.Immutable
 import cafe.adriel.voyager.core.model.StateScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import eu.kanade.tachiyomi.animesource.AnimeSource
+import eu.kanade.tachiyomi.source.Source
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -59,7 +59,7 @@ class MigrateAnimeScreenModel(
 
     @Immutable
     data class State(
-        val source: AnimeSource? = null,
+        val source: Source? = null,
         private val titleList: ImmutableList<Anime>? = null,
     ) {
 

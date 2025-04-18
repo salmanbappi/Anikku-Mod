@@ -16,6 +16,9 @@ android {
 dependencies {
     api(projects.core.common)
     api(projects.i18n)
+    // SY -->
+    api(projects.i18nSy)
+    // SY <--
 
     // Compose
     implementation(compose.activity)
@@ -28,6 +31,8 @@ dependencies {
     implementation(compose.ui.tooling.preview)
     implementation(compose.ui.util)
 
+    implementation(androidx.paging.runtime)
+    implementation(androidx.paging.compose)
     implementation(kotlinx.immutables)
 }
 

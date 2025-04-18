@@ -34,8 +34,8 @@ fun CategoryListItem(
     onMoveUp: (Category) -> Unit,
     onMoveDown: (Category) -> Unit,
     onRename: () -> Unit,
-    onHide: () -> Unit,
     onDelete: () -> Unit,
+    onHide: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     ElevatedCard(

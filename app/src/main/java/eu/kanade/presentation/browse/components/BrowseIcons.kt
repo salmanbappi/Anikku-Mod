@@ -33,7 +33,7 @@ import eu.kanade.tachiyomi.extension.model.Extension
 import eu.kanade.tachiyomi.extension.util.ExtensionLoader
 import tachiyomi.core.common.util.lang.withIOContext
 import tachiyomi.domain.source.model.Source
-import tachiyomi.source.local.LocalSource
+import tachiyomi.source.local.isLocal
 
 private val defaultModifier = Modifier
     .height(40.dp)
@@ -62,7 +62,7 @@ fun SourceIcon(
                 modifier = modifier.then(defaultModifier),
             )
         }
-        source.id == LocalSource.ID -> {
+        source.isLocal() -> {
             Image(
                 painter = painterResource(R.mipmap.ic_local_source),
                 contentDescription = null,
@@ -105,7 +105,7 @@ fun ExtensionIcon(
                     contentDescription = null,
                     modifier = modifier,
                 )
-                Result.Error -> Image(
+                is Result.Error -> Image(
                     bitmap = ImageBitmap.imageResource(id = R.mipmap.ic_default_source),
                     contentDescription = null,
                     modifier = modifier,
@@ -127,10 +127,7 @@ private fun Extension.getIcon(density: Int = DisplayMetrics.DENSITY_DEFAULT): St
     return produceState<Result<ImageBitmap>>(initialValue = Result.Loading, this) {
         withIOContext {
             value = try {
-                val appInfo = ExtensionLoader.getAnimeExtensionPackageInfoFromPkgName(
-                    context,
-                    pkgName,
-                )!!.applicationInfo!!
+                val appInfo = ExtensionLoader.getExtensionPackageInfoFromPkgName(context, pkgName)!!.applicationInfo!!
                 val appResources = context.packageManager.getResourcesForApplication(appInfo)
                 Result.Success(
                     appResources.getDrawableForDensity(appInfo.icon, density, null)!!

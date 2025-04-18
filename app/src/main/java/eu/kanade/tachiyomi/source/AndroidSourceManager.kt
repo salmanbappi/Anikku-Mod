@@ -1,11 +1,12 @@
 package eu.kanade.tachiyomi.source
 
 import android.content.Context
-import eu.kanade.tachiyomi.animesource.AnimeCatalogueSource
-import eu.kanade.tachiyomi.animesource.AnimeSource
-import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import eu.kanade.tachiyomi.data.download.DownloadManager
 import eu.kanade.tachiyomi.extension.ExtensionManager
+import eu.kanade.tachiyomi.source.online.HttpSource
+import exh.source.BlacklistedSources
+import exh.source.DelegatedHttpSource
+import exh.source.EnhancedHttpSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -39,19 +40,19 @@ class AndroidSourceManager(
 
     private val scope = CoroutineScope(Job() + Dispatchers.IO)
 
-    private val sourcesMapFlow = MutableStateFlow(ConcurrentHashMap<Long, AnimeSource>())
+    private val sourcesMapFlow = MutableStateFlow(ConcurrentHashMap<Long, Source>())
 
     private val stubSourcesMap = ConcurrentHashMap<Long, StubSource>()
 
-    override val catalogueSources: Flow<List<AnimeCatalogueSource>> = sourcesMapFlow.map {
-        it.values.filterIsInstance<AnimeCatalogueSource>()
+    override val catalogueSources: Flow<List<CatalogueSource>> = sourcesMapFlow.map {
+        it.values.filterIsInstance<CatalogueSource>()
     }
 
     init {
         scope.launch {
             extensionManager.installedExtensionsFlow
                 .collectLatest { extensions ->
-                    val mutableMap = ConcurrentHashMap<Long, AnimeSource>(
+                    val mutableMap = ConcurrentHashMap<Long, Source>(
                         mapOf(
                             LocalSource.ID to LocalSource(
                                 context,
@@ -72,7 +73,7 @@ class AndroidSourceManager(
         }
 
         scope.launch {
-            sourceRepository.subscribeAllAnime()
+            sourceRepository.subscribeAll()
                 .collectLatest { sources ->
                     val mutableMap = stubSourcesMap.toMutableMap()
                     sources.forEach {
@@ -82,30 +83,50 @@ class AndroidSourceManager(
         }
     }
 
-    override fun get(sourceKey: Long): AnimeSource? {
+    override fun get(sourceKey: Long): Source? {
         return sourcesMapFlow.value[sourceKey]
     }
 
-    override fun getOrStub(sourceKey: Long): AnimeSource {
+    override fun getOrStub(sourceKey: Long): Source {
         return sourcesMapFlow.value[sourceKey] ?: stubSourcesMap.getOrPut(sourceKey) {
             runBlocking { createStubSource(sourceKey) }
         }
     }
 
-    override fun getOnlineSources() = sourcesMapFlow.value.values.filterIsInstance<AnimeHttpSource>()
+    override fun getOnlineSources() = sourcesMapFlow.value.values.filterIsInstance<HttpSource>()
 
-    override fun getCatalogueSources() = sourcesMapFlow.value.values.filterIsInstance<AnimeCatalogueSource>()
+    override fun getCatalogueSources() = sourcesMapFlow.value.values.filterIsInstance<CatalogueSource>()
 
     override fun getStubSources(): List<StubSource> {
         val onlineSourceIds = getOnlineSources().map { it.id }
         return stubSourcesMap.values.filterNot { it.id in onlineSourceIds }
     }
 
+    // SY -->
+    override fun getVisibleOnlineSources() = sourcesMapFlow.value.values
+        .filterIsInstance<HttpSource>()
+        .filter {
+            it.id !in BlacklistedSources.HIDDEN_SOURCES
+        }
+
+    override fun getVisibleCatalogueSources() = sourcesMapFlow.value.values
+        .filterIsInstance<CatalogueSource>()
+        .filter {
+            it.id !in BlacklistedSources.HIDDEN_SOURCES
+        }
+
+    fun getDelegatedCatalogueSources() = sourcesMapFlow.value.values
+        .filterIsInstance<EnhancedHttpSource>()
+        .mapNotNull { enhancedHttpSource ->
+            enhancedHttpSource.enhancedSource as? DelegatedHttpSource
+        }
+    // SY <--
+
     private fun registerStubSource(source: StubSource) {
         scope.launch {
-            val dbSource = sourceRepository.getStubAnimeSource(source.id)
+            val dbSource = sourceRepository.getStubSource(source.id)
             if (dbSource == source) return@launch
-            sourceRepository.upsertStubAnimeSource(source.id, source.lang, source.name)
+            sourceRepository.upsertStubSource(source.id, source.lang, source.name)
             if (dbSource != null) {
                 downloadManager.renameSource(dbSource, source)
             }
@@ -113,7 +134,7 @@ class AndroidSourceManager(
     }
 
     private suspend fun createStubSource(id: Long): StubSource {
-        sourceRepository.getStubAnimeSource(id)?.let {
+        sourceRepository.getStubSource(id)?.let {
             return it
         }
         extensionManager.getSourceData(id)?.let {

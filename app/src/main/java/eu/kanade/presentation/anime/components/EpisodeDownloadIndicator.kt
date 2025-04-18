@@ -77,10 +77,10 @@ fun EpisodeDownloadIndicator(
         Download.State.DOWNLOADED -> DownloadedIndicator(
             enabled = enabled,
             modifier = modifier,
+            onClick = onClick,
             // AM (FILE_SIZE) -->
             fileSize = fileSize,
             // <-- AM (FILE_SIZE)
-            onClick = onClick,
         )
         Download.State.ERROR -> ErrorIndicator(
             enabled = enabled,
@@ -200,11 +200,11 @@ private fun DownloadingIndicator(
 @Composable
 private fun DownloadedIndicator(
     enabled: Boolean,
-    modifier: Modifier = Modifier,
     onClick: (EpisodeDownloadAction) -> Unit,
     // AM (FILE_SIZE) -->
     fileSize: Long?,
     // <-- AM (FILE_SIZE)
+    modifier: Modifier = Modifier,
 ) {
     var isMenuExpanded by remember { mutableStateOf(false) }
 
@@ -219,6 +219,7 @@ private fun DownloadedIndicator(
         )
     }
     // <-- AM (FILE_SIZE)
+
     Box(
         modifier = modifier
             .size(IconButtonTokens.StateLayerSize)

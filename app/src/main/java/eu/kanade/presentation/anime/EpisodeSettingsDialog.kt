@@ -189,6 +189,7 @@ private fun SetAsDefaultDialog(
     onConfirmed: (optionalChecked: Boolean) -> Unit,
 ) {
     var optionalChecked by rememberSaveable { mutableStateOf(false) }
+
     AlertDialog(
         onDismissRequest = onDismissRequest,
         title = { Text(text = stringResource(MR.strings.episode_settings)) },

@@ -12,20 +12,20 @@ class GetAnimeWithEpisodes(
     private val episodeRepository: EpisodeRepository,
 ) {
 
-    suspend fun subscribe(id: Long): Flow<Pair<Anime, List<Episode>>> {
+    suspend fun subscribe(id: Long, applyScanlatorFilter: Boolean = false): Flow<Pair<Anime, List<Episode>>> {
         return combine(
             animeRepository.getAnimeByIdAsFlow(id),
-            episodeRepository.getEpisodeByAnimeIdAsFlow(id),
-        ) { anime, episodes ->
-            Pair(anime, episodes)
+            episodeRepository.getEpisodeByAnimeIdAsFlow(id, applyScanlatorFilter),
+        ) { manga, chapters ->
+            Pair(manga, chapters)
         }
     }
 
-    suspend fun awaitAnime(id: Long): Anime {
+    suspend fun awaitManga(id: Long): Anime {
         return animeRepository.getAnimeById(id)
     }
 
-    suspend fun awaitEpisodes(id: Long): List<Episode> {
-        return episodeRepository.getEpisodeByAnimeId(id)
+    suspend fun awaitChapters(id: Long, applyScanlatorFilter: Boolean = false): List<Episode> {
+        return episodeRepository.getEpisodeByAnimeId(id, applyScanlatorFilter)
     }
 }

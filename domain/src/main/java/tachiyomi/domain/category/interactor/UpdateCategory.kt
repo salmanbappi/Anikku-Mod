@@ -10,7 +10,7 @@ class UpdateCategory(
 
     suspend fun await(payload: CategoryUpdate): Result = withNonCancellableContext {
         try {
-            categoryRepository.updatePartialAnimeCategory(payload)
+            categoryRepository.updatePartial(payload)
             Result.Success
         } catch (e: Exception) {
             Result.Error(e)

@@ -2,14 +2,16 @@ plugins {
     id("mihon.library")
     kotlin("android")
     kotlin("plugin.serialization")
+    id("com.github.ben-manes.versions")
 }
 
 android {
     namespace = "eu.kanade.tachiyomi.core.common"
+}
 
-    kotlinOptions {
-        freeCompilerArgs += listOf(
-            "-Xcontext-receivers",
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.addAll(
             "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
             "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
         )
@@ -18,6 +20,9 @@ android {
 
 dependencies {
     implementation(projects.i18n)
+    // SY -->
+    implementation(projects.i18nSy)
+    // SY <--
 
     api(libs.logcat)
 
@@ -51,11 +56,12 @@ dependencies {
     // FFmpeg-kit
     implementation(libs.ffmpeg.kit)
 
-    // SY -->
-    implementation(libs.zip4j)
-    implementation(libs.exifinterface)
-    // SY <--
-
     // Tests
     testImplementation(libs.bundles.test)
+
+    // SY -->
+    implementation(libs.zip4j)
+    implementation(sylibs.xlog)
+    implementation(sylibs.exifinterface)
+    // SY <--
 }

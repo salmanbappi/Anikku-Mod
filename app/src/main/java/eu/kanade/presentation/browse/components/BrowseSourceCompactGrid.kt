@@ -56,7 +56,7 @@ fun BrowseSourceCompactGrid(
 }
 
 @Composable
-private fun BrowseSourceCompactGridItem(
+internal fun BrowseSourceCompactGridItem(
     anime: Anime,
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = onClick,
@@ -67,7 +67,7 @@ private fun BrowseSourceCompactGridItem(
             animeId = anime.id,
             sourceId = anime.source,
             isAnimeFavorite = anime.favorite,
-            url = anime.thumbnailUrl,
+            ogUrl = anime.thumbnailUrl,
             lastModified = anime.coverLastModified,
         ),
         coverAlpha = if (anime.favorite) CommonAnimeItemDefaults.BrowseFavoriteCoverAlpha else 1f,

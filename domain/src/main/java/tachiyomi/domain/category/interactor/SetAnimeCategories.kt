@@ -8,9 +8,9 @@ class SetAnimeCategories(
     private val animeRepository: AnimeRepository,
 ) {
 
-    suspend fun await(animeId: Long, categoryIds: List<Long>) {
+    suspend fun await(mangaId: Long, categoryIds: List<Long>) {
         try {
-            animeRepository.setAnimeCategories(animeId, categoryIds)
+            animeRepository.setAnimeCategories(mangaId, categoryIds)
         } catch (e: Exception) {
             logcat(LogPriority.ERROR, e)
         }

@@ -20,10 +20,9 @@ import tachiyomi.presentation.core.i18n.stringResource
 @Composable
 fun EpisodeHeader(
     enabled: Boolean,
-    itemCount: Int?,
-    missingItemsCount: Int,
+    episodeCount: Int?,
+    missingEpisodeCount: Int,
     onClick: () -> Unit,
-    isManga: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -37,18 +36,16 @@ fun EpisodeHeader(
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
     ) {
         Text(
-            text = if (itemCount == null) {
-                val count = if (isManga) MR.strings.chapters else MR.strings.episodes
-                stringResource(count)
+            text = if (episodeCount == null) {
+                stringResource(MR.strings.episodes)
             } else {
-                val pluralCount = if (isManga) MR.plurals.manga_num_chapters else MR.plurals.anime_num_episodes
-                pluralStringResource(pluralCount, count = itemCount, itemCount)
+                pluralStringResource(MR.plurals.anime_num_episodes, count = episodeCount, episodeCount)
             },
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onBackground,
         )
 
-        MissingEpisodesWarning(missingItemsCount)
+        MissingEpisodesWarning(missingEpisodeCount)
     }
 }
 

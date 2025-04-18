@@ -197,13 +197,12 @@ data object LibraryTab : Tab {
                 LibraryBottomActionMenu(
                     visible = state.selectionMode,
                     onChangeCategoryClicked = screenModel::openChangeCategoryDialog,
-                    onMarkAsViewedClicked = { screenModel.markSeenSelection(true) },
-                    onMarkAsUnviewedClicked = { screenModel.markSeenSelection(false) },
+                    onMarkAsSeenClicked = { screenModel.markSeenSelection(true) },
+                    onMarkAsUnseenClicked = { screenModel.markSeenSelection(false) },
                     onDownloadClicked = screenModel::runDownloadActionSelection
                         .takeIf { state.selection.fastAll { !it.anime.isLocal() } },
                     onDeleteClicked = screenModel::openDeleteAnimeDialog,
                     onClickResetInfo = screenModel::resetInfo.takeIf { state.showResetInfo },
-                    isManga = false,
                 )
             },
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -298,13 +297,12 @@ data object LibraryTab : Tab {
             }
             is LibraryScreenModel.Dialog.DeleteAnime -> {
                 DeleteLibraryAnimeDialog(
-                    containsLocalEntry = dialog.anime.any(Anime::isLocal),
+                    containsLocalAnime = dialog.anime.any(Anime::isLocal),
                     onDismissRequest = onDismissRequest,
                     onConfirm = { deleteAnime, deleteEpisode ->
                         screenModel.removeAnimes(dialog.anime, deleteAnime, deleteEpisode)
                         screenModel.clearSelection()
                     },
-                    isManga = false,
                 )
             }
             null -> {}

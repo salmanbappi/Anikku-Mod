@@ -8,10 +8,7 @@ sealed class AnimeFilter<T>(val name: String, var state: T) {
         state,
     )
     abstract class Text(name: String, state: String = "") : AnimeFilter<String>(name, state)
-    abstract class CheckBox(name: String, state: Boolean = false) : AnimeFilter<Boolean>(
-        name,
-        state,
-    )
+    abstract class CheckBox(name: String, state: Boolean = false) : AnimeFilter<Boolean>(name, state)
     abstract class TriState(name: String, state: Int = STATE_IGNORE) : AnimeFilter<Int>(name, state) {
         fun isIgnored() = state == STATE_IGNORE
         fun isIncluded() = state == STATE_INCLUDE

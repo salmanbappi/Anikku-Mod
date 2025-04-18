@@ -94,7 +94,7 @@ private fun SourcesFilterContent(
 }
 
 @Composable
-fun SourcesFilterHeader(
+private fun SourcesFilterHeader(
     language: String,
     enabled: Boolean,
     onClickItem: (String) -> Unit,

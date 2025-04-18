@@ -24,7 +24,7 @@ class ReorderCategory(
 
     private suspend fun await(category: Category, moveTo: MoveTo) = withNonCancellableContext {
         mutex.withLock {
-            val categories = categoryRepository.getAllAnimeCategories()
+            val categories = categoryRepository.getAll()
                 .filterNot(Category::isSystemCategory)
                 .toMutableList()
 
@@ -48,7 +48,7 @@ class ReorderCategory(
                     )
                 }
 
-                categoryRepository.updatePartialAnimeCategories(updates)
+                categoryRepository.updatePartial(updates)
                 Result.Success
             } catch (e: Exception) {
                 logcat(LogPriority.ERROR, e)
@@ -59,7 +59,7 @@ class ReorderCategory(
 
     suspend fun sortAlphabetically() = withNonCancellableContext {
         mutex.withLock {
-            val updates = categoryRepository.getAllAnimeCategories()
+            val updates = categoryRepository.getAll()
                 .sortedBy { category -> category.name }
                 .mapIndexed { index, category ->
                     CategoryUpdate(
@@ -69,7 +69,7 @@ class ReorderCategory(
                 }
 
             try {
-                categoryRepository.updatePartialAnimeCategories(updates)
+                categoryRepository.updatePartial(updates)
                 Result.Success
             } catch (e: Exception) {
                 logcat(LogPriority.ERROR, e)

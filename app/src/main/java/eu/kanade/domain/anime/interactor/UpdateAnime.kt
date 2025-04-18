@@ -1,8 +1,8 @@
 package eu.kanade.domain.anime.interactor
 
 import eu.kanade.domain.anime.model.hasCustomCover
-import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.data.cache.CoverCache
+import eu.kanade.tachiyomi.source.model.SAnime
 import tachiyomi.domain.anime.interactor.FetchInterval
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.anime.model.AnimeUpdate
@@ -19,11 +19,11 @@ class UpdateAnime(
 ) {
 
     suspend fun await(animeUpdate: AnimeUpdate): Boolean {
-        return animeRepository.updateAnime(animeUpdate)
+        return animeRepository.update(animeUpdate)
     }
 
     suspend fun awaitAll(animeUpdates: List<AnimeUpdate>): Boolean {
-        return animeRepository.updateAllAnime(animeUpdates)
+        return animeRepository.updateAll(animeUpdates)
     }
 
     suspend fun awaitUpdateFromSource(
@@ -39,7 +39,13 @@ class UpdateAnime(
         }
 
         // if the anime isn't a favorite, set its title from source and update in db
-        val title = if (remoteTitle.isEmpty() || localAnime.favorite) null else remoteTitle
+        // SY -->
+        val title = if (remoteTitle.isNotBlank() && localAnime.ogTitle != remoteTitle) {
+            remoteTitle
+        } else {
+            null
+        }
+        // SY <--
 
         val coverLastModified =
             when {
@@ -59,7 +65,7 @@ class UpdateAnime(
 
         val thumbnailUrl = remoteAnime.thumbnail_url?.takeIf { it.isNotEmpty() }
 
-        return animeRepository.updateAnime(
+        return animeRepository.update(
             AnimeUpdate(
                 id = localAnime.id,
                 title = title,
@@ -81,19 +87,17 @@ class UpdateAnime(
         dateTime: ZonedDateTime = ZonedDateTime.now(),
         window: Pair<Long, Long> = fetchInterval.getWindow(dateTime),
     ): Boolean {
-        return animeRepository.updateAnime(
+        return animeRepository.update(
             fetchInterval.toAnimeUpdate(anime, dateTime, window),
         )
     }
 
     suspend fun awaitUpdateLastUpdate(animeId: Long): Boolean {
-        return animeRepository.updateAnime(AnimeUpdate(id = animeId, lastUpdate = Instant.now().toEpochMilli()))
+        return animeRepository.update(AnimeUpdate(id = animeId, lastUpdate = Instant.now().toEpochMilli()))
     }
 
-    suspend fun awaitUpdateCoverLastModified(mangaId: Long): Boolean {
-        return animeRepository.updateAnime(
-            AnimeUpdate(id = mangaId, coverLastModified = Instant.now().toEpochMilli()),
-        )
+    suspend fun awaitUpdateCoverLastModified(animeId: Long): Boolean {
+        return animeRepository.update(AnimeUpdate(id = animeId, coverLastModified = Instant.now().toEpochMilli()))
     }
 
     suspend fun awaitUpdateFavorite(animeId: Long, favorite: Boolean): Boolean {
@@ -101,7 +105,7 @@ class UpdateAnime(
             true -> Instant.now().toEpochMilli()
             false -> 0
         }
-        return animeRepository.updateAnime(
+        return animeRepository.update(
             AnimeUpdate(id = animeId, favorite = favorite, dateAdded = dateAdded),
         )
     }

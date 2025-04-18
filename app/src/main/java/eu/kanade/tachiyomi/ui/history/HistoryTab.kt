@@ -127,7 +127,6 @@ data object HistoryTab : Tab {
                             screenModel.removeFromHistory(dialog.history)
                         }
                     },
-                    isManga = false,
                 )
             }
             is HistoryScreenModel.Dialog.DeleteAll -> {

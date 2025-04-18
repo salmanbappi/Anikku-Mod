@@ -4,8 +4,8 @@ import android.app.Application
 import android.content.Context
 import android.net.Uri
 import com.hippo.unifile.UniFile
-import eu.kanade.tachiyomi.animesource.AnimeSource
 import eu.kanade.tachiyomi.extension.ExtensionManager
+import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.util.size
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -58,7 +58,7 @@ import kotlin.time.Duration.Companion.seconds
 
 /**
  * Cache where we dump the downloads directory from the filesystem. This class is needed because
- * directory checking is expensive and it slows downs the app. The cache is invalidated by the time
+ * directory checking is expensive and it slows down the app. The cache is invalidated by the time
  * defined in [renewInterval] as we don't have any control over the filesystem and the user can
  * delete the folders at any time without the app noticing.
  */
@@ -113,7 +113,7 @@ class DownloadCache(
                         lastRenew = System.currentTimeMillis()
                     }
                 } catch (e: Throwable) {
-                    logcat(LogPriority.ERROR, e) { "Failed to initialize disk cache" }
+                    logcat(LogPriority.ERROR, e) { "Failed to initialize from disk cache" }
                     diskCacheFile.delete()
                 }
             }
@@ -131,6 +131,7 @@ class DownloadCache(
      * @param episodeScanlator scanlator of the episode to query
      * @param animeTitle the title of the anime to query.
      * @param sourceId the id of the source of the episode.
+     * @param skipCache whether to skip the directory cache and check in the filesystem.
      */
     fun isEpisodeDownloaded(
         episodeName: String,
@@ -173,7 +174,9 @@ class DownloadCache(
     }
 
     /**
-     * Returns the amount of downloaded episodes for an anime.
+     * Returns the amount of downloaded episodes for a anime.
+     * This method is quick, but might count other junk files
+     * It's still maybe useful while developing the clean-up features
      *
      * @param anime the anime to check.
      */
@@ -242,7 +245,7 @@ class DownloadCache(
                 sourceDir.animeDirs += animeDirName to animeDir
             }
 
-            // Save the chapter directory
+            // Save the episode directory
             animeDir.episodeDirs += episodeDirName
         }
 
@@ -308,7 +311,7 @@ class DownloadCache(
         notifyChanges()
     }
 
-    suspend fun removeSource(source: AnimeSource) {
+    suspend fun removeSource(source: Source) {
         rootDownloadsDirMutex.withLock {
             rootDownloadsDir.sourceDirs -= source.id
         }
@@ -338,13 +341,15 @@ class DownloadCache(
             }
 
             // Try to wait until extensions and sources have loaded
-            var sources = emptyList<AnimeSource>()
+            // SY -->
+            var sources = emptyList<Source>()
             withTimeoutOrNull(30.seconds) {
                 extensionManager.isInitialized.first { it }
                 sourceManager.isInitialized.first { it }
 
                 sources = getSources()
             }
+            // SY <--
 
             val sourceMap = sources.associate {
                 provider.getSourceDirName(it).lowercase() to it.id
@@ -366,6 +371,7 @@ class DownloadCache(
                         sourceDir.animeDirs = sourceDir.dir?.listFiles().orEmpty()
                             .filter { it.isDirectory && !it.name.isNullOrBlank() }
                             .associate { it.name!! to AnimeDirectory(it) }
+
                         sourceDir.animeDirs.values.forEach { animeDir ->
                             val episodeDirs = animeDir.dir?.listFiles().orEmpty()
                                 .mapNotNull {
@@ -397,7 +403,7 @@ class DownloadCache(
         }.also {
             it.invokeOnCompletion(onCancelling = true) { exception ->
                 if (exception != null && exception !is CancellationException) {
-                    logcat(LogPriority.ERROR, exception) { "Failed to create download cache" }
+                    logcat(LogPriority.ERROR, exception) { "DownloadCache: failed to create cache" }
                 }
                 lastRenew = System.currentTimeMillis()
                 notifyChanges()
@@ -408,7 +414,7 @@ class DownloadCache(
         notifyChanges()
     }
 
-    private fun getSources(): List<AnimeSource> {
+    private fun getSources(): List<Source> {
         return sourceManager.getOnlineSources() + sourceManager.getStubSources()
     }
 
@@ -420,7 +426,6 @@ class DownloadCache(
     }
 
     private var updateDiskCacheJob: Job? = null
-
     private fun updateDiskCache() {
         updateDiskCacheJob?.cancel()
         updateDiskCacheJob = scope.launchIO {
@@ -462,7 +467,7 @@ private class SourceDirectory(
 )
 
 /**
- * Class to store the files under a manga directory.
+ * Class to store the files under a anime directory.
  */
 @Serializable
 private class AnimeDirectory(

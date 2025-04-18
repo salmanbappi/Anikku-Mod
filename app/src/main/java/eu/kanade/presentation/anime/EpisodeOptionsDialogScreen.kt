@@ -426,6 +426,7 @@ private fun ClickableRow(
             modifier = Modifier.padding(vertical = textPadding),
             style = MaterialTheme.typography.bodyMedium,
         )
+
         if (showDropdownArrow) {
             Icon(
                 imageVector = Icons.Outlined.NavigateNext,

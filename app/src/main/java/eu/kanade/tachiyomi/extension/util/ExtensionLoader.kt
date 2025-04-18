@@ -10,11 +10,11 @@ import androidx.core.content.pm.PackageInfoCompat
 import dalvik.system.PathClassLoader
 import eu.kanade.domain.extension.interactor.TrustExtension
 import eu.kanade.domain.source.service.SourcePreferences
-import eu.kanade.tachiyomi.animesource.AnimeCatalogueSource
-import eu.kanade.tachiyomi.animesource.AnimeSource
-import eu.kanade.tachiyomi.animesource.AnimeSourceFactory
 import eu.kanade.tachiyomi.extension.model.Extension
 import eu.kanade.tachiyomi.extension.model.LoadResult
+import eu.kanade.tachiyomi.source.CatalogueSource
+import eu.kanade.tachiyomi.source.Source
+import eu.kanade.tachiyomi.source.SourceFactory
 import eu.kanade.tachiyomi.util.lang.Hash
 import eu.kanade.tachiyomi.util.storage.copyAndSetReadOnlyTo
 import eu.kanade.tachiyomi.util.system.ChildFirstPathClassLoader
@@ -64,7 +64,7 @@ internal object ExtensionLoader {
             PACKAGE_FLAGS,
         )
             ?.takeIf { isPackageAnExtension(it) } ?: return false
-        val currentExtension = getAnimeExtensionPackageInfoFromPkgName(
+        val currentExtension = getExtensionPackageInfoFromPkgName(
             context,
             extension.packageName,
         )
@@ -179,7 +179,7 @@ internal object ExtensionLoader {
      * contains the required feature flag before trying to load it.
      */
     suspend fun loadExtensionFromPkgName(context: Context, pkgName: String): LoadResult {
-        val extensionPackage = getAnimeExtensionInfoFromPkgName(context, pkgName)
+        val extensionPackage = getExtensionInfoFromPkgName(context, pkgName)
         if (extensionPackage == null) {
             logcat(LogPriority.ERROR) { "Extension package is not found ($pkgName)" }
             return LoadResult.Error
@@ -187,11 +187,11 @@ internal object ExtensionLoader {
         return loadExtension(context, extensionPackage)
     }
 
-    fun getAnimeExtensionPackageInfoFromPkgName(context: Context, pkgName: String): PackageInfo? {
-        return getAnimeExtensionInfoFromPkgName(context, pkgName)?.packageInfo
+    fun getExtensionPackageInfoFromPkgName(context: Context, pkgName: String): PackageInfo? {
+        return getExtensionInfoFromPkgName(context, pkgName)?.packageInfo
     }
 
-    private fun getAnimeExtensionInfoFromPkgName(context: Context, pkgName: String): ExtensionInfo? {
+    private fun getExtensionInfoFromPkgName(context: Context, pkgName: String): ExtensionInfo? {
         val privateExtensionFile = File(
             getPrivateExtensionDir(context),
             "$pkgName.$PRIVATE_EXTENSION_EXTENSION",
@@ -306,8 +306,8 @@ internal object ExtensionLoader {
             .flatMap {
                 try {
                     when (val obj = Class.forName(it, false, classLoader).getDeclaredConstructor().newInstance()) {
-                        is AnimeSource -> listOf(obj)
-                        is AnimeSourceFactory -> obj.createSources()
+                        is Source -> listOf(obj)
+                        is SourceFactory -> obj.createSources()
                         else -> throw Exception("Unknown source class type: ${obj.javaClass}")
                     }
                 } catch (e: LinkageError) {
@@ -320,10 +320,10 @@ internal object ExtensionLoader {
                                 fallBackClassLoader,
                             ).getDeclaredConstructor().newInstance()
                         ) {
-                            is AnimeSource -> {
+                            is Source -> {
                                 listOf(obj)
                             }
-                            is AnimeSourceFactory -> obj.createSources()
+                            is SourceFactory -> obj.createSources()
                             else -> throw Exception("Unknown source class type: ${obj.javaClass}")
                         }
                     } catch (e: Throwable) {
@@ -336,7 +336,7 @@ internal object ExtensionLoader {
                 }
             }
 
-        val langs = sources.filterIsInstance<AnimeCatalogueSource>()
+        val langs = sources.filterIsInstance<CatalogueSource>()
             .map { it.lang }
             .toSet()
         val lang = when (langs.size) {

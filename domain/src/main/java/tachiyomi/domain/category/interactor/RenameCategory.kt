@@ -18,7 +18,7 @@ class RenameCategory(
         )
 
         try {
-            categoryRepository.updatePartialAnimeCategory(update)
+            categoryRepository.updatePartial(update)
             Result.Success
         } catch (e: Exception) {
             logcat(LogPriority.ERROR, e)

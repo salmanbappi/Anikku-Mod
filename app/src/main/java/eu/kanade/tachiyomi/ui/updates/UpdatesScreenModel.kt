@@ -111,7 +111,7 @@ class UpdatesScreenModel(
                 val downloaded = downloadManager.isEpisodeDownloaded(
                     update.episodeName,
                     update.scanlator,
-                    update.animeTitle,
+                    update.ogAnimeTitle,
                     update.sourceId,
                 )
                 val downloadState = when {
@@ -395,7 +395,7 @@ class UpdatesScreenModel(
     }
 
     fun resetNewUpdatesCount() {
-        libraryPreferences.newAnimeUpdatesCount().set(0)
+        libraryPreferences.newUpdatesCount().set(0)
     }
 
     @Immutable

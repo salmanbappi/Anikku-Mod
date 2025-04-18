@@ -37,13 +37,13 @@ abstract class CommonStorageScreenModel<T>(
 
     init {
         screenModelScope.launchIO {
-            val hideHiddenCategories = libraryPreferences.hideHiddenCategoriesSettings().get()
+            val showHiddenCategories = libraryPreferences.showHiddenCategories().get()
 
             combine(
                 flow = downloadCacheChanges,
                 flow2 = downloadCacheIsInitializing,
                 flow3 = libraries,
-                flow4 = categories(hideHiddenCategories),
+                flow4 = categories(showHiddenCategories),
                 flow5 = selectedCategory,
                 transform = { _, _, libraries, categories, selectedCategory ->
                     // initialize the screen with an empty state

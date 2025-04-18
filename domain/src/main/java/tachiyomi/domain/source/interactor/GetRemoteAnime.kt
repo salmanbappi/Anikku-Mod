@@ -1,18 +1,18 @@
 package tachiyomi.domain.source.interactor
 
-import eu.kanade.tachiyomi.animesource.model.AnimeFilterList
-import tachiyomi.domain.source.repository.AnimeSourcePagingSourceType
+import eu.kanade.tachiyomi.source.model.FilterList
+import tachiyomi.domain.source.repository.SourcePagingSourceType
 import tachiyomi.domain.source.repository.SourceRepository
 
 class GetRemoteAnime(
     private val repository: SourceRepository,
 ) {
 
-    fun subscribe(sourceId: Long, query: String, filterList: AnimeFilterList): AnimeSourcePagingSourceType {
+    fun subscribe(sourceId: Long, query: String, filterList: FilterList): SourcePagingSourceType {
         return when (query) {
-            QUERY_POPULAR -> repository.getPopularAnime(sourceId)
-            QUERY_LATEST -> repository.getLatestAnime(sourceId)
-            else -> repository.searchAnime(sourceId, query, filterList)
+            QUERY_POPULAR -> repository.getPopular(sourceId)
+            QUERY_LATEST -> repository.getLatest(sourceId)
+            else -> repository.search(sourceId, query, filterList)
         }
     }
 

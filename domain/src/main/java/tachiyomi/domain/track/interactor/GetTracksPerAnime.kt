@@ -10,6 +10,6 @@ class GetTracksPerAnime(
 ) {
 
     fun subscribe(): Flow<Map<Long, List<Track>>> {
-        return trackRepository.getAnimeTracksAsFlow().map { tracks -> tracks.groupBy { it.animeId } }
+        return trackRepository.getTracksAsFlow().map { tracks -> tracks.groupBy { it.animeId } }
     }
 }

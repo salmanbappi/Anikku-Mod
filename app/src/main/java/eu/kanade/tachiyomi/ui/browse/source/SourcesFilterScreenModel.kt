@@ -29,7 +29,7 @@ class SourcesFilterScreenModel(
             combine(
                 getLanguagesWithSources.subscribe(),
                 preferences.enabledLanguages().changes(),
-                preferences.disabledAnimeSources().changes(),
+                preferences.disabledSources().changes(),
             ) { a, b, c -> Triple(a, b, c) }
                 .catch { throwable ->
                     mutableState.update {

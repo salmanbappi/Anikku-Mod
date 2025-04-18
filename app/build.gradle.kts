@@ -9,14 +9,14 @@ plugins {
     id("com.github.zellius.shortcut-helper")
     kotlin("plugin.serialization")
     alias(libs.plugins.aboutLibraries)
+    id("com.github.ben-manes.versions")
 }
 
 if (gradle.startParameter.taskRequests.toString().contains("Standard")) {
-    apply<com.google.gms.googleservices.GoogleServicesPlugin>()
-}
-
-if (gradle.startParameter.taskRequests.toString().contains("Standard")) {
-    apply<com.google.gms.googleservices.GoogleServicesPlugin>()
+    pluginManager.apply {
+        apply(libs.plugins.google.services.get().pluginId)
+        apply(libs.plugins.firebase.crashlytics.get().pluginId)
+    }
 }
 
 shortcutHelper.setFilePath("./shortcuts.xml")
@@ -120,6 +120,7 @@ android {
                 "META-INF/**/*.properties",
                 "META-INF/README.md",
                 "META-INF/NOTICE",
+                "META-INF/INDEX.LIST",
                 "META-INF/*.version",
             ),
         )
@@ -147,6 +148,12 @@ android {
 
 dependencies {
     implementation(projects.i18n)
+    // KMK -->
+    implementation(projects.i18nKmk)
+    // KMK <--
+    // SY -->
+    implementation(projects.i18nSy)
+    // SY <--
     implementation(projects.core.archive)
     implementation(projects.core.common)
     implementation(projects.coreMetadata)
@@ -175,6 +182,9 @@ dependencies {
     implementation(androidx.paging.compose)
 
     implementation(libs.bundles.sqlite)
+    // SY -->
+    implementation(sylibs.sqlcipher)
+    // SY <--
 
     implementation(kotlinx.reflect)
     implementation(kotlinx.immutables)
@@ -237,6 +247,7 @@ dependencies {
     implementation(libs.subsamplingscaleimageview) {
         exclude(module = "image-decoder")
     }
+    implementation(libs.image.decoder)
 
     // UI libraries
     implementation(libs.material)
@@ -253,14 +264,24 @@ dependencies {
     implementation(libs.swipe)
     implementation(libs.compose.webview)
     implementation(libs.compose.grid)
-    implementation(libs.google.api.services.drive)
-    implementation(libs.google.api.client.oauth)
+    implementation(libs.reorderable)
+
+    // KMK -->
+    implementation(libs.palette.ktx)
+    implementation(libs.materialKolor)
+    implementation(libs.haze)
+    implementation(compose.colorpicker)
+    implementation(projects.flagkit)
+    // KMK <--
 
     // Logging
+    implementation(libs.timber)
     implementation(libs.logcat)
 
     // Crash reports/analytics
+    "standardImplementation"(platform(libs.firebase.bom))
     "standardImplementation"(libs.firebase.analytics)
+    "standardImplementation"(libs.firebase.crashlytics)
 
     // Shizuku
     implementation(libs.bundles.shizuku)
@@ -270,10 +291,23 @@ dependencies {
 
     // For detecting memory leaks; see https://square.github.io/leakcanary/
     // debugImplementation(libs.leakcanary.android)
-
     implementation(libs.leakcanary.plumber)
 
     testImplementation(kotlinx.coroutines.test)
+
+    // SY -->
+    // Text distance (EH)
+    implementation(sylibs.similarity)
+
+    // Better logging (EH)
+    implementation(sylibs.xlog)
+
+    // RatingBar (SY)
+    implementation(sylibs.ratingbar)
+    implementation(sylibs.composeRatingbar)
+
+    // Google drive
+    implementation(sylibs.google.api.services.drive)
 
     // mpv-android
     implementation(libs.aniyomi.mpv)

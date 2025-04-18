@@ -7,12 +7,12 @@ import tachiyomi.domain.track.model.Track
 import tachiyomi.domain.track.repository.TrackRepository
 
 class GetTracks(
-    private val animetrackRepository: TrackRepository,
+    private val trackRepository: TrackRepository,
 ) {
 
     suspend fun awaitOne(id: Long): Track? {
         return try {
-            animetrackRepository.getTrackByAnimeId(id)
+            trackRepository.getTrackById(id)
         } catch (e: Exception) {
             logcat(LogPriority.ERROR, e)
             null
@@ -22,16 +22,16 @@ class GetTracks(
     // SY -->
     suspend fun await(): List<Track> {
         return try {
-            animetrackRepository.getAnimeTracks()
+            trackRepository.getTracks()
         } catch (e: Exception) {
             logcat(LogPriority.ERROR, e)
             emptyList()
         }
     }
 
-    suspend fun await(animeIds: List<Long>): Map<Long, List<Track>> {
+    suspend fun await(mangaIds: List<Long>): Map<Long, List<Track>> {
         return try {
-            animetrackRepository.getTracksByAnimeIds(animeIds)
+            trackRepository.getTracksByAnimeIds(mangaIds)
                 .groupBy { it.animeId }
         } catch (e: Exception) {
             logcat(LogPriority.ERROR, e)
@@ -40,16 +40,16 @@ class GetTracks(
     }
     // SY <--
 
-    suspend fun await(animeId: Long): List<Track> {
+    suspend fun await(mangaId: Long): List<Track> {
         return try {
-            animetrackRepository.getTracksByAnimeId(animeId)
+            trackRepository.getTracksByAnimeId(mangaId)
         } catch (e: Exception) {
             logcat(LogPriority.ERROR, e)
             emptyList()
         }
     }
 
-    fun subscribe(animeId: Long): Flow<List<Track>> {
-        return animetrackRepository.getTracksByAnimeIdAsFlow(animeId)
+    fun subscribe(mangaId: Long): Flow<List<Track>> {
+        return trackRepository.getTracksByAnimeIdAsFlow(mangaId)
     }
 }

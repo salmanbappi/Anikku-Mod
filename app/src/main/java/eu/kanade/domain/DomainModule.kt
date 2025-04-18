@@ -54,7 +54,6 @@ import tachiyomi.domain.anime.repository.AnimeRepository
 import tachiyomi.domain.category.interactor.CreateCategoryWithName
 import tachiyomi.domain.category.interactor.DeleteCategory
 import tachiyomi.domain.category.interactor.GetCategories
-import tachiyomi.domain.category.interactor.GetVisibleCategories
 import tachiyomi.domain.category.interactor.HideCategory
 import tachiyomi.domain.category.interactor.RenameCategory
 import tachiyomi.domain.category.interactor.ReorderCategory
@@ -73,6 +72,7 @@ import tachiyomi.domain.episode.interactor.UpdateEpisode
 import tachiyomi.domain.episode.repository.EpisodeRepository
 import tachiyomi.domain.history.interactor.GetHistory
 import tachiyomi.domain.history.interactor.GetNextEpisodes
+import tachiyomi.domain.history.interactor.GetTotalWatchDuration
 import tachiyomi.domain.history.interactor.RemoveHistory
 import tachiyomi.domain.history.interactor.UpsertHistory
 import tachiyomi.domain.history.repository.HistoryRepository
@@ -100,7 +100,6 @@ class DomainModule : InjektModule {
     override fun InjektRegistrar.registerInjectables() {
         addSingletonFactory<CategoryRepository> { CategoryRepositoryImpl(get()) }
         addFactory { GetCategories(get()) }
-        addFactory { GetVisibleCategories(get()) }
         addFactory { ResetCategoryFlags(get(), get()) }
         addFactory { SetDisplayMode(get()) }
         addFactory { SetSortModeForCategory(get(), get()) }
@@ -108,8 +107,11 @@ class DomainModule : InjektModule {
         addFactory { RenameCategory(get()) }
         addFactory { ReorderCategory(get()) }
         addFactory { UpdateCategory(get()) }
-        addFactory { HideCategory(get()) }
         addFactory { DeleteCategory(get()) }
+
+        // KMK -->
+        addFactory { HideCategory(get()) }
+        // KMK <--
 
         addSingletonFactory<AnimeRepository> { AnimeRepositoryImpl(get()) }
         addFactory { GetDuplicateLibraryAnime(get()) }
@@ -118,7 +120,7 @@ class DomainModule : InjektModule {
         addFactory { GetAnimeWithEpisodes(get(), get()) }
         addFactory { GetAnimeByUrlAndSourceId(get()) }
         addFactory { GetAnime(get()) }
-        addFactory { GetNextEpisodes(get(), get(), get()) }
+        addFactory { GetNextEpisodes(get(), get(), get(), get()) }
         addFactory { GetUpcomingAnime(get()) }
         addFactory { ResetViewerFlags(get()) }
         addFactory { SetAnimeEpisodeFlags(get()) }
@@ -128,6 +130,8 @@ class DomainModule : InjektModule {
         addFactory { NetworkToLocalAnime(get()) }
         addFactory { UpdateAnime(get(), get()) }
         addFactory { SetAnimeCategories(get()) }
+        // addFactory { GetExcludedScanlators(get()) }
+        // addFactory { SetExcludedScanlators(get()) }
 
         addSingletonFactory<ReleaseService> { ReleaseServiceImpl(get(), get()) }
         addFactory { GetApplicationRelease(get(), get()) }
@@ -150,12 +154,14 @@ class DomainModule : InjektModule {
         addFactory { SetSeenStatus(get(), get(), get(), get()) }
         addFactory { ShouldUpdateDbEpisode() }
         addFactory { SyncEpisodesWithSource(get(), get(), get(), get(), get(), get(), get()) }
-        addFactory { FilterEpisodesForDownload(get(), get(), get()) }
+        // addFactory { GetAvailableScanlators(get()) }
+        addFactory { FilterEpisodesForDownload(get(), get(), get(), get()) }
 
         addSingletonFactory<HistoryRepository> { HistoryRepositoryImpl(get()) }
         addFactory { GetHistory(get()) }
         addFactory { UpsertHistory(get()) }
         addFactory { RemoveHistory(get()) }
+        addFactory { GetTotalWatchDuration(get()) }
 
         addFactory { DeleteDownload(get(), get()) }
 
@@ -173,16 +179,14 @@ class DomainModule : InjektModule {
         addFactory { GetRemoteAnime(get()) }
         addFactory { GetSourcesWithFavoriteCount(get(), get()) }
         addFactory { GetSourcesWithNonLibraryAnime(get()) }
-        addFactory { ToggleSource(get()) }
-        addFactory { ToggleSourcePin(get()) }
-
         addFactory { SetMigrateSorting(get()) }
         addFactory { ToggleLanguage(get()) }
+        addFactory { ToggleSource(get()) }
+        addFactory { ToggleSourcePin(get()) }
         addFactory { TrustExtension(get(), get()) }
 
-        addFactory { ExtensionRepoService(get(), get()) }
-
         addSingletonFactory<ExtensionRepoRepository> { ExtensionRepoRepositoryImpl(get()) }
+        addFactory { ExtensionRepoService(get(), get()) }
         addFactory { GetExtensionRepo(get()) }
         addFactory { GetExtensionRepoCount(get()) }
         addFactory { CreateExtensionRepo(get(), get()) }

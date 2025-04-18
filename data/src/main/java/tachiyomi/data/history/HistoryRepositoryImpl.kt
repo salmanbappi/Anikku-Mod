@@ -13,28 +13,27 @@ class HistoryRepositoryImpl(
     private val handler: DatabaseHandler,
 ) : HistoryRepository {
 
-    override fun getAnimeHistory(query: String): Flow<List<HistoryWithRelations>> {
+    override fun getHistory(query: String): Flow<List<HistoryWithRelations>> {
         return handler.subscribeToList {
             historyViewQueries.history(query, HistoryMapper::mapHistoryWithRelations)
         }
     }
 
-    override suspend fun getLastAnimeHistory(): HistoryWithRelations? {
+    override suspend fun getLastHistory(): HistoryWithRelations? {
         return handler.awaitOneOrNull {
             historyViewQueries.getLatestHistory(HistoryMapper::mapHistoryWithRelations)
         }
     }
 
-    override suspend fun getHistoryByAnimeId(animeId: Long): List<History> {
-        return handler.awaitList {
-            historyQueries.getHistoryByAnimeId(
-                animeId,
-                HistoryMapper::mapHistory,
-            )
-        }
+    override suspend fun getTotalWatchDuration(): Long {
+        return handler.awaitOne { historyQueries.getWatchDuration() }
     }
 
-    override suspend fun resetAnimeHistory(historyId: Long) {
+    override suspend fun getHistoryByAnimeId(animeId: Long): List<History> {
+        return handler.awaitList { historyQueries.getHistoryByAnimeId(animeId, HistoryMapper::mapHistory) }
+    }
+
+    override suspend fun resetHistory(historyId: Long) {
         try {
             handler.await { historyQueries.resetHistoryById(historyId) }
         } catch (e: Exception) {
@@ -50,7 +49,7 @@ class HistoryRepositoryImpl(
         }
     }
 
-    override suspend fun deleteAllAnimeHistory(): Boolean {
+    override suspend fun deleteAllHistory(): Boolean {
         return try {
             handler.await { historyQueries.removeAllHistory() }
             true
@@ -60,16 +59,39 @@ class HistoryRepositoryImpl(
         }
     }
 
-    override suspend fun upsertAnimeHistory(historyUpdate: HistoryUpdate) {
+    override suspend fun upsertHistory(historyUpdate: HistoryUpdate) {
         try {
             handler.await {
                 historyQueries.upsert(
                     historyUpdate.episodeId,
                     historyUpdate.seenAt,
+                    historyUpdate.sessionWatchDuration,
                 )
             }
         } catch (e: Exception) {
             logcat(LogPriority.ERROR, throwable = e)
         }
     }
+
+    // SY -->
+    override suspend fun upsertHistory(historyUpdates: List<HistoryUpdate>) {
+        try {
+            handler.await(true) {
+                historyUpdates.forEach { historyUpdate ->
+                    historyQueries.upsert(
+                        historyUpdate.episodeId,
+                        historyUpdate.seenAt,
+                        historyUpdate.sessionWatchDuration,
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            logcat(LogPriority.ERROR, throwable = e)
+        }
+    }
+
+    override suspend fun getByAnimeId(animeId: Long): List<History> {
+        return handler.awaitList { historyQueries.getHistoryByAnimeId(animeId, HistoryMapper::mapHistory) }
+    }
+    // SY <--
 }

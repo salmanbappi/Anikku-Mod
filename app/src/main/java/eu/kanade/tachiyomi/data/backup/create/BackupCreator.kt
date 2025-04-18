@@ -79,7 +79,7 @@ class BackupCreator(
             }
 
             val nonFavoriteAnime = if (options.readEntries) {
-                animeRepository.getWatchedAnimeNotInLibrary()
+                animeRepository.getSeenAnimeNotInLibrary()
             } else {
                 emptyList()
             }

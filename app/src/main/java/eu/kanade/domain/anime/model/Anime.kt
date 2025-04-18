@@ -1,8 +1,8 @@
 package eu.kanade.domain.anime.model
 
 import eu.kanade.domain.base.BasePreferences
-import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.data.cache.CoverCache
+import eu.kanade.tachiyomi.source.model.SAnime
 import tachiyomi.core.common.preference.TriState
 import tachiyomi.domain.anime.model.Anime
 import uy.kohesive.injekt.Injekt
@@ -46,6 +46,7 @@ fun Anime.copyFrom(other: SAnime): Anime {
     // SY -->
     val author = other.author ?: ogAuthor
     val artist = other.artist ?: ogArtist
+    val thumbnailUrl = other.thumbnail_url ?: ogThumbnailUrl
     val description = other.description ?: ogDescription
     val genres = if (other.genre != null) {
         other.getGenres()
@@ -53,15 +54,14 @@ fun Anime.copyFrom(other: SAnime): Anime {
         ogGenre
     }
     // SY <--
-    val thumbnailUrl = other.thumbnail_url ?: thumbnailUrl
     return this.copy(
         // SY -->
         ogAuthor = author,
         ogArtist = artist,
+        ogThumbnailUrl = thumbnailUrl,
         ogDescription = description,
         ogGenre = genres,
         // SY <--
-        thumbnailUrl = thumbnailUrl,
         // SY -->
         ogStatus = other.status.toLong(),
         // SY <--
@@ -77,11 +77,11 @@ fun SAnime.toDomainAnime(sourceId: Long): Anime {
         ogTitle = title,
         ogArtist = artist,
         ogAuthor = author,
+        ogThumbnailUrl = thumbnail_url,
         ogDescription = description,
         ogGenre = getGenres(),
         ogStatus = status.toLong(),
         // SY <--
-        thumbnailUrl = thumbnail_url,
         updateStrategy = update_strategy,
         initialized = initialized,
         source = sourceId,

@@ -37,7 +37,6 @@ fun DeleteEpisodesDialog(
     onDismissRequest: () -> Unit,
     onConfirm: () -> Unit,
 ) {
-    val subtitle = MR.strings.confirm_delete_episodes
     AlertDialog(
         onDismissRequest = onDismissRequest,
         dismissButton = {
@@ -59,7 +58,7 @@ fun DeleteEpisodesDialog(
             Text(text = stringResource(MR.strings.are_you_sure))
         },
         text = {
-            Text(text = stringResource(subtitle))
+            Text(text = stringResource(MR.strings.confirm_delete_episodes))
         },
     )
 }
@@ -69,7 +68,6 @@ fun SetIntervalDialog(
     interval: Int,
     nextUpdate: Instant?,
     onDismissRequest: () -> Unit,
-    isManga: Boolean,
     onValueChanged: ((Int) -> Unit)? = null,
 ) {
     var selectedInterval by rememberSaveable { mutableIntStateOf(if (interval < 0) -interval else 0) }
@@ -91,11 +89,7 @@ fun SetIntervalDialog(
                 if (nextUpdateDays != null && nextUpdateDays >= 0 && interval >= 0) {
                     Text(
                         stringResource(
-                            if (isManga) {
-                                MR.strings.manga_interval_expected_update
-                            } else {
-                                MR.strings.anime_interval_expected_update
-                            },
+                            MR.strings.anime_interval_expected_update,
                             pluralStringResource(
                                 MR.plurals.day,
                                 count = nextUpdateDays,
@@ -110,13 +104,7 @@ fun SetIntervalDialog(
                     )
                 } else {
                     Text(
-                        stringResource(
-                            if (isManga) {
-                                MR.strings.manga_interval_expected_update_null
-                            } else {
-                                MR.strings.anime_interval_expected_update_null
-                            },
-                        ),
+                        stringResource(MR.strings.anime_interval_expected_update_null),
                     )
                 }
                 Spacer(Modifier.height(MaterialTheme.padding.small))
@@ -129,8 +117,7 @@ fun SetIntervalDialog(
                         contentAlignment = Alignment.Center,
                     ) {
                         val size = DpSize(width = maxWidth / 2, height = 128.dp)
-                        val maxInterval = FetchInterval.MAX_INTERVAL
-                        val items = (0..maxInterval)
+                        val items = (0..FetchInterval.MAX_INTERVAL)
                             .map {
                                 if (it == 0) {
                                     stringResource(MR.strings.label_default)

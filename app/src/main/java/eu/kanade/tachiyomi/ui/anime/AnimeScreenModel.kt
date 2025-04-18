@@ -14,6 +14,7 @@ import eu.kanade.core.util.insertSeparators
 import eu.kanade.domain.anime.interactor.SetAnimeViewerFlags
 import eu.kanade.domain.anime.interactor.UpdateAnime
 import eu.kanade.domain.anime.model.downloadedFilter
+import eu.kanade.domain.anime.model.episodesFiltered
 import eu.kanade.domain.anime.model.toSAnime
 import eu.kanade.domain.episode.interactor.SetSeenStatus
 import eu.kanade.domain.episode.interactor.SyncEpisodesWithSource
@@ -24,7 +25,6 @@ import eu.kanade.domain.track.service.TrackPreferences
 import eu.kanade.presentation.anime.DownloadAction
 import eu.kanade.presentation.anime.components.EpisodeDownloadAction
 import eu.kanade.presentation.util.formattedMessage
-import eu.kanade.tachiyomi.animesource.AnimeSource
 import eu.kanade.tachiyomi.animesource.model.Video
 import eu.kanade.tachiyomi.data.download.DownloadCache
 import eu.kanade.tachiyomi.data.download.DownloadManager
@@ -35,6 +35,7 @@ import eu.kanade.tachiyomi.data.track.BaseTracker
 import eu.kanade.tachiyomi.data.track.EnhancedTracker
 import eu.kanade.tachiyomi.data.track.TrackerManager
 import eu.kanade.tachiyomi.network.HttpException
+import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.source.isSourceForTorrents
 import eu.kanade.tachiyomi.ui.anime.track.TrackItem
 import eu.kanade.tachiyomi.ui.player.settings.GesturePreferences
@@ -68,6 +69,7 @@ import tachiyomi.core.common.util.lang.launchNonCancellable
 import tachiyomi.core.common.util.lang.withIOContext
 import tachiyomi.core.common.util.lang.withUIContext
 import tachiyomi.core.common.util.system.logcat
+import tachiyomi.data.source.NoResultsException
 import tachiyomi.domain.anime.interactor.GetAnimeWithEpisodes
 import tachiyomi.domain.anime.interactor.GetDuplicateLibraryAnime
 import tachiyomi.domain.anime.interactor.SetAnimeEpisodeFlags
@@ -85,8 +87,7 @@ import tachiyomi.domain.episode.interactor.SetAnimeDefaultEpisodeFlags
 import tachiyomi.domain.episode.interactor.UpdateEpisode
 import tachiyomi.domain.episode.model.Episode
 import tachiyomi.domain.episode.model.EpisodeUpdate
-import tachiyomi.domain.episode.model.NoEpisodesException
-import tachiyomi.domain.episode.service.calculateEpisodeGap
+import tachiyomi.domain.episode.service.calculateChapterGap
 import tachiyomi.domain.episode.service.getEpisodeSort
 import tachiyomi.domain.library.service.LibraryPreferences
 import tachiyomi.domain.source.service.SourceManager
@@ -145,7 +146,7 @@ class AnimeScreenModel(
     val anime: Anime?
         get() = successState?.anime
 
-    val source: AnimeSource?
+    val source: Source?
         get() = successState?.source
 
     private val isFavorited: Boolean
@@ -163,7 +164,7 @@ class AnimeScreenModel(
     val useExternalDownloader = downloadPreferences.useExternalDownloader().get()
 
     val isUpdateIntervalEnabled =
-        LibraryPreferences.ENTRY_OUTSIDE_RELEASE_PERIOD in libraryPreferences.autoUpdateItemRestrictions().get()
+        LibraryPreferences.ANIME_OUTSIDE_RELEASE_PERIOD in libraryPreferences.autoUpdateAnimeRestrictions().get()
 
     private val selectedPositions: Array<Int> = arrayOf(-1, -1) // first and last selected index in list
     private val selectedEpisodeIds: HashSet<Long> = HashSet()
@@ -210,8 +211,8 @@ class AnimeScreenModel(
         observeDownloads()
 
         screenModelScope.launchIO {
-            val anime = getAnimeAndEpisodes.awaitAnime(animeId)
-            val episodes = getAnimeAndEpisodes.awaitEpisodes(animeId)
+            val anime = getAnimeAndEpisodes.awaitManga(animeId)
+            val episodes = getAnimeAndEpisodes.awaitChapters(animeId)
                 .toEpisodeListItems(anime)
 
             if (!anime.favorite) {
@@ -295,11 +296,11 @@ class AnimeScreenModel(
     }
 
     // SY -->
-    @Suppress("LongParameterList")
     fun updateAnimeInfo(
         title: String?,
         author: String?,
         artist: String?,
+        thumbnailUrl: String?,
         description: String?,
         tags: List<String>?,
         status: Long?,
@@ -348,6 +349,7 @@ class AnimeScreenModel(
                     title?.trimOrNull(),
                     author?.trimOrNull(),
                     artist?.trimOrNull(),
+                    thumbnailUrl?.trimOrNull(),
                     description?.trimOrNull(),
                     genre,
                     status.takeUnless { it == state.anime.ogStatus },
@@ -417,7 +419,7 @@ class AnimeScreenModel(
 
                 // Now check if user previously set categories, when available
                 val categories = getCategories()
-                val defaultCategoryId = libraryPreferences.defaultAnimeCategory().get().toLong()
+                val defaultCategoryId = libraryPreferences.defaultCategory().get().toLong()
                 val defaultCategory = categories.find { it.id == defaultCategoryId }
                 when {
                     // Default category set
@@ -655,7 +657,7 @@ class AnimeScreenModel(
                 }
             }
         } catch (e: Throwable) {
-            val message = if (e is NoEpisodesException) {
+            val message = if (e is NoResultsException) {
                 context.stringResource(MR.strings.no_episodes_error)
             } else {
                 logcat(LogPriority.ERROR, e)
@@ -801,12 +803,12 @@ class AnimeScreenModel(
 
     fun runDownloadAction(action: DownloadAction) {
         val episodesToDownload = when (action) {
-            DownloadAction.NEXT_1_ITEM -> getUnseenEpisodesSorted().take(1)
-            DownloadAction.NEXT_5_ITEMS -> getUnseenEpisodesSorted().take(5)
-            DownloadAction.NEXT_10_ITEMS -> getUnseenEpisodesSorted().take(10)
-            DownloadAction.NEXT_25_ITEMS -> getUnseenEpisodesSorted().take(25)
+            DownloadAction.NEXT_1_EPISODE -> getUnseenEpisodesSorted().take(1)
+            DownloadAction.NEXT_5_EPISODES -> getUnseenEpisodesSorted().take(5)
+            DownloadAction.NEXT_10_EPISODES -> getUnseenEpisodesSorted().take(10)
+            DownloadAction.NEXT_25_EPISODES -> getUnseenEpisodesSorted().take(25)
 
-            DownloadAction.UNVIEWED_ITEMS -> getUnseenEpisodes()
+            DownloadAction.UNSEEN_EPISODES -> getUnseenEpisodes()
         }
         if (episodesToDownload.isNotEmpty()) {
             startDownload(episodesToDownload, false)
@@ -962,7 +964,7 @@ class AnimeScreenModel(
             TriState.ENABLED_NOT -> Anime.EPISODE_SHOW_SEEN
         }
         screenModelScope.launchNonCancellable {
-            setAnimeEpisodeFlags.awaitSetUnseenFilter(anime, flag)
+            setAnimeEpisodeFlags.awaitSetUnreadFilter(anime, flag)
         }
     }
 
@@ -1222,7 +1224,7 @@ class AnimeScreenModel(
         data class DuplicateAnime(val anime: Anime, val duplicate: Anime) : Dialog
         data class Migrate(val newAnime: Anime, val oldAnime: Anime) : Dialog
         data class SetAnimeFetchInterval(val anime: Anime) : Dialog
-        data class ShowQualities(val episode: Episode, val anime: Anime, val source: AnimeSource) : Dialog
+        data class ShowQualities(val episode: Episode, val anime: Anime, val source: Source) : Dialog
 
         // SY -->
         data class EditAnimeInfo(val anime: Anime) : Dialog
@@ -1287,7 +1289,7 @@ class AnimeScreenModel(
         @Immutable
         data class Success(
             val anime: Anime,
-            val source: AnimeSource,
+            val source: Source,
             val isFromSource: Boolean,
             val episodes: List<EpisodeList.Item>,
             val trackingCount: Int = 0,
@@ -1321,7 +1323,7 @@ class AnimeScreenModel(
                             .minus(1)
                             .coerceAtLeast(0)
                     } else {
-                        calculateEpisodeGap(higherEpisode.episode, lowerEpisode.episode)
+                        calculateChapterGap(higherEpisode.episode, lowerEpisode.episode)
                     }
                         .takeIf { it > 0 }
                         ?.let { missingCount ->
@@ -1343,6 +1345,9 @@ class AnimeScreenModel(
                 get() = nextAiringEpisode.second.times(1000L).minus(
                     Calendar.getInstance().timeInMillis,
                 )
+
+            val filterActive: Boolean
+                get() = anime.episodesFiltered()
 
             /**
              * Applies the view filters to the list of episodes obtained from the database.

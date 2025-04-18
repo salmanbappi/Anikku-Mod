@@ -8,7 +8,7 @@ import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
 class CategoriesRestorer(
-    private val animeHandler: DatabaseHandler = Injekt.get(),
+    private val handler: DatabaseHandler = Injekt.get(),
     private val getCategories: GetCategories = Injekt.get(),
     private val libraryPreferences: LibraryPreferences = Injekt.get(),
 ) {
@@ -21,13 +21,17 @@ class CategoriesRestorer(
 
             val categories = backupCategories
                 .sortedBy { it.order }
-                .distinctBy { it.name }
                 .map {
                     val dbCategory = dbCategoriesByName[it.name]
                     if (dbCategory != null) return@map dbCategory
                     val order = nextOrder++
-                    animeHandler.awaitOneExecutable {
-                        categoriesQueries.insert(it.name, order, it.flags)
+                    handler.awaitOneExecutable {
+                        categoriesQueries.insert(
+                            it.name, order, it.flags,
+                            // KMK -->
+                            hidden = if (it.hidden) 1L else 0L,
+                            // KMK <--
+                        )
                         categoriesQueries.selectLastInsertedRowId()
                     }
                         .let { id -> it.toCategory(id).copy(order = order) }

@@ -18,10 +18,10 @@ class SetSeenStatus(
     private val episodeRepository: EpisodeRepository,
 ) {
 
-    private val mapper = { episode: Episode, read: Boolean ->
+    private val mapper = { episode: Episode, seen: Boolean ->
         EpisodeUpdate(
-            seen = read,
-            lastSecondSeen = if (!read) 0 else null,
+            seen = seen,
+            lastSecondSeen = if (!seen) 0 else null,
             id = episode.id,
         )
     }
@@ -38,7 +38,7 @@ class SetSeenStatus(
         }
 
         try {
-            episodeRepository.updateAllEpisodes(
+            episodeRepository.updateAll(
                 episodesToUpdate.map { mapper(it, seen) },
             )
         } catch (e: Exception) {
@@ -46,7 +46,7 @@ class SetSeenStatus(
             return@withNonCancellableContext Result.InternalError(e)
         }
 
-        if (seen && downloadPreferences.removeAfterMarkedAsRead().get()) {
+        if (seen && downloadPreferences.removeAfterMarkedAsSeen().get()) {
             episodesToUpdate
                 .groupBy { it.animeId }
                 .forEach { (animeId, episodes) ->

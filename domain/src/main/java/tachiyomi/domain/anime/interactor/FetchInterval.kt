@@ -20,7 +20,7 @@ class FetchInterval(
         window: Pair<Long, Long>,
     ): AnimeUpdate {
         val interval = anime.fetchInterval.takeIf { it < 0 } ?: calculateInterval(
-            episodes = getEpisodesByAnimeId.await(anime.id),
+            episodes = getEpisodesByAnimeId.await(anime.id, applyScanlatorFilter = true),
             zone = dateTime.zone,
         )
         val currentWindow = if (window.first == 0L && window.second == 0L) {
@@ -41,7 +41,7 @@ class FetchInterval(
     }
 
     internal fun calculateInterval(episodes: List<Episode>, zone: ZoneId): Int {
-        val episodeWindow = if (episodes.size <= 8) 3 else 10
+        val chapterWindow = if (episodes.size <= 8) 3 else 10
 
         val uploadDates = episodes.asSequence()
             .filter { it.dateUpload > 0L }
@@ -52,7 +52,7 @@ class FetchInterval(
                     .atStartOfDay()
             }
             .distinct()
-            .take(episodeWindow)
+            .take(chapterWindow)
             .toList()
 
         val fetchDates = episodes.asSequence()
@@ -63,7 +63,7 @@ class FetchInterval(
                     .atStartOfDay()
             }
             .distinct()
-            .take(episodeWindow)
+            .take(chapterWindow)
             .toList()
 
         val interval = when {
@@ -87,17 +87,17 @@ class FetchInterval(
     }
 
     private fun calculateNextUpdate(
-        anime: Anime,
+        manga: Anime,
         interval: Int,
         dateTime: ZonedDateTime,
         window: Pair<Long, Long>,
     ): Long {
-        if (anime.nextUpdate in window.first.rangeTo(window.second + 1)) {
-            return anime.nextUpdate
+        if (manga.nextUpdate in window.first.rangeTo(window.second + 1)) {
+            return manga.nextUpdate
         }
 
         val latestDate = ZonedDateTime.ofInstant(
-            if (anime.lastUpdate > 0) Instant.ofEpochMilli(anime.lastUpdate) else Instant.now(),
+            if (manga.lastUpdate > 0) Instant.ofEpochMilli(manga.lastUpdate) else Instant.now(),
             dateTime.zone,
         )
             .toLocalDate()
@@ -126,5 +126,9 @@ class FetchInterval(
         const val MAX_INTERVAL = 28
 
         private const val GRACE_PERIOD = 1L
+
+        // KMK -->
+        const val MANUAL_DISABLE = 99999 // 274 years in future
+        // KMK <--
     }
 }

@@ -112,6 +112,7 @@ fun LibraryPager(
                     onGlobalSearchClicked = onGlobalSearchClicked,
                 )
             }
+            else -> {}
         }
     }
 }

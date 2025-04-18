@@ -6,12 +6,12 @@ import tachiyomi.domain.track.model.Track
 import tachiyomi.domain.track.repository.TrackRepository
 
 class InsertTrack(
-    private val animetrackRepository: TrackRepository,
+    private val trackRepository: TrackRepository,
 ) {
 
     suspend fun await(track: Track) {
         try {
-            animetrackRepository.insertAnime(track)
+            trackRepository.insert(track)
         } catch (e: Exception) {
             logcat(LogPriority.ERROR, e)
         }
@@ -19,7 +19,7 @@ class InsertTrack(
 
     suspend fun awaitAll(tracks: List<Track>) {
         try {
-            animetrackRepository.insertAllAnime(tracks)
+            trackRepository.insertAll(tracks)
         } catch (e: Exception) {
             logcat(LogPriority.ERROR, e)
         }

@@ -2,12 +2,12 @@ package eu.kanade.domain.track.interactor
 
 import eu.kanade.domain.track.model.toDbTrack
 import eu.kanade.domain.track.model.toDomainTrack
-import eu.kanade.tachiyomi.animesource.AnimeSource
 import eu.kanade.tachiyomi.data.database.models.Track
 import eu.kanade.tachiyomi.data.track.AnimeTracker
 import eu.kanade.tachiyomi.data.track.EnhancedTracker
 import eu.kanade.tachiyomi.data.track.Tracker
 import eu.kanade.tachiyomi.data.track.TrackerManager
+import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.util.lang.convertEpochMillisZone
 import logcat.LogPriority
 import tachiyomi.core.common.util.lang.withIOContext
@@ -23,7 +23,7 @@ import java.time.ZoneOffset
 
 class AddTracks(
     private val insertTrack: InsertTrack,
-    private val syncChapterProgressWithTrack: SyncEpisodeProgressWithTrack,
+    private val syncEpisodeProgressWithTrack: SyncEpisodeProgressWithTrack,
     private val getEpisodesByAnimeId: GetEpisodesByAnimeId,
     private val trackerManager: TrackerManager,
 ) {
@@ -31,38 +31,38 @@ class AddTracks(
     // TODO: update all trackers based on common data
     suspend fun bind(tracker: AnimeTracker, item: Track, animeId: Long) = withNonCancellableContext {
         withIOContext {
-            val allChapters = getEpisodesByAnimeId.await(animeId)
-            val hasSeenEpisodes = allChapters.any { it.seen }
+            val allEpisodes = getEpisodesByAnimeId.await(animeId)
+            val hasSeenEpisodes = allEpisodes.any { it.seen }
             tracker.bind(item, hasSeenEpisodes)
 
             var track = item.toDomainTrack(idRequired = false) ?: return@withIOContext
 
             insertTrack.await(track)
 
-            // TODO: merge into [SyncChapterProgressWithTrack]?
-            // Update chapter progress if newer chapters marked read locally
+            // TODO: merge into [SyncEpisodeProgressWithTrack]?
+            // Update episode progress if newer episodes marked seen locally
             if (hasSeenEpisodes) {
-                val latestLocalReadChapterNumber = allChapters
+                val latestLocalSeenEpisodeNumber = allEpisodes
                     .sortedBy { it.episodeNumber }
                     .takeWhile { it.seen }
                     .lastOrNull()
                     ?.episodeNumber ?: -1.0
 
-                if (latestLocalReadChapterNumber > track.lastEpisodeSeen) {
+                if (latestLocalSeenEpisodeNumber > track.lastEpisodeSeen) {
                     track = track.copy(
-                        lastEpisodeSeen = latestLocalReadChapterNumber,
+                        lastEpisodeSeen = latestLocalSeenEpisodeNumber,
                     )
-                    tracker.setRemoteLastEpisodeSeen(track.toDbTrack(), latestLocalReadChapterNumber.toInt())
+                    tracker.setRemoteLastEpisodeSeen(track.toDbTrack(), latestLocalSeenEpisodeNumber.toInt())
                 }
 
                 if (track.startDate <= 0) {
-                    val firstReadChapterDate = Injekt.get<GetHistory>().await(animeId)
+                    val firstSeenEpisodeDate = Injekt.get<GetHistory>().await(animeId)
                         .sortedBy { it.seenAt }
                         .firstOrNull()
                         ?.seenAt
 
-                    firstReadChapterDate?.let {
-                        val startDate = firstReadChapterDate.time.convertEpochMillisZone(
+                    firstSeenEpisodeDate?.let {
+                        val startDate = firstSeenEpisodeDate.time.convertEpochMillisZone(
                             ZoneOffset.systemDefault(),
                             ZoneOffset.UTC,
                         )
@@ -74,11 +74,11 @@ class AddTracks(
                 }
             }
 
-            syncChapterProgressWithTrack.await(animeId, track, tracker)
+            syncEpisodeProgressWithTrack.await(animeId, track, tracker)
         }
     }
 
-    suspend fun bindEnhancedTrackers(anime: Anime, source: AnimeSource) = withNonCancellableContext {
+    suspend fun bindEnhancedTrackers(anime: Anime, source: Source) = withNonCancellableContext {
         withIOContext {
             trackerManager.loggedInTrackers()
                 .filterIsInstance<EnhancedTracker>()
@@ -90,7 +90,7 @@ class AddTracks(
                             (service as Tracker).animeService.bind(track)
                             insertTrack.await(track.toDomainTrack(idRequired = false)!!)
 
-                            syncChapterProgressWithTrack.await(
+                            syncEpisodeProgressWithTrack.await(
                                 anime.id,
                                 track.toDomainTrack(idRequired = false)!!,
                                 service.animeService,

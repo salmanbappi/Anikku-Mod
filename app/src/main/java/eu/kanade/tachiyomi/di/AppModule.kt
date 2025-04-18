@@ -30,13 +30,13 @@ import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.serialization.XML
 import tachiyomi.core.common.storage.AndroidStorageFolderProvider
 import tachiyomi.data.AndroidDatabaseHandler
-import tachiyomi.data.AnimeUpdateStrategyColumnAdapter
 import tachiyomi.data.Animes
 import tachiyomi.data.Database
 import tachiyomi.data.DatabaseHandler
 import tachiyomi.data.DateColumnAdapter
 import tachiyomi.data.History
 import tachiyomi.data.StringListColumnAdapter
+import tachiyomi.data.UpdateStrategyColumnAdapter
 import tachiyomi.domain.source.service.SourceManager
 import tachiyomi.domain.storage.service.StorageManager
 import tachiyomi.source.local.image.LocalCoverManager
@@ -85,7 +85,7 @@ class AppModule(val app: Application) : InjektModule {
                 ),
                 animesAdapter = Animes.Adapter(
                     genreAdapter = StringListColumnAdapter,
-                    update_strategyAdapter = AnimeUpdateStrategyColumnAdapter,
+                    update_strategyAdapter = UpdateStrategyColumnAdapter,
                 ),
             )
         }
@@ -122,7 +122,7 @@ class AppModule(val app: Application) : InjektModule {
 
         addSingletonFactory { CoverCache(app) }
 
-        addSingletonFactory { NetworkHelper(app, get()) }
+        addSingletonFactory { NetworkHelper(app, get(), BuildConfig.DEBUG) }
         addSingletonFactory { JavaScriptEngine(app) }
 
         addSingletonFactory<SourceManager> { AndroidSourceManager(app, get(), get()) }

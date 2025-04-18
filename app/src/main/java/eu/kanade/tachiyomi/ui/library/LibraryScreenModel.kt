@@ -22,13 +22,13 @@ import eu.kanade.presentation.anime.DownloadAction
 import eu.kanade.presentation.components.SEARCH_DEBOUNCE_MILLIS
 import eu.kanade.presentation.library.components.LibraryToolbarTitle
 import eu.kanade.tachiyomi.R
-import eu.kanade.tachiyomi.animesource.model.SAnime
-import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import eu.kanade.tachiyomi.data.cache.CoverCache
 import eu.kanade.tachiyomi.data.download.DownloadCache
 import eu.kanade.tachiyomi.data.download.DownloadManager
 import eu.kanade.tachiyomi.data.track.TrackStatus
 import eu.kanade.tachiyomi.data.track.TrackerManager
+import eu.kanade.tachiyomi.source.model.SAnime
+import eu.kanade.tachiyomi.source.online.HttpSource
 import eu.kanade.tachiyomi.util.episode.getNextUnseen
 import eu.kanade.tachiyomi.util.removeCovers
 import kotlinx.collections.immutable.ImmutableList
@@ -59,7 +59,7 @@ import tachiyomi.domain.anime.interactor.GetLibraryAnime
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.anime.model.AnimeUpdate
 import tachiyomi.domain.anime.model.applyFilter
-import tachiyomi.domain.category.interactor.GetVisibleCategories
+import tachiyomi.domain.category.interactor.GetCategories
 import tachiyomi.domain.category.interactor.SetAnimeCategories
 import tachiyomi.domain.category.model.Category
 import tachiyomi.domain.episode.interactor.GetEpisodesByAnimeId
@@ -89,7 +89,7 @@ typealias AnimeLibraryMap = Map<Category, List<LibraryItem>>
 @Suppress("LargeClass")
 class LibraryScreenModel(
     private val getLibraryAnime: GetLibraryAnime = Injekt.get(),
-    private val getCategories: GetVisibleCategories = Injekt.get(),
+    private val getCategories: GetCategories = Injekt.get(),
     private val getTracksPerAnime: GetTracksPerAnime = Injekt.get(),
     private val getNextEpisodes: GetNextEpisodes = Injekt.get(),
     private val getEpisodesByAnimeId: GetEpisodesByAnimeId = Injekt.get(),
@@ -108,7 +108,7 @@ class LibraryScreenModel(
     // SY <--
 ) : StateScreenModel<LibraryScreenModel.State>(State()) {
 
-    var activeCategoryIndex: Int by libraryPreferences.lastUsedAnimeCategory().asState(
+    var activeCategoryIndex: Int by libraryPreferences.lastUsedCategory().asState(
         screenModelScope,
     )
 
@@ -126,7 +126,7 @@ class LibraryScreenModel(
                 // SY -->
                 combine(
                     state.map { it.groupType }.distinctUntilChanged(),
-                    libraryPreferences.animeSortingMode().changes(),
+                    libraryPreferences.sortingMode().changes(),
                     ::Pair,
                 ),
                 // SY <--
@@ -158,7 +158,7 @@ class LibraryScreenModel(
         combine(
             libraryPreferences.categoryTabs().changes(),
             libraryPreferences.categoryNumberOfItems().changes(),
-            libraryPreferences.showContinueViewingButton().changes(),
+            libraryPreferences.showContinueWatchingButton().changes(),
         ) { a, b, c -> arrayOf(a, b, c) }
             .onEach { (showCategoryTabs, showAnimeCount, showAnimeContinueButton) ->
                 mutableState.update { state ->
@@ -198,7 +198,7 @@ class LibraryScreenModel(
             .launchIn(screenModelScope)
 
         // SY -->
-        libraryPreferences.groupAnimeLibraryBy().changes()
+        libraryPreferences.groupLibraryBy().changes()
             .onEach {
                 mutableState.update { state ->
                     state.copy(groupType = it)
@@ -371,12 +371,15 @@ class LibraryScreenModel(
                 LibrarySort.Type.Random -> {
                     error("Why Are We Still Here? Just To Suffer?")
                 }
+                else -> {
+                    error("Why Are We Still Here? Just To Suffer?")
+                }
             }
         }
 
         return mapValues { (key, value) ->
             if (key.sort.type == LibrarySort.Type.Random) {
-                return@mapValues value.shuffled(Random(libraryPreferences.randomAnimeSortSeed().get()))
+                return@mapValues value.shuffled(Random(libraryPreferences.randomSortSeed().get()))
             }
 
             val comparator = key.sort.comparator()
@@ -392,24 +395,24 @@ class LibraryScreenModel(
             libraryPreferences.downloadBadge().changes(),
             libraryPreferences.localBadge().changes(),
             libraryPreferences.languageBadge().changes(),
-            libraryPreferences.autoUpdateItemRestrictions().changes(),
+            libraryPreferences.autoUpdateAnimeRestrictions().changes(),
 
             preferences.downloadedOnly().changes(),
-            libraryPreferences.filterDownloadedAnime().changes(),
+            libraryPreferences.filterDownloaded().changes(),
             libraryPreferences.filterUnseen().changes(),
-            libraryPreferences.filterStartedAnime().changes(),
-            libraryPreferences.filterBookmarkedAnime().changes(),
+            libraryPreferences.filterStarted().changes(),
+            libraryPreferences.filterBookmarked().changes(),
             // AM (FILLERMARK) -->
             libraryPreferences.filterFillermarkedAnime().changes(),
             // <-- AM (FILLERMARK)
-            libraryPreferences.filterCompletedAnime().changes(),
+            libraryPreferences.filterCompleted().changes(),
             libraryPreferences.filterIntervalCustom().changes(),
             transform = {
                 ItemPreferences(
                     downloadBadge = it[0] as Boolean,
                     localBadge = it[1] as Boolean,
                     languageBadge = it[2] as Boolean,
-                    skipOutsideReleasePeriod = LibraryPreferences.ENTRY_OUTSIDE_RELEASE_PERIOD in (it[3] as Set<*>),
+                    skipOutsideReleasePeriod = LibraryPreferences.ANIME_OUTSIDE_RELEASE_PERIOD in (it[3] as Set<*>),
                     globalFilterDownloaded = it[4] as Boolean,
                     filterDownloaded = it[5] as TriState,
                     filterUnseen = it[6] as TriState,
@@ -433,21 +436,21 @@ class LibraryScreenModel(
             getLibraryAnime.subscribe(),
             getAnimelibItemPreferencesFlow(),
             downloadCache.changes,
-        ) { animelibAnimeList, prefs, _ ->
-            animelibAnimeList
-                .map { animelibAnime ->
+        ) { libraryMangaList, prefs, _ ->
+            libraryMangaList
+                .map { libraryManga ->
                     // Display mode based on user preference: take it from global library setting or category
                     LibraryItem(
-                        animelibAnime,
+                        libraryManga,
                         downloadCount = if (prefs.downloadBadge) {
-                            downloadManager.getDownloadCount(animelibAnime.anime).toLong()
+                            downloadManager.getDownloadCount(libraryManga.anime).toLong()
                         } else {
                             0
                         },
-                        unseenCount = animelibAnime.unseenCount,
-                        isLocal = if (prefs.localBadge) animelibAnime.anime.isLocal() else false,
+                        unseenCount = libraryManga.unseenCount,
+                        isLocal = if (prefs.localBadge) libraryManga.anime.isLocal() else false,
                         sourceLanguage = if (prefs.languageBadge) {
-                            sourceManager.getOrStub(animelibAnime.anime.source).lang
+                            sourceManager.getOrStub(libraryManga.anime.source).lang
                         } else {
                             ""
                         },
@@ -505,7 +508,7 @@ class LibraryScreenModel(
             if (loggedInTrackers.isEmpty()) return@flatMapLatest flowOf(emptyMap())
 
             val prefFlows = loggedInTrackers.map { tracker ->
-                libraryPreferences.filterTrackedAnime(tracker.id.toInt()).changes()
+                libraryPreferences.filterTracking(tracker.id.toInt()).changes()
             }
             combine(prefFlows) {
                 loggedInTrackers
@@ -547,11 +550,11 @@ class LibraryScreenModel(
         val selection = state.value.selection
         val animes = selection.map { it.anime }.toList()
         when (action) {
-            DownloadAction.NEXT_1_ITEM -> downloadUnseenEpisodes(animes, 1)
-            DownloadAction.NEXT_5_ITEMS -> downloadUnseenEpisodes(animes, 5)
-            DownloadAction.NEXT_10_ITEMS -> downloadUnseenEpisodes(animes, 10)
-            DownloadAction.NEXT_25_ITEMS -> downloadUnseenEpisodes(animes, 25)
-            DownloadAction.UNVIEWED_ITEMS -> downloadUnseenEpisodes(animes, null)
+            DownloadAction.NEXT_1_EPISODE -> downloadUnseenEpisodes(animes, 1)
+            DownloadAction.NEXT_5_EPISODES -> downloadUnseenEpisodes(animes, 5)
+            DownloadAction.NEXT_10_EPISODES -> downloadUnseenEpisodes(animes, 10)
+            DownloadAction.NEXT_25_EPISODES -> downloadUnseenEpisodes(animes, 25)
+            DownloadAction.UNSEEN_EPISODES -> downloadUnseenEpisodes(animes, null)
         }
         clearSelection()
     }
@@ -641,7 +644,7 @@ class LibraryScreenModel(
 
             if (deleteEpisodes) {
                 animeToDelete.forEach { anime ->
-                    val source = sourceManager.get(anime.source) as? AnimeHttpSource
+                    val source = sourceManager.get(anime.source) as? HttpSource
                     if (source != null) {
                         downloadManager.deleteAnime(anime, source)
                     }
@@ -682,9 +685,9 @@ class LibraryScreenModel(
     fun getColumnsPreferenceForCurrentOrientation(isLandscape: Boolean): PreferenceMutableState<Int> {
         return (
             if (isLandscape) {
-                libraryPreferences.animeLandscapeColumns()
+                libraryPreferences.landscapeColumns()
             } else {
-                libraryPreferences.animePortraitColumns()
+                libraryPreferences.portraitColumns()
             }
             ).asState(
             screenModelScope,

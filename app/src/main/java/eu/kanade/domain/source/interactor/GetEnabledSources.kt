@@ -17,11 +17,11 @@ class GetEnabledSources(
 
     fun subscribe(): Flow<List<Source>> {
         return combine(
-            preferences.pinnedAnimeSources().changes(),
+            preferences.pinnedSources().changes(),
             preferences.enabledLanguages().changes(),
-            preferences.disabledAnimeSources().changes(),
-            preferences.lastUsedAnimeSource().changes(),
-            repository.getAnimeSources(),
+            preferences.disabledSources().changes(),
+            preferences.lastUsedSource().changes(),
+            repository.getSources(),
         ) { pinnedSourceIds, enabledLanguages, disabledSources, lastUsedSource, sources ->
             sources
                 .filter { it.lang in enabledLanguages || it.id == LocalSource.ID }

@@ -20,9 +20,9 @@ import eu.kanade.domain.base.BasePreferences
 import eu.kanade.domain.source.service.SourcePreferences
 import eu.kanade.domain.track.interactor.AddTracks
 import eu.kanade.presentation.util.ioCoroutineScope
-import eu.kanade.tachiyomi.animesource.AnimeCatalogueSource
-import eu.kanade.tachiyomi.animesource.model.AnimeFilterList
 import eu.kanade.tachiyomi.data.cache.CoverCache
+import eu.kanade.tachiyomi.source.CatalogueSource
+import eu.kanade.tachiyomi.source.model.FilterList
 import eu.kanade.tachiyomi.util.removeCovers
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -79,7 +79,7 @@ class BrowseSourceScreenModel(
     val source = sourceManager.getOrStub(sourceId)
 
     init {
-        if (source is AnimeCatalogueSource) {
+        if (source is CatalogueSource) {
             mutableState.update {
                 var query: String? = null
                 var listing = it.listing
@@ -98,7 +98,7 @@ class BrowseSourceScreenModel(
         }
 
         if (!basePreferences.incognitoMode().get()) {
-            sourcePreferences.lastUsedAnimeSource().set(source.id)
+            sourcePreferences.lastUsedSource().set(source.id)
         }
     }
 
@@ -127,15 +127,15 @@ class BrowseSourceScreenModel(
     fun getColumnsPreference(orientation: Int): GridCells {
         val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
         val columns = if (isLandscape) {
-            libraryPreferences.animeLandscapeColumns()
+            libraryPreferences.landscapeColumns()
         } else {
-            libraryPreferences.animePortraitColumns()
+            libraryPreferences.portraitColumns()
         }.get()
         return if (columns == 0) GridCells.Adaptive(128.dp) else GridCells.Fixed(columns)
     }
 
     fun resetFilters() {
-        if (source !is AnimeCatalogueSource) return
+        if (source !is CatalogueSource) return
 
         mutableState.update { it.copy(filters = source.getFilterList()) }
     }
@@ -144,8 +144,8 @@ class BrowseSourceScreenModel(
         mutableState.update { it.copy(listing = listing, toolbarQuery = null) }
     }
 
-    fun setFilters(filters: AnimeFilterList) {
-        if (source !is AnimeCatalogueSource) return
+    fun setFilters(filters: FilterList) {
+        if (source !is CatalogueSource) return
 
         mutableState.update {
             it.copy(
@@ -154,8 +154,8 @@ class BrowseSourceScreenModel(
         }
     }
 
-    fun search(query: String? = null, filters: AnimeFilterList? = null) {
-        if (source !is AnimeCatalogueSource) return
+    fun search(query: String? = null, filters: FilterList? = null) {
+        if (source !is CatalogueSource) return
 
         val input = state.value.listing as? Listing.Search
             ?: Listing.Search(query = null, filters = source.getFilterList())
@@ -172,7 +172,7 @@ class BrowseSourceScreenModel(
     }
 
     fun searchGenre(genreName: String) {
-        if (source !is AnimeCatalogueSource) return
+        if (source !is CatalogueSource) return
 
         val defaultFilters = source.getFilterList()
         var genreExists = false
@@ -244,7 +244,7 @@ class BrowseSourceScreenModel(
     fun addFavorite(anime: Anime) {
         screenModelScope.launch {
             val categories = getCategories()
-            val defaultCategoryId = libraryPreferences.defaultAnimeCategory().get()
+            val defaultCategoryId = libraryPreferences.defaultCategory().get()
             val defaultCategory = categories.find { it.id == defaultCategoryId.toLong() }
 
             when {
@@ -298,7 +298,7 @@ class BrowseSourceScreenModel(
     fun moveAnimeToCategories(anime: Anime, categoryIds: List<Long>) {
         screenModelScope.launchIO {
             setAnimeCategories.await(
-                animeId = anime.id,
+                mangaId = anime.id,
                 categoryIds = categoryIds.toList(),
             )
         }
@@ -316,16 +316,16 @@ class BrowseSourceScreenModel(
         mutableState.update { it.copy(toolbarQuery = query) }
     }
 
-    sealed class Listing(open val query: String?, open val filters: AnimeFilterList) {
+    sealed class Listing(open val query: String?, open val filters: FilterList) {
         data object Popular : Listing(
             query = GetRemoteAnime.QUERY_POPULAR,
-            filters = AnimeFilterList(),
+            filters = FilterList(),
         )
         data object Latest : Listing(
             query = GetRemoteAnime.QUERY_LATEST,
-            filters = AnimeFilterList(),
+            filters = FilterList(),
         )
-        data class Search(override val query: String?, override val filters: AnimeFilterList) : Listing(
+        data class Search(override val query: String?, override val filters: FilterList) : Listing(
             query = query,
             filters = filters,
         )
@@ -335,7 +335,7 @@ class BrowseSourceScreenModel(
                 return when (query) {
                     GetRemoteAnime.QUERY_POPULAR -> Popular
                     GetRemoteAnime.QUERY_LATEST -> Latest
-                    else -> Search(query = query, filters = AnimeFilterList()) // filters are filled in later
+                    else -> Search(query = query, filters = FilterList()) // filters are filled in later
                 }
             }
         }
@@ -355,7 +355,7 @@ class BrowseSourceScreenModel(
     @Immutable
     data class State(
         val listing: Listing,
-        val filters: AnimeFilterList = AnimeFilterList(),
+        val filters: FilterList = FilterList(),
         val toolbarQuery: String? = null,
         val dialog: Dialog? = null,
     ) {

@@ -6,10 +6,11 @@ import eu.kanade.tachiyomi.data.backup.models.BackupCategory
 import eu.kanade.tachiyomi.data.backup.models.BackupEpisode
 import eu.kanade.tachiyomi.data.backup.models.BackupHistory
 import eu.kanade.tachiyomi.data.backup.models.BackupTracking
-import tachiyomi.data.AnimeUpdateStrategyColumnAdapter
 import tachiyomi.data.DatabaseHandler
+import tachiyomi.data.UpdateStrategyColumnAdapter
 import tachiyomi.domain.anime.interactor.FetchInterval
 import tachiyomi.domain.anime.interactor.GetAnimeByUrlAndSourceId
+import tachiyomi.domain.anime.interactor.SetCustomAnimeInfo
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.category.interactor.GetCategories
 import tachiyomi.domain.episode.interactor.GetEpisodesByAnimeId
@@ -34,6 +35,9 @@ class AnimeRestorer(
     private val getTracks: GetTracks = Injekt.get(),
     private val insertTrack: InsertTrack = Injekt.get(),
     fetchInterval: FetchInterval = Injekt.get(),
+    // SY -->
+    private val setCustomAnimeInfo: SetCustomAnimeInfo = Injekt.get(),
+    // SY <--
 ) {
     private var now = ZonedDateTime.now()
     private var currentFetchWindow = fetchInterval.getWindow(now)
@@ -98,12 +102,14 @@ class AnimeRestorer(
     private fun Anime.copyFrom(newer: Anime): Anime {
         return this.copy(
             favorite = this.favorite || newer.favorite,
+            // SY -->
             ogAuthor = newer.author,
             ogArtist = newer.artist,
             ogDescription = newer.description,
             ogGenre = newer.genre,
-            thumbnailUrl = newer.thumbnailUrl,
+            ogThumbnailUrl = newer.thumbnailUrl,
             ogStatus = newer.status,
+            // SY <--
             initialized = this.initialized || newer.initialized,
             version = newer.version,
         )
@@ -131,7 +137,7 @@ class AnimeRestorer(
                 coverLastModified = anime.coverLastModified,
                 dateAdded = anime.dateAdded,
                 animeId = anime.id,
-                updateStrategy = anime.updateStrategy.let(AnimeUpdateStrategyColumnAdapter::encode),
+                updateStrategy = anime.updateStrategy.let(UpdateStrategyColumnAdapter::encode),
                 version = anime.version,
                 isSyncing = 1,
             )
@@ -303,7 +309,7 @@ class AnimeRestorer(
         restoreCategories(anime, categories, backupCategories)
         restoreEpisodes(anime, episodes)
         restoreTracking(anime, tracks)
-        restoreHistory(history)
+        restoreHistory(anime, history)
         updateAnime.awaitUpdateFetchInterval(anime, now, currentFetchWindow)
         return anime
     }
@@ -342,9 +348,9 @@ class AnimeRestorer(
         }
     }
 
-    private suspend fun restoreHistory(backupHistory: List<BackupHistory>) {
+    private suspend fun restoreHistory(anime: Anime, backupHistory: List<BackupHistory>) {
         val toUpdate = backupHistory.mapNotNull { history ->
-            val dbHistory = handler.awaitOneOrNull { historyQueries.getHistoryByEpisodeUrl(history.url) }
+            val dbHistory = handler.awaitOneOrNull { historyQueries.getHistoryByEpisodeUrl(anime.id, history.url) }
             val item = history.getHistoryImpl()
 
             if (dbHistory == null) {
@@ -365,6 +371,7 @@ class AnimeRestorer(
                 seenAt = max(item.seenAt?.time ?: 0L, dbHistory.last_seen?.time ?: 0L)
                     .takeIf { it > 0L }
                     ?.let { Date(it) },
+                watchDuration = max(item.watchDuration, dbHistory.time_watch) - dbHistory.time_watch,
             )
         }
 
@@ -374,6 +381,7 @@ class AnimeRestorer(
                     historyQueries.upsert(
                         it.episodeId,
                         it.seenAt,
+                        it.watchDuration,
                     )
                 }
             }

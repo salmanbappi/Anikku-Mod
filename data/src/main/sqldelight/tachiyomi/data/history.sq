@@ -4,17 +4,19 @@ CREATE TABLE history(
     _id INTEGER NOT NULL PRIMARY KEY,
     episode_id INTEGER NOT NULL UNIQUE,
     last_seen INTEGER AS Date,
+    time_watch INTEGER NOT NULL,
     FOREIGN KEY(episode_id) REFERENCES episodes (_id)
     ON DELETE CASCADE
 );
 
-CREATE INDEX animehistory_history_episode_id_index ON history(episode_id);
+CREATE INDEX history_history_episode_id_index ON history(episode_id);
 
 getHistoryByAnimeId:
 SELECT
 H._id,
 H.episode_id,
-H.last_seen
+H.last_seen,
+H.time_watch
 FROM history H
 JOIN episodes EP
 ON H.episode_id = EP._id
@@ -24,11 +26,12 @@ getHistoryByEpisodeUrl:
 SELECT
 H._id,
 H.episode_id,
-H.last_seen
+H.last_seen,
+H.time_watch
 FROM history H
 JOIN episodes EP
 ON H.episode_id = EP._id
-WHERE EP.url = :episodeUrl AND EP._id = H.episode_id;
+WHERE EP.anime_id = :animeId AND EP.url = :episodeUrl AND EP._id = H.episode_id;
 
 resetHistoryById:
 UPDATE history
@@ -40,12 +43,12 @@ UPDATE history
 SET last_seen = 0
 WHERE _id IN (
     SELECT H._id
-    FROM animes M
+    FROM animes A
     INNER JOIN episodes EP
-    ON M._id = EP.anime_id
+    ON A._id = EP.anime_id
     INNER JOIN history H
     ON EP._id = H.episode_id
-    WHERE M._id = :animeId
+    WHERE A._id = :animeId
 );
 
 removeAllHistory:
@@ -56,10 +59,15 @@ DELETE FROM history
 WHERE last_seen = 0;
 
 upsert:
-INSERT INTO history(episode_id, last_seen)
-VALUES (:episodeId, :seenAt)
+INSERT INTO history(episode_id, last_seen, time_watch)
+VALUES (:episodeId, :seenAt, :time_watch)
 ON CONFLICT(episode_id)
 DO UPDATE
 SET
-    last_seen = :seenAt
+    last_seen = :seenAt,
+    time_watch = time_watch + :time_watch
 WHERE episode_id = :episodeId;
+
+getWatchDuration:
+SELECT coalesce(sum(time_watch), 0)
+FROM history;

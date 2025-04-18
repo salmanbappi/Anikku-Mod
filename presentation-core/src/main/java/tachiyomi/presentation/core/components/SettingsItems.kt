@@ -33,6 +33,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -70,16 +71,12 @@ object SettingsItemsPaddings {
 }
 
 @Composable
-fun HeadingItem(
-    labelRes: StringResource,
-) {
+fun HeadingItem(labelRes: StringResource) {
     HeadingItem(stringResource(labelRes))
 }
 
 @Composable
-fun HeadingItem(
-    text: String,
-) {
+fun HeadingItem(text: String) {
     Text(
         text = text,
         style = MaterialTheme.typography.header,
@@ -93,11 +90,7 @@ fun HeadingItem(
 }
 
 @Composable
-fun IconItem(
-    label: String,
-    icon: ImageVector,
-    onClick: () -> Unit,
-) {
+fun IconItem(label: String, icon: ImageVector, onClick: () -> Unit) {
     BaseSettingsItem(
         label = label,
         widget = {
@@ -112,11 +105,7 @@ fun IconItem(
 }
 
 @Composable
-fun SortItem(
-    label: String,
-    sortDescending: Boolean?,
-    onClick: () -> Unit,
-) {
+fun SortItem(label: String, sortDescending: Boolean?, onClick: () -> Unit) {
     val arrowIcon = when (sortDescending) {
         true -> Icons.Default.ArrowDownward
         false -> Icons.Default.ArrowUpward
@@ -150,10 +139,7 @@ fun BaseSortItem(label: String, icon: ImageVector?, onClick: () -> Unit) {
 }
 
 @Composable
-fun CheckboxItem(
-    label: String,
-    pref: Preference<Boolean>,
-) {
+fun CheckboxItem(label: String, pref: Preference<Boolean>) {
     val checked by pref.collectAsState()
     CheckboxItem(
         label = label,
@@ -163,11 +149,7 @@ fun CheckboxItem(
 }
 
 @Composable
-fun CheckboxItem(
-    label: String,
-    checked: Boolean,
-    onClick: () -> Unit,
-) {
+fun CheckboxItem(label: String, checked: Boolean, onClick: () -> Unit) {
     BaseSettingsItem(
         label = label,
         widget = {
@@ -181,11 +163,7 @@ fun CheckboxItem(
 }
 
 @Composable
-fun RadioItem(
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-) {
+fun RadioItem(label: String, selected: Boolean, onClick: () -> Unit) {
     BaseSettingsItem(
         label = label,
         widget = {
@@ -255,7 +233,7 @@ fun SelectItem(
     ) {
         OutlinedTextField(
             modifier = Modifier
-                .menuAnchor()
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                 .fillMaxWidth()
                 .padding(
                     horizontal = SettingsItemsPaddings.Horizontal,
@@ -264,6 +242,7 @@ fun SelectItem(
             label = { Text(text = label) },
             value = options[selectedIndex].toString(),
             onValueChange = {},
+            enabled = false,
             readOnly = true,
             singleLine = true,
             trailingIcon = {
@@ -271,7 +250,9 @@ fun SelectItem(
                     expanded = expanded,
                 )
             },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            colors = ExposedDropdownMenuDefaults.textFieldColors(
+                disabledTextColor = MaterialTheme.colorScheme.onSurface,
+            ),
         )
 
         ExposedDropdownMenu(
@@ -511,11 +492,34 @@ fun TextItem(
     )
 }
 
+// SY -->
 @Composable
-fun SettingsChipRow(
-    labelRes: StringResource,
-    content: @Composable FlowRowScope.() -> Unit,
+fun IconItem(
+    label: String,
+    icon: Painter,
+    selected: Boolean,
+    onClick: () -> Unit,
 ) {
+    BaseSettingsItem(
+        label = label,
+        widget = {
+            Icon(
+                painter = icon,
+                contentDescription = label,
+                tint = if (selected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
+            )
+        },
+        onClick = onClick,
+    )
+}
+// SY <--
+
+@Composable
+fun SettingsChipRow(labelRes: StringResource, content: @Composable FlowRowScope.() -> Unit) {
     Column {
         HeadingItem(labelRes)
         FlowRow(
@@ -573,29 +577,3 @@ private fun BaseSettingsItem(
         )
     }
 }
-
-// SY -->
-@Composable
-fun IconItem(
-    label: String,
-    icon: Painter,
-    selected: Boolean,
-    onClick: () -> Unit,
-) {
-    BaseSettingsItem(
-        label = label,
-        widget = {
-            Icon(
-                painter = icon,
-                contentDescription = label,
-                tint = if (selected) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                },
-            )
-        },
-        onClick = onClick,
-    )
-}
-// SY <--

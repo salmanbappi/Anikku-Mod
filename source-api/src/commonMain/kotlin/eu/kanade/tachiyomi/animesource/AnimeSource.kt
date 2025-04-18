@@ -49,7 +49,7 @@ interface AnimeSource {
     }
 
     /**
-     * Get the list of videos a episode has. Pages should be returned
+     * Get the list of videos a episode has. Videos should be returned
      * in the expected order; the index is ignored.
      *
      * @since extensions-lib 1.5
@@ -81,4 +81,24 @@ interface AnimeSource {
     )
     fun fetchVideoList(episode: SEpisode): Observable<List<Video>> =
         throw IllegalStateException("Not used")
+
+    // KMK -->
+    /**
+     * Get all the available related animes for a anime.
+     *
+     * @since komikku/extensions-lib 1.6
+     * @param anime the current anime to get related animes.
+     * @return a list of <keyword, related animes>
+     */
+    suspend fun getRelatedAnimeList(
+        anime: SAnime,
+        exceptionHandler: (Throwable) -> Unit,
+        pushResults: suspend (relatedAnime: Pair<String, List<SAnime>>, completed: Boolean) -> Unit,
+    ): Unit = getRelatedMangaList(anime, exceptionHandler, pushResults)
+    suspend fun getRelatedMangaList(
+        anime: SAnime,
+        exceptionHandler: (Throwable) -> Unit,
+        pushResults: suspend (relatedAnime: Pair<String, List<SAnime>>, completed: Boolean) -> Unit,
+    ): Unit = throw UnsupportedOperationException()
+    // KMK <--
 }

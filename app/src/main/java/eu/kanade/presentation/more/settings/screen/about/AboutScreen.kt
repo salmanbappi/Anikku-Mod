@@ -30,11 +30,14 @@ import eu.kanade.presentation.util.LocalBackPress
 import eu.kanade.presentation.util.Screen
 import eu.kanade.tachiyomi.BuildConfig
 import eu.kanade.tachiyomi.data.updater.AppUpdateChecker
-import eu.kanade.tachiyomi.data.updater.RELEASE_URL
+import eu.kanade.tachiyomi.ui.more.ComingUpdatesScreen
 import eu.kanade.tachiyomi.ui.more.NewUpdateScreen
+import eu.kanade.tachiyomi.ui.more.WhatsNewScreen
 import eu.kanade.tachiyomi.util.CrashLogUtil
 import eu.kanade.tachiyomi.util.lang.toDateTimestampString
 import eu.kanade.tachiyomi.util.system.copyToClipboard
+import eu.kanade.tachiyomi.util.system.isDevFlavor
+import eu.kanade.tachiyomi.util.system.isReleaseBuildType
 import eu.kanade.tachiyomi.util.system.toast
 import kotlinx.coroutines.launch
 import logcat.LogPriority
@@ -43,6 +46,7 @@ import tachiyomi.core.common.util.lang.withUIContext
 import tachiyomi.core.common.util.system.logcat
 import tachiyomi.domain.release.interactor.GetApplicationRelease
 import tachiyomi.i18n.MR
+import tachiyomi.i18n.kmk.KMR
 import tachiyomi.presentation.core.components.LinkIcon
 import tachiyomi.presentation.core.components.ScrollbarLazyColumn
 import tachiyomi.presentation.core.components.material.Scaffold
@@ -57,6 +61,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 
 object AboutScreen : Screen() {
+    private fun readResolve(): Any = AboutScreen
 
     @Composable
     override fun Content() {
@@ -66,6 +71,15 @@ object AboutScreen : Screen() {
         val handleBack = LocalBackPress.current
         val navigator = LocalNavigator.currentOrThrow
         var isCheckingUpdates by remember { mutableStateOf(false) }
+
+        // KMK -->
+        var isCheckingWhatsNew by remember { mutableStateOf(false) }
+        var isCheckingWhatsComing by remember { mutableStateOf(false) }
+        // KMK <--
+
+        // SY -->
+        var showWhatsNewDialog by remember { mutableStateOf(false) }
+        // SY <--
 
         Scaffold(
             topBar = { scrollBehavior ->
@@ -133,21 +147,92 @@ object AboutScreen : Screen() {
                     }
                 }
 
-                if (!BuildConfig.DEBUG) {
+                // KMK -->
+                item {
+                    TextPreferenceWidget(
+                        title = stringResource(MR.strings.whats_new),
+                        widget = {
+                            AnimatedVisibility(visible = isCheckingWhatsNew) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(28.dp),
+                                    strokeWidth = 3.dp,
+                                )
+                            }
+                        },
+                        onPreferenceClick = {
+                            if (!isCheckingWhatsNew) {
+                                scope.launch {
+                                    isCheckingWhatsNew = true
+
+                                    getReleaseNotes(
+                                        context = context,
+                                        onAvailableUpdate = { result ->
+                                            val whatsNewScreen = WhatsNewScreen(
+                                                currentVersion = BuildConfig.VERSION_NAME,
+                                                versionName = result.release.version,
+                                                changelogInfo = result.release.info,
+                                                releaseLink = result.release.releaseLink,
+                                            )
+                                            navigator.push(whatsNewScreen)
+                                        },
+                                        onFinish = {
+                                            isCheckingWhatsNew = false
+                                        },
+                                    )
+                                }
+                            }
+                        },
+                    )
+                }
+
+                if (isReleaseBuildType || isDevFlavor) {
                     item {
                         TextPreferenceWidget(
-                            title = stringResource(MR.strings.whats_new),
-                            onPreferenceClick = { uriHandler.openUri(RELEASE_URL) },
+                            title = stringResource(KMR.strings.whats_coming),
+                            widget = {
+                                AnimatedVisibility(visible = isCheckingWhatsComing) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(28.dp),
+                                        strokeWidth = 3.dp,
+                                    )
+                                }
+                            },
+                            onPreferenceClick = {
+                                if (!isCheckingWhatsComing) {
+                                    scope.launch {
+                                        isCheckingWhatsComing = true
+
+                                        checkVersion(
+                                            context = context,
+                                            onAvailableUpdate = { result ->
+                                                val updateScreen = ComingUpdatesScreen(
+                                                    versionName = result.release.version,
+                                                    changelogInfo = result.release.info,
+                                                    releaseLink = result.release.releaseLink,
+                                                    downloadLink = result.release.getDownloadLink(),
+                                                )
+                                                navigator.push(updateScreen)
+                                            },
+                                            onFinish = {
+                                                isCheckingWhatsComing = false
+                                            },
+                                            peekIntoPreview = true,
+                                        )
+                                    }
+                                }
+                            },
                         )
                     }
                 }
+                // KMK <--
 
                 item {
                     TextPreferenceWidget(
                         title = stringResource(MR.strings.help_translate),
                         onPreferenceClick = {
                             uriHandler.openUri(
-                                "https://aniyomi.org/docs/contribute#translation",
+                                "https://crowdin.com/project/komikku/" +
+                                    "invite?h=f922abd4193e77309b084a08c74b89872112170",
                             )
                         },
                     )
@@ -163,7 +248,7 @@ object AboutScreen : Screen() {
                 item {
                     TextPreferenceWidget(
                         title = stringResource(MR.strings.privacy_policy),
-                        onPreferenceClick = { uriHandler.openUri("https://aniyomi.org/privacy/") },
+                        onPreferenceClick = { uriHandler.openUri("https://mihon.app/privacy/") },
                     )
                 }
 
@@ -184,6 +269,21 @@ object AboutScreen : Screen() {
                             icon = CustomIcons.Discord,
                             url = "https://discord.gg/85jB7V5AJR",
                         )
+                        // LinkIcon(
+                        //     label = "X",
+                        //     icon = CustomIcons.X,
+                        //     url = "https://x.com/mihonapp",
+                        // )
+                        // LinkIcon(
+                        //     label = "Facebook",
+                        //     icon = CustomIcons.Facebook,
+                        //     url = "https://facebook.com/mihonapp",
+                        // )
+                        // LinkIcon(
+                        //     label = "Reddit",
+                        //     icon = CustomIcons.Reddit,
+                        //     url = "https://www.reddit.com/r/mihonapp",
+                        // )
                         LinkIcon(
                             label = "GitHub",
                             icon = CustomIcons.Github,
@@ -193,6 +293,13 @@ object AboutScreen : Screen() {
                 }
             }
         }
+
+        // SY -->
+        // KMK: Unused now
+        if (showWhatsNewDialog) {
+            WhatsNewDialog(onDismissRequest = { showWhatsNewDialog = false })
+        }
+        // SY <--
     }
 
     /**
@@ -202,17 +309,18 @@ object AboutScreen : Screen() {
         context: Context,
         onAvailableUpdate: (GetApplicationRelease.Result.NewUpdate) -> Unit,
         onFinish: () -> Unit,
+        // KMK -->
+        peekIntoPreview: Boolean = false,
+        // KMK <--
     ) {
-        val updateChecker = AppUpdateChecker(context)
+        val updateChecker = AppUpdateChecker(
+            // KMK -->
+            peekIntoPreview = peekIntoPreview,
+            // KMK <--
+        )
         withUIContext {
             try {
-                when (
-                    val result = withIOContext {
-                        updateChecker.checkForUpdates(
-                            forceCheck = true,
-                        )
-                    }
-                ) {
+                when (val result = withIOContext { updateChecker.checkForUpdate(context, forceCheck = true) }) {
                     is GetApplicationRelease.Result.NewUpdate -> {
                         onAvailableUpdate(result)
                     }
@@ -233,6 +341,31 @@ object AboutScreen : Screen() {
         }
     }
 
+    // KMK -->
+    private suspend fun getReleaseNotes(
+        context: Context,
+        onAvailableUpdate: (GetApplicationRelease.Result.NewUpdate) -> Unit,
+        onFinish: () -> Unit,
+    ) {
+        val updateChecker = AppUpdateChecker()
+        withUIContext {
+            try {
+                when (val result = withIOContext { updateChecker.getReleaseNotes(context) }) {
+                    is GetApplicationRelease.Result.NewUpdate -> {
+                        onAvailableUpdate(result)
+                    }
+                    else -> {}
+                }
+            } catch (e: Exception) {
+                context.toast(e.message)
+                logcat(LogPriority.ERROR, e)
+            } finally {
+                onFinish()
+            }
+        }
+    }
+    // KMK <--
+
     fun getVersionName(withBuildDate: Boolean): String {
         return when {
             BuildConfig.DEBUG -> {
@@ -245,7 +378,7 @@ object AboutScreen : Screen() {
                 }
             }
             BuildConfig.PREVIEW -> {
-                "Preview r${BuildConfig.COMMIT_COUNT}".let {
+                "Beta r${BuildConfig.COMMIT_COUNT}".let {
                     if (withBuildDate) {
                         "$it (${BuildConfig.COMMIT_SHA}, ${getFormattedBuildTime()})"
                     } else {

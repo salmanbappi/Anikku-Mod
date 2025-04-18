@@ -14,7 +14,6 @@ import kotlinx.coroutines.launch
 import tachiyomi.domain.category.interactor.CreateCategoryWithName
 import tachiyomi.domain.category.interactor.DeleteCategory
 import tachiyomi.domain.category.interactor.GetCategories
-import tachiyomi.domain.category.interactor.GetVisibleCategories
 import tachiyomi.domain.category.interactor.HideCategory
 import tachiyomi.domain.category.interactor.RenameCategory
 import tachiyomi.domain.category.interactor.ReorderCategory
@@ -25,8 +24,7 @@ import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
 class CategoryScreenModel(
-    private val getAllCategories: GetCategories = Injekt.get(),
-    private val getVisibleCategories: GetVisibleCategories = Injekt.get(),
+    private val getCategories: GetCategories = Injekt.get(),
     private val createCategoryWithName: CreateCategoryWithName = Injekt.get(),
     private val hideCategory: HideCategory = Injekt.get(),
     private val deleteCategory: DeleteCategory = Injekt.get(),
@@ -40,21 +38,16 @@ class CategoryScreenModel(
 
     init {
         screenModelScope.launch {
-            val allCategories = if (libraryPreferences.hideHiddenCategoriesSettings().get()) {
-                getVisibleCategories.subscribe()
-            } else {
-                getAllCategories.subscribe()
-            }
-
-            allCategories.collectLatest { categories ->
-                mutableState.update {
-                    CategoryScreenState.Success(
-                        categories = categories
-                            .filterNot(Category::isSystemCategory)
-                            .toImmutableList(),
-                    )
+            getCategories.subscribe()
+                .collectLatest { categories ->
+                    mutableState.update {
+                        CategoryScreenState.Success(
+                            categories = categories
+                                .filterNot(Category::isSystemCategory)
+                                .toImmutableList(),
+                        )
+                    }
                 }
-            }
         }
     }
 

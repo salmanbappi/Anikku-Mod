@@ -12,12 +12,16 @@ import eu.kanade.tachiyomi.network.ProgressListener
 import eu.kanade.tachiyomi.network.asObservableSuccess
 import eu.kanade.tachiyomi.network.awaitSuccess
 import eu.kanade.tachiyomi.network.newCachelessCallWithProgress
+import exh.pref.DelegateSourcePreferences
+import exh.source.DelegatedHttpSource
 import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import rx.Observable
 import tachiyomi.core.common.util.lang.awaitSingle
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
 import uy.kohesive.injekt.injectLazy
 import java.net.URI
 import java.net.URISyntaxException
@@ -59,7 +63,7 @@ abstract class AnimeHttpSource : AnimeCatalogueSource {
     /**
      * Headers used for requests.
      */
-    val headers: Headers by lazy { headersBuilder().build() }
+    open val headers: Headers by lazy { headersBuilder().build() }
 
     /**
      * Default network client for doing requests.
@@ -251,7 +255,7 @@ abstract class AnimeHttpSource : AnimeCatalogueSource {
      * Normally it's not needed to override this method.
      *
      * @param anime the anime to update.
-     * @return the chapters for the manga.
+     * @return the episodes for the anime.
      */
     @Suppress("DEPRECATION")
     override suspend fun getEpisodeList(anime: SAnime): List<SEpisode> {
@@ -359,7 +363,7 @@ abstract class AnimeHttpSource : AnimeCatalogueSource {
      * Returns the request for getting the url to the source image. Override only if it's needed to
      * override the url, send different headers or request method like POST.
      *
-     * @param video the chapter whose page list has to be fetched
+     * @param video the episode whose video list has to be fetched
      */
     protected open fun videoUrlRequest(video: Video): Request {
         return GET(video.url, headers)
@@ -525,4 +529,17 @@ abstract class AnimeHttpSource : AnimeCatalogueSource {
      * Returns the list of filters for the source.
      */
     override fun getFilterList() = AnimeFilterList()
+
+    // EXH -->
+    private var delegate: DelegatedHttpSource? = null
+        get() = if (Injekt.get<DelegateSourcePreferences>().delegateSources().get()) {
+            field
+        } else {
+            null
+        }
+
+    fun bindDelegate(delegate: DelegatedHttpSource) {
+        this.delegate = delegate
+    }
+    // EXH <--
 }

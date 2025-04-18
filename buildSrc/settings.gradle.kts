@@ -15,4 +15,4 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Aniyomi"
+rootProject.name = "anikku-buildSrc"

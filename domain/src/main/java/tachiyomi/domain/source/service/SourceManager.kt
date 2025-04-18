@@ -1,8 +1,8 @@
 package tachiyomi.domain.source.service
 
-import eu.kanade.tachiyomi.animesource.AnimeCatalogueSource
-import eu.kanade.tachiyomi.animesource.AnimeSource
-import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
+import eu.kanade.tachiyomi.source.CatalogueSource
+import eu.kanade.tachiyomi.source.Source
+import eu.kanade.tachiyomi.source.online.HttpSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import tachiyomi.domain.source.model.StubSource
@@ -11,15 +11,21 @@ interface SourceManager {
 
     val isInitialized: StateFlow<Boolean>
 
-    val catalogueSources: Flow<List<AnimeCatalogueSource>>
+    val catalogueSources: Flow<List<CatalogueSource>>
 
-    fun get(sourceKey: Long): AnimeSource?
+    fun get(sourceKey: Long): Source?
 
-    fun getOrStub(sourceKey: Long): AnimeSource
+    fun getOrStub(sourceKey: Long): Source
 
-    fun getOnlineSources(): List<AnimeHttpSource>
+    fun getOnlineSources(): List<HttpSource>
 
-    fun getCatalogueSources(): List<AnimeCatalogueSource>
+    fun getCatalogueSources(): List<CatalogueSource>
+
+    // SY -->
+    fun getVisibleOnlineSources(): List<HttpSource>
+
+    fun getVisibleCatalogueSources(): List<CatalogueSource>
+    // SY <--
 
     fun getStubSources(): List<StubSource>
 }

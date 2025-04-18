@@ -22,4 +22,17 @@ class ReleaseServiceImpl(
                 .let(releaseMapper)
         }
     }
+
+    // KMK -->
+    override suspend fun releaseNotes(repository: String): List<Release> {
+        val releases = "https://api.github.com/repos/$repository/releases"
+        return with(json) {
+            networkService.client
+                .newCall(GET(releases))
+                .awaitSuccess()
+                .parseAs<List<GithubRelease>>()
+                .map(releaseMapper)
+        }
+    }
+    // KMK <--
 }
