@@ -158,6 +158,15 @@
     <string name="label_auto">Auto</string>
     <string name="pref_library_items_per_row">Items per row</string>
     <string name="pref_library_items_per_screen">Items per screen</string>
+    <string name="theme_monochrome">Monochrome</string>
+    <string name="tracked_privately">Tracked privately</string>
+    <string name="action_toggle_private_on">Track privately</string>
+    <string name="action_toggle_private_off">Track publicly</string>
+    <string name="export">Export</string>
+    <string name="library_list">Library List</string>
+    <string name="library_exported">Library Exported</string>
+    <string name="author">Author</string>
+    <string name="artist">Artist</string>
 
     <!-- Mihon, Aniyomi, Komikku & SY which need to replace manga => anime -->
         <!-- Mihon -->
@@ -165,6 +174,7 @@
     <string name="action_display_show_continue_watching_button">Continue watching button</string>
     <string name="non_library_watched_settings">All watched entries</string>
     <string name="channel_new_episodes">Episode updates</string>
+    <string name="pref_incognito_watching_mode_extension_summary">Pause watching history for extension</string>
 
         <!-- SY -->
     <string name="sync_on_episode_seen">Sync on Episode Seen</string>
