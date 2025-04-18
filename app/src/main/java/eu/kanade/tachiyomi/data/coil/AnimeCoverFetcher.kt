@@ -13,7 +13,7 @@ import coil3.getOrDefault
 import coil3.request.Options
 import com.hippo.unifile.UniFile
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
-import eu.kanade.tachiyomi.data.cache.AnimeCoverCache
+import eu.kanade.tachiyomi.data.cache.CoverCache
 import eu.kanade.tachiyomi.data.coil.AnimeCoverFetcher.Companion.USE_CUSTOM_COVER_KEY
 import eu.kanade.tachiyomi.network.await
 import logcat.LogPriority
@@ -28,9 +28,9 @@ import okio.buffer
 import okio.sink
 import okio.source
 import tachiyomi.core.common.util.system.logcat
-import tachiyomi.domain.entries.anime.model.Anime
-import tachiyomi.domain.entries.anime.model.AnimeCover
-import tachiyomi.domain.source.anime.service.AnimeSourceManager
+import tachiyomi.domain.anime.model.Anime
+import tachiyomi.domain.anime.model.AnimeCover
+import tachiyomi.domain.source.service.SourceManager
 import uy.kohesive.injekt.injectLazy
 import java.io.File
 import java.io.IOException
@@ -39,7 +39,7 @@ import java.io.IOException
  * A [Fetcher] that fetches cover image for [Anime] object.
  *
  * It uses [Anime.thumbnailUrl] if custom cover is not set by the user.
- * Disk caching for library items is handled by [AnimeCoverCache], otherwise
+ * Disk caching for library items is handled by [CoverCache], otherwise
  * handled by Coil's [DiskCache].
  *
  * Available request parameter:
@@ -299,8 +299,8 @@ class AnimeCoverFetcher(
         private val callFactoryLazy: Lazy<Call.Factory>,
     ) : Fetcher.Factory<Anime> {
 
-        private val coverCache: AnimeCoverCache by injectLazy()
-        private val sourceManager: AnimeSourceManager by injectLazy()
+        private val coverCache: CoverCache by injectLazy()
+        private val sourceManager: SourceManager by injectLazy()
 
         override fun create(data: Anime, options: Options, imageLoader: ImageLoader): Fetcher {
             return AnimeCoverFetcher(
@@ -321,8 +321,8 @@ class AnimeCoverFetcher(
         private val callFactoryLazy: Lazy<Call.Factory>,
     ) : Fetcher.Factory<AnimeCover> {
 
-        private val coverCache: AnimeCoverCache by injectLazy()
-        private val sourceManager: AnimeSourceManager by injectLazy()
+        private val coverCache: CoverCache by injectLazy()
+        private val sourceManager: SourceManager by injectLazy()
 
         override fun create(data: AnimeCover, options: Options, imageLoader: ImageLoader): Fetcher {
             return AnimeCoverFetcher(

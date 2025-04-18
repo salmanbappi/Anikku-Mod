@@ -76,11 +76,6 @@ class SourcePreferences(
         false,
     )
 
-    fun hideInMangaLibraryItems() = preferenceStore.getBoolean(
-        "browse_hide_in_library_items",
-        false,
-    )
-
     // SY -->
 
     // fun enableSourceBlacklist() = preferenceStore.getBoolean("eh_enable_source_blacklist", true)

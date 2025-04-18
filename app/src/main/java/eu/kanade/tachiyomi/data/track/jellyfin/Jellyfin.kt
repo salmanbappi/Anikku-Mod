@@ -4,19 +4,19 @@ import android.graphics.Color
 import dev.icerock.moko.resources.StringResource
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.animesource.AnimeSource
-import eu.kanade.tachiyomi.data.database.models.anime.AnimeTrack
+import eu.kanade.tachiyomi.data.database.models.Track
 import eu.kanade.tachiyomi.data.track.AnimeTracker
 import eu.kanade.tachiyomi.data.track.BaseTracker
-import eu.kanade.tachiyomi.data.track.EnhancedAnimeTracker
-import eu.kanade.tachiyomi.data.track.model.AnimeTrackSearch
+import eu.kanade.tachiyomi.data.track.EnhancedTracker
+import eu.kanade.tachiyomi.data.track.model.TrackSearch
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import okhttp3.Dns
-import tachiyomi.domain.entries.anime.model.Anime
+import tachiyomi.domain.anime.model.Anime
 import tachiyomi.i18n.MR
-import tachiyomi.domain.track.anime.model.AnimeTrack as DomainTrack
+import tachiyomi.domain.track.model.Track as DomainTrack
 
-class Jellyfin(id: Long) : BaseTracker(id, "Jellyfin"), EnhancedAnimeTracker, AnimeTracker {
+class Jellyfin(id: Long) : BaseTracker(id, "Jellyfin"), EnhancedTracker, AnimeTracker {
 
     companion object {
         const val UNSEEN = 1L
@@ -56,18 +56,18 @@ class Jellyfin(id: Long) : BaseTracker(id, "Jellyfin"), EnhancedAnimeTracker, An
 
     override fun displayScore(track: DomainTrack): String = ""
 
-    override suspend fun update(track: AnimeTrack, didWatchEpisode: Boolean): AnimeTrack {
+    override suspend fun update(track: Track, didWatchEpisode: Boolean): Track {
         return api.updateProgress(track)
     }
 
-    override suspend fun bind(track: AnimeTrack, hasSeenEpisodes: Boolean): AnimeTrack {
+    override suspend fun bind(track: Track, hasSeenEpisodes: Boolean): Track {
         return track
     }
 
-    override suspend fun searchAnime(query: String): List<AnimeTrackSearch> =
+    override suspend fun searchAnime(query: String): List<TrackSearch> =
         throw Exception("Not used")
 
-    override suspend fun refresh(track: AnimeTrack): AnimeTrack {
+    override suspend fun refresh(track: Track): Track {
         val remoteTrack = api.getTrackSearch(track.tracking_url)
         track.copyPersonalFrom(remoteTrack)
         track.total_episodes = remoteTrack.total_episodes
@@ -84,7 +84,7 @@ class Jellyfin(id: Long) : BaseTracker(id, "Jellyfin"), EnhancedAnimeTracker, An
 
     override fun getAcceptedSources() = listOf("eu.kanade.tachiyomi.animeextension.all.jellyfin.Jellyfin")
 
-    override suspend fun match(anime: Anime): AnimeTrackSearch? =
+    override suspend fun match(anime: Anime): TrackSearch? =
         try {
             api.getTrackSearch(anime.url)
         } catch (e: Exception) {

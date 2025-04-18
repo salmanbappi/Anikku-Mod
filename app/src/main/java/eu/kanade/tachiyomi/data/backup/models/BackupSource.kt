@@ -10,7 +10,7 @@ data class BackupSource(
 )
 
 @Serializable
-data class BrokenBackupSource(
+data class BrokenBackupAnimeSource(
     @ProtoNumber(0) var name: String = "",
     @ProtoNumber(1) var sourceId: Long,
 ) {

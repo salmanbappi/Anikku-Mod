@@ -11,16 +11,19 @@ import android.os.Bundle
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import eu.kanade.domain.base.BasePreferences
-import eu.kanade.domain.track.anime.model.toDbTrack
-import eu.kanade.domain.track.anime.service.DelayedAnimeTrackingUpdateJob
-import eu.kanade.domain.track.anime.store.DelayedAnimeTrackingStore
+import eu.kanade.domain.track.model.toDbTrack
+import eu.kanade.domain.track.service.DelayedTrackingUpdateJob
 import eu.kanade.domain.track.service.TrackPreferences
+import eu.kanade.domain.track.store.DelayedTrackingStore
 import eu.kanade.tachiyomi.animesource.AnimeSource
 import eu.kanade.tachiyomi.animesource.model.Video
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
-import eu.kanade.tachiyomi.data.download.anime.AnimeDownloadManager
+import eu.kanade.tachiyomi.data.connection.discord.DiscordRPCService
+import eu.kanade.tachiyomi.data.connection.discord.PlayerData
+import eu.kanade.tachiyomi.data.download.DownloadManager
 import eu.kanade.tachiyomi.data.track.AnimeTracker
 import eu.kanade.tachiyomi.data.track.TrackerManager
+import eu.kanade.tachiyomi.source.isNsfw
 import eu.kanade.tachiyomi.ui.player.loader.EpisodeLoader
 import eu.kanade.tachiyomi.ui.player.settings.PlayerPreferences
 import eu.kanade.tachiyomi.util.system.LocaleHelper
@@ -34,19 +37,20 @@ import tachiyomi.core.common.util.lang.launchIO
 import tachiyomi.core.common.util.lang.withIOContext
 import tachiyomi.core.common.util.lang.withUIContext
 import tachiyomi.core.common.util.system.logcat
+import tachiyomi.domain.anime.interactor.GetAnime
+import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.download.service.DownloadPreferences
-import tachiyomi.domain.entries.anime.interactor.GetAnime
-import tachiyomi.domain.entries.anime.model.Anime
-import tachiyomi.domain.history.anime.interactor.UpsertAnimeHistory
-import tachiyomi.domain.history.anime.model.AnimeHistoryUpdate
-import tachiyomi.domain.items.episode.interactor.GetEpisodesByAnimeId
-import tachiyomi.domain.items.episode.interactor.UpdateEpisode
-import tachiyomi.domain.items.episode.model.Episode
-import tachiyomi.domain.items.episode.model.EpisodeUpdate
-import tachiyomi.domain.source.anime.service.AnimeSourceManager
-import tachiyomi.domain.track.anime.interactor.GetAnimeTracks
-import tachiyomi.domain.track.anime.interactor.InsertAnimeTrack
-import tachiyomi.source.local.entries.anime.LocalAnimeSource
+import tachiyomi.domain.episode.interactor.GetEpisodesByAnimeId
+import tachiyomi.domain.episode.interactor.UpdateEpisode
+import tachiyomi.domain.episode.model.Episode
+import tachiyomi.domain.episode.model.EpisodeUpdate
+import tachiyomi.domain.history.interactor.UpsertHistory
+import tachiyomi.domain.history.model.HistoryUpdate
+import tachiyomi.domain.source.service.SourceManager
+import tachiyomi.domain.track.interactor.GetTracks
+import tachiyomi.domain.track.interactor.InsertTrack
+import tachiyomi.i18n.MR
+import tachiyomi.source.local.LocalSource
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import uy.kohesive.injekt.injectLazy
@@ -88,7 +92,25 @@ class ExternalIntents {
 
         val pkgName = playerPreferences.externalPlayerPreference().get()
 
-        return if (pkgName.isEmpty()) {
+        // AM (DISCORD) -->
+        withIOContext {
+            DiscordRPCService.setPlayerActivity(
+                context = context,
+                playerData = PlayerData(
+                    incognitoMode = source.isNsfw() || basePreferences.incognitoMode().get(),
+                    animeId = anime.id,
+                    // AM (CU)>
+                    animeTitle = anime.ogTitle,
+                    episodeNumber = episode.episodeNumber.toString(),
+                    thumbnailUrl = anime.thumbnailUrl,
+                ),
+            )
+        }
+        // <-- AM (DISCORD)
+
+        return if (videoUrl.toString().startsWith("magnet:")) {
+            torrentIntentForPackage(context, videoUrl, video)
+        } else if (pkgName.isEmpty()) {
             Intent(Intent.ACTION_VIEW).apply {
                 setDataAndTypeAndNormalize(videoUrl, getMime(videoUrl))
                 addExtrasAndFlags(false, this)
@@ -107,12 +129,12 @@ class ExternalIntents {
      */
     private suspend fun getVideoUrl(context: Context, video: Video): Uri? {
         if (video.videoUrl == null) {
-            makeErrorToast(context, Exception("Video URL is null."))
+            makeErrorToast(context, Exception("Video URL is null. Instead watch Suavemente!"))
             return null
         } else {
             val uri = video.videoUrl!!.toUri()
 
-            val isOnDevice = if (anime.source == LocalAnimeSource.ID) {
+            val isOnDevice = if (anime.source == LocalSource.ID) {
                 true
             } else {
                 downloadManager.isEpisodeDownloaded(
@@ -241,6 +263,31 @@ class ExternalIntents {
     }
 
     /**
+     * Returns the [Intent] with added data to send to the given torrent external player.
+     *
+     * @param context the application context.
+     * @param uri the path data of the video.
+     * @param video the video being sent to the external player.
+     */
+    @Suppress("MagicNumber")
+    private suspend fun torrentIntentForPackage(context: Context, uri: Uri, video: Video): Intent {
+        return Intent(Intent.ACTION_VIEW).apply {
+            if (isPackageInstalled(AMNIS, context.packageManager)) {
+                if (uri.toString().startsWith("magnet:")) {
+                    component = getComponent(AMNIS)
+                }
+            } else {
+                withUIContext {
+                    context.toast(MR.strings.install_amnis, 8)
+                }
+            }
+            data = uri
+            addExtrasAndFlags(true, this)
+            addVideoHeaders(true, video, this)
+        }
+    }
+
+    /**
      * Adds extras and flags to the given [Intent].
      *
      * @param isSupportedPlayer is it a supported external player.
@@ -311,6 +358,7 @@ class ExternalIntents {
             JUST_PLAYER -> ComponentName(packageName, "$packageName.PlayerActivity")
             NEXT_PLAYER -> ComponentName(packageName, "$packageName.feature.player.PlayerActivity")
             X_PLAYER -> ComponentName(packageName, "com.inshot.xplayer.activities.PlayerActivity")
+            AMNIS -> ComponentName(packageName, "$packageName.gui.player.PlayerActivity")
             else -> null
         }
     }
@@ -337,7 +385,7 @@ class ExternalIntents {
      */
     @OptIn(DelicateCoroutinesApi::class)
     @Suppress("DEPRECATION")
-    fun onActivityResult(intent: Intent?) {
+    fun onActivityResult(context: Context, intent: Intent?) {
         val data = intent ?: return
         val anime = anime
         val currentExtEpisode = episode
@@ -371,6 +419,9 @@ class ExternalIntents {
 
         // Update the episode's progress and history
         launchIO {
+            // AM (DISCORD) -->
+            DiscordRPCService.setAnimeScreen(context, DiscordRPCService.lastUsedScreen)
+            // <-- AM (DISCORD)
             if (cause == "playback_completion" || (currentPosition == duration && duration == 0L)) {
                 saveEpisodeProgress(
                     currentExtEpisode,
@@ -386,15 +437,15 @@ class ExternalIntents {
     }
 
     // List of all the required Injectable classes
-    private val upsertHistory: UpsertAnimeHistory = Injekt.get()
+    private val upsertHistory: UpsertHistory = Injekt.get()
     private val updateEpisode: UpdateEpisode = Injekt.get()
     private val getAnime: GetAnime = Injekt.get()
-    private val sourceManager: AnimeSourceManager = Injekt.get()
+    private val sourceManager: SourceManager = Injekt.get()
     private val getEpisodesByAnimeId: GetEpisodesByAnimeId = Injekt.get()
-    private val getTracks: GetAnimeTracks = Injekt.get()
-    private val insertTrack: InsertAnimeTrack = Injekt.get()
-    private val downloadManager: AnimeDownloadManager by injectLazy()
-    private val delayedTrackingStore: DelayedAnimeTrackingStore = Injekt.get()
+    private val getTracks: GetTracks = Injekt.get()
+    private val insertTrack: InsertTrack = Injekt.get()
+    private val downloadManager: DownloadManager by injectLazy()
+    private val delayedTrackingStore: DelayedTrackingStore = Injekt.get()
     private val playerPreferences: PlayerPreferences = Injekt.get()
     private val downloadPreferences: DownloadPreferences = Injekt.get()
     private val trackPreferences: TrackPreferences = Injekt.get()
@@ -408,7 +459,7 @@ class ExternalIntents {
     private suspend fun saveEpisodeHistory(currentEpisode: Episode) {
         if (basePreferences.incognitoMode().get()) return
         upsertHistory.await(
-            AnimeHistoryUpdate(currentEpisode.id, Date()),
+            HistoryUpdate(currentEpisode.id, Date()),
         )
     }
 
@@ -513,7 +564,7 @@ class ExternalIntents {
                                     insertTrack.await(updatedTrack)
                                 } else {
                                     delayedTrackingStore.addAnime(track.animeId, lastEpisodeSeen = episodeNumber)
-                                    DelayedAnimeTrackingUpdateJob.setupTask(context)
+                                    DelayedTrackingUpdateJob.setupTask(context)
                                 }
                             }
                         }
@@ -574,3 +625,4 @@ const val JUST_PLAYER = "com.brouken.player"
 const val NEXT_PLAYER = "dev.anilbeesetti.nextplayer"
 const val X_PLAYER = "video.player.videoplayer"
 const val WEB_VIDEO_CASTER = "com.instantbits.cast.webvideo"
+const val AMNIS = "com.amnis"

@@ -4,6 +4,7 @@ import androidx.compose.animation.graphics.res.animatedVectorResource
 import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
 import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -21,14 +22,16 @@ import eu.kanade.domain.base.BasePreferences
 import eu.kanade.presentation.more.MoreScreen
 import eu.kanade.presentation.util.Tab
 import eu.kanade.tachiyomi.R
-import eu.kanade.tachiyomi.data.download.anime.AnimeDownloadManager
-import eu.kanade.tachiyomi.data.download.manga.MangaDownloadManager
-import eu.kanade.tachiyomi.ui.category.CategoriesTab
-import eu.kanade.tachiyomi.ui.download.DownloadsTab
+import eu.kanade.tachiyomi.data.connection.discord.DiscordRPCService
+import eu.kanade.tachiyomi.data.connection.discord.DiscordScreen
+import eu.kanade.tachiyomi.data.download.DownloadManager
+import eu.kanade.tachiyomi.ui.category.CategoryScreen
+import eu.kanade.tachiyomi.ui.download.DownloadQueueScreen
+import eu.kanade.tachiyomi.ui.main.MainActivity
 import eu.kanade.tachiyomi.ui.setting.PlayerSettingsScreen
 import eu.kanade.tachiyomi.ui.setting.SettingsScreen
-import eu.kanade.tachiyomi.ui.stats.StatsTab
-import eu.kanade.tachiyomi.ui.storage.StorageTab
+import eu.kanade.tachiyomi.ui.stats.StatsScreen
+import eu.kanade.tachiyomi.ui.storage.StorageScreen
 import eu.kanade.tachiyomi.util.system.isInstalledFromFDroid
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -75,21 +78,28 @@ data object MoreTab : Tab {
             isFDroid = context.isInstalledFromFDroid(),
             navStyle = navStyle,
             onClickAlt = { navigator.push(navStyle.moreTab) },
-            onClickDownloadQueue = { navigator.push(DownloadsTab) },
-            onClickCategories = { navigator.push(CategoriesTab) },
-            onClickStats = { navigator.push(StatsTab) },
-            onClickStorage = { navigator.push(StorageTab) },
+            onClickDownloadQueue = { navigator.push(DownloadQueueScreen) },
+            onClickCategories = { navigator.push(CategoryScreen) },
+            onClickStats = { navigator.push(StatsScreen) },
+            onClickStorage = { navigator.push(StorageScreen) },
             onClickDataAndStorage = { navigator.push(SettingsScreen(SettingsScreen.Destination.DataAndStorage)) },
             onClickPlayerSettings = { navigator.push(PlayerSettingsScreen) },
             onClickSettings = { navigator.push(SettingsScreen()) },
             onClickAbout = { navigator.push(SettingsScreen(SettingsScreen.Destination.About)) },
         )
+
+        LaunchedEffect(Unit) {
+            (context as? MainActivity)?.ready = true
+            // AM (DISCORD) -->
+            DiscordRPCService.setAnimeScreen(context, DiscordScreen.MORE)
+            DiscordRPCService.setMangaScreen(context, DiscordScreen.MORE)
+            // <-- AM (DISCORD)
+        }
     }
 }
 
 private class MoreScreenModel(
-    private val downloadManager: MangaDownloadManager = Injekt.get(),
-    private val animeDownloadManager: AnimeDownloadManager = Injekt.get(),
+    private val downloadManager: DownloadManager = Injekt.get(),
     preferences: BasePreferences = Injekt.get(),
 ) : ScreenModel {
 
@@ -107,27 +117,19 @@ private class MoreScreenModel(
             combine(
                 downloadManager.isDownloaderRunning,
                 downloadManager.queueState,
-            ) { isRunningManga, mangaDownloadQueue -> Pair(isRunningManga, mangaDownloadQueue.size) }
-                .collectLatest { (isDownloadingManga, mangaDownloadQueueSize) ->
-                    combine(
-                        animeDownloadManager.isDownloaderRunning,
-                        animeDownloadManager.queueState,
-                    ) { isRunningAnime, animeDownloadQueue ->
-                        Pair(
-                            isRunningAnime,
-                            animeDownloadQueue.size,
-                        )
+            ) { isRunningAnime, animeDownloadQueue ->
+                Pair(
+                    isRunningAnime,
+                    animeDownloadQueue.size,
+                )
+            }
+                .collectLatest { (isDownloadingAnime, animeDownloadQueueSize) ->
+                    val pendingDownloadExists = animeDownloadQueueSize != 0
+                    _downloadQueueState.value = when {
+                        !pendingDownloadExists -> DownloadQueueState.Stopped
+                        !isDownloadingAnime -> DownloadQueueState.Paused(animeDownloadQueueSize)
+                        else -> DownloadQueueState.Downloading(animeDownloadQueueSize)
                     }
-                        .collectLatest { (isDownloadingAnime, animeDownloadQueueSize) ->
-                            val isDownloading = isDownloadingAnime || isDownloadingManga
-                            val downloadQueueSize = mangaDownloadQueueSize + animeDownloadQueueSize
-                            val pendingDownloadExists = downloadQueueSize != 0
-                            _downloadQueueState.value = when {
-                                !pendingDownloadExists -> DownloadQueueState.Stopped
-                                !isDownloading -> DownloadQueueState.Paused(downloadQueueSize)
-                                else -> DownloadQueueState.Downloading(downloadQueueSize)
-                            }
-                        }
                 }
         }
     }

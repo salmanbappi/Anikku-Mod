@@ -1,22 +1,22 @@
 package eu.kanade.tachiyomi.data.backup.restore.restorers
 
-import eu.kanade.domain.entries.anime.interactor.UpdateAnime
+import eu.kanade.domain.anime.interactor.UpdateAnime
 import eu.kanade.tachiyomi.data.backup.models.BackupAnime
-import eu.kanade.tachiyomi.data.backup.models.BackupAnimeHistory
-import eu.kanade.tachiyomi.data.backup.models.BackupAnimeTracking
 import eu.kanade.tachiyomi.data.backup.models.BackupCategory
 import eu.kanade.tachiyomi.data.backup.models.BackupEpisode
+import eu.kanade.tachiyomi.data.backup.models.BackupHistory
+import eu.kanade.tachiyomi.data.backup.models.BackupTracking
 import tachiyomi.data.AnimeUpdateStrategyColumnAdapter
-import tachiyomi.data.handlers.anime.AnimeDatabaseHandler
-import tachiyomi.domain.category.anime.interactor.GetAnimeCategories
-import tachiyomi.domain.entries.anime.interactor.AnimeFetchInterval
-import tachiyomi.domain.entries.anime.interactor.GetAnimeByUrlAndSourceId
-import tachiyomi.domain.entries.anime.model.Anime
-import tachiyomi.domain.items.episode.interactor.GetEpisodesByAnimeId
-import tachiyomi.domain.items.episode.model.Episode
-import tachiyomi.domain.track.anime.interactor.GetAnimeTracks
-import tachiyomi.domain.track.anime.interactor.InsertAnimeTrack
-import tachiyomi.domain.track.anime.model.AnimeTrack
+import tachiyomi.data.DatabaseHandler
+import tachiyomi.domain.anime.interactor.FetchInterval
+import tachiyomi.domain.anime.interactor.GetAnimeByUrlAndSourceId
+import tachiyomi.domain.anime.model.Anime
+import tachiyomi.domain.category.interactor.GetCategories
+import tachiyomi.domain.episode.interactor.GetEpisodesByAnimeId
+import tachiyomi.domain.episode.model.Episode
+import tachiyomi.domain.track.interactor.GetTracks
+import tachiyomi.domain.track.interactor.InsertTrack
+import tachiyomi.domain.track.model.Track
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import java.time.ZonedDateTime
@@ -24,16 +24,17 @@ import java.util.Date
 import kotlin.math.max
 
 class AnimeRestorer(
-    private val handler: AnimeDatabaseHandler = Injekt.get(),
-    private val getCategories: GetAnimeCategories = Injekt.get(),
+    private var isSync: Boolean = false,
+
+    private val handler: DatabaseHandler = Injekt.get(),
+    private val getCategories: GetCategories = Injekt.get(),
     private val getAnimeByUrlAndSourceId: GetAnimeByUrlAndSourceId = Injekt.get(),
     private val getEpisodesByAnimeId: GetEpisodesByAnimeId = Injekt.get(),
     private val updateAnime: UpdateAnime = Injekt.get(),
-    private val getTracks: GetAnimeTracks = Injekt.get(),
-    private val insertTrack: InsertAnimeTrack = Injekt.get(),
-    fetchInterval: AnimeFetchInterval = Injekt.get(),
+    private val getTracks: GetTracks = Injekt.get(),
+    private val insertTrack: InsertTrack = Injekt.get(),
+    fetchInterval: FetchInterval = Injekt.get(),
 ) {
-
     private var now = ZonedDateTime.now()
     private var currentFetchWindow = fetchInterval.getWindow(now)
 
@@ -74,6 +75,11 @@ class AnimeRestorer(
                 history = backupAnime.history,
                 tracks = backupAnime.tracking,
             )
+
+            if (isSync) {
+                animesQueries.resetIsSyncing()
+                episodesQueries.resetIsSyncing()
+            }
         }
     }
 
@@ -92,18 +98,18 @@ class AnimeRestorer(
     private fun Anime.copyFrom(newer: Anime): Anime {
         return this.copy(
             favorite = this.favorite || newer.favorite,
-            author = newer.author,
-            artist = newer.artist,
-            description = newer.description,
-            genre = newer.genre,
+            ogAuthor = newer.author,
+            ogArtist = newer.artist,
+            ogDescription = newer.description,
+            ogGenre = newer.genre,
             thumbnailUrl = newer.thumbnailUrl,
-            status = newer.status,
+            ogStatus = newer.status,
             initialized = this.initialized || newer.initialized,
             version = newer.version,
         )
     }
 
-    private suspend fun updateAnime(anime: Anime): Anime {
+    suspend fun updateAnime(anime: Anime): Anime {
         handler.await(true) {
             animesQueries.update(
                 source = anime.source,
@@ -148,41 +154,42 @@ class AnimeRestorer(
             .associateBy { it.url }
 
         val (existingEpisodes, newEpisodes) = backupEpisodes
-            .mapNotNull {
-                val episode = it.toEpisodeImpl().copy(animeId = anime.id)
+            .mapNotNull { backupEpisode ->
+                val episode = backupEpisode.toEpisodeImpl().copy(animeId = anime.id)
 
                 val dbEpisode = dbEpisodesByUrl[episode.url]
-                    ?: // New episode
-                    return@mapNotNull episode
 
-                if (episode.forComparison() == dbEpisode.forComparison()) {
-                    // Same state; skip
-                    return@mapNotNull null
+                when {
+                    dbEpisode == null -> episode // New episode
+                    episode.forComparison() == dbEpisode.forComparison() -> null // Same state; skip
+                    else -> updateEpisodeBasedOnSyncState(episode, dbEpisode)
                 }
-
-                // Update to an existing episode
-                var updatedEpisode = episode
-                    .copyFrom(dbEpisode)
-                    .copy(
-                        id = dbEpisode.id,
-                        bookmark = episode.bookmark || dbEpisode.bookmark,
-                    )
-                if (dbEpisode.seen && !updatedEpisode.seen) {
-                    updatedEpisode = updatedEpisode.copy(
-                        seen = true,
-                        lastSecondSeen = dbEpisode.lastSecondSeen,
-                    )
-                } else if (updatedEpisode.lastSecondSeen == 0L && dbEpisode.lastSecondSeen != 0L) {
-                    updatedEpisode = updatedEpisode.copy(
-                        lastSecondSeen = dbEpisode.lastSecondSeen,
-                    )
-                }
-                updatedEpisode
             }
             .partition { it.id > 0 }
 
         insertNewEpisodes(newEpisodes)
         updateExistingEpisodes(existingEpisodes)
+    }
+
+    private fun updateEpisodeBasedOnSyncState(episode: Episode, dbEpisode: Episode): Episode {
+        return if (isSync) {
+            episode.copy(
+                id = dbEpisode.id,
+                bookmark = episode.bookmark || dbEpisode.bookmark,
+                seen = episode.seen,
+                lastSecondSeen = episode.lastSecondSeen,
+            )
+        } else {
+            episode.copyFrom(dbEpisode).let {
+                when {
+                    dbEpisode.seen && !it.seen -> it.copy(seen = true, lastSecondSeen = dbEpisode.lastSecondSeen)
+                    it.lastSecondSeen == 0L && dbEpisode.lastSecondSeen != 0L -> it.copy(
+                        lastSecondSeen = dbEpisode.lastSecondSeen,
+                    )
+                    else -> it
+                }
+            }
+        }
     }
 
     private fun Episode.forComparison() =
@@ -272,8 +279,8 @@ class AnimeRestorer(
         episodes: List<BackupEpisode>,
         categories: List<Long>,
         backupCategories: List<BackupCategory>,
-        history: List<BackupAnimeHistory>,
-        tracks: List<BackupAnimeTracking>,
+        history: List<BackupHistory>,
+        tracks: List<BackupTracking>,
     ): Anime {
         restoreCategories(anime, categories, backupCategories)
         restoreEpisodes(anime, episodes)
@@ -317,9 +324,9 @@ class AnimeRestorer(
         }
     }
 
-    private suspend fun restoreHistory(backupHistory: List<BackupAnimeHistory>) {
+    private suspend fun restoreHistory(backupHistory: List<BackupHistory>) {
         val toUpdate = backupHistory.mapNotNull { history ->
-            val dbHistory = handler.awaitOneOrNull { animehistoryQueries.getHistoryByEpisodeUrl(history.url) }
+            val dbHistory = handler.awaitOneOrNull { historyQueries.getHistoryByEpisodeUrl(history.url) }
             val item = history.getHistoryImpl()
 
             if (dbHistory == null) {
@@ -346,7 +353,7 @@ class AnimeRestorer(
         if (toUpdate.isNotEmpty()) {
             handler.await(true) {
                 toUpdate.forEach {
-                    animehistoryQueries.upsert(
+                    historyQueries.upsert(
                         it.episodeId,
                         it.seenAt,
                     )
@@ -355,7 +362,7 @@ class AnimeRestorer(
         }
     }
 
-    private suspend fun restoreTracking(anime: Anime, backupTracks: List<BackupAnimeTracking>) {
+    private suspend fun restoreTracking(anime: Anime, backupTracks: List<BackupTracking>) {
         val dbTrackByTrackerId = getTracks.await(anime.id).associateBy { it.trackerId }
 
         val (existingTracks, newTracks) = backupTracks
@@ -408,5 +415,5 @@ class AnimeRestorer(
         }
     }
 
-    private fun AnimeTrack.forComparison() = this.copy(id = 0L, animeId = 0L)
+    private fun Track.forComparison() = this.copy(id = 0L, animeId = 0L)
 }

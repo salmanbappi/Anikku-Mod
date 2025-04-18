@@ -1,7 +1,7 @@
 package eu.kanade.tachiyomi.ui.player.controls
 
 import androidx.compose.runtime.Composable
-import eu.kanade.tachiyomi.data.database.models.anime.Episode
+import eu.kanade.tachiyomi.data.database.models.Episode
 import eu.kanade.tachiyomi.ui.player.Dialogs
 import eu.kanade.tachiyomi.ui.player.controls.components.dialogs.EpisodeListDialog
 import java.time.format.DateTimeFormatter

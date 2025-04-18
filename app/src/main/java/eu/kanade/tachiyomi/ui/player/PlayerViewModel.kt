@@ -36,20 +36,20 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import eu.kanade.domain.anime.interactor.SetAnimeViewerFlags
 import eu.kanade.domain.base.BasePreferences
-import eu.kanade.domain.entries.anime.interactor.SetAnimeViewerFlags
-import eu.kanade.domain.items.episode.model.toDbEpisode
-import eu.kanade.domain.track.anime.interactor.TrackEpisode
+import eu.kanade.domain.episode.model.toDbEpisode
+import eu.kanade.domain.track.interactor.TrackEpisode
 import eu.kanade.domain.track.service.TrackPreferences
 import eu.kanade.domain.ui.UiPreferences
 import eu.kanade.tachiyomi.animesource.AnimeSource
 import eu.kanade.tachiyomi.animesource.model.SerializableVideo.Companion.toVideoList
 import eu.kanade.tachiyomi.animesource.model.Video
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
-import eu.kanade.tachiyomi.data.database.models.anime.Episode
-import eu.kanade.tachiyomi.data.database.models.anime.toDomainEpisode
-import eu.kanade.tachiyomi.data.download.anime.AnimeDownloadManager
-import eu.kanade.tachiyomi.data.download.anime.model.AnimeDownload
+import eu.kanade.tachiyomi.data.database.models.Episode
+import eu.kanade.tachiyomi.data.database.models.toDomainEpisode
+import eu.kanade.tachiyomi.data.download.DownloadManager
+import eu.kanade.tachiyomi.data.download.model.Download
 import eu.kanade.tachiyomi.data.saver.Image
 import eu.kanade.tachiyomi.data.saver.ImageSaver
 import eu.kanade.tachiyomi.data.saver.Location
@@ -90,20 +90,20 @@ import tachiyomi.core.common.util.lang.launchNonCancellable
 import tachiyomi.core.common.util.lang.withIOContext
 import tachiyomi.core.common.util.lang.withUIContext
 import tachiyomi.core.common.util.system.logcat
+import tachiyomi.domain.anime.interactor.GetAnime
+import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.download.service.DownloadPreferences
-import tachiyomi.domain.entries.anime.interactor.GetAnime
-import tachiyomi.domain.entries.anime.model.Anime
-import tachiyomi.domain.history.anime.interactor.GetNextEpisodes
-import tachiyomi.domain.history.anime.interactor.UpsertAnimeHistory
-import tachiyomi.domain.history.anime.model.AnimeHistoryUpdate
-import tachiyomi.domain.items.episode.interactor.GetEpisodesByAnimeId
-import tachiyomi.domain.items.episode.interactor.UpdateEpisode
-import tachiyomi.domain.items.episode.model.EpisodeUpdate
-import tachiyomi.domain.items.episode.service.getEpisodeSort
-import tachiyomi.domain.source.anime.service.AnimeSourceManager
-import tachiyomi.domain.track.anime.interactor.GetAnimeTracks
+import tachiyomi.domain.episode.interactor.GetEpisodesByAnimeId
+import tachiyomi.domain.episode.interactor.UpdateEpisode
+import tachiyomi.domain.episode.model.EpisodeUpdate
+import tachiyomi.domain.episode.service.getEpisodeSort
+import tachiyomi.domain.history.interactor.GetNextEpisodes
+import tachiyomi.domain.history.interactor.UpsertHistory
+import tachiyomi.domain.history.model.HistoryUpdate
+import tachiyomi.domain.source.service.SourceManager
+import tachiyomi.domain.track.interactor.GetTracks
 import tachiyomi.i18n.MR
-import tachiyomi.source.local.entries.anime.isLocal
+import tachiyomi.source.local.isLocal
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import java.io.File
@@ -121,8 +121,8 @@ class PlayerViewModelProviderFactory(
 class PlayerViewModel @JvmOverloads constructor(
     private val activity: PlayerActivity,
     private val savedState: SavedStateHandle,
-    private val sourceManager: AnimeSourceManager = Injekt.get(),
-    private val downloadManager: AnimeDownloadManager = Injekt.get(),
+    private val sourceManager: SourceManager = Injekt.get(),
+    private val downloadManager: DownloadManager = Injekt.get(),
     private val imageSaver: ImageSaver = Injekt.get(),
     private val downloadPreferences: DownloadPreferences = Injekt.get(),
     private val trackPreferences: TrackPreferences = Injekt.get(),
@@ -130,8 +130,8 @@ class PlayerViewModel @JvmOverloads constructor(
     private val getAnime: GetAnime = Injekt.get(),
     private val getNextEpisodes: GetNextEpisodes = Injekt.get(),
     private val getEpisodesByAnimeId: GetEpisodesByAnimeId = Injekt.get(),
-    private val getTracks: GetAnimeTracks = Injekt.get(),
-    private val upsertHistory: UpsertAnimeHistory = Injekt.get(),
+    private val getTracks: GetTracks = Injekt.get(),
+    private val upsertHistory: UpsertHistory = Injekt.get(),
     private val updateEpisode: UpdateEpisode = Injekt.get(),
     private val setAnimeViewerFlags: SetAnimeViewerFlags = Injekt.get(),
     internal val playerPreferences: PlayerPreferences = Injekt.get(),
@@ -768,7 +768,7 @@ class PlayerViewModel @JvmOverloads constructor(
     private val eventChannel = Channel<Event>()
     val eventFlow = eventChannel.receiveAsFlow()
 
-    private val incognitoMode = basePreferences.incognitoMode().get()
+    val incognitoMode = basePreferences.incognitoMode().get()
     private val downloadAheadAmount = downloadPreferences.autoDownloadWhileWatching().get()
 
     internal val relativeTime = uiPreferences.relativeTime().get()
@@ -801,9 +801,9 @@ class PlayerViewModel @JvmOverloads constructor(
             field = value
         }
 
-    private var episodeToDownload: AnimeDownload? = null
+    private var episodeToDownload: Download? = null
 
-    private var currentVideoList: List<Video>? = null
+    var currentVideoList: List<Video>? = null
 
     private fun filterEpisodeList(episodes: List<Episode>): List<Episode> {
         val anime = currentAnime.value ?: return episodes
@@ -1118,7 +1118,7 @@ class PlayerViewModel @JvmOverloads constructor(
             val episodeId = episode.id!!
             val seenAt = Date()
             upsertHistory.await(
-                AnimeHistoryUpdate(episodeId, seenAt),
+                HistoryUpdate(episodeId, seenAt),
             )
         }
     }

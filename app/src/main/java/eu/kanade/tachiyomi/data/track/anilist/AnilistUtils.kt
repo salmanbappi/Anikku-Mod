@@ -1,23 +1,11 @@
 package eu.kanade.tachiyomi.data.track.anilist
 
 import eu.kanade.domain.track.service.TrackPreferences
-import eu.kanade.tachiyomi.data.database.models.anime.AnimeTrack
-import eu.kanade.tachiyomi.data.database.models.manga.MangaTrack
+import eu.kanade.tachiyomi.data.database.models.Track
 import uy.kohesive.injekt.injectLazy
-import tachiyomi.domain.track.anime.model.AnimeTrack as DomainAnimeTrack
-import tachiyomi.domain.track.manga.model.MangaTrack as DomainMangaTrack
+import tachiyomi.domain.track.model.Track as DomainAnimeTrack
 
-fun MangaTrack.toApiStatus() = when (status) {
-    Anilist.READING -> "CURRENT"
-    Anilist.COMPLETED -> "COMPLETED"
-    Anilist.ON_HOLD -> "PAUSED"
-    Anilist.DROPPED -> "DROPPED"
-    Anilist.PLAN_TO_READ -> "PLANNING"
-    Anilist.REREADING -> "REPEATING"
-    else -> throw NotImplementedError("Unknown status: $status")
-}
-
-fun AnimeTrack.toApiStatus() = when (status) {
+fun Track.toApiStatus() = when (status) {
     Anilist.WATCHING -> "CURRENT"
     Anilist.COMPLETED -> "COMPLETED"
     Anilist.ON_HOLD -> "PAUSED"
@@ -55,5 +43,4 @@ private fun Double.toApiScore(): String = when (preferences.anilistScoreType().g
     else -> throw NotImplementedError("Unknown score type")
 }
 
-fun DomainMangaTrack.toApiScore(): String = this.score.toApiScore()
 fun DomainAnimeTrack.toApiScore(): String = this.score.toApiScore()

@@ -25,7 +25,7 @@ data class Release(
             else -> ""
         }
 
-        return assets.find { it.contains("aniyomi$apkVariant-") } ?: assets[0]
+        return assets.find { it.contains("Anikku$apkVariant-") } ?: assets[0]
     }
 
     /**

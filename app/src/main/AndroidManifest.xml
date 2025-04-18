@@ -2,7 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" >
 
-    <!-- Internet -->
+    <!-- Android TV -->
+   <uses-feature android:name="android.software.leanback" android:required="false" />
+   <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+
+   <!-- Internet -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -33,6 +37,11 @@
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
+    <!-- Remove permission from Firebase dependency -->
+    <uses-permission
+        android:name="com.google.android.gms.permission.AD_ID"
+        tools:node="remove" />
+
     <application
         android:name=".App"
         android:allowBackup="false"
@@ -45,9 +54,9 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:preserveLegacyExternalStorage="true"
         android:requestLegacyExternalStorage="true"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Tachiyomi">
+        android:theme="@style/Theme.Tachiyomi"
+        android:banner="@mipmap/ic_banner">
 
         <activity
             android:name=".ui.main.MainActivity"
@@ -58,27 +67,17 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER"/>
             </intent-filter>
 
-            <!-- Deep link to add manga repos -->
+            <!-- Deep link to add anime repos -->
             <intent-filter android:label="@string/action_add_repo">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="tachiyomi" />
-                <data android:host="add-repo" />
-            </intent-filter>
-
-            <!-- Deep link to add manga repos -->
-            <intent-filter android:label="@string/action_add_repo">
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:scheme="aniyomi" />
+                <data android:scheme="anikku" />
                 <data android:host="add-repo" />
             </intent-filter>
 
@@ -122,7 +121,7 @@
 
 
         <activity
-            android:name=".ui.deeplink.anime.DeepLinkAnimeActivity"
+            android:name=".ui.deeplink.DeepLinkActivity"
             android:exported="true"
             android:label="@string/action_global_anime_search"
             android:launchMode="singleTask"
@@ -149,49 +148,6 @@
         </activity>
 
         <activity
-            android:name=".ui.deeplink.manga.DeepLinkMangaActivity"
-            android:exported="true"
-            android:label="@string/action_global_manga_search"
-            android:launchMode="singleTask"
-            android:theme="@android:style/Theme.NoDisplay">
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-                <action android:name="com.google.android.gms.actions.SEARCH_ACTION" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="eu.kanade.tachiyomi.SEARCH" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="eu.kanade.tachiyomi.ANIMESEARCH" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.SEND" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="text/plain" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.app.searchable"
-                android:resource="@xml/searchable" />
-        </activity>
-
-        <activity
-            android:name=".ui.reader.ReaderActivity"
-            android:exported="false"
-            android:launchMode="singleTask">
-            <intent-filter>
-                <action android:name="com.samsung.android.support.REMOTE_ACTION" />
-            </intent-filter>
-
-            <meta-data
-                android:name="com.samsung.android.support.REMOTE_ACTION"
-                android:resource="@xml/s_pen_actions" />
-        </activity>
-        <activity
             android:name=".ui.player.PlayerActivity"
             android:autoRemoveFromRecents="true"
             android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize|keyboardHidden|keyboard|uiMode"
@@ -207,6 +163,14 @@
             <meta-data android:name="com.samsung.android.support.REMOTE_ACTION"
                 android:resource="@xml/s_pen_actions"/>
         </activity>
+
+
+        <activity android:name=".ui.player.ExpandedControlsActivity"/>
+
+        <meta-data
+            android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
+            android:value="eu.kanade.tachiyomi.ui.player.CastOptionsProvider" />
+
         <activity
             android:name=".ui.security.UnlockActivity"
             android:exported="false"
@@ -218,12 +182,7 @@
             android:exported="false" />
 
         <activity
-            android:name=".extension.manga.util.MangaExtensionInstallActivity"
-            android:exported="false"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-
-        <activity
-            android:name=".extension.anime.util.AnimeExtensionInstallActivity"
+            android:name=".extension.util.ExtensionInstallActivity"
             android:exported="false"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
@@ -237,27 +196,63 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="aniyomi"/>
+                <data android:scheme="anikku" />
 
-                <data android:host="myanimelist-auth" />
                 <data android:host="anilist-auth" />
                 <data android:host="bangumi-auth" />
+                <data android:host="myanimelist-auth" />
                 <data android:host="shikimori-auth" />
                 <data android:host="simkl-auth"/>
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.setting.track.GoogleDriveLoginActivity"
+            android:label="GoogleDrive"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="eu.kanade.google.oauth" />
+            </intent-filter>
+        </activity>
+
+        <activity android:label="Discord Login"
+            android:name=".ui.setting.connection.DiscordLoginActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="false"
+            tools:ignore="AppLinkUrlError">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="account.samsung.com" android:path="/accounts/oauth/callback"/>
+            </intent-filter>
+        </activity>
+        <service
+            android:name=".data.connection.discord.DiscordRPCService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="dataSync">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https"
+                    android:host="account.samsung.com"
+                    android:path="/accounts/oauth/callback"/>
+            </intent-filter>
+        </service>
 
         <receiver
             android:name=".data.notification.NotificationReceiver"
             android:exported="false" />
 
         <service
-            android:name=".extension.manga.util.MangaExtensionInstallService"
-            android:exported="false"
-            android:foregroundServiceType="shortService" />
-
-        <service
-            android:name=".extension.anime.util.AnimeExtensionInstallService"
+            android:name=".extension.util.ExtensionInstallService"
             android:exported="false"
             android:foregroundServiceType="shortService" />
         <service
@@ -273,6 +268,11 @@
             android:name="androidx.work.impl.foreground.SystemForegroundService"
             android:foregroundServiceType="dataSync"
             tools:node="merge" />
+
+        <service
+            android:name=".data.torrentServer.service.TorrentServerService"
+            android:foregroundServiceType="dataSync"
+            />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -298,6 +298,11 @@
         <meta-data
             android:name="android.webkit.WebView.MetricsOptOut"
             android:value="true" />
+
+        <!-- Disable advertising ID collection for Firebase -->
+        <meta-data
+            android:name="google_analytics_adid_collection_enabled"
+            android:value="false" />
 
     </application>
 

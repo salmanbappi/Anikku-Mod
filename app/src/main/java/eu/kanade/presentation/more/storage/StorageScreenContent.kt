@@ -15,7 +15,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eu.kanade.presentation.util.isTabletUi
@@ -27,7 +26,7 @@ import kotlin.random.Random
 @Composable
 fun StorageScreenContent(
     state: StorageScreenState,
-    isManga: Boolean,
+    isManga: Boolean = false,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues,
     onCategorySelected: (Category) -> Unit,
@@ -154,7 +153,7 @@ private fun StorageScreenContentPreview() {
     )
 }
 
-@Preview(showBackground = true, device = Devices.DESKTOP)
+@Preview(showBackground = true, device = "spec:width=1920dp,height=1080dp,dpi=160")
 @Composable
 private fun StorageTabletUiScreenContentPreview() {
     val random = remember { Random(0) }

@@ -33,11 +33,11 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import eu.kanade.presentation.entries.components.DotSeparatorText
+import eu.kanade.presentation.anime.components.DotSeparatorText
 import eu.kanade.presentation.util.formatEpisodeNumber
-import eu.kanade.tachiyomi.data.database.models.anime.Episode
+import eu.kanade.tachiyomi.data.database.models.Episode
 import eu.kanade.tachiyomi.util.lang.toRelativeString
-import tachiyomi.domain.entries.anime.model.Anime
+import tachiyomi.domain.anime.model.Anime
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.VerticalFastScroller
 import tachiyomi.presentation.core.components.material.DISABLED_ALPHA

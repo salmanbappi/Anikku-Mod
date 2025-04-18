@@ -11,19 +11,14 @@ import eu.kanade.tachiyomi.data.backup.models.IntPreferenceValue
 import eu.kanade.tachiyomi.data.backup.models.LongPreferenceValue
 import eu.kanade.tachiyomi.data.backup.models.StringPreferenceValue
 import eu.kanade.tachiyomi.data.backup.models.StringSetPreferenceValue
-import eu.kanade.tachiyomi.source.ConfigurableSource
-import eu.kanade.tachiyomi.source.preferenceKey
-import eu.kanade.tachiyomi.source.sourcePreferences
 import tachiyomi.core.common.preference.Preference
 import tachiyomi.core.common.preference.PreferenceStore
-import tachiyomi.domain.source.anime.service.AnimeSourceManager
-import tachiyomi.domain.source.manga.service.MangaSourceManager
+import tachiyomi.domain.source.service.SourceManager
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
 class PreferenceBackupCreator(
-    private val animeSourceManager: AnimeSourceManager = Injekt.get(),
-    private val mangaSourceManager: MangaSourceManager = Injekt.get(),
+    private val sourceManager: SourceManager = Injekt.get(),
     private val preferenceStore: PreferenceStore = Injekt.get(),
 ) {
 
@@ -33,7 +28,7 @@ class PreferenceBackupCreator(
     }
 
     fun createSource(includePrivatePreferences: Boolean): List<BackupSourcePreferences> {
-        val animePreferences = animeSourceManager.getCatalogueSources()
+        val animePreferences = sourceManager.getCatalogueSources()
             .filterIsInstance<ConfigurableAnimeSource>()
             .map {
                 BackupSourcePreferences(
@@ -43,17 +38,7 @@ class PreferenceBackupCreator(
                 )
             }
             .filter { it.prefs.isNotEmpty() }
-        val mangaPreferences = mangaSourceManager.getCatalogueSources()
-            .filterIsInstance<ConfigurableSource>()
-            .map {
-                BackupSourcePreferences(
-                    it.preferenceKey(),
-                    it.sourcePreferences().all.toBackupPreferences()
-                        .withPrivatePreferences(includePrivatePreferences),
-                )
-            }
-            .filter { it.prefs.isNotEmpty() }
-        return animePreferences + mangaPreferences
+        return animePreferences
     }
 
     @Suppress("UNCHECKED_CAST")

@@ -2,7 +2,7 @@ package eu.kanade.tachiyomi.data.backup.models
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.protobuf.ProtoNumber
-import tachiyomi.domain.track.manga.model.MangaTrack
+import tachiyomi.domain.track.model.Track
 
 @Serializable
 data class BackupTracking(
@@ -16,23 +16,23 @@ data class BackupTracking(
     // trackingUrl is called mediaUrl in 1.x
     @ProtoNumber(4) var trackingUrl: String = "",
     @ProtoNumber(5) var title: String = "",
-    // lastChapterRead is called last read, and it has been changed to a float in 1.x
-    @ProtoNumber(6) var lastChapterRead: Float = 0F,
-    @ProtoNumber(7) var totalChapters: Int = 0,
+    // lastEpisodeSeen is called last seen, and it has been changed to a float in 1.x
+    @ProtoNumber(6) var lastEpisodeSeen: Float = 0F,
+    @ProtoNumber(7) var totalEpisodes: Int = 0,
     @ProtoNumber(8) var score: Float = 0F,
     @ProtoNumber(9) var status: Int = 0,
     // startedReadingDate is called startReadTime in 1.x
-    @ProtoNumber(10) var startedReadingDate: Long = 0,
+    @ProtoNumber(10) var startedWatchingDate: Long = 0,
     // finishedReadingDate is called endReadTime in 1.x
-    @ProtoNumber(11) var finishedReadingDate: Long = 0,
+    @ProtoNumber(11) var finishedWatchingDate: Long = 0,
     @ProtoNumber(100) var mediaId: Long = 0,
 ) {
 
     @Suppress("DEPRECATION")
-    fun getTrackImpl(): MangaTrack {
-        return MangaTrack(
+    fun getTrackImpl(): Track {
+        return Track(
             id = -1,
-            mangaId = -1,
+            animeId = -1,
             trackerId = this@BackupTracking.syncId.toLong(),
             remoteId = if (this@BackupTracking.mediaIdInt != 0) {
                 this@BackupTracking.mediaIdInt.toLong()
@@ -41,26 +41,46 @@ data class BackupTracking(
             },
             libraryId = this@BackupTracking.libraryId,
             title = this@BackupTracking.title,
-            lastChapterRead = this@BackupTracking.lastChapterRead.toDouble(),
-            totalChapters = this@BackupTracking.totalChapters.toLong(),
+            lastEpisodeSeen = this@BackupTracking.lastEpisodeSeen.toDouble(),
+            totalEpisodes = this@BackupTracking.totalEpisodes.toLong(),
             score = this@BackupTracking.score.toDouble(),
             status = this@BackupTracking.status.toLong(),
-            startDate = this@BackupTracking.startedReadingDate,
-            finishDate = this@BackupTracking.finishedReadingDate,
+            startDate = this@BackupTracking.startedWatchingDate,
+            finishDate = this@BackupTracking.finishedWatchingDate,
             remoteUrl = this@BackupTracking.trackingUrl,
         )
     }
+
+    companion object {
+        fun copyFrom(track: Track): BackupTracking {
+            return BackupTracking(
+                syncId = track.trackerId.toInt(),
+                mediaId = track.remoteId,
+                // forced not null so its compatible with 1.x backup system
+                libraryId = track.libraryId!!,
+                title = track.title,
+                // convert to float for 1.x
+                lastEpisodeSeen = track.lastEpisodeSeen.toFloat(),
+                totalEpisodes = track.totalEpisodes.toInt(),
+                score = track.score.toFloat(),
+                status = track.status.toInt(),
+                startedWatchingDate = track.startDate,
+                finishedWatchingDate = track.finishDate,
+                trackingUrl = track.remoteUrl,
+            )
+        }
+    }
 }
 
-val backupMangaTrackMapper = {
-        _: Long,
-        _: Long,
+val backupAnimeTrackMapper = {
+        _id: Long,
+        anime_id: Long,
         syncId: Long,
         mediaId: Long,
         libraryId: Long?,
         title: String,
-        lastChapterRead: Double,
-        totalChapters: Long,
+        lastEpisodeSeen: Double,
+        totalEpisodes: Long,
         status: Long,
         score: Double,
         remoteUrl: String,
@@ -73,12 +93,12 @@ val backupMangaTrackMapper = {
         // forced not null so its compatible with 1.x backup system
         libraryId = libraryId ?: 0,
         title = title,
-        lastChapterRead = lastChapterRead.toFloat(),
-        totalChapters = totalChapters.toInt(),
+        lastEpisodeSeen = lastEpisodeSeen.toFloat(),
+        totalEpisodes = totalEpisodes.toInt(),
         score = score.toFloat(),
         status = status.toInt(),
-        startedReadingDate = startDate,
-        finishedReadingDate = finishDate,
+        startedWatchingDate = startDate,
+        finishedWatchingDate = finishDate,
         trackingUrl = remoteUrl,
     )
 }

@@ -4,10 +4,8 @@ import android.content.Context
 import eu.kanade.tachiyomi.network.HttpException
 import eu.kanade.tachiyomi.util.system.isOnline
 import tachiyomi.core.common.i18n.stringResource
-import tachiyomi.domain.items.chapter.model.NoChaptersException
-import tachiyomi.domain.items.episode.model.NoEpisodesException
-import tachiyomi.domain.source.anime.model.AnimeSourceNotInstalledException
-import tachiyomi.domain.source.manga.model.SourceNotInstalledException
+import tachiyomi.domain.episode.model.NoEpisodesException
+import tachiyomi.domain.source.model.AnimeSourceNotInstalledException
 import tachiyomi.i18n.MR
 import java.net.UnknownHostException
 
@@ -23,10 +21,10 @@ val Throwable.formattedMessage: String
                     stringResource(MR.strings.exception_unknown_host, message ?: "")
                 }
             }
-            is NoChaptersException, is NoEpisodesException -> return stringResource(
+            is NoEpisodesException -> return stringResource(
                 MR.strings.no_results_found,
             )
-            is SourceNotInstalledException, is AnimeSourceNotInstalledException -> return stringResource(
+            is AnimeSourceNotInstalledException -> return stringResource(
                 MR.strings.loader_not_implemented_error,
             )
         }

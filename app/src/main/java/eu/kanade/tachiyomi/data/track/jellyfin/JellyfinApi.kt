@@ -1,9 +1,9 @@
 package eu.kanade.tachiyomi.data.track.jellyfin
 
-import eu.kanade.tachiyomi.data.database.models.anime.AnimeTrack
+import eu.kanade.tachiyomi.data.database.models.Track
 import eu.kanade.tachiyomi.data.track.jellyfin.dto.JFItem
 import eu.kanade.tachiyomi.data.track.jellyfin.dto.JFItemList
-import eu.kanade.tachiyomi.data.track.model.AnimeTrackSearch
+import eu.kanade.tachiyomi.data.track.model.TrackSearch
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.network.POST
 import eu.kanade.tachiyomi.network.awaitSuccess
@@ -27,7 +27,7 @@ class JellyfinApi(
 ) {
     private val json: Json by injectLazy()
 
-    suspend fun getTrackSearch(url: String): AnimeTrackSearch =
+    suspend fun getTrackSearch(url: String): TrackSearch =
         withIOContext {
             try {
                 val httpUrl = url.toHttpUrl()
@@ -52,7 +52,7 @@ class JellyfinApi(
             }
         }
 
-    private fun JFItem.toTrack(): AnimeTrackSearch = AnimeTrackSearch.create(
+    private fun JFItem.toTrack(): TrackSearch = TrackSearch.create(
         trackId,
     ).also {
         it.title = name
@@ -83,7 +83,7 @@ class JellyfinApi(
         }.build()
     }
 
-    private suspend fun getTrackFromSeries(track: AnimeTrackSearch, url: HttpUrl): AnimeTrackSearch {
+    private suspend fun getTrackFromSeries(track: TrackSearch, url: HttpUrl): TrackSearch {
         val episodesUrl = getEpisodesUrl(url)
 
         val episodes = with(json) {
@@ -120,7 +120,7 @@ class JellyfinApi(
         }
     }
 
-    suspend fun updateProgress(track: AnimeTrack): AnimeTrack {
+    suspend fun updateProgress(track: Track): Track {
         val httpUrl = track.tracking_url.toHttpUrl()
         val fragment = httpUrl.fragment!!
 

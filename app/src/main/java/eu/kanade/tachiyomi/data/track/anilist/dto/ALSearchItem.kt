@@ -15,18 +15,6 @@ data class ALSearchItem(
     val episodes: Long?,
     val averageScore: Int?,
 ) {
-    fun toALManga(): ALManga = ALManga(
-        remoteId = id,
-        title = title.userPreferred,
-        imageUrl = coverImage.large,
-        description = description,
-        format = format.replace("_", "-"),
-        publishingStatus = status ?: "",
-        startDateFuzzy = startDate.toEpochMilli(),
-        totalChapters = chapters ?: 0,
-        averageScore = averageScore ?: -1,
-    )
-
     fun toALAnime(): ALAnime = ALAnime(
         remoteId = id,
         title = title.userPreferred,

@@ -6,8 +6,6 @@ import android.content.Intent
 import android.provider.Settings
 import android.webkit.WebStorage
 import android.webkit.WebView
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -25,20 +23,15 @@ import androidx.core.net.toUri
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import eu.kanade.domain.base.BasePreferences
-import eu.kanade.domain.extension.anime.interactor.TrustAnimeExtension
-import eu.kanade.domain.extension.manga.interactor.TrustMangaExtension
+import eu.kanade.domain.extension.interactor.TrustExtension
 import eu.kanade.domain.source.service.SourcePreferences
 import eu.kanade.domain.source.service.SourcePreferences.DataSaver
 import eu.kanade.presentation.more.settings.Preference
-import eu.kanade.presentation.more.settings.screen.advanced.ClearAnimeDatabaseScreen
 import eu.kanade.presentation.more.settings.screen.advanced.ClearDatabaseScreen
 import eu.kanade.presentation.more.settings.screen.debug.DebugInfoScreen
-import eu.kanade.tachiyomi.data.download.anime.AnimeDownloadCache
-import eu.kanade.tachiyomi.data.download.manga.MangaDownloadCache
-import eu.kanade.tachiyomi.data.library.anime.AnimeLibraryUpdateJob
-import eu.kanade.tachiyomi.data.library.anime.AnimeMetadataUpdateJob
-import eu.kanade.tachiyomi.data.library.manga.MangaLibraryUpdateJob
-import eu.kanade.tachiyomi.data.library.manga.MangaMetadataUpdateJob
+import eu.kanade.tachiyomi.data.download.DownloadCache
+import eu.kanade.tachiyomi.data.library.LibraryUpdateJob
+import eu.kanade.tachiyomi.data.library.MetadataUpdateJob
 import eu.kanade.tachiyomi.network.NetworkHelper
 import eu.kanade.tachiyomi.network.NetworkPreferences
 import eu.kanade.tachiyomi.network.PREF_DOH_360
@@ -56,8 +49,6 @@ import eu.kanade.tachiyomi.network.PREF_DOH_QUAD9
 import eu.kanade.tachiyomi.network.PREF_DOH_SHECAN
 import eu.kanade.tachiyomi.ui.more.OnboardingScreen
 import eu.kanade.tachiyomi.util.CrashLogUtil
-import eu.kanade.tachiyomi.util.system.isDevFlavor
-import eu.kanade.tachiyomi.util.system.isPreviewBuildType
 import eu.kanade.tachiyomi.util.system.isShizukuInstalled
 import eu.kanade.tachiyomi.util.system.powerManager
 import eu.kanade.tachiyomi.util.system.setDefaultSettings
@@ -69,11 +60,7 @@ import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.launch
 import logcat.LogPriority
 import okhttp3.Headers
-import tachiyomi.core.common.i18n.stringResource
-import tachiyomi.core.common.util.lang.launchNonCancellable
-import tachiyomi.core.common.util.lang.withUIContext
 import tachiyomi.core.common.util.system.logcat
-import tachiyomi.domain.entries.manga.interactor.ResetMangaViewerFlags
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.collectAsState
@@ -136,7 +123,6 @@ object SettingsAdvancedScreen : SearchableSettings {
             getDataGroup(),
             getNetworkGroup(networkPreferences = networkPreferences),
             getLibraryGroup(),
-            getReaderGroup(basePreferences = basePreferences),
             getExtensionsGroup(basePreferences = basePreferences),
             // SY -->
             getDataSaverGroup(),
@@ -195,20 +181,14 @@ object SettingsAdvancedScreen : SearchableSettings {
                     title = stringResource(MR.strings.pref_invalidate_download_cache),
                     subtitle = stringResource(MR.strings.pref_invalidate_download_cache_summary),
                     onClick = {
-                        Injekt.get<MangaDownloadCache>().invalidateCache()
-                        Injekt.get<AnimeDownloadCache>().invalidateCache()
+                        Injekt.get<DownloadCache>().invalidateCache()
                         context.toast(MR.strings.download_cache_invalidated)
                     },
                 ),
                 Preference.PreferenceItem.TextPreference(
-                    title = stringResource(MR.strings.pref_clear_manga_database),
-                    subtitle = stringResource(MR.strings.pref_clear_manga_database_summary),
-                    onClick = { navigator.push(ClearDatabaseScreen()) },
-                ),
-                Preference.PreferenceItem.TextPreference(
                     title = stringResource(MR.strings.pref_clear_anime_database),
                     subtitle = stringResource(MR.strings.pref_clear_anime_database_summary),
-                    onClick = { navigator.push(ClearAnimeDatabaseScreen()) },
+                    onClick = { navigator.push(ClearDatabaseScreen()) },
                 ),
             ),
         )
@@ -316,55 +296,8 @@ object SettingsAdvancedScreen : SearchableSettings {
                 Preference.PreferenceItem.TextPreference(
                     title = stringResource(MR.strings.pref_refresh_library_covers),
                     onClick = {
-                        AnimeLibraryUpdateJob.startNow(context)
-                        MangaLibraryUpdateJob.startNow(context)
-                        AnimeMetadataUpdateJob.startNow(context)
-                        MangaMetadataUpdateJob.startNow(context)
-                    },
-                ),
-                Preference.PreferenceItem.TextPreference(
-                    title = stringResource(MR.strings.pref_reset_viewer_flags),
-                    subtitle = stringResource(MR.strings.pref_reset_viewer_flags_summary),
-                    onClick = {
-                        scope.launchNonCancellable {
-                            val success = Injekt.get<ResetMangaViewerFlags>().await()
-                            withUIContext {
-                                val message = if (success) {
-                                    MR.strings.pref_reset_viewer_flags_success
-                                } else {
-                                    MR.strings.pref_reset_viewer_flags_error
-                                }
-                                context.toast(message)
-                            }
-                        }
-                    },
-                ),
-            ),
-        )
-    }
-
-    @Composable
-    private fun getReaderGroup(
-        basePreferences: BasePreferences,
-    ): Preference.PreferenceGroup {
-        val context = LocalContext.current
-        val chooseColorProfile = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.OpenDocument(),
-        ) { uri ->
-            uri?.let {
-                val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                context.contentResolver.takePersistableUriPermission(uri, flags)
-                basePreferences.displayProfile().set(uri.toString())
-            }
-        }
-        return Preference.PreferenceGroup(
-            title = stringResource(MR.strings.pref_category_reader),
-            preferenceItems = persistentListOf(
-                Preference.PreferenceItem.TextPreference(
-                    title = stringResource(MR.strings.pref_display_profile),
-                    subtitle = basePreferences.displayProfile().get(),
-                    onClick = {
-                        chooseColorProfile.launch(arrayOf("*/*"))
+                        LibraryUpdateJob.startNow(context)
+                        MetadataUpdateJob.startNow(context)
                     },
                 ),
             ),
@@ -379,8 +312,7 @@ object SettingsAdvancedScreen : SearchableSettings {
         val uriHandler = LocalUriHandler.current
         val extensionInstallerPref = basePreferences.extensionInstaller()
         var shizukuMissing by rememberSaveable { mutableStateOf(false) }
-        val trustAnimeExtension = remember { Injekt.get<TrustAnimeExtension>() }
-        val trustMangaExtension = remember { Injekt.get<TrustMangaExtension>() }
+        val trustExtension = remember { Injekt.get<TrustExtension>() }
 
         if (shizukuMissing) {
             val dismiss = { shizukuMissing = false }
@@ -416,14 +348,6 @@ object SettingsAdvancedScreen : SearchableSettings {
                     pref = extensionInstallerPref,
                     title = stringResource(MR.strings.ext_installer_pref),
                     entries = extensionInstallerPref.entries
-                        .filter {
-                            // TODO: allow private option in stable versions once URL handling is more fleshed out
-                            if (isPreviewBuildType || isDevFlavor) {
-                                true
-                            } else {
-                                it != BasePreferences.ExtensionInstaller.PRIVATE
-                            }
-                        }
                         .associateWith { stringResource(it.titleRes) }
                         .toImmutableMap(),
                     onValueChanged = {
@@ -440,8 +364,7 @@ object SettingsAdvancedScreen : SearchableSettings {
                 Preference.PreferenceItem.TextPreference(
                     title = stringResource(MR.strings.ext_revoke_trust),
                     onClick = {
-                        trustMangaExtension.revokeAll()
-                        trustAnimeExtension.revokeAll()
+                        trustExtension.revokeAll()
                         context.toast(MR.strings.requires_app_restart)
                     },
                 ),

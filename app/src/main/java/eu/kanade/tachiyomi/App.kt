@@ -25,6 +25,7 @@ import dev.mihon.injekt.patchInjekt
 import eu.kanade.domain.DomainModule
 import eu.kanade.domain.SYDomainModule
 import eu.kanade.domain.base.BasePreferences
+import eu.kanade.domain.sync.SyncPreferences
 import eu.kanade.domain.ui.UiPreferences
 import eu.kanade.domain.ui.model.setAppCompatDelegateThemeMode
 import eu.kanade.tachiyomi.crash.CrashActivity
@@ -33,11 +34,9 @@ import eu.kanade.tachiyomi.data.coil.AnimeCoverFetcher
 import eu.kanade.tachiyomi.data.coil.AnimeCoverKeyer
 import eu.kanade.tachiyomi.data.coil.AnimeKeyer
 import eu.kanade.tachiyomi.data.coil.BufferedSourceFetcher
-import eu.kanade.tachiyomi.data.coil.MangaCoverFetcher
-import eu.kanade.tachiyomi.data.coil.MangaCoverKeyer
-import eu.kanade.tachiyomi.data.coil.MangaKeyer
-import eu.kanade.tachiyomi.data.coil.TachiyomiImageDecoder
+import eu.kanade.tachiyomi.data.connection.discord.DiscordRPCService
 import eu.kanade.tachiyomi.data.notification.Notifications
+import eu.kanade.tachiyomi.data.sync.SyncDataJob
 import eu.kanade.tachiyomi.di.AppModule
 import eu.kanade.tachiyomi.di.PreferenceModule
 import eu.kanade.tachiyomi.network.NetworkHelper
@@ -62,8 +61,7 @@ import tachiyomi.core.common.preference.Preference
 import tachiyomi.core.common.preference.PreferenceStore
 import tachiyomi.core.common.util.system.logcat
 import tachiyomi.i18n.MR
-import tachiyomi.presentation.widget.entries.anime.AnimeWidgetManager
-import tachiyomi.presentation.widget.entries.manga.MangaWidgetManager
+import tachiyomi.presentation.widget.WidgetManager
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import uy.kohesive.injekt.injectLazy
@@ -77,6 +75,7 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
     private val disableIncognitoReceiver = DisableIncognitoReceiver()
 
     @SuppressLint("LaunchActivityFromNotification")
+    @Suppress("LongMethod")
     override fun onCreate() {
         super<Application>.onCreate()
         patchInjekt()
@@ -137,11 +136,7 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
         setAppCompatDelegateThemeMode(Injekt.get<UiPreferences>().themeMode().get())
 
         // Updates widget update
-        with(MangaWidgetManager(Injekt.get(), Injekt.get())) {
-            init(ProcessLifecycleOwner.get().lifecycleScope)
-        }
-
-        with(AnimeWidgetManager(Injekt.get(), Injekt.get())) {
+        with(WidgetManager(Injekt.get(), Injekt.get())) {
             init(ProcessLifecycleOwner.get().lifecycleScope)
         }
 
@@ -150,6 +145,13 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
         }
 
         initializeMigrator()
+
+        val syncPreferences: SyncPreferences = Injekt.get()
+        val syncTriggerOpt = syncPreferences.getSyncTriggerOptions()
+        if (syncPreferences.isSyncEnabled() && syncTriggerOpt.syncOnAppStart
+        ) {
+            SyncDataJob.startNow(this@App)
+        }
     }
 
     private fun initializeMigrator() {
@@ -173,19 +175,13 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
             components {
                 // NetworkFetcher.Factory
                 add(OkHttpNetworkFetcherFactory(callFactoryLazy::value))
-                // Decoder.Factory
-                add(TachiyomiImageDecoder.Factory())
                 // Fetcher.Factory
                 add(BufferedSourceFetcher.Factory())
-                add(MangaCoverFetcher.MangaFactory(callFactoryLazy))
-                add(MangaCoverFetcher.MangaCoverFactory(callFactoryLazy))
                 add(AnimeCoverFetcher.AnimeFactory(callFactoryLazy))
                 add(AnimeCoverFetcher.AnimeCoverFactory(callFactoryLazy))
                 // Keyer
                 add(AnimeKeyer())
-                add(MangaKeyer())
                 add(AnimeCoverKeyer())
-                add(MangaCoverKeyer())
             }
 
             crossfade((300 * this@App.animatorDurationScale).toInt())
@@ -201,10 +197,31 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
 
     override fun onStart(owner: LifecycleOwner) {
         SecureActivityDelegate.onApplicationStart()
+
+        val syncPreferences: SyncPreferences = Injekt.get()
+        val syncTriggerOpt = syncPreferences.getSyncTriggerOptions()
+        if (syncPreferences.isSyncEnabled() && syncTriggerOpt.syncOnAppResume
+        ) {
+            SyncDataJob.startNow(this@App)
+        }
+
+        // AM (DISCORD) -->
+        DiscordRPCService.start(applicationContext)
+        // <-- AM (DISCORD)
     }
 
     override fun onStop(owner: LifecycleOwner) {
         SecureActivityDelegate.onApplicationStopped()
+
+        val syncPreferences: SyncPreferences = Injekt.get()
+        val syncTriggerOpt = syncPreferences.getSyncTriggerOptions()
+        if (syncPreferences.isSyncEnabled() && syncTriggerOpt.syncOnAppStart) {
+            SyncDataJob.startNow(this@App)
+        }
+
+        // AM (DISCORD) -->
+        DiscordRPCService.stop(applicationContext)
+        // <-- AM (DISCORD)
     }
 
     override fun getPackageName(): String {

@@ -1,10 +1,10 @@
 package eu.kanade.tachiyomi.data.track.anilist.dto
 
-import eu.kanade.tachiyomi.data.database.models.anime.AnimeTrack
+import eu.kanade.tachiyomi.data.database.models.Track
 import eu.kanade.tachiyomi.data.track.TrackerManager
 import eu.kanade.tachiyomi.data.track.anilist.Anilist
 import eu.kanade.tachiyomi.data.track.anilist.AnilistApi
-import eu.kanade.tachiyomi.data.track.model.AnimeTrackSearch
+import eu.kanade.tachiyomi.data.track.model.TrackSearch
 import eu.kanade.tachiyomi.util.lang.htmlDecode
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -20,7 +20,7 @@ data class ALAnime(
     val totalEpisodes: Long,
     val averageScore: Int,
 ) {
-    fun toTrack() = AnimeTrackSearch.create(TrackerManager.ANILIST).apply {
+    fun toTrack() = TrackSearch.create(TrackerManager.ANILIST).apply {
         remote_id = remoteId
         title = this@ALAnime.title
         total_episodes = totalEpisodes
@@ -50,7 +50,7 @@ data class ALUserAnime(
     val completedDateFuzzy: Long,
     val anime: ALAnime,
 ) {
-    fun toTrack() = AnimeTrack.create(TrackerManager.ANILIST).apply {
+    fun toTrack() = Track.create(TrackerManager.ANILIST).apply {
         remote_id = anime.remoteId
         title = anime.title
         status = toTrackStatus()

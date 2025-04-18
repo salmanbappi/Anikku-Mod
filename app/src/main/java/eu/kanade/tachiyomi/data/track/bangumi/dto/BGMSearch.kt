@@ -1,7 +1,6 @@
 package eu.kanade.tachiyomi.data.track.bangumi.dto
 
-import eu.kanade.tachiyomi.data.track.model.AnimeTrackSearch
-import eu.kanade.tachiyomi.data.track.model.MangaTrackSearch
+import eu.kanade.tachiyomi.data.track.model.TrackSearch
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -25,21 +24,7 @@ data class BGMSearchItem(
     val rating: BGMSearchItemRating?,
     val url: String,
 ) {
-    fun toMangaTrackSearch(trackId: Long): MangaTrackSearch = MangaTrackSearch.create(trackId).apply {
-        remote_id = this@BGMSearchItem.id
-        title = nameCn.ifBlank { name }
-        cover_url = images?.common.orEmpty()
-        summary = if (nameCn.isNotBlank()) {
-            "作品原名：$name" + this@BGMSearchItem.summary?.let { "\n$it" }.orEmpty()
-        } else {
-            this@BGMSearchItem.summary.orEmpty()
-        }
-        score = rating?.score ?: -1.0
-        tracking_url = url
-        total_chapters = epsCount ?: 0
-    }
-
-    fun toAnimeTrackSearch(trackId: Long): AnimeTrackSearch = AnimeTrackSearch.create(trackId).apply {
+    fun toAnimeTrackSearch(trackId: Long): TrackSearch = TrackSearch.create(trackId).apply {
         remote_id = this@BGMSearchItem.id
         title = nameCn.ifBlank { name }
         cover_url = images?.common.orEmpty()

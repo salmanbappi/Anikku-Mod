@@ -35,7 +35,6 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.SCALE_TYPE_
 import com.github.chrisbanes.photoview.PhotoView
 import eu.kanade.tachiyomi.data.coil.cropBorders
 import eu.kanade.tachiyomi.data.coil.customDecoder
-import eu.kanade.tachiyomi.ui.reader.viewer.webtoon.WebtoonSubsamplingImageView
 import eu.kanade.tachiyomi.util.system.GLUtil
 import eu.kanade.tachiyomi.util.system.animatorDurationScale
 import eu.kanade.tachiyomi.util.view.isVisibleOnScreen
@@ -124,22 +123,8 @@ open class ReaderPageImageView @JvmOverloads constructor(
         ) {
             handler?.postDelayed(500) {
                 val point = when (config!!.zoomStartPosition) {
-                    ZoomStartPosition.LEFT -> if (forward) {
-                        PointF(0F, 0F)
-                    } else {
-                        PointF(
-                            sWidth.toFloat(),
-                            0F,
-                        )
-                    }
-                    ZoomStartPosition.RIGHT -> if (forward) {
-                        PointF(sWidth.toFloat(), 0F)
-                    } else {
-                        PointF(
-                            0F,
-                            0F,
-                        )
-                    }
+                    ZoomStartPosition.LEFT -> if (forward) PointF(0F, 0F) else PointF(sWidth.toFloat(), 0F)
+                    ZoomStartPosition.RIGHT -> if (forward) PointF(sWidth.toFloat(), 0F) else PointF(0F, 0F)
                     ZoomStartPosition.CENTER -> center
                 }
 
@@ -241,28 +226,25 @@ open class ReaderPageImageView @JvmOverloads constructor(
         if (pageView is SubsamplingScaleImageView) return
         removeView(pageView)
 
-        pageView = if (isWebtoon) {
-            WebtoonSubsamplingImageView(context)
-        } else {
-            SubsamplingScaleImageView(context)
-        }.apply {
-            setMaxTileSize(GLUtil.maxTextureSize)
-            setDoubleTapZoomStyle(SubsamplingScaleImageView.ZOOM_FOCUS_CENTER)
-            setPanLimit(SubsamplingScaleImageView.PAN_LIMIT_INSIDE)
-            setMinimumTileDpi(180)
-            setOnStateChangedListener(
-                object : SubsamplingScaleImageView.OnStateChangedListener {
-                    override fun onScaleChanged(newScale: Float, origin: Int) {
-                        this@ReaderPageImageView.onScaleChanged(newScale)
-                    }
+        pageView = SubsamplingScaleImageView(context)
+            .apply {
+                setMaxTileSize(GLUtil.maxTextureSize)
+                setDoubleTapZoomStyle(SubsamplingScaleImageView.ZOOM_FOCUS_CENTER)
+                setPanLimit(SubsamplingScaleImageView.PAN_LIMIT_INSIDE)
+                setMinimumTileDpi(180)
+                setOnStateChangedListener(
+                    object : SubsamplingScaleImageView.OnStateChangedListener {
+                        override fun onScaleChanged(newScale: Float, origin: Int) {
+                            this@ReaderPageImageView.onScaleChanged(newScale)
+                        }
 
-                    override fun onCenterChanged(newCenter: PointF?, origin: Int) {
-                        // Not used
-                    }
-                },
-            )
-            setOnClickListener { this@ReaderPageImageView.onViewClicked() }
-        }
+                        override fun onCenterChanged(newCenter: PointF?, origin: Int) {
+                            // Not used
+                        }
+                    },
+                )
+                setOnClickListener { this@ReaderPageImageView.onViewClicked() }
+            }
         addView(pageView, MATCH_PARENT, MATCH_PARENT)
     }
 

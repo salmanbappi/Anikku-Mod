@@ -43,8 +43,7 @@ import dev.icerock.moko.resources.StringResource
 import eu.kanade.domain.track.model.AutoTrackState
 import eu.kanade.domain.track.service.TrackPreferences
 import eu.kanade.presentation.more.settings.Preference
-import eu.kanade.tachiyomi.data.track.EnhancedAnimeTracker
-import eu.kanade.tachiyomi.data.track.EnhancedMangaTracker
+import eu.kanade.tachiyomi.data.track.EnhancedTracker
 import eu.kanade.tachiyomi.data.track.Tracker
 import eu.kanade.tachiyomi.data.track.TrackerManager
 import eu.kanade.tachiyomi.data.track.anilist.AnilistApi
@@ -57,11 +56,9 @@ import eu.kanade.tachiyomi.util.system.toast
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toPersistentMap
-import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.core.common.util.lang.launchIO
 import tachiyomi.core.common.util.lang.withUIContext
-import tachiyomi.domain.source.anime.service.AnimeSourceManager
-import tachiyomi.domain.source.manga.service.MangaSourceManager
+import tachiyomi.domain.source.service.SourceManager
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
@@ -90,8 +87,7 @@ object SettingsTrackingScreen : SearchableSettings {
         val context = LocalContext.current
         val trackPreferences = remember { Injekt.get<TrackPreferences>() }
         val trackerManager = remember { Injekt.get<TrackerManager>() }
-        val mangaSourceManager = remember { Injekt.get<MangaSourceManager>() }
-        val animeSourceManager = remember { Injekt.get<AnimeSourceManager>() }
+        val sourceManager = remember { Injekt.get<SourceManager>() }
         val autoTrackStatePref = trackPreferences.autoUpdateTrackOnMarkRead()
 
         var dialog by remember { mutableStateOf<Any?>(null) }
@@ -113,24 +109,18 @@ object SettingsTrackingScreen : SearchableSettings {
             }
         }
 
-        val enhancedMangaTrackers = trackerManager.trackers
-            .filter { it is EnhancedMangaTracker }
+        val enhancedTrackers = trackerManager.trackers
+            .filter { it is EnhancedTracker }
             .partition { service ->
-                val acceptedMangaSources = (service as EnhancedMangaTracker).getAcceptedSources()
-                mangaSourceManager.getCatalogueSources().any { it::class.qualifiedName in acceptedMangaSources }
-            }
-        val enhancedAnimeTrackers = trackerManager.trackers
-            .filter { it is EnhancedAnimeTracker }
-            .partition { service ->
-                val acceptedAnimeSources = (service as EnhancedAnimeTracker).getAcceptedSources()
-                animeSourceManager.getCatalogueSources().any { it::class.qualifiedName in acceptedAnimeSources }
+                val acceptedAnimeSources = (service as EnhancedTracker).getAcceptedSources()
+                sourceManager.getCatalogueSources().any { it::class.qualifiedName in acceptedAnimeSources }
             }
 
         var enhancedTrackerInfo = stringResource(MR.strings.enhanced_tracking_info)
-        if (enhancedMangaTrackers.second.isNotEmpty() || enhancedAnimeTrackers.second.isNotEmpty()) {
+        if (enhancedTrackers.second.isNotEmpty()) {
             val missingSourcesInfo = stringResource(
                 MR.strings.enhanced_services_not_installed,
-                (enhancedMangaTrackers.second + enhancedAnimeTrackers.second).joinToString { it.name },
+                enhancedTrackers.second.joinToString { it.name },
             )
             enhancedTrackerInfo += "\n\n$missingSourcesInfo"
         }
@@ -187,12 +177,6 @@ object SettingsTrackingScreen : SearchableSettings {
                         logout = { dialog = LogoutDialog(trackerManager.kitsu) },
                     ),
                     Preference.PreferenceItem.TrackerPreference(
-                        title = trackerManager.mangaUpdates.name,
-                        tracker = trackerManager.mangaUpdates,
-                        login = { dialog = LoginDialog(trackerManager.mangaUpdates, MR.strings.username) },
-                        logout = { dialog = LogoutDialog(trackerManager.mangaUpdates) },
-                    ),
-                    Preference.PreferenceItem.TrackerPreference(
                         title = trackerManager.shikimori.name,
                         tracker = trackerManager.shikimori,
                         login = {
@@ -230,25 +214,17 @@ object SettingsTrackingScreen : SearchableSettings {
             ),
             Preference.PreferenceGroup(
                 title = stringResource(MR.strings.enhanced_services),
-                preferenceItems = (
-                    enhancedMangaTrackers.first
+                preferenceItems =
+                (
+                    enhancedTrackers.first
                         .map { service ->
                             Preference.PreferenceItem.TrackerPreference(
                                 title = service.name,
                                 tracker = service,
-                                login = { (service as EnhancedMangaTracker).loginNoop() },
+                                login = { (service as EnhancedTracker).loginNoop() },
                                 logout = service::logout,
                             )
-                        } +
-                        enhancedAnimeTrackers.first
-                            .map { service ->
-                                Preference.PreferenceItem.TrackerPreference(
-                                    title = service.name,
-                                    tracker = service,
-                                    login = { (service as EnhancedAnimeTracker).loginNoop() },
-                                    logout = service::logout,
-                                )
-                            } + listOf(Preference.PreferenceItem.InfoPreference(enhancedTrackerInfo))
+                        } + listOf(Preference.PreferenceItem.InfoPreference(enhancedTrackerInfo))
                     ).toImmutableList(),
             ),
         )

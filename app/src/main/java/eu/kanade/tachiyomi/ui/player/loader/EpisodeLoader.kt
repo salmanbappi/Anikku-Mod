@@ -1,14 +1,14 @@
 package eu.kanade.tachiyomi.ui.player.loader
 
-import eu.kanade.domain.items.episode.model.toSEpisode
+import eu.kanade.domain.episode.model.toSEpisode
 import eu.kanade.tachiyomi.animesource.AnimeSource
 import eu.kanade.tachiyomi.animesource.model.Video
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
-import eu.kanade.tachiyomi.data.download.anime.AnimeDownloadManager
-import tachiyomi.domain.entries.anime.model.Anime
-import tachiyomi.domain.items.episode.model.Episode
-import tachiyomi.source.local.entries.anime.LocalAnimeSource
-import tachiyomi.source.local.io.anime.LocalAnimeSourceFileSystem
+import eu.kanade.tachiyomi.data.download.DownloadManager
+import tachiyomi.domain.anime.model.Anime
+import tachiyomi.domain.episode.model.Episode
+import tachiyomi.source.local.LocalSource
+import tachiyomi.source.local.io.LocalSourceFileSystem
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
@@ -33,7 +33,7 @@ class EpisodeLoader {
             return when {
                 isDownloaded -> isDownload(episode, anime, source)
                 source is AnimeHttpSource -> isHttp(episode, source)
-                source is LocalAnimeSource -> isLocal(episode)
+                source is LocalSource -> isLocal(episode)
                 else -> error("source not supported")
             }
         }
@@ -45,7 +45,7 @@ class EpisodeLoader {
          * @param anime the anime of the episode.
          */
         fun isDownload(episode: Episode, anime: Anime): Boolean {
-            val downloadManager: AnimeDownloadManager = Injekt.get()
+            val downloadManager: DownloadManager = Injekt.get()
             return downloadManager.isEpisodeDownloaded(
                 episode.name,
                 episode.scanlator,
@@ -90,7 +90,7 @@ class EpisodeLoader {
             anime: Anime,
             source: AnimeSource,
         ): List<Video> {
-            val downloadManager: AnimeDownloadManager = Injekt.get()
+            val downloadManager: DownloadManager = Injekt.get()
             return try {
                 val video = downloadManager.buildVideo(source, anime, episode)
                 listOf(video)
@@ -109,7 +109,7 @@ class EpisodeLoader {
         ): List<Video> {
             return try {
                 val (animeDirName, episodeName) = episode.url.split('/', limit = 2)
-                val fileSystem: LocalAnimeSourceFileSystem = Injekt.get()
+                val fileSystem: LocalSourceFileSystem = Injekt.get()
                 val videoFile = fileSystem.getBaseDirectory()
                     ?.findFile(animeDirName)
                     ?.findFile(episodeName)

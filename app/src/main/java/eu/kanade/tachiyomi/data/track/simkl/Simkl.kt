@@ -3,10 +3,10 @@ package eu.kanade.tachiyomi.data.track.simkl
 import android.graphics.Color
 import dev.icerock.moko.resources.StringResource
 import eu.kanade.tachiyomi.R
-import eu.kanade.tachiyomi.data.database.models.anime.AnimeTrack
+import eu.kanade.tachiyomi.data.database.models.Track
 import eu.kanade.tachiyomi.data.track.AnimeTracker
 import eu.kanade.tachiyomi.data.track.BaseTracker
-import eu.kanade.tachiyomi.data.track.model.AnimeTrackSearch
+import eu.kanade.tachiyomi.data.track.model.TrackSearch
 import eu.kanade.tachiyomi.data.track.simkl.dto.SimklOAuth
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -14,7 +14,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import tachiyomi.i18n.MR
 import uy.kohesive.injekt.injectLazy
-import tachiyomi.domain.track.anime.model.AnimeTrack as DomainAnimeTrack
+import tachiyomi.domain.track.model.Track as DomainAnimeTrack
 
 class Simkl(id: Long) : BaseTracker(id, "Simkl"), AnimeTracker {
 
@@ -42,11 +42,11 @@ class Simkl(id: Long) : BaseTracker(id, "Simkl"), AnimeTracker {
         return track.score.toInt().toString()
     }
 
-    private suspend fun add(track: AnimeTrack): AnimeTrack {
+    private suspend fun add(track: Track): Track {
         return api.addLibAnime(track)
     }
 
-    override suspend fun update(track: AnimeTrack, didWatchEpisode: Boolean): AnimeTrack {
+    override suspend fun update(track: Track, didWatchEpisode: Boolean): Track {
         if (track.status != COMPLETED) {
             if (didWatchEpisode) {
                 if (track.last_episode_seen.toLong() == track.total_episodes && track.total_episodes > 0) {
@@ -60,7 +60,7 @@ class Simkl(id: Long) : BaseTracker(id, "Simkl"), AnimeTracker {
         return api.updateLibAnime(track)
     }
 
-    override suspend fun bind(track: AnimeTrack, hasSeenEpisodes: Boolean): AnimeTrack {
+    override suspend fun bind(track: Track, hasSeenEpisodes: Boolean): Track {
         val remoteTrack = api.findLibAnime(track)
         return if (remoteTrack != null) {
             track.copyPersonalFrom(remoteTrack)
@@ -79,13 +79,13 @@ class Simkl(id: Long) : BaseTracker(id, "Simkl"), AnimeTracker {
         }
     }
 
-    override suspend fun searchAnime(query: String): List<AnimeTrackSearch> {
+    override suspend fun searchAnime(query: String): List<TrackSearch> {
         return api.searchAnime(query, "anime") +
             api.searchAnime(query, "tv") +
             api.searchAnime(query, "movie")
     }
 
-    override suspend fun refresh(track: AnimeTrack): AnimeTrack {
+    override suspend fun refresh(track: Track): Track {
         api.findLibAnime(track)?.let { remoteTrack ->
             track.copyPersonalFrom(remoteTrack)
             track.total_episodes = remoteTrack.total_episodes

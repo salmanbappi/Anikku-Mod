@@ -31,8 +31,7 @@ import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.collections.immutable.toPersistentMap
-import tachiyomi.domain.category.anime.interactor.GetAnimeCategories
-import tachiyomi.domain.category.manga.interactor.GetMangaCategories
+import tachiyomi.domain.category.interactor.GetCategories
 import tachiyomi.domain.category.model.Category
 import tachiyomi.domain.download.service.DownloadPreferences
 import tachiyomi.i18n.MR
@@ -52,10 +51,8 @@ object SettingsDownloadScreen : SearchableSettings {
 
     @Composable
     override fun getPreferences(): List<Preference> {
-        val getMangaCategories = remember { Injekt.get<GetMangaCategories>() }
-        val allMangaCategories by getMangaCategories.subscribe().collectAsState(initial = emptyList())
-        val getAnimeCategories = remember { Injekt.get<GetAnimeCategories>() }
-        val allAnimeCategories by getAnimeCategories.subscribe().collectAsState(initial = emptyList())
+        val getCategories = remember { Injekt.get<GetCategories>() }
+        val allAnimeCategories by getCategories.subscribe().collectAsState(initial = emptyList())
         val downloadPreferences = remember { Injekt.get<DownloadPreferences>() }
         val basePreferences = remember { Injekt.get<BasePreferences>() }
         val speedLimit by downloadPreferences.downloadSpeedLimit().collectAsState()
@@ -102,10 +99,6 @@ object SettingsDownloadScreen : SearchableSettings {
                 onClick = { showDownloadLimitDialog = true },
             ),
             Preference.PreferenceItem.SwitchPreference(
-                pref = downloadPreferences.saveChaptersAsCBZ(),
-                title = stringResource(MR.strings.save_chapter_as_cbz),
-            ),
-            Preference.PreferenceItem.SwitchPreference(
                 pref = downloadPreferences.splitTallImages(),
                 title = stringResource(MR.strings.split_tall_images),
                 subtitle = stringResource(MR.strings.split_tall_images_summary),
@@ -119,12 +112,10 @@ object SettingsDownloadScreen : SearchableSettings {
             getDeleteChaptersGroup(
                 downloadPreferences = downloadPreferences,
                 animeCategories = allAnimeCategories.toImmutableList(),
-                mangaCategories = allMangaCategories.toImmutableList(),
             ),
             getAutoDownloadGroup(
                 downloadPreferences = downloadPreferences,
                 allAnimeCategories = allAnimeCategories.toImmutableList(),
-                allMangaCategories = allMangaCategories.toImmutableList(),
             ),
             getDownloadAheadGroup(downloadPreferences = downloadPreferences),
             getExternalDownloaderGroup(
@@ -138,7 +129,6 @@ object SettingsDownloadScreen : SearchableSettings {
     private fun getDeleteChaptersGroup(
         downloadPreferences: DownloadPreferences,
         animeCategories: ImmutableList<Category>,
-        mangaCategories: ImmutableList<Category>,
     ): Preference.PreferenceGroup {
         return Preference.PreferenceGroup(
             title = stringResource(MR.strings.pref_category_delete_chapters),
@@ -166,10 +156,6 @@ object SettingsDownloadScreen : SearchableSettings {
                 getExcludedAnimeCategoriesPreference(
                     downloadPreferences = downloadPreferences,
                     categories = { animeCategories },
-                ),
-                getExcludedCategoriesPreference(
-                    downloadPreferences = downloadPreferences,
-                    categories = { mangaCategories },
                 ),
             ),
         )
@@ -207,7 +193,6 @@ object SettingsDownloadScreen : SearchableSettings {
     private fun getAutoDownloadGroup(
         downloadPreferences: DownloadPreferences,
         allAnimeCategories: ImmutableList<Category>,
-        allMangaCategories: ImmutableList<Category>,
     ): Preference.PreferenceGroup {
         val downloadNewEpisodesPref = downloadPreferences.downloadNewEpisodes()
         val downloadNewUnseenEpisodesOnlyPref = downloadPreferences.downloadNewUnseenEpisodesOnly()
@@ -240,37 +225,6 @@ object SettingsDownloadScreen : SearchableSettings {
             )
         }
 
-        val downloadNewChaptersPref = downloadPreferences.downloadNewChapters()
-        val downloadNewUnreadChaptersOnlyPref = downloadPreferences.downloadNewUnreadChaptersOnly()
-        val downloadNewChapterCategoriesPref = downloadPreferences.downloadNewChapterCategories()
-        val downloadNewChapterCategoriesExcludePref = downloadPreferences.downloadNewChapterCategoriesExclude()
-
-        val downloadNewChapters by downloadNewChaptersPref.collectAsState()
-
-        val included by downloadNewChapterCategoriesPref.collectAsState()
-        val excluded by downloadNewChapterCategoriesExcludePref.collectAsState()
-        var showDialog by rememberSaveable { mutableStateOf(false) }
-        if (showDialog) {
-            TriStateListDialog(
-                title = stringResource(MR.strings.manga_categories),
-                message = stringResource(MR.strings.pref_download_new_categories_details),
-                items = allMangaCategories,
-                initialChecked = included.mapNotNull { id -> allMangaCategories.find { it.id.toString() == id } },
-                initialInversed = excluded.mapNotNull { id -> allMangaCategories.find { it.id.toString() == id } },
-                itemLabel = { it.visualName },
-                onDismissRequest = { showDialog = false },
-                onValueChanged = { newIncluded, newExcluded ->
-                    downloadNewChapterCategoriesPref.set(
-                        newIncluded.fastMap { it.id.toString() }.toSet(),
-                    )
-                    downloadNewChapterCategoriesExcludePref.set(
-                        newExcluded.fastMap { it.id.toString() }.toSet(),
-                    )
-                    showDialog = false
-                },
-            )
-        }
-
         return Preference.PreferenceGroup(
             title = stringResource(MR.strings.pref_category_auto_download),
             preferenceItems = persistentListOf(
@@ -292,25 +246,6 @@ object SettingsDownloadScreen : SearchableSettings {
                     ),
                     onClick = { showAnimeDialog = true },
                     enabled = downloadNewEpisodes,
-                ),
-                Preference.PreferenceItem.SwitchPreference(
-                    pref = downloadNewChaptersPref,
-                    title = stringResource(MR.strings.pref_download_new),
-                ),
-                Preference.PreferenceItem.SwitchPreference(
-                    pref = downloadNewUnreadChaptersOnlyPref,
-                    title = stringResource(MR.strings.pref_download_new_unread_chapters_only),
-                    enabled = downloadNewChapters,
-                ),
-                Preference.PreferenceItem.TextPreference(
-                    title = stringResource(MR.strings.manga_categories),
-                    subtitle = getCategoriesLabel(
-                        allCategories = allMangaCategories,
-                        included = included,
-                        excluded = excluded,
-                    ),
-                    onClick = { showDialog = true },
-                    enabled = downloadNewChapters,
                 ),
             ),
         )

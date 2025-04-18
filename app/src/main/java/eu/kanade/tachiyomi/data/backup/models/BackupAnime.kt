@@ -3,9 +3,14 @@ package eu.kanade.tachiyomi.data.backup.models
 import eu.kanade.tachiyomi.animesource.model.AnimeUpdateStrategy
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.protobuf.ProtoNumber
-import tachiyomi.domain.entries.anime.model.Anime
+import tachiyomi.domain.anime.model.Anime
+import tachiyomi.domain.anime.model.CustomAnimeInfo
 
-@Suppress("DEPRECATION")
+@Suppress(
+
+    "DEPRECATION",
+    "MagicNumber",
+)
 @Serializable
 data class BackupAnime(
     // in 1.x some of these values have different names
@@ -27,27 +32,39 @@ data class BackupAnime(
     // @ProtoNumber(15) val flags: Int = 0, 1.x value, not used in 0.x
     @ProtoNumber(16) var episodes: List<BackupEpisode> = emptyList(),
     @ProtoNumber(17) var categories: List<Long> = emptyList(),
-    @ProtoNumber(18) var tracking: List<BackupAnimeTracking> = emptyList(),
+    @ProtoNumber(18) var tracking: List<BackupTracking> = emptyList(),
     // Bump by 100 for values that are not saved/implemented in 1.x but are used in 0.x
     @ProtoNumber(100) var favorite: Boolean = true,
     @ProtoNumber(101) var episodeFlags: Int = 0,
     // @ProtoNumber(102) var brokenHistory, legacy history model with non-compliant proto number
     @ProtoNumber(103) var viewer_flags: Int = 0,
-    @ProtoNumber(104) var history: List<BackupAnimeHistory> = emptyList(),
+    @ProtoNumber(104) var history: List<BackupHistory> = emptyList(),
     @ProtoNumber(105) var updateStrategy: AnimeUpdateStrategy = AnimeUpdateStrategy.ALWAYS_UPDATE,
     @ProtoNumber(106) var lastModifiedAt: Long = 0,
     @ProtoNumber(107) var favoriteModifiedAt: Long? = null,
     @ProtoNumber(109) var version: Long = 0,
+
+    @ProtoNumber(602) var customStatus: Int = 0,
+
+    // J2K specific values
+    @ProtoNumber(800) var customTitle: String? = null,
+    @ProtoNumber(801) var customArtist: String? = null,
+    @ProtoNumber(802) var customAuthor: String? = null,
+    // skipping 803 due to using duplicate value in previous builds
+    @ProtoNumber(804) var customDescription: String? = null,
+    @ProtoNumber(805) var customGenre: List<String>? = null,
 ) {
     fun getAnimeImpl(): Anime {
         return Anime.create().copy(
             url = this@BackupAnime.url,
-            title = this@BackupAnime.title,
-            artist = this@BackupAnime.artist,
-            author = this@BackupAnime.author,
-            description = this@BackupAnime.description,
-            genre = this@BackupAnime.genre,
-            status = this@BackupAnime.status.toLong(),
+            // SY -->
+            ogTitle = this@BackupAnime.title,
+            ogArtist = this@BackupAnime.artist,
+            ogAuthor = this@BackupAnime.author,
+            ogDescription = this@BackupAnime.description,
+            ogGenre = this@BackupAnime.genre,
+            ogStatus = this@BackupAnime.status.toLong(),
+            // SY <--
             thumbnailUrl = this@BackupAnime.thumbnailUrl,
             favorite = this@BackupAnime.favorite,
             source = this@BackupAnime.source,
@@ -60,4 +77,28 @@ data class BackupAnime(
             version = this@BackupAnime.version,
         )
     }
+
+    // SY -->
+    @Suppress("ComplexCondition")
+    fun getCustomAnimeInfo(): CustomAnimeInfo? {
+        if (customTitle != null ||
+            customArtist != null ||
+            customAuthor != null ||
+            customDescription != null ||
+            customGenre != null ||
+            customStatus != 0
+        ) {
+            return CustomAnimeInfo(
+                id = 0L,
+                title = customTitle,
+                author = customAuthor,
+                artist = customArtist,
+                description = customDescription,
+                genre = customGenre,
+                status = customStatus.takeUnless { it == 0 }?.toLong(),
+            )
+        }
+        return null
+    }
+    // SY <--
 }

@@ -3,8 +3,7 @@ package eu.kanade.test
 import android.graphics.Color
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.track.Tracker
-import eu.kanade.tachiyomi.data.track.model.AnimeTrackSearch
-import eu.kanade.tachiyomi.data.track.model.MangaTrackSearch
+import eu.kanade.tachiyomi.data.track.model.TrackSearch
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.Flow
@@ -23,8 +22,7 @@ data class DummyTracker(
     val valCompletionStatus: Long = 2,
     val valScoreList: ImmutableList<String> = (0..10).map(Int::toString).toImmutableList(),
     val val10PointScore: Double = 5.4,
-    val valMangaSearchResults: List<MangaTrackSearch> = listOf(),
-    val valAnimeSearchResults: List<AnimeTrackSearch> = listOf(),
+    val valAnimeSearchResults: List<TrackSearch> = listOf(),
 ) : Tracker {
 
     override val client: OkHttpClient

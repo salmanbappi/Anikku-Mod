@@ -177,17 +177,17 @@ object AboutScreen : Screen() {
                         LinkIcon(
                             label = stringResource(MR.strings.website),
                             icon = Icons.Outlined.Public,
-                            url = "https://aniyomi.org",
+                            url = "https://anikku-app.github.io",
                         )
                         LinkIcon(
                             label = "Discord",
                             icon = CustomIcons.Discord,
-                            url = "https://discord.gg/F32UjdJZrR",
+                            url = "https://discord.gg/85jB7V5AJR",
                         )
                         LinkIcon(
                             label = "GitHub",
                             icon = CustomIcons.Github,
-                            url = "https://github.com/aniyomiorg/aniyomi",
+                            url = "https://github.com/anikku-app/anikku",
                         )
                     }
                 }
@@ -203,13 +203,12 @@ object AboutScreen : Screen() {
         onAvailableUpdate: (GetApplicationRelease.Result.NewUpdate) -> Unit,
         onFinish: () -> Unit,
     ) {
-        val updateChecker = AppUpdateChecker()
+        val updateChecker = AppUpdateChecker(context)
         withUIContext {
             try {
                 when (
                     val result = withIOContext {
-                        updateChecker.checkForUpdate(
-                            context,
+                        updateChecker.checkForUpdates(
                             forceCheck = true,
                         )
                     }

@@ -4,8 +4,7 @@ import eu.kanade.tachiyomi.data.track.TrackerManager
 import eu.kanade.tachiyomi.data.track.kitsu.Kitsu
 import eu.kanade.tachiyomi.data.track.kitsu.KitsuApi
 import eu.kanade.tachiyomi.data.track.kitsu.KitsuDateHelper
-import eu.kanade.tachiyomi.data.track.model.AnimeTrackSearch
-import eu.kanade.tachiyomi.data.track.model.MangaTrackSearch
+import eu.kanade.tachiyomi.data.track.model.TrackSearch
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -13,40 +12,7 @@ data class KitsuListSearchResult(
     val data: List<KitsuListSearchItemData>,
     val included: List<KitsuListSearchItemIncluded> = emptyList(),
 ) {
-    fun firstToMangaTrack(): MangaTrackSearch {
-        require(data.isNotEmpty()) { "Missing User data from Kitsu" }
-        require(included.isNotEmpty()) { "Missing Manga data from Kitsu" }
-
-        val userData = data[0]
-        val userDataAttrs = userData.attributes
-        val manga = included[0].attributes
-
-        return MangaTrackSearch.create(TrackerManager.KITSU).apply {
-            remote_id = userData.id
-            title = manga.canonicalTitle
-            total_chapters = manga.chapterCount ?: 0
-            cover_url = manga.posterImage?.original ?: ""
-            summary = manga.synopsis ?: ""
-            tracking_url = KitsuApi.mangaUrl(remote_id)
-            publishing_status = manga.status
-            publishing_type = manga.mangaType ?: ""
-            start_date = userDataAttrs.startedAt ?: ""
-            started_reading_date = KitsuDateHelper.parse(userDataAttrs.startedAt)
-            finished_reading_date = KitsuDateHelper.parse(userDataAttrs.finishedAt)
-            status = when (userDataAttrs.status) {
-                "current" -> Kitsu.READING
-                "completed" -> Kitsu.COMPLETED
-                "on_hold" -> Kitsu.ON_HOLD
-                "dropped" -> Kitsu.DROPPED
-                "planned" -> Kitsu.PLAN_TO_READ
-                else -> throw Exception("Unknown status")
-            }
-            score = userDataAttrs.ratingTwenty?.let { it / 2.0 } ?: 0.0
-            last_chapter_read = userDataAttrs.progress.toDouble()
-        }
-    }
-
-    fun firstToAnimeTrack(): AnimeTrackSearch {
+    fun firstToAnimeTrack(): TrackSearch {
         require(data.isNotEmpty()) { "Missing User data from Kitsu" }
         require(included.isNotEmpty()) { "Missing Manga data from Kitsu" }
 
@@ -54,7 +20,7 @@ data class KitsuListSearchResult(
         val userDataAttrs = userData.attributes
         val anime = included[0].attributes
 
-        return AnimeTrackSearch.create(TrackerManager.KITSU).apply {
+        return TrackSearch.create(TrackerManager.KITSU).apply {
             remote_id = userData.id
             title = anime.canonicalTitle
             total_episodes = anime.episodeCount ?: 0

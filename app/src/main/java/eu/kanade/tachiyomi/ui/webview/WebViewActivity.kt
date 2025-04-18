@@ -8,11 +8,13 @@ import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.core.net.toUri
+import androidx.lifecycle.lifecycleScope
 import eu.kanade.presentation.webview.WebViewScreenContent
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
+import eu.kanade.tachiyomi.data.connection.discord.DiscordRPCService
+import eu.kanade.tachiyomi.data.connection.discord.DiscordScreen
 import eu.kanade.tachiyomi.network.NetworkHelper
-import eu.kanade.tachiyomi.source.online.HttpSource
 import eu.kanade.tachiyomi.ui.base.activity.BaseActivity
 import eu.kanade.tachiyomi.util.system.WebViewUtil
 import eu.kanade.tachiyomi.util.system.openInBrowser
@@ -21,16 +23,15 @@ import eu.kanade.tachiyomi.util.system.toast
 import eu.kanade.tachiyomi.util.view.setComposeContent
 import logcat.LogPriority
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import tachiyomi.core.common.util.lang.launchIO
 import tachiyomi.core.common.util.system.logcat
-import tachiyomi.domain.source.anime.service.AnimeSourceManager
-import tachiyomi.domain.source.manga.service.MangaSourceManager
+import tachiyomi.domain.source.service.SourceManager
 import tachiyomi.i18n.MR
 import uy.kohesive.injekt.injectLazy
 
 class WebViewActivity : BaseActivity() {
 
-    private val sourceManager: MangaSourceManager by injectLazy()
-    private val animeSourceManager: AnimeSourceManager by injectLazy()
+    private val sourceManager: SourceManager by injectLazy()
     private val network: NetworkHelper by injectLazy()
 
     private var assistUrl: String? = null
@@ -61,14 +62,7 @@ class WebViewActivity : BaseActivity() {
         val url = intent.extras?.getString(URL_KEY) ?: return
         assistUrl = url
         var headers = emptyMap<String, String>()
-        (sourceManager.get(intent.extras!!.getLong(SOURCE_KEY)) as? HttpSource)?.let { source ->
-            try {
-                headers = source.headers.toMultimap().mapValues { it.value.getOrNull(0) ?: "" }
-            } catch (e: Exception) {
-                logcat(LogPriority.ERROR, e) { "Failed to build headers" }
-            }
-        }
-        (animeSourceManager.get(intent.extras!!.getLong(SOURCE_KEY)) as? AnimeHttpSource)?.let { animeSource ->
+        (sourceManager.get(intent.extras!!.getLong(SOURCE_KEY)) as? AnimeHttpSource)?.let { animeSource ->
             try {
                 headers = animeSource.headers.toMultimap().mapValues { it.value.getOrNull(0) ?: "" }
             } catch (e: Exception) {
@@ -88,7 +82,23 @@ class WebViewActivity : BaseActivity() {
                 onClearCookies = this::clearCookies,
             )
         }
+        // AM (DISCORD) -->
+        lifecycleScope.launchIO {
+            DiscordRPCService.setAnimeScreen(this@WebViewActivity, DiscordScreen.WEBVIEW)
+            DiscordRPCService.setMangaScreen(this@WebViewActivity, DiscordScreen.WEBVIEW)
+        }
+        // <-- AM (DISCORD)
     }
+
+    // AM (DISCORD) -->
+    override fun onDestroy() {
+        lifecycleScope.launchIO {
+            DiscordRPCService.setAnimeScreen(this@WebViewActivity, DiscordRPCService.lastUsedScreen)
+            DiscordRPCService.setMangaScreen(this@WebViewActivity, DiscordRPCService.lastUsedScreen)
+        }
+        super.onDestroy()
+    }
+    // <-- AM (DISCORD)
 
     override fun onProvideAssistContent(outContent: AssistContent) {
         super.onProvideAssistContent(outContent)

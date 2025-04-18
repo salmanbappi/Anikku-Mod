@@ -3,8 +3,8 @@ package eu.kanade.tachiyomi.data.track.simkl
 import android.net.Uri
 import android.util.Log
 import androidx.core.net.toUri
-import eu.kanade.tachiyomi.data.database.models.anime.AnimeTrack
-import eu.kanade.tachiyomi.data.track.model.AnimeTrackSearch
+import eu.kanade.tachiyomi.data.database.models.Track
+import eu.kanade.tachiyomi.data.track.model.TrackSearch
 import eu.kanade.tachiyomi.data.track.simkl.dto.SimklOAuth
 import eu.kanade.tachiyomi.data.track.simkl.dto.SimklSearchResult
 import eu.kanade.tachiyomi.data.track.simkl.dto.SimklSyncResult
@@ -34,7 +34,7 @@ class SimklApi(private val client: OkHttpClient, interceptor: SimklInterceptor) 
 
     private val authClient = client.newBuilder().addInterceptor(interceptor).build()
 
-    suspend fun addLibAnime(track: AnimeTrack): AnimeTrack {
+    suspend fun addLibAnime(track: Track): Track {
         return withIOContext {
             val type = track.tracking_url
                 .substringAfter("/")
@@ -46,7 +46,7 @@ class SimklApi(private val client: OkHttpClient, interceptor: SimklInterceptor) 
         }
     }
 
-    private suspend fun addToList(track: AnimeTrack, mediaType: String) {
+    private suspend fun addToList(track: Track, mediaType: String) {
         val payload = buildJsonObject {
             putJsonArray(mediaType) {
                 addJsonObject {
@@ -62,7 +62,7 @@ class SimklApi(private val client: OkHttpClient, interceptor: SimklInterceptor) 
         ).awaitSuccess()
     }
 
-    private suspend fun updateRating(track: AnimeTrack, mediaType: String) {
+    private suspend fun updateRating(track: Track, mediaType: String) {
         val payload = buildJsonObject {
             putJsonArray(mediaType) {
                 addJsonObject {
@@ -85,7 +85,7 @@ class SimklApi(private val client: OkHttpClient, interceptor: SimklInterceptor) 
         }
     }
 
-    private suspend fun updateProgress(track: AnimeTrack) {
+    private suspend fun updateProgress(track: Track) {
         // first remove
         authClient.newCall(
             POST("$API_URL/sync/history/remove", body = buildProgressObject(track, false)),
@@ -96,7 +96,7 @@ class SimklApi(private val client: OkHttpClient, interceptor: SimklInterceptor) 
         ).awaitSuccess()
     }
 
-    private fun buildProgressObject(track: AnimeTrack, add: Boolean = true) = buildJsonObject {
+    private fun buildProgressObject(track: Track, add: Boolean = true) = buildJsonObject {
         putJsonArray("shows") {
             addJsonObject {
                 putJsonObject("ids") {
@@ -120,7 +120,7 @@ class SimklApi(private val client: OkHttpClient, interceptor: SimklInterceptor) 
         }
     }.toString().toRequestBody(jsonMime)
 
-    suspend fun updateLibAnime(track: AnimeTrack): AnimeTrack {
+    suspend fun updateLibAnime(track: Track): Track {
         return withIOContext {
             // determine media type
             val type = track.tracking_url
@@ -140,7 +140,7 @@ class SimklApi(private val client: OkHttpClient, interceptor: SimklInterceptor) 
         }
     }
 
-    suspend fun searchAnime(search: String, type: String): List<AnimeTrackSearch> {
+    suspend fun searchAnime(search: String, type: String): List<TrackSearch> {
         return withIOContext {
             val searchUrl = "$API_URL/search/$type".toUri().buildUpon()
                 .appendQueryParameter("q", search)
@@ -160,7 +160,7 @@ class SimklApi(private val client: OkHttpClient, interceptor: SimklInterceptor) 
      * Checks if the given [track] exists in the user's list and
      * returns all info about it or null if it isn't found.
      */
-    suspend fun findLibAnime(track: AnimeTrack): AnimeTrack? {
+    suspend fun findLibAnime(track: Track): Track? {
         return withIOContext {
             val payload = buildJsonArray {
                 addJsonObject {
@@ -237,8 +237,8 @@ class SimklApi(private val client: OkHttpClient, interceptor: SimklInterceptor) 
     )
 
     companion object {
-        const val CLIENT_ID = "aa62a7da32518aae5d5049a658b87fa4837c3b739e06ed250b315aab6af82b0e"
-        private const val CLIENT_SECRET = "2bec9c1d0c00a1e9b0e9e096a71f88d555a6f52da7923df07906df3b21351783"
+        const val CLIENT_ID = "125476f936eaf8029970919c3c77b63b9ecb1aa5d34f55c9255602e52042f5c2"
+        private const val CLIENT_SECRET = "2f8200f7ec4c3743bd9efbb7f004a53d0d2f8551d7668750e37bbb88b8c4069c"
 
         private const val BASE_URL = "https://simkl.com"
         private const val API_URL = "https://api.simkl.com"
@@ -246,7 +246,7 @@ class SimklApi(private val client: OkHttpClient, interceptor: SimklInterceptor) 
         private const val LOGIN_URL = "$BASE_URL/oauth/authorize"
         const val POSTERS_URL = "https://simkl.in/posters/"
 
-        private const val REDIRECT_URL = "aniyomi://simkl-auth"
+        private const val REDIRECT_URL = "anikku://simkl-auth"
 
         fun authUrl(): Uri =
             LOGIN_URL.toUri().buildUpon()

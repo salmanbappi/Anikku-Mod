@@ -2,24 +2,24 @@ package eu.kanade.tachiyomi.data.track
 
 import android.app.Application
 import dev.icerock.moko.resources.StringResource
-import eu.kanade.domain.track.anime.interactor.AddAnimeTracks
-import eu.kanade.domain.track.anime.model.toDomainTrack
-import eu.kanade.tachiyomi.data.database.models.anime.AnimeTrack
-import eu.kanade.tachiyomi.data.track.model.AnimeTrackSearch
+import eu.kanade.domain.track.interactor.AddTracks
+import eu.kanade.domain.track.model.toDomainTrack
+import eu.kanade.tachiyomi.data.database.models.Track
+import eu.kanade.tachiyomi.data.track.model.TrackSearch
 import eu.kanade.tachiyomi.util.system.toast
 import kotlinx.collections.immutable.ImmutableList
 import logcat.LogPriority
 import tachiyomi.core.common.util.lang.withIOContext
 import tachiyomi.core.common.util.lang.withUIContext
 import tachiyomi.core.common.util.system.logcat
-import tachiyomi.domain.track.anime.interactor.InsertAnimeTrack
+import tachiyomi.domain.track.interactor.InsertTrack
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import uy.kohesive.injekt.injectLazy
-import tachiyomi.domain.track.anime.model.AnimeTrack as DomainAnimeTrack
+import tachiyomi.domain.track.model.Track as DomainAnimeTrack
 
-private val addTracks: AddAnimeTracks by injectLazy()
-private val insertTrack: InsertAnimeTrack by injectLazy()
+private val addTracks: AddTracks by injectLazy()
+private val insertTrack: InsertTrack by injectLazy()
 
 interface AnimeTracker {
 
@@ -46,16 +46,16 @@ interface AnimeTracker {
 
     fun displayScore(track: DomainAnimeTrack): String
 
-    suspend fun update(track: AnimeTrack, didWatchEpisode: Boolean = false): AnimeTrack
+    suspend fun update(track: Track, didWatchEpisode: Boolean = false): Track
 
-    suspend fun bind(track: AnimeTrack, hasSeenEpisodes: Boolean = false): AnimeTrack
+    suspend fun bind(track: Track, hasSeenEpisodes: Boolean = false): Track
 
-    suspend fun searchAnime(query: String): List<AnimeTrackSearch>
+    suspend fun searchAnime(query: String): List<TrackSearch>
 
-    suspend fun refresh(track: AnimeTrack): AnimeTrack
+    suspend fun refresh(track: Track): Track
 
     // TODO: move this to an interactor, and update all trackers based on common data
-    suspend fun register(item: AnimeTrack, animeId: Long) {
+    suspend fun register(item: Track, animeId: Long) {
         item.anime_id = animeId
         try {
             addTracks.bind(this, item, animeId)
@@ -64,7 +64,7 @@ interface AnimeTracker {
         }
     }
 
-    suspend fun setRemoteAnimeStatus(track: AnimeTrack, status: Long) {
+    suspend fun setRemoteAnimeStatus(track: Track, status: Long) {
         track.status = status
         if (track.status == getCompletionStatus() && track.total_episodes != 0L) {
             track.last_episode_seen = track.total_episodes.toDouble()
@@ -72,7 +72,7 @@ interface AnimeTracker {
         updateRemote(track)
     }
 
-    suspend fun setRemoteLastEpisodeSeen(track: AnimeTrack, episodeNumber: Int) {
+    suspend fun setRemoteLastEpisodeSeen(track: Track, episodeNumber: Int) {
         if (track.last_episode_seen == 0.0 &&
             track.last_episode_seen < episodeNumber &&
             track.status != getRewatchingStatus()
@@ -87,22 +87,22 @@ interface AnimeTracker {
         updateRemote(track)
     }
 
-    suspend fun setRemoteScore(track: AnimeTrack, scoreString: String) {
+    suspend fun setRemoteScore(track: Track, scoreString: String) {
         track.score = indexToScore(getScoreList().indexOf(scoreString))
         updateRemote(track)
     }
 
-    suspend fun setRemoteStartDate(track: AnimeTrack, epochMillis: Long) {
+    suspend fun setRemoteStartDate(track: Track, epochMillis: Long) {
         track.started_watching_date = epochMillis
         updateRemote(track)
     }
 
-    suspend fun setRemoteFinishDate(track: AnimeTrack, epochMillis: Long) {
+    suspend fun setRemoteFinishDate(track: Track, epochMillis: Long) {
         track.finished_watching_date = epochMillis
         updateRemote(track)
     }
 
-    private suspend fun updateRemote(track: AnimeTrack): Unit = withIOContext {
+    private suspend fun updateRemote(track: Track): Unit = withIOContext {
         try {
             update(track)
             track.toDomainTrack(idRequired = false)?.let {
