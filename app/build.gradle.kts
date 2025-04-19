@@ -7,6 +7,7 @@ plugins {
     id("mihon.android.application")
     id("mihon.android.application.compose")
     id("com.github.zellius.shortcut-helper")
+    kotlin("plugin.parcelize")
     kotlin("plugin.serialization")
     alias(libs.plugins.aboutLibraries)
     id("com.github.ben-manes.versions")
@@ -150,6 +151,7 @@ dependencies {
     implementation(projects.i18n)
     // KMK -->
     implementation(projects.i18nKmk)
+    implementation(projects.i18nAnk)
     // KMK <--
     // SY -->
     implementation(projects.i18nSy)
@@ -227,19 +229,12 @@ dependencies {
     // Disk
     implementation(libs.disklrucache)
     implementation(libs.unifile)
-    implementation(libs.junrar)
-    // SY -->
-    implementation(libs.zip4j)
-    // SY <--
 
     // Preferences
     implementation(libs.preferencektx)
 
     // Dependency injection
     implementation(libs.injekt)
-    // SY -->
-    implementation(libs.zip4j)
-    // SY <--
 
     // Image loading
     implementation(platform(libs.coil.bom))
@@ -322,6 +317,8 @@ dependencies {
     implementation(libs.torrentserver)
     // Cast
     implementation(libs.bundles.cast)
+    // nanohttpd server
+    implementation(libs.nanohttpd)
 }
 
 androidComponents {
