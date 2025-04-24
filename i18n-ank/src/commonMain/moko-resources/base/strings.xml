@@ -167,9 +167,17 @@
     <string name="library_exported">Library Exported</string>
     <string name="author">Author</string>
     <string name="artist">Artist</string>
+    <string name="action_notes">Notes</string>
+    <string name="action_edit_notes">Edit notes</string>
+    <string name="notes_placeholder">Enjoyed the part where…</string>
+    <string name="possible_duplicates_title">Possible duplicates</string>
+    <string name="possible_duplicates_summary">You have entries in your library with a similar name.\n\nSelect an entry to migrate or add anyway.</string>
+    <string name="clear_database_text">You’re about to remove entries from the database</string>
+    <string name="clear_database_history_warning">Seen episodes and progress of non-library entries will be lost</string>
+    <string name="clear_db_exclude_read">Keep entries with seen episodes</string>
 
     <!-- Mihon, Aniyomi, Komikku & SY which need to replace manga => anime -->
-        <!-- Mihon -->
+    <!-- Mihon -->
     <string name="action_sort_last_update_check">Last update check</string>
     <string name="action_display_show_continue_watching_button">Continue watching button</string>
     <string name="non_library_watched_settings">All watched entries</string>
@@ -186,12 +194,17 @@
     <string name="pref_mark_duplicate_seen_episode_seen_new">After fetching new episode</string>
     <string name="action_display_unread_badge">Unseen episodes</string>
 
-        <!-- SY -->
+    <!-- SY -->
     <string name="sync_on_episode_seen">Sync on Episode Seen</string>
     <string name="sync_on_episode_open">Sync on Episode Open</string>
     <string name="include_all_seen_entries">Include all seen entries</string>
 
-        <!-- Aniyomi -->
+    <!-- Komikku -->
+    <string name="sync_progress_from_trackers_up_to_episode">Sync progress from Trackers up to episode %d</string>
+    <string name="download_cache_renew_interval_info_anime">If set to "manual", either refresh each anime or using the "Reindex downloads" action in "Advanced"</string>
+    <string name="pref_top_align_cover_summary_anime">Show the cover aligned to the top alongside anime info</string>
+
+    <!-- Aniyomi -->
     <string name="pref_library_summary_episode">Categories, global update, episode swipe</string>
     <string name="pref_category_delete_episodes">Delete episodes</string>
     <string name="pref_remove_bookmarked_episodes">Allow deleting bookmarked episodes</string>
@@ -208,6 +221,7 @@
     <string name="pref_reset_player_flags_error">Couldn\'t reset player settings</string>
     <string name="pref_storage_location_info_anime">Used for automatic backups, episode downloads, and local source.</string>
     <string name="tracking_info_anime">One-way sync to update the episode progress in external tracker services. Set up tracking for individual entries from their tracking button.</string>
+    <string name="pref_create_folder_per_anime">Save screenshots into separate folders</string>
 
     <!-- Advanced Settings -->
     <string name="clean_up_downloaded_episodes">Clean up downloaded episodes</string>
