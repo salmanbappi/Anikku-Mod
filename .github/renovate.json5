@@ -2,12 +2,13 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:best-practices"],
   "labels": ["Dependencies"],
+  "rebaseWhen": "conflicted",
   "semanticCommits": "enabled",
   "packageRules": [
     {
       "groupName": "GitHub Actions",
       "matchManagers": ["github-actions"],
-      "pinDigests": true,
+      "pinDigests": true
     }
   ]
 }
