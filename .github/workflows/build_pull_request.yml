@@ -63,11 +63,23 @@ jobs:
       - name: Build app and run unit tests
         run: ./gradlew spotlessCheck assembleStandardRelease testReleaseUnitTest testStandardReleaseUnitTest
 
+      - name: Sign APK
+        if: github.repository == github.event.pull_request.head.repo.full_name
+        uses: r0adkll/sign-android-release@f30bdd30588842ac76044ecdbd4b6d0e3e813478
+        with:
+          releaseDirectory: app/build/outputs/apk/standard/release
+          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+          alias: ${{ secrets.ALIAS }}
+          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+        env:
+          BUILD_TOOLS_VERSION: '35.0.1'
+
       - name: Upload APK
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: arm64-v8a-${{ github.sha }}
-          path: app/build/outputs/apk/standard/release/app-standard-universal-release-unsigned.apk
+          path: app/build/outputs/apk/standard/release/app-standard-universal-release-unsigned-signed.apk
           retention-days: 1
 
       - name: Upload mapping
