@@ -60,8 +60,14 @@ jobs:
       - name: Set up gradle
         uses: gradle/actions/setup-gradle@06832c7b30a0129d7fb559bcc6e43d26f6374244 # v4.3.1
 
-      - name: Build app and run unit tests
-        run: ./gradlew spotlessCheck assembleStandardRelease testReleaseUnitTest testStandardReleaseUnitTest
+      - name: Check code format
+        run: ./gradlew spotlessCheck
+
+      - name: Build app
+        run: ./gradlew assembleStandardRelease
+
+      - name: Run unit tests
+        run: ./gradlew testReleaseUnitTest testStandardReleaseUnitTest
 
       - name: Sign APK
         if: github.repository == github.event.pull_request.head.repo.full_name
