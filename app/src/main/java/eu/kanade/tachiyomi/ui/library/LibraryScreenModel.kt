@@ -49,6 +49,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.runBlocking
+import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.core.common.preference.CheckboxState
 import tachiyomi.core.common.preference.TriState
 import tachiyomi.core.common.util.lang.compareToWithCollator
@@ -75,6 +76,7 @@ import tachiyomi.domain.source.service.SourceManager
 import tachiyomi.domain.track.interactor.GetTracks
 import tachiyomi.domain.track.interactor.GetTracksPerAnime
 import tachiyomi.domain.track.model.Track
+import tachiyomi.i18n.tail.TLMR
 import tachiyomi.source.local.LocalSource
 import tachiyomi.source.local.isLocal
 import uy.kohesive.injekt.Injekt
@@ -901,23 +903,25 @@ class LibraryScreenModel(
                 }
             }
             LibraryGroup.BY_TAG -> {
-                val tags: List<String> = libraryAnime.flatMap { item ->
-                    item.libraryAnime.anime.genre?.distinct() ?: emptyList()
+                val defaultTag = context.stringResource(TLMR.strings.ungrouped)
+                val tags = libraryAnime.flatMap { it.libraryAnime.anime.genre.orEmpty() }.distinct()
+                val groupedAnime = libraryAnime.flatMap { item ->
+                    item.libraryAnime.anime.genre?.map { it to item } ?: listOf(defaultTag to item)
+                }.groupBy({ it.first }, { it.second }).toList()
+
+                val (bigGroups, defaultGroups) = groupedAnime.partition { (genre, groups) -> genre != defaultTag && groups.size > 3 }
+                val groupedEntries = bigGroups.flatMap { it.second }
+                val defaultGroupEntries = defaultGroups.flatMap { it.second }.distinct().filterNot { it in groupedEntries }
+
+                (bigGroups + (defaultTag to defaultGroupEntries)).toMap().mapKeys { (genre, _) ->
+                    Category(
+                        id = genre.hashCode().toLong(),
+                        name = genre,
+                        order = tags.indexOf(genre).takeUnless { it == -1 }?.toLong() ?: Long.MAX_VALUE,
+                        flags = 0,
+                        hidden = false,
+                    )
                 }
-                libraryAnime.flatMap { item ->
-                    item.libraryAnime.anime.genre?.distinct()?.map { genre ->
-                        Pair(genre, item)
-                    } ?: emptyList()
-                }.groupBy({ it.first }, { it.second }).filterValues { it.size > 3 }
-                    .mapKeys { (genre, _) ->
-                        Category(
-                            id = genre.hashCode().toLong(),
-                            name = genre,
-                            order = tags.indexOf(genre).takeUnless { it == -1 }?.toLong() ?: Long.MAX_VALUE,
-                            flags = 0,
-                            hidden = false,
-                        )
-                    }
             }
             else -> {
                 libraryAnime.groupBy { item ->
