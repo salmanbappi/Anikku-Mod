@@ -339,6 +339,8 @@ class PlayerActivity : BaseActivity() {
         // Mantener sesión Cast activa
         castManager.maintainCastSessionBackground()
 
+        updateDiscordRPC(exitingPlayer = false)
+
         if (isInPictureInPictureMode) {
             super.onPause()
             return
@@ -350,8 +352,6 @@ class PlayerActivity : BaseActivity() {
         } else {
             viewModel.pause()
         }
-
-        updateDiscordRPC(exitingPlayer = false)
 
         super.onPause()
     }
@@ -656,6 +656,9 @@ class PlayerActivity : BaseActivity() {
             reconnect()
             registerSessionListener()
         }
+
+        updateDiscordRPC(exitingPlayer = false)
+
         if (!player.isExiting) {
             super.onResume()
             return
@@ -669,7 +672,6 @@ class PlayerActivity : BaseActivity() {
                 if (it < viewModel.maxVolume) viewModel.changeMPVVolumeTo(100)
             }
         }
-        updateDiscordRPC(exitingPlayer = false)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
