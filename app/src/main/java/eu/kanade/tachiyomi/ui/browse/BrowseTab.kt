@@ -16,8 +16,8 @@ import cafe.adriel.voyager.navigator.tab.TabOptions
 import eu.kanade.presentation.components.TabbedScreen
 import eu.kanade.presentation.util.Tab
 import eu.kanade.tachiyomi.R
-import eu.kanade.tachiyomi.data.connection.discord.DiscordRPCService
-import eu.kanade.tachiyomi.data.connection.discord.DiscordScreen
+import eu.kanade.tachiyomi.data.connections.discord.DiscordRPCService
+import eu.kanade.tachiyomi.data.connections.discord.DiscordScreen
 import eu.kanade.tachiyomi.ui.browse.extension.ExtensionsScreenModel
 import eu.kanade.tachiyomi.ui.browse.extension.extensionsTab
 import eu.kanade.tachiyomi.ui.browse.migration.sources.migrateSourceTab
@@ -51,14 +51,10 @@ data object BrowseTab : Tab {
         navigator.push(GlobalSearchScreen())
     }
 
-    private val switchToTabNumberChannel = Channel<Int>(1, BufferOverflow.DROP_OLDEST)
+    private val switchToExtensionTabChannel = Channel<Unit>(1, BufferOverflow.DROP_OLDEST)
 
     fun showExtension() {
-        switchToTabNumberChannel.trySend(3) // Manga extensions: tab no. 3
-    }
-
-    fun showAnimeExtension() {
-        switchToTabNumberChannel.trySend(2) // Anime extensions: tab no. 2
+        switchToExtensionTabChannel.trySend(Unit)
     }
 
     @Composable
@@ -86,8 +82,8 @@ data object BrowseTab : Tab {
             scrollable = true,
         )
         LaunchedEffect(Unit) {
-            switchToTabNumberChannel.receiveAsFlow()
-                .collectLatest { state.scrollToPage(it) }
+            switchToExtensionTabChannel.receiveAsFlow()
+                .collectLatest { state.scrollToPage(1) }
         }
 
         LaunchedEffect(Unit) {

@@ -1,5 +1,6 @@
 package eu.kanade.tachiyomi.data.download
 
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -25,7 +26,6 @@ import eu.kanade.tachiyomi.torrentServer.TorrentServerApi
 import eu.kanade.tachiyomi.torrentServer.TorrentServerUtils
 import eu.kanade.tachiyomi.ui.player.loader.EpisodeLoader
 import eu.kanade.tachiyomi.ui.player.loader.HosterLoader
-import eu.kanade.tachiyomi.util.size
 import eu.kanade.tachiyomi.util.storage.DiskUtil
 import eu.kanade.tachiyomi.util.storage.toFFmpegString
 import eu.kanade.tachiyomi.util.system.copyToClipboard
@@ -498,7 +498,7 @@ class Downloader(
     }
 
     private fun isTor(video: Video): Boolean {
-        return (video.videoUrl?.startsWith("magnet") == true || video.videoUrl?.endsWith(".torrent") == true)
+        return (video.videoUrl.startsWith("magnet") || video.videoUrl.endsWith(".torrent"))
     }
 
     private fun torrentDownload(
@@ -509,12 +509,12 @@ class Downloader(
         val video = download.video!!
         TorrentServerService.start()
         TorrentServerService.wait(10)
-        val currentTorrent = TorrentServerApi.addTorrent(video.videoUrl!!, video.quality, "", "", false)
+        val currentTorrent = TorrentServerApi.addTorrent(video.videoUrl, video.quality, "", "", false)
         var index = 0
-        if (video.videoUrl!!.contains("index=")) {
+        if (video.videoUrl.contains("index=")) {
             index = try {
-                video.videoUrl?.substringAfter("index=")
-                    ?.substringBefore("&")?.toInt() ?: 0
+                video.videoUrl.substringAfter("index=")
+                    .substringBefore("&").toInt()
             } catch (_: Exception) {
                 0
             }
@@ -576,7 +576,7 @@ class Downloader(
         }
 
         val session = FFmpegSession.create(ffmpegOptions, {}, logCallback, {})
-        val inputDuration = getDuration(ffprobeCommand(video.videoUrl!!, headerOptions)) ?: 0F
+        val inputDuration = getDuration(ffprobeCommand(video.videoUrl, headerOptions)) ?: 0F
 
         duration = inputDuration.toLong()
 
@@ -685,6 +685,7 @@ class Downloader(
      * @param tmpDir the temporary directory of the download.
      * @param filename the filename of the video.
      */
+    @SuppressLint("UnsafeImplicitIntentLaunch")
     private fun downloadVideoExternal(
         video: Video,
         source: HttpSource,

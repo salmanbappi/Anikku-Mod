@@ -39,8 +39,8 @@ import eu.kanade.presentation.library.components.LibraryToolbar
 import eu.kanade.presentation.more.onboarding.GETTING_STARTED_URL
 import eu.kanade.presentation.util.Tab
 import eu.kanade.tachiyomi.R
-import eu.kanade.tachiyomi.data.connection.discord.DiscordRPCService
-import eu.kanade.tachiyomi.data.connection.discord.DiscordScreen
+import eu.kanade.tachiyomi.data.connections.discord.DiscordRPCService
+import eu.kanade.tachiyomi.data.connections.discord.DiscordScreen
 import eu.kanade.tachiyomi.data.library.LibraryUpdateJob
 import eu.kanade.tachiyomi.data.sync.SyncDataJob
 import eu.kanade.tachiyomi.ui.anime.AnimeScreen
@@ -63,6 +63,7 @@ import tachiyomi.domain.episode.model.Episode
 import tachiyomi.domain.library.model.LibraryAnime
 import tachiyomi.domain.library.model.LibraryGroup
 import tachiyomi.i18n.MR
+import tachiyomi.i18n.sy.SYMR
 import tachiyomi.presentation.core.components.material.Scaffold
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.screens.EmptyScreen
@@ -185,7 +186,7 @@ data object LibraryTab : Tab {
                         if (!SyncDataJob.isRunning(context)) {
                             SyncDataJob.startNow(context)
                         } else {
-                            context.toast(MR.strings.sync_in_progress)
+                            context.toast(SYMR.strings.sync_in_progress)
                         }
                     },
                     searchQuery = state.searchQuery,

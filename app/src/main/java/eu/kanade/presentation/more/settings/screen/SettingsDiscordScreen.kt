@@ -28,17 +28,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.util.fastMap
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import eu.kanade.domain.connection.service.ConnectionPreferences
+import eu.kanade.domain.connections.service.ConnectionsPreferences
 import eu.kanade.presentation.category.visualName
 import eu.kanade.presentation.more.settings.Preference
 import eu.kanade.presentation.more.settings.widget.TriStateListDialog
 import eu.kanade.tachiyomi.R
-import eu.kanade.tachiyomi.data.connection.ConnectionManager
+import eu.kanade.tachiyomi.data.connections.ConnectionsManager
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.runBlocking
 import tachiyomi.domain.category.interactor.GetCategories
-import tachiyomi.i18n.MR
+import tachiyomi.i18n.ank.AMR
 import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
@@ -47,7 +47,7 @@ object SettingsDiscordScreen : SearchableSettings {
 
     @ReadOnlyComposable
     @Composable
-    override fun getTitleRes() = MR.strings.pref_category_connections
+    override fun getTitleRes() = AMR.strings.pref_category_connections
 
     @Composable
     override fun RowScope.AppBarAction() {
@@ -64,8 +64,8 @@ object SettingsDiscordScreen : SearchableSettings {
     override fun getPreferences(): List<Preference> {
         val context = LocalContext.current
         val navigator = LocalNavigator.currentOrThrow
-        val connectionsPreferences = remember { Injekt.get<ConnectionPreferences>() }
-        val connectionsManager = remember { Injekt.get<ConnectionManager>() }
+        val connectionsPreferences = remember { Injekt.get<ConnectionsPreferences>() }
+        val connectionsManager = remember { Injekt.get<ConnectionsManager>() }
         val enableDRPCPref = connectionsPreferences.enableDiscordRPC()
         val useChapterTitlesPref = connectionsPreferences.useChapterTitles()
         val discordRPCStatus = connectionsPreferences.discordRPCStatus()
@@ -83,7 +83,7 @@ object SettingsDiscordScreen : SearchableSettings {
         var dialog by remember { mutableStateOf<Any?>(null) }
         dialog?.run {
             when (this) {
-                is LogoutConnectionDialog -> {
+                is LogoutConnectionsDialog -> {
                     ConnectionsLogoutDialog(
                         service = service,
                         onDismissRequest = {
@@ -179,7 +179,7 @@ object SettingsDiscordScreen : SearchableSettings {
                 ),
             ),
             getRPCIncognitoGroup(
-                connectionPreferences = connectionsPreferences,
+                connectionsPreferences = connectionsPreferences,
                 enabled = enableDRPC,
             ),
             Preference.PreferenceGroup(
@@ -222,14 +222,14 @@ object SettingsDiscordScreen : SearchableSettings {
             ),
             Preference.PreferenceItem.TextPreference(
                 title = stringResource(R.string.logout),
-                onClick = { dialog = LogoutConnectionDialog(connectionsManager.discord) },
+                onClick = { dialog = LogoutConnectionsDialog(connectionsManager.discord) },
             ),
         )
     }
 
     @Composable
     private fun getRPCIncognitoGroup(
-        connectionPreferences: ConnectionPreferences,
+        connectionsPreferences: ConnectionsPreferences,
         enabled: Boolean,
     ): Preference.PreferenceGroup {
         val getCategories = remember { Injekt.get<GetCategories>() }
@@ -237,8 +237,8 @@ object SettingsDiscordScreen : SearchableSettings {
             initial = runBlocking { getCategories.await() },
         )
 
-        val discordRPCIncognitoPref = connectionPreferences.discordRPCIncognito()
-        val discordRPCIncognitoCategoriesPref = connectionPreferences.discordRPCIncognitoCategories()
+        val discordRPCIncognitoPref = connectionsPreferences.discordRPCIncognito()
+        val discordRPCIncognitoCategoriesPref = connectionsPreferences.discordRPCIncognitoCategories()
 
         val includedAnime by discordRPCIncognitoCategoriesPref.collectAsState()
         var showAnimeDialog by rememberSaveable { mutableStateOf(false) }

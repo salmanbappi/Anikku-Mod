@@ -76,7 +76,7 @@ import tachiyomi.domain.source.service.SourceManager
 import tachiyomi.domain.track.interactor.GetTracks
 import tachiyomi.domain.track.interactor.GetTracksPerAnime
 import tachiyomi.domain.track.model.Track
-import tachiyomi.i18n.tail.TLMR
+import tachiyomi.i18n.sy.SYMR
 import tachiyomi.source.local.LocalSource
 import tachiyomi.source.local.isLocal
 import uy.kohesive.injekt.Injekt
@@ -326,12 +326,9 @@ class LibraryScreenModel(
         fun LibrarySort.comparator(): Comparator<LibraryItem> = Comparator { i1, i2 ->
             // SY -->
             // Use groupSort when provided, otherwise use the sort from the category
-            val currentSort = when {
-                groupSort != null -> groupSort
-                else -> keys.find { it.id == i1.libraryAnime.category }?.sort ?: LibrarySort.default
-            }
+            val sort = groupSort ?: keys.find { it.id == i1.libraryAnime.category }!!.sort
             // SY <--
-            when (currentSort.type) {
+            when (sort.type) {
                 LibrarySort.Type.Alphabetical -> {
                     sortAlphabetically(i1, i2)
                 }
@@ -344,8 +341,8 @@ class LibraryScreenModel(
                 LibrarySort.Type.UnseenCount -> when {
                     // Ensure unseen content comes first
                     i1.libraryAnime.unseenCount == i2.libraryAnime.unseenCount -> 0
-                    i1.libraryAnime.unseenCount == 0L -> if (currentSort.isAscending) 1 else -1
-                    i2.libraryAnime.unseenCount == 0L -> if (currentSort.isAscending) -1 else 1
+                    i1.libraryAnime.unseenCount == 0L -> if (sort.isAscending) 1 else -1
+                    i2.libraryAnime.unseenCount == 0L -> if (sort.isAscending) -1 else 1
                     else -> i1.libraryAnime.unseenCount.compareTo(i2.libraryAnime.unseenCount)
                 }
                 LibrarySort.Type.TotalEpisodes -> {
@@ -366,8 +363,8 @@ class LibraryScreenModel(
                     item1Score.compareTo(item2Score)
                 }
                 LibrarySort.Type.AiringTime -> when {
-                    i1.libraryAnime.anime.nextEpisodeAiringAt == 0L -> if (currentSort.isAscending) 1 else -1
-                    i2.libraryAnime.anime.nextEpisodeAiringAt == 0L -> if (currentSort.isAscending) -1 else 1
+                    i1.libraryAnime.anime.nextEpisodeAiringAt == 0L -> if (sort.isAscending) 1 else -1
+                    i2.libraryAnime.anime.nextEpisodeAiringAt == 0L -> if (sort.isAscending) -1 else 1
                     i1.libraryAnime.unseenCount == i2.libraryAnime.unseenCount ->
                         i1.libraryAnime.anime.nextEpisodeAiringAt.compareTo(
                             i2.libraryAnime.anime.nextEpisodeAiringAt,
@@ -909,7 +906,7 @@ class LibraryScreenModel(
                 }
             }
             LibraryGroup.BY_TAG -> {
-                val defaultTag = context.stringResource(TLMR.strings.ungrouped)
+                val defaultTag = context.stringResource(SYMR.strings.ungrouped)
                 val tags = libraryAnime.flatMap { it.libraryAnime.anime.genre.orEmpty() }.distinct()
                 val groupedAnime = libraryAnime.flatMap { item ->
                     item.libraryAnime.anime.genre?.map { it to item } ?: listOf(defaultTag to item)

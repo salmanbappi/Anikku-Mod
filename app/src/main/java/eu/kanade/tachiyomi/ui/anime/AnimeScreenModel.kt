@@ -30,7 +30,6 @@ import eu.kanade.tachiyomi.data.download.DownloadCache
 import eu.kanade.tachiyomi.data.download.DownloadManager
 import eu.kanade.tachiyomi.data.download.model.Download
 import eu.kanade.tachiyomi.data.torrentServer.service.TorrentServerService
-import eu.kanade.tachiyomi.data.track.BaseTracker
 import eu.kanade.tachiyomi.data.track.EnhancedTracker
 import eu.kanade.tachiyomi.data.track.TrackerManager
 import eu.kanade.tachiyomi.network.HttpException
@@ -1190,9 +1189,9 @@ class AnimeScreenModel(
                     .map { service ->
                         TrackItem(
                             animeTracks.find {
-                                it.trackerId == (service as BaseTracker).id
+                                it.trackerId == service.id
                             },
-                            (service as BaseTracker),
+                            service,
                         )
                     }
             }

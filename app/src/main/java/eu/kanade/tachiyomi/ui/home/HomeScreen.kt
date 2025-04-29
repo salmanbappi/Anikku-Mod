@@ -36,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -117,9 +118,11 @@ object HomeScreen : Screen() {
                     startBar = {
                         if (isTabletUi()) {
                             NavigationRail {
-                                navStyle.tabs.fastForEach {
-                                    NavigationRailItem(it)
-                                }
+                                navStyle.tabs
+                                    .fastFilter { it.isEnabled() }
+                                    .fastForEach {
+                                        NavigationRailItem(it, alwaysShowLabel)
+                                    }
                             }
                         }
                     },
@@ -152,8 +155,9 @@ object HomeScreen : Screen() {
                                 ) {
                                     NavigationBar {
                                         navStyle.tabs
+                                            .fastFilter { it.isEnabled() }
                                             .fastForEach {
-                                                NavigationBarItem(it)
+                                                NavigationBarItem(it, alwaysShowLabel)
                                             }
                                     }
                                 }
@@ -217,11 +221,7 @@ object HomeScreen : Screen() {
                             is Tab.History -> HistoryTab
                             is Tab.Browse -> {
                                 if (it.toExtensions) {
-                                    if (!it.anime) {
-                                        BrowseTab.showExtension()
-                                    } else {
-                                        BrowseTab.showAnimeExtension()
-                                    }
+                                    BrowseTab.showExtension()
                                 }
                                 BrowseTab
                             }
@@ -241,7 +241,12 @@ object HomeScreen : Screen() {
     }
 
     @Composable
-    private fun RowScope.NavigationBarItem(tab: eu.kanade.presentation.util.Tab) {
+    private fun RowScope.NavigationBarItem(
+        tab: eu.kanade.presentation.util.Tab,
+        // SY -->
+        alwaysShowLabel: Boolean,
+        // SY <--
+    ) {
         val tabNavigator = LocalTabNavigator.current
         val navigator = LocalNavigator.currentOrThrow
         val scope = rememberCoroutineScope()
@@ -264,12 +269,17 @@ object HomeScreen : Screen() {
                     overflow = TextOverflow.Ellipsis,
                 )
             },
-            alwaysShowLabel = true,
+            alwaysShowLabel = alwaysShowLabel,
         )
     }
 
     @Composable
-    fun NavigationRailItem(tab: eu.kanade.presentation.util.Tab) {
+    fun NavigationRailItem(
+        tab: eu.kanade.presentation.util.Tab,
+        // SY -->
+        alwaysShowLabel: Boolean,
+        // SY <--
+    ) {
         val tabNavigator = LocalTabNavigator.current
         val navigator = LocalNavigator.currentOrThrow
         val scope = rememberCoroutineScope()
@@ -292,7 +302,7 @@ object HomeScreen : Screen() {
                     overflow = TextOverflow.Ellipsis,
                 )
             },
-            alwaysShowLabel = true,
+            alwaysShowLabel = alwaysShowLabel,
         )
     }
 

@@ -54,8 +54,8 @@ class BackupCreator(
     private val animeBackupCreator: AnimeBackupCreator = AnimeBackupCreator(),
     private val preferenceBackupCreator: PreferenceBackupCreator = PreferenceBackupCreator(),
     private val extensionRepoBackupCreator: ExtensionRepoBackupCreator = ExtensionRepoBackupCreator(),
-    private val sourcesBackupCreator: SourcesBackupCreator = SourcesBackupCreator(),
     private val customButtonBackupCreator: CustomButtonBackupCreator = CustomButtonBackupCreator(),
+    private val sourcesBackupCreator: SourcesBackupCreator = SourcesBackupCreator(),
     private val extensionsBackupCreator: ExtensionsBackupCreator = ExtensionsBackupCreator(context),
 ) {
 

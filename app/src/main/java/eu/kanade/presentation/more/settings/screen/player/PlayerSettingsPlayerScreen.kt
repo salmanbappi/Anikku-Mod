@@ -35,7 +35,7 @@ import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentMap
 import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.i18n.MR
-import tachiyomi.i18n.tail.TLMR
+import tachiyomi.i18n.ank.AMR
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt
@@ -313,11 +313,11 @@ object PlayerSettingsPlayerScreen : SearchableSettings {
     private fun getCastGroup(playerPreferences: PlayerPreferences): Preference.PreferenceGroup {
         val enableCast = playerPreferences.enableCast()
         return Preference.PreferenceGroup(
-            title = stringResource(MR.strings.pref_category_cast),
+            title = stringResource(AMR.strings.pref_category_cast),
             preferenceItems = persistentListOf(
                 Preference.PreferenceItem.SwitchPreference(
                     pref = enableCast,
-                    title = stringResource(MR.strings.pref_enable_cast),
+                    title = stringResource(AMR.strings.pref_enable_cast),
                 ),
             ),
         )
@@ -370,11 +370,11 @@ object PlayerSettingsPlayerScreen : SearchableSettings {
         val trackers by trackersPref.collectAsState()
 
         return Preference.PreferenceGroup(
-            title = stringResource(MR.strings.pref_category_torrentserver),
+            title = stringResource(AMR.strings.pref_category_torrentserver),
             preferenceItems = persistentListOf(
                 Preference.PreferenceItem.EditTextPreference(
                     pref = torrentServerPreferences.port(),
-                    title = stringResource(MR.strings.pref_torrentserver_port),
+                    title = stringResource(AMR.strings.pref_torrentserver_port),
                     onValueChanged = {
                         try {
                             Integer.parseInt(it)
@@ -387,7 +387,7 @@ object PlayerSettingsPlayerScreen : SearchableSettings {
                 ),
                 Preference.PreferenceItem.MultiLineEditTextPreference(
                     pref = torrentServerPreferences.trackers(),
-                    title = context.stringResource(MR.strings.pref_torrent_trackers),
+                    title = context.stringResource(AMR.strings.pref_torrent_trackers),
                     subtitle = trackersPref.asState(scope).value
                         .lines().take(2)
                         .joinToString(
@@ -400,7 +400,7 @@ object PlayerSettingsPlayerScreen : SearchableSettings {
                     },
                 ),
                 Preference.PreferenceItem.TextPreference(
-                    title = stringResource(MR.strings.pref_reset_torrent_trackers_string),
+                    title = stringResource(AMR.strings.pref_reset_torrent_trackers_string),
                     enabled = remember(trackers) { trackers != trackersPref.defaultValue() },
                     onClick = {
                         trackersPref.delete()
@@ -416,11 +416,11 @@ object PlayerSettingsPlayerScreen : SearchableSettings {
         localHttpServerHolder: LocalHttpServerHolder,
     ): Preference.PreferenceGroup {
         return Preference.PreferenceGroup(
-            title = stringResource(TLMR.strings.pref_category_castserver),
+            title = stringResource(AMR.strings.pref_category_castserver),
             preferenceItems = persistentListOf(
                 Preference.PreferenceItem.EditTextPreference(
                     pref = localHttpServerHolder.port(),
-                    title = stringResource(TLMR.strings.pref_cast_server_port),
+                    title = stringResource(AMR.strings.pref_cast_server_port),
                     onValueChanged = {
                         try {
                             Integer.parseInt(it)

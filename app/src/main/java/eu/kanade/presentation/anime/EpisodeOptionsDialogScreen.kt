@@ -90,6 +90,7 @@ import tachiyomi.domain.episode.interactor.GetEpisode
 import tachiyomi.domain.episode.model.Episode
 import tachiyomi.domain.source.service.SourceManager
 import tachiyomi.i18n.MR
+import tachiyomi.i18n.ank.AMR
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.screens.LoadingScreen
@@ -97,6 +98,7 @@ import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
+
 private val playerPreferences = Injekt.get<PlayerPreferences>()
 
 class EpisodeOptionsDialogScreen(
@@ -673,7 +675,7 @@ private fun QualityOptions(
 
         )
         ClickableRow(
-            text = stringResource(MR.strings.action_cast), // Texto para la nueva opción
+            text = stringResource(AMR.strings.action_cast), // Texto para la nueva opción
             icon = Icons.Outlined.Cast, // Icono para la nueva opción
             onClick = {
                 onCastClicked()

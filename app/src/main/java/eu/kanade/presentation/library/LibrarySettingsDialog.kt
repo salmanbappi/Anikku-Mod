@@ -34,6 +34,8 @@ import tachiyomi.domain.library.model.LibrarySort
 import tachiyomi.domain.library.model.sort
 import tachiyomi.domain.library.service.LibraryPreferences
 import tachiyomi.i18n.MR
+import tachiyomi.i18n.ank.AMR
+import tachiyomi.i18n.sy.SYMR
 import tachiyomi.presentation.core.components.BaseSortItem
 import tachiyomi.presentation.core.components.CheckboxItem
 import tachiyomi.presentation.core.components.HeadingItem
@@ -62,7 +64,7 @@ fun LibrarySettingsDialog(
             stringResource(MR.strings.action_sort),
             stringResource(MR.strings.action_display),
             // SY -->
-            stringResource(MR.strings.group),
+            stringResource(SYMR.strings.group),
             // SY <--
         ),
     ) { page ->
@@ -324,7 +326,7 @@ private fun ColumnScope.DisplayPage(
         pref = screenModel.libraryPreferences.languageBadge(),
     )
     CheckboxItem(
-        label = stringResource(MR.strings.action_display_show_continue_watching_button),
+        label = stringResource(AMR.strings.action_display_show_continue_watching_button),
         pref = screenModel.libraryPreferences.showContinueWatchingButton(),
     )
 

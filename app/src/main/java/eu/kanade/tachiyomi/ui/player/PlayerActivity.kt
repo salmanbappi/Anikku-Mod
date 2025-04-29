@@ -58,14 +58,14 @@ import androidx.media.AudioAttributesCompat
 import androidx.media.AudioFocusRequestCompat
 import androidx.media.AudioManagerCompat
 import com.hippo.unifile.UniFile
-import eu.kanade.domain.connection.service.ConnectionPreferences
+import eu.kanade.domain.connections.service.ConnectionsPreferences
 import eu.kanade.presentation.theme.TachiyomiTheme
 import eu.kanade.tachiyomi.animesource.model.ChapterType
 import eu.kanade.tachiyomi.animesource.model.Hoster
 import eu.kanade.tachiyomi.animesource.model.SerializableHoster.Companion.serialize
 import eu.kanade.tachiyomi.animesource.model.Video
-import eu.kanade.tachiyomi.data.connection.discord.DiscordRPCService
-import eu.kanade.tachiyomi.data.connection.discord.PlayerData
+import eu.kanade.tachiyomi.data.connections.discord.DiscordRPCService
+import eu.kanade.tachiyomi.data.connections.discord.PlayerData
 import eu.kanade.tachiyomi.data.notification.NotificationReceiver
 import eu.kanade.tachiyomi.data.notification.Notifications
 import eu.kanade.tachiyomi.data.torrentServer.service.TorrentServerService
@@ -176,7 +176,7 @@ class PlayerActivity : BaseActivity() {
     }
 
     // AM (CONNECTIONS) -->
-    private val connectionPreferences: ConnectionPreferences = Injekt.get()
+    private val connectionsPreferences: ConnectionsPreferences = Injekt.get()
     // <-- AM (CONNECTIONS)
 
     @SuppressLint("MissingSuperCall")
@@ -1367,7 +1367,7 @@ class PlayerActivity : BaseActivity() {
 
     // AM (DISCORD) -->
     private fun updateDiscordRPC(exitingPlayer: Boolean) {
-        if (!connectionPreferences.enableDiscordRPC().get()) return
+        if (!connectionsPreferences.enableDiscordRPC().get()) return
 
         viewModel.viewModelScope.launchIO {
             try {
@@ -1394,7 +1394,7 @@ class PlayerActivity : BaseActivity() {
                             animeId = anime.id,
                             animeTitle = anime.ogTitle,
                             thumbnailUrl = anime.thumbnailUrl ?: "",
-                            episodeNumber = if (connectionPreferences.useChapterTitles().get()) {
+                            episodeNumber = if (connectionsPreferences.useChapterTitles().get()) {
                                 episode.name
                             } else {
                                 episode.episode_number.toString()

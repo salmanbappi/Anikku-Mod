@@ -232,7 +232,7 @@
         </activity>
 
         <activity android:label="Discord Login"
-            android:name=".ui.setting.connection.DiscordLoginActivity"
+            android:name=".ui.setting.connections.DiscordLoginActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:exported="false"
             tools:ignore="AppLinkUrlError">
@@ -244,7 +244,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".data.connection.discord.DiscordRPCService"
+            android:name=".data.connections.discord.DiscordRPCService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="dataSync">

@@ -25,6 +25,7 @@ import kotlinx.collections.immutable.persistentListOf
 import tachiyomi.core.common.preference.TriState
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.i18n.MR
+import tachiyomi.i18n.ank.AMR
 import tachiyomi.presentation.core.components.LabeledCheckbox
 import tachiyomi.presentation.core.components.RadioItem
 import tachiyomi.presentation.core.components.SortItem
@@ -139,7 +140,7 @@ private fun ColumnScope.FilterPage(
     )
     // AM (FILLERMARK) -->
     TriStateItem(
-        label = stringResource(MR.strings.action_filter_fillermarked),
+        label = stringResource(AMR.strings.action_filter_fillermarked),
         state = fillermarkedFilter,
         onClick = onFillermarkedFilterChanged,
     )
