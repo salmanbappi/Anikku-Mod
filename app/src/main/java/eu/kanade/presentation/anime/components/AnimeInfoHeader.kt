@@ -79,7 +79,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.mikepenz.markdown.model.markdownAnnotator
 import com.mikepenz.markdown.model.markdownAnnotatorConfig
-import eu.kanade.presentation.manga.components.MarkdownRender
+import eu.kanade.presentation.anime.components.MarkdownRender
 import eu.kanade.presentation.components.DropdownMenu
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.source.model.SAnime
