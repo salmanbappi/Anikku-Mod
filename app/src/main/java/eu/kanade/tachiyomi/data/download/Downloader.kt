@@ -683,6 +683,12 @@ class Downloader(
                 when {
                     // 1DM
                     pkgName.startsWith("idm.internet.download.manager") -> {
+                        val headers = (video.headers ?: source.headers).toMap()
+                        val bundle = Bundle()
+                        for ((key, value) in headers) {
+                            bundle.putString(key, value)
+                        }
+
                         intent.apply {
                             component = ComponentName(
                                 pkgName,
@@ -692,6 +698,7 @@ class Downloader(
                             data = Uri.parse(video.videoUrl)
 
                             putExtra("extra_filename", "$filename.mkv")
+                            putExtra("extra_headers", bundle)
                         }
                     }
                     // ADM
