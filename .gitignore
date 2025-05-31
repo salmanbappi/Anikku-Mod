@@ -10,7 +10,6 @@ build
 !.idea/icon.png
 /captures
 .history
-app/**/assets/client_secrets.json
 
 # Configuration files
 local.properties
@@ -18,7 +17,7 @@ local.properties
 # macOS specific files
 .DS_Store
 
-/app/src/main/assets/client_secrets.json
+/app/client_secrets.json
 /app/google-services.json
 *.jks
 app/standard/preview/*

@@ -180,7 +180,7 @@
     <string name="storage_failed_to_create_directory">Failed to create directory: %s</string>
 
     <!-- Mihon, Aniyomi, Komikku & SY which need to replace manga => anime -->
-    <!-- Mihon -->
+        <!-- Mihon -->
     <string name="action_sort_last_update_check">Last update check</string>
     <string name="action_display_show_continue_watching_button">Continue watching button</string>
     <string name="non_library_watched_settings">All watched entries</string>
@@ -196,20 +196,22 @@
     <string name="pref_mark_duplicate_seen_episode_seen_existing">After watching a episode</string>
     <string name="pref_mark_duplicate_seen_episode_seen_new">After fetching new episode</string>
     <string name="action_display_unread_badge">Unseen episodes</string>
+    <string name="pref_update_library_manga_titles">Update library anime titles to match source</string>
+    <string name="pref_update_library_manga_titles_summary">Warning: if an anime is renamed, it will be removed from the download queue (if present).</string>
 
-    <!-- SY -->
+        <!-- SY -->
     <string name="sync_on_episode_seen">Sync on Episode Seen</string>
     <string name="sync_on_episode_open">Sync on Episode Open</string>
     <string name="include_all_seen_entries">Include all seen entries</string>
     <string name="only_show_updated_entries_episodes">Only show entries with new episode</string>
 
-    <!-- Komikku -->
+        <!-- Komikku -->
     <string name="sync_progress_from_trackers_up_to_episode">Sync progress from Trackers up to episode %d</string>
     <string name="download_cache_renew_interval_info_anime">If set to "manual", either refresh each anime or using the "Reindex downloads" action in "Advanced"</string>
     <string name="pref_top_align_cover_summary_anime">Show the cover aligned to the top alongside anime info</string>
     <string name="pref_anime_info">Anime Info</string>
 
-    <!-- Aniyomi -->
+        <!-- Aniyomi -->
     <string name="pref_library_summary_episode">Categories, global update, episode swipe</string>
     <string name="pref_category_delete_episodes">Delete episodes</string>
     <string name="pref_remove_bookmarked_episodes">Allow deleting bookmarked episodes</string>
