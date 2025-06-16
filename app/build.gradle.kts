@@ -287,6 +287,7 @@ dependencies {
 
     // Tests
     testImplementation(libs.bundles.test)
+    testRuntimeOnly(libs.junit.platform.launcher)
 
     // For detecting memory leaks; see https://square.github.io/leakcanary/
     // debugImplementation(libs.leakcanary.android)
@@ -307,6 +308,9 @@ dependencies {
 
     // Google drive
     implementation(sylibs.google.api.services.drive)
+
+    // ZXing Android Embedded
+    implementation(sylibs.zxing.android.embedded)
 
     // mpv-android
     implementation(libs.aniyomi.mpv)
