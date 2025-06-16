@@ -532,7 +532,7 @@
     <string name="bandwidth_hero">Bandwidth Hero (Requer um servidor proxy Bandwidth Hero)</string>
     <string name="wsrv">wsrv.nl</string>
     <string name="put_merge_in_overflow">Mesclar em transborde</string>
-    <string name="put_merge_in_overflow_summary">Colocar o botão de mesclar no menu de transborde ao invés da pagina inicial</string>
+    <string name="put_merge_in_overflow_summary">Colocar o botão de mesclar no menu flutuante ao invés da pagina inicial</string>
     <string name="pref_feed_position_summery">Você quer que a aba Feed seja a primeira aba em Navegar? Isso irá fazer dela a aba principal ao abrir Navegar, não é recomendado se você estiver usando uma rede medida ou dados móveis</string>
     <string name="label_triggers">Gatilhos</string>
     <string name="pref_sync_now_group_title">Sincronizar Ações</string>
@@ -545,7 +545,7 @@
     <string name="sync_on_chapter_read">Sincronizar após Leitura de Capitulo</string>
     <string name="pref_purge_confirmation_title">Confirmação de Limpeza</string>
     <string name="pref_sync_options">Criar gatilhos de sincronização</string>
-    <string name="sync_on_chapter_open">Sincronizar após Capítulo Aberto</string>
+    <string name="sync_on_chapter_open">Sincronizar após abrir capítulo</string>
     <string name="sync_on_app_start">Sincronizar na Abertura da Aplicação</string>
     <string name="pref_ehentai_summary">E/ExHentai login, sincronizar galeria</string>
     <string name="pref_mangadex_summary">MangaDex login, segue sincronização</string>
@@ -592,7 +592,6 @@
     <string name="hide_not_found_entries">Ocultar resultados não encontrados</string>
     <string name="more_previews">Mais prévias</string>
     <string name="dedupe_highest_chapter">Mostrar fonte com maior número de capítulo</string>
-    <string name="mangadex_similar">MangaDex semelhante</string>
     <string name="relation_shared_universe">Universo compartilhado</string>
     <string name="relation_alternate_version">Versão alternativa</string>
     <string name="merge_unknown_entry">ID de entrada desconhecida: %1$d</string>
@@ -632,4 +631,22 @@
     <string name="feed_add">Adicionar %1$s ao feed?</string>
     <string name="delete_tag">Excluir tag</string>
     <string name="action_stop">Parar</string>
+    <string name="rec_services_to_search">Serviços de recomendação para busca</string>
+    <string name="rec_hide_library_entries">Ocultar resultados já existentes em sua biblioteca</string>
+    <string name="scan_qr_code">Escanear um código QR</string>
+    <string name="rec_search">Encontre recomendações comuns</string>
+    <string name="rec_group_source">Recomendações de fontes</string>
+    <string name="rec_group_tracker">Recomendações do rastreador</string>
+    <string name="rec_common_recommendations">Recomendações comuns</string>
+    <string name="rec_search_short">Encontre recomendações</string>
+    <string name="rec_error_title">Falha na busca</string>
+    <string name="rec_error_string">Ocorreu um erro durante o processo de busca: %1$s</string>
+    <string name="rec_collecting">Coletando recomendações</string>
+    <string name="rec_initializing">Inicializando</string>
+    <string name="similar_titles">Títulos similares</string>
+    <string name="relation_sequel">Sequência</string>
+    <string name="feed">Feed</string>
+    <string name="rec_no_results">Nenhuma recomendação encontrada</string>
+    <string name="failed_merge">Falha ao mesclar a entrada: %1$s</string>
+    <string name="select_tracker">Selecione um rastreador</string>
 </resources>

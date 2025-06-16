@@ -20,15 +20,15 @@
     <string name="pref_category_fork">Pengaturan Fork</string>
     <string name="pref_category_mangadex">MangaDex</string>
     <!-- EH Settings -->
-    <string name="ehentai_prefs_account_settings">E-Hentai Website Account Settings</string>
-    <string name="enable_exhentai">Enable ExHentai</string>
-    <string name="requires_login">Requires login</string>
-    <string name="use_hentai_at_home">Use Hentai@Home Network</string>
+    <string name="ehentai_prefs_account_settings">Pengaturan Akun Situs E-Hentai</string>
+    <string name="enable_exhentai">Aktifkan ExHentai</string>
+    <string name="requires_login">Login diperlukan</string>
+    <string name="use_hentai_at_home">Gunakan jaringan Hentai@Home</string>
     <string name="use_hentai_at_home_summary">Do you wish to load images through the Hentai@Home Network, if available? Disabling this option will reduce the amount of pages you are able to view\nOptions:\n- Any client (Recommended)\n- Default port clients only (Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports.)</string>
-    <string name="use_hentai_at_home_option_1">Any client (Recommended)</string>
-    <string name="use_hentai_at_home_option_2">Default port clients only</string>
-    <string name="show_japanese_titles">Show Japanese titles in search results</string>
-    <string name="show_japanese_titles_option_1">Currently showing Japanese titles in search results. Clear the chapter cache after changing this (in the Advanced section)</string>
+    <string name="use_hentai_at_home_option_1">Klien manapun (Direkomendasikan)</string>
+    <string name="use_hentai_at_home_option_2">Hanya klien port default</string>
+    <string name="show_japanese_titles">Tampilkan judul berbahasa Jepang di hasil pencarian</string>
+    <string name="show_japanese_titles_option_1">Saat ini menampilkan judul berbahasa Jepang di hasil pencarian. Bersihkan cache bab setelah mengubah ini (di bagian Lanjutan)</string>
     <string name="show_japanese_titles_option_2">Currently showing English/Romanized titles in search results. Clear the chapter cache after changing this (in the Advanced section)</string>
     <string name="use_original_images">Use original images</string>
     <string name="use_original_images_on">Currently using original images</string>
@@ -159,7 +159,7 @@
     <string name="library_group_updates_all_but_ungrouped">Jalankan pembaruan global hanya untuk yang tidak dikelompokkan, pembaruan kategori untuk yang lainnya</string>
     <string name="library_group_updates_all">Hanya jalankan pembaruan kategori</string>
     <!-- Browse settings -->
-    <string name="pref_source_source_filtering">Filter Sumber dalam kategori</string>
+    <string name="pref_source_source_filtering">Filter sumber dalam kategori</string>
     <string name="pref_source_source_filtering_summery">Saring sumber-sumber yang ada dalam kategori, agar sumber-sumber tersebut tidak dimasukkan ke dalam kategori bahasa jika berada dalam suatu kategori</string>
     <string name="pref_source_navigation">Ganti tombol Terbaru</string>
     <string name="pref_source_navigation_summery">Ganti tombol Terbaru dengan tampilan penelusuran khusus yang mencakup bab terbaru dan daftar manga</string>
@@ -455,7 +455,7 @@
     <string name="aged">Aged</string>
     <string name="last_update_check">Last update check</string>
     <string name="path">Path</string>
-    <string name="artist">Artist</string>
+    <string name="artist">Seniman</string>
     <string name="characters">Characters</string>
     <string name="group">Group</string>
     <string name="media_id">Media id</string>
@@ -470,7 +470,7 @@
     <string name="rating_string">Rating string</string>
     <string name="collection">Collection</string>
     <string name="parodies">Parodies</string>
-    <string name="author">Author</string>
+    <string name="author">Penulis</string>
     <string name="last_chapter_number">Last chapter number</string>
     <string name="follow_status">Follow status</string>
     <string name="anilist_id">Anilist id</string>
@@ -540,7 +540,7 @@
     <string name="pref_library_mark_duplicate_chapters">Tandai bagian baru yang sudah terbaca sebagai terbaca</string>
     <string name="update_3hour">Setiap 3 jam</string>
     <string name="label_triggers">Pemicu</string>
-    <string name="sync_complete">Berhasil Menyinkronkan perpustakaan</string>
+    <string name="sync_complete">Berhasil menyinkronkan perpustakaan</string>
     <string name="label_sync">Sinkronisasi</string>
     <string name="pref_sync_host">Host</string>
     <string name="pref_sync_host_summ">Masukkan alamat host untuk menyinkronkan perpustakaan Anda</string>
@@ -642,4 +642,28 @@
     <string name="center_margin_double_page">Tambahkan ke Halaman ganda</string>
     <string name="center_margin_wide_page">Tambahkan ke Halaman lebar</string>
     <string name="feed">Daftar Konten</string>
+    <string name="entry_not_tracked">Entri tidak dilacak.</string>
+    <string name="favorites_sync_unable_to_add_to_remote">Tidak dapat menambahkan galeri ke remote server: \'%1$s\' (GID: %2$s)!</string>
+    <string name="relation_shared_universe">Semesta bersama</string>
+    <string name="relation_spin_off">Spin-off</string>
+    <string name="relation_preserialization">Pra-serialisasi</string>
+    <string name="select_tracker">Pilih pelacak</string>
+    <string name="fill_from_tracker">Isi melalui pelacak</string>
+    <string name="similar_titles">Judul serupa</string>
+    <string name="pref_tracker_resolve_using_source_metadata">Pilih entri dengan sumber metadata</string>
+    <string name="pref_tracker_resolve_using_source_metadata_summary">Secara otomatis memilih judul yang cocok bila sumber menyediakan tautan ke trackers. Saat ini didukung oleh MangaDex</string>
+    <string name="rec_search">Temukan rekomendasi umum</string>
+    <string name="rec_hide_library_entries">Sembunyikan hasil yang terdapat di pustaka</string>
+    <string name="rec_services_to_search">Layanan rekomendasi untuk dicari</string>
+    <string name="rec_group_source">Layanan rekomendasi</string>
+    <string name="rec_group_tracker">Rekomendasi pelacak</string>
+    <string name="rec_common_recommendations">Rekomendasi umum</string>
+    <string name="rec_search_short">Temukan rekomendasi</string>
+    <string name="rec_no_results">Rekomendasi tidak ditemukan</string>
+    <string name="rec_error_title">Pencarian gagal</string>
+    <string name="rec_error_string">Terjadi sebuah error saat melakukan pencarian: %1$s</string>
+    <string name="rec_processing_state">Memproses entri %1$d dari %2$d</string>
+    <string name="rec_collecting">Mengumpulkan rekomendasi</string>
+    <string name="rec_initializing">Inisialisasi</string>
+    <string name="scan_qr_code">Pindai kode QR</string>
 </resources>
