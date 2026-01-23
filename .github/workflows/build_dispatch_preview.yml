@@ -1,0 +1,62 @@
+name: Remote Dispatch Preview Build
+# Manually send a dispatch to build preview
+
+on:
+  # Dispatch or Manual triggers
+  workflow_dispatch:
+
+#  push:
+#    branches:
+#      - master
+#      # - develop
+#    paths:
+#      - '**'
+#      - '!**.md'
+#      - '!.github/**'
+#      - '.github/scripts/**'
+#      - '.github/workflows/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  trigger_preview_build:
+    name: Trigger preview build
+    runs-on: 'ubuntu-24.04'
+
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          fetch-depth: 0
+
+      - name: Prepare build
+        id: prepare_build
+        run: |
+          commit_count=$(git rev-list --count HEAD)
+          echo "COMMIT_COUNT=$commit_count"
+          echo "COMMIT_COUNT=$commit_count" >> $GITHUB_OUTPUT
+
+      - name: Create Tag 'r${{ steps.prepare_build.outputs.COMMIT_COUNT }}'
+        if: ${{ github.ref }} == "refs/heads/master"
+        run: |
+          git tag "r${{ steps.prepare_build.outputs.COMMIT_COUNT }}"
+          git push origin "r${{ steps.prepare_build.outputs.COMMIT_COUNT }}"
+          echo "New tag created: r${{ steps.prepare_build.outputs.COMMIT_COUNT }}"
+
+      - name: Get branch names
+        id: branch_names
+        uses: tj-actions/branch-names@dde14ac574a8b9b1cedc59a1cf312788af43d8d8 # v8.2.1
+
+      - name: Invoke workflow in preview repo
+        uses: benc-uk/workflow-dispatch@e2e5e9a103e331dad343f381a29e654aea3cf8fc # v1.2.4
+        with:
+          workflow: build_app.yml
+          repo: komikku-app/anikku-preview
+          ref: "refs/heads/main"
+          token: "${{ secrets.BOT_PAT }}"
+          inputs: '{ "git-ref": "${{ steps.branch_names.outputs.current_branch }}" }'

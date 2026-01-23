@@ -1,0 +1,143 @@
+name: CI
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '**'
+      - '!**.md'
+  # pull_request:
+  #   paths-ignore:
+  #     - '**.md'
+  # Dispatch or Manual triggers
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build app
+    runs-on: 'ubuntu-24.04'
+
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          fetch-depth: 0
+
+      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3
+        id: filter
+        with:
+          filters: |
+            gofiles:
+              - 'go/**'
+
+      - name: Set up Go
+        if: steps.filter.outputs.gofiles == 'true'
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5
+        with:
+          go-version: '1.21'
+
+      - name: Setup Android SDK
+        if: steps.filter.outputs.gofiles == 'true'
+        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+        with:
+          sdk-version: '30'
+
+      - name: Install Android NDK
+        if: steps.filter.outputs.gofiles == 'true'
+        uses: nttld/setup-ndk@afb4c9964b521afb97c864b7d40b11e6911bd410 # v1
+        with:
+          ndk-version: r25b
+
+      - name: Commit build library
+        if: steps.filter.outputs.gofiles == 'true'
+        run: |
+          #git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          #git config --local user.name "github-actions[bot]"
+          git add app/libs/server.aar
+          git add app/libs/server-sources.jar
+          git commit -m "Add compiled torrserver library"
+
+      - name: Push changes
+        if: steps.filter.outputs.gofiles == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: torrserver
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@ed408507eac070d1f99cc633dbcf757c94c7933a # v4.4.3
+
+      - name: Set up JDK
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Write google-services.json
+        uses: DamianReeves/write-file-action@6929a9a6d1807689191dcc8bbe62b54d70a32b42 # v1.3
+        with:
+          path: app/google-services.json
+          contents: ${{ secrets.GOOGLE_SERVICES_JSON }}
+          write-mode: overwrite
+
+      - name: Write client_secrets.json
+        uses: DamianReeves/write-file-action@6929a9a6d1807689191dcc8bbe62b54d70a32b42 # v1.3
+        with:
+          path: app/src/main/assets/client_secrets.json
+          contents: ${{ secrets.GOOGLE_CLIENT_SECRETS_JSON }}
+          write-mode: overwrite
+
+      - name: Set up gradle
+        uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
+
+      - name: Check code format
+        run: ./gradlew spotlessCheck
+
+      - name: Build app
+        run: ./gradlew assembleRelease -Pinclude-telemetry -Penable-updater
+
+      - name: Run unit tests
+        run: ./gradlew testReleaseUnitTest
+
+      - name: Sign APK
+        uses: r0adkll/sign-android-release@f30bdd30588842ac76044ecdbd4b6d0e3e813478
+        with:
+          releaseDirectory: app/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+          alias: ${{ secrets.ALIAS }}
+          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+        env:
+          BUILD_TOOLS_VERSION: '35.0.1'
+
+      - name: Rename apk
+        id: current_commit
+        run: |
+          set -e
+          version_tag=$(echo ${GITHUB_REF/refs\/heads\//} | sed -r 's/^refs\/(heads|tags)\///' | sed -r 's/[-\/]+/_/g')
+          commit_count=$(git rev-list --count HEAD)
+          echo "VERSION_TAG=$version_tag"
+          echo "VERSION_TAG=$version_tag" >> $GITHUB_OUTPUT
+          echo "COMMIT_COUNT=$commit_count"
+          echo "COMMIT_COUNT=$commit_count" >> $GITHUB_OUTPUT
+          mv app/build/outputs/apk/release/app-universal-release-unsigned-signed.apk Anikku-$version_tag-r$commit_count.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: Anikku-${{ steps.current_commit.outputs.VERSION_TAG }}-r${{ steps.current_commit.outputs.COMMIT_COUNT }}.apk
+          path: ./*.apk
+          retention-days: 1
+
+      - name: Upload mapping
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: mapping-${{ github.sha }}
+          path: app/build/outputs/mapping/release
