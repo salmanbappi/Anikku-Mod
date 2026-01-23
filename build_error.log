@@ -1,220 +1,201 @@
-Build & Public Release	Build Release APK	2026-01-23T11:40:46.6172141Z   GRADLE_BUILD_ACTION_SETUP_COMPLETED: true
-Build & Public Release	Build Release APK	2026-01-23T11:40:46.6172472Z   GRADLE_BUILD_ACTION_CACHE_RESTORED: true
-Build & Public Release	Build Release APK	2026-01-23T11:40:46.6172943Z   DEVELOCITY_INJECTION_INIT_SCRIPT_NAME: gradle-actions.inject-develocity.init.gradle
-Build & Public Release	Build Release APK	2026-01-23T11:40:46.6173461Z   DEVELOCITY_INJECTION_CUSTOM_VALUE: gradle-actions
-Build & Public Release	Build Release APK	2026-01-23T11:40:46.6173883Z   GITHUB_DEPENDENCY_GRAPH_ENABLED: false
-Build & Public Release	Build Release APK	2026-01-23T11:40:46.6174170Z ##[endgroup]
-Build & Public Release	Build Release APK	2026-01-23T11:40:48.0219112Z To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14.3/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
-Build & Public Release	Build Release APK	2026-01-23T11:40:49.5206793Z Daemon will be stopped at the end of the build 
-Build & Public Release	Build Release APK	2026-01-23T11:40:49.9208553Z Configuration on demand is an incubating feature.
-Build & Public Release	Build Release APK	2026-01-23T11:40:54.0230381Z Type-safe project accessors is an incubating feature.
-Build & Public Release	Build Release APK	2026-01-23T11:40:57.1235595Z > Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Public Release	Build Release APK	2026-01-23T11:40:57.3217002Z > Task :buildSrc:generateExternalPluginSpecBuilders FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:40:57.3219789Z > Task :buildSrc:extractPrecompiledScriptPluginPlugins FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:40:57.5207972Z > Task :buildSrc:compilePluginsBlocks FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:40:57.9213037Z > Task :buildSrc:generatePrecompiledScriptPluginAccessors FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:40:57.9214014Z > Task :buildSrc:generateScriptPluginAdapters FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:40:58.4209873Z > Task :buildSrc:compileKotlin FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:40:58.4213547Z > Task :buildSrc:compileJava NO-SOURCE
-Build & Public Release	Build Release APK	2026-01-23T11:40:58.4214600Z > Task :buildSrc:compileGroovy NO-SOURCE
-Build & Public Release	Build Release APK	2026-01-23T11:40:58.4215559Z > Task :buildSrc:pluginDescriptors
-Build & Public Release	Build Release APK	2026-01-23T11:40:58.4216500Z > Task :buildSrc:processResources
+Build & Public Release	Build Release APK	2026-01-23T11:43:46.8632902Z   GRADLE_BUILD_ACTION_SETUP_COMPLETED: true
+Build & Public Release	Build Release APK	2026-01-23T11:43:46.8633217Z   GRADLE_BUILD_ACTION_CACHE_RESTORED: true
+Build & Public Release	Build Release APK	2026-01-23T11:43:46.8633665Z   DEVELOCITY_INJECTION_INIT_SCRIPT_NAME: gradle-actions.inject-develocity.init.gradle
+Build & Public Release	Build Release APK	2026-01-23T11:43:46.8634165Z   DEVELOCITY_INJECTION_CUSTOM_VALUE: gradle-actions
+Build & Public Release	Build Release APK	2026-01-23T11:43:46.8634546Z   GITHUB_DEPENDENCY_GRAPH_ENABLED: false
+Build & Public Release	Build Release APK	2026-01-23T11:43:46.8634830Z ##[endgroup]
+Build & Public Release	Build Release APK	2026-01-23T11:43:48.2451528Z To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14.3/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Build & Public Release	Build Release APK	2026-01-23T11:43:50.0426712Z Daemon will be stopped at the end of the build 
+Build & Public Release	Build Release APK	2026-01-23T11:43:50.4426751Z Configuration on demand is an incubating feature.
+Build & Public Release	Build Release APK	2026-01-23T11:43:54.5455929Z Type-safe project accessors is an incubating feature.
+Build & Public Release	Build Release APK	2026-01-23T11:43:57.9438204Z > Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Public Release	Build Release APK	2026-01-23T11:43:58.0447898Z > Task :buildSrc:generateExternalPluginSpecBuilders FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:43:58.1437194Z > Task :buildSrc:extractPrecompiledScriptPluginPlugins FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:43:58.2434203Z > Task :buildSrc:compilePluginsBlocks FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:43:58.6430840Z > Task :buildSrc:generatePrecompiledScriptPluginAccessors FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:43:58.6447534Z > Task :buildSrc:generateScriptPluginAdapters FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:43:59.1440065Z > Task :buildSrc:compileKotlin FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:43:59.1440739Z > Task :buildSrc:compileJava NO-SOURCE
+Build & Public Release	Build Release APK	2026-01-23T11:43:59.1441732Z > Task :buildSrc:compileGroovy NO-SOURCE
+Build & Public Release	Build Release APK	2026-01-23T11:43:59.1442265Z > Task :buildSrc:pluginDescriptors
+Build & Public Release	Build Release APK	2026-01-23T11:43:59.1442790Z > Task :buildSrc:processResources
 --
-Build & Public Release	Build Release APK	2026-01-23T11:41:09.5233013Z > Task :core:common:copyReleaseJniLibsProjectOnly
-Build & Public Release	Build Release APK	2026-01-23T11:41:09.5233673Z > Task :i18n-ank:prepareReleaseArtProfile
-Build & Public Release	Build Release APK	2026-01-23T11:41:09.5234321Z > Task :flagkit:prepareReleaseArtProfile
-Build & Public Release	Build Release APK	2026-01-23T11:41:09.5234920Z > Task :i18n-kmk:prepareReleaseArtProfile
-Build & Public Release	Build Release APK	2026-01-23T11:41:09.5235542Z > Task :i18n-sy:prepareReleaseArtProfile
-Build & Public Release	Build Release APK	2026-01-23T11:41:09.5236191Z > Task :source-api:prepareReleaseArtProfile
-Build & Public Release	Build Release APK	2026-01-23T11:41:09.5237074Z > Task :presentation-widget:prepareReleaseArtProfile
-Build & Public Release	Build Release APK	2026-01-23T11:41:09.5237796Z > Task :presentation-core:prepareReleaseArtProfile
-Build & Public Release	Build Release APK	2026-01-23T11:41:09.5238469Z > Task :source-local:prepareReleaseArtProfile
-Build & Public Release	Build Release APK	2026-01-23T11:41:09.5239117Z > Task :telemetry:prepareReleaseArtProfile
-Build & Public Release	Build Release APK	2026-01-23T11:41:09.5239954Z > Task :core-metadata:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Public Release	Build Release APK	2026-01-23T11:41:09.5240819Z > Task :core:archive:prepareReleaseArtProfile
-Build & Public Release	Build Release APK	2026-01-23T11:41:09.5241455Z > Task :core:common:prepareReleaseArtProfile
-Build & Public Release	Build Release APK	2026-01-23T11:41:09.5242138Z > Task :core-metadata:generateReleaseResValues FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:09.5242873Z > Task :source-api:generateReleaseResValues FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:09.5243932Z > Task :i18n-sy:generateReleaseResValues FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:09.5244658Z > Task :core-metadata:generateReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:09.5245425Z > Task :source-api:generateReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:09.5246159Z > Task :i18n-sy:generateReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:09.5247074Z > Task :core-metadata:packageReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:09.5247839Z > Task :source-api:packageReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:10.7564508Z > Task :core:common:mergeReleaseNativeLibs NO-SOURCE
+Build & Public Release	Build Release APK	2026-01-23T11:44:10.7565127Z > Task :i18n-ank:prepareReleaseArtProfile
+Build & Public Release	Build Release APK	2026-01-23T11:44:10.7565708Z > Task :i18n-kmk:prepareReleaseArtProfile
+Build & Public Release	Build Release APK	2026-01-23T11:44:10.7566271Z > Task :i18n-sy:prepareReleaseArtProfile
+Build & Public Release	Build Release APK	2026-01-23T11:44:10.8440170Z > Task :presentation-core:prepareReleaseArtProfile
+Build & Public Release	Build Release APK	2026-01-23T11:44:10.8441382Z > Task :core:common:copyReleaseJniLibsProjectOnly
+Build & Public Release	Build Release APK	2026-01-23T11:44:10.8442380Z > Task :source-api:prepareReleaseArtProfile
+Build & Public Release	Build Release APK	2026-01-23T11:44:10.8443255Z > Task :presentation-widget:prepareReleaseArtProfile
+Build & Public Release	Build Release APK	2026-01-23T11:44:10.8444098Z > Task :telemetry:prepareReleaseArtProfile
+Build & Public Release	Build Release APK	2026-01-23T11:44:10.8444887Z > Task :source-local:prepareReleaseArtProfile
+Build & Public Release	Build Release APK	2026-01-23T11:44:10.8445884Z > Task :core-metadata:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Public Release	Build Release APK	2026-01-23T11:44:10.8447148Z > Task :core:archive:prepareReleaseArtProfile
+Build & Public Release	Build Release APK	2026-01-23T11:44:10.8447918Z > Task :core:common:prepareReleaseArtProfile
+Build & Public Release	Build Release APK	2026-01-23T11:44:10.8448937Z > Task :source-api:generateReleaseResValues FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:10.8450269Z > Task :core-metadata:generateReleaseResValues FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:10.8451347Z > Task :i18n-sy:generateReleaseResValues FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:10.8452052Z > Task :core-metadata:generateReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:10.8452785Z > Task :source-api:generateReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:10.8453465Z > Task :i18n-sy:generateReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:10.8454136Z > Task :core-metadata:packageReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:10.8454858Z > Task :source-api:packageReleaseResources FROM-CACHE
 --
-Build & Public Release	Build Release APK	2026-01-23T11:41:11.8222157Z > Task :core-metadata:parseReleaseLocalResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:11.8223239Z > Task :source-api:parseReleaseLocalResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:11.8225058Z > Task :i18n:prepareReleaseArtProfile
-Build & Public Release	Build Release APK	2026-01-23T11:41:11.8225658Z > Task :i18n:generateReleaseResValues FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:11.8226308Z > Task :core:common:generateReleaseResValues FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:11.8227207Z > Task :core:common:generateReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:11.8227881Z > Task :i18n:generateReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:11.8228562Z > Task :core:common:packageReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:11.8229277Z > Task :core:common:parseReleaseLocalResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:11.8230036Z > Task :source-api:kmpPartiallyResolvedDependenciesChecker
-Build & Public Release	Build Release APK	2026-01-23T11:41:11.8231203Z > Task :source-api:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Public Release	Build Release APK	2026-01-23T11:41:11.9216495Z > Task :core:common:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Public Release	Build Release APK	2026-01-23T11:41:11.9223803Z > Task :core:common:javaPreCompileRelease FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:11.9228167Z > Task :source-api:javaPreCompileRelease FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:11.9236506Z > Task :core-metadata:javaPreCompileRelease FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:11.9237704Z > Task :domain:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Public Release	Build Release APK	2026-01-23T11:41:11.9240350Z > Task :domain:generateReleaseResValues FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:11.9241037Z > Task :domain:generateReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:11.9241695Z > Task :domain:packageReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:11.9242352Z > Task :domain:parseReleaseLocalResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.0222904Z > Task :i18n-ank:generateReleaseResValues FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.0224788Z > Task :i18n-ank:generateReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.0227007Z > Task :i18n:packageReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.0229953Z > Task :i18n:parseReleaseLocalResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.1209780Z > Task :i18n-ank:packageReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.1214233Z > Task :i18n-ank:parseReleaseLocalResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.1220597Z > Task :i18n-ank:generateReleaseRFile FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.1229582Z > Task :i18n-ank:kmpPartiallyResolvedDependenciesChecker
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.1232580Z > Task :i18n-ank:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.1239011Z > Task :i18n:generateReleaseRFile FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.1239687Z > Task :i18n:kmpPartiallyResolvedDependenciesChecker
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.1240511Z > Task :i18n:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.5250835Z > Task :i18n-sy:parseReleaseLocalResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.5252241Z > Task :i18n-sy:generateReleaseRFile FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.6223855Z > Task :i18n-ank:compileReleaseKotlinAndroid FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.6228422Z > Task :i18n:compileReleaseKotlinAndroid FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.6229325Z > Task :i18n:javaPreCompileRelease FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.6230283Z > Task :i18n:compileReleaseJavaWithJavac NO-SOURCE
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.8248465Z > Task :core:common:generateReleaseRFile FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.8249611Z > Task :i18n:bundleLibCompileToJarRelease
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.8250657Z > Task :i18n-sy:kmpPartiallyResolvedDependenciesChecker
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.8251728Z > Task :i18n-sy:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.9208995Z > Task :app:mergeReleaseArtProfile
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.9213147Z > Task :i18n-sy:compileReleaseKotlinAndroid FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.9217211Z > Task :source-api:generateReleaseRFile FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.9221467Z > Task :i18n-sy:javaPreCompileRelease FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:12.9245213Z > Task :i18n-sy:compileReleaseJavaWithJavac NO-SOURCE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.0206457Z > Task :core-metadata:generateReleaseRFile FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.1206174Z > Task :domain:generateReleaseRFile FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.4215698Z > Task :app:mergeReleaseNativeLibs
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.4216421Z > Task :i18n-ank:javaPreCompileRelease FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.4217303Z > Task :domain:javaPreCompileRelease FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.4218070Z > Task :source-local:kmpPartiallyResolvedDependenciesChecker
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.4218970Z > Task :source-local:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.4219848Z > Task :source-local:generateReleaseResValues FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.4220542Z > Task :i18n-sy:bundleLibCompileToJarRelease
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.4221256Z > Task :i18n-ank:compileReleaseJavaWithJavac NO-SOURCE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.4243729Z > Task :source-local:generateReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.4244977Z > Task :i18n-ank:bundleLibCompileToJarRelease
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.4245711Z > Task :core:archive:generateReleaseResValues FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.4247389Z > Task :core:archive:generateReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.4248155Z > Task :core:archive:packageReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.4248906Z > Task :core:archive:parseReleaseLocalResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.4249642Z > Task :source-local:packageReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.4250403Z > Task :source-local:parseReleaseLocalResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.4251127Z > Task :source-local:javaPreCompileRelease FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.4251929Z > Task :data:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.5207413Z > Task :core:archive:generateReleaseRFile FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.7235441Z > Task :source-local:generateReleaseRFile FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.7240995Z > Task :core:archive:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.7241887Z > Task :core:archive:javaPreCompileRelease FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.7242728Z > Task :presentation-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.7243643Z > Task :presentation-core:generateReleaseResValues FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.7244431Z > Task :presentation-core:generateReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.8239718Z > Task :data:generateReleaseDatabaseInterface FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.8253384Z > Task :presentation-core:packageReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.8254201Z > Task :data:generateReleaseResValues FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.8254868Z > Task :data:generateReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.8255648Z > Task :presentation-core:parseReleaseLocalResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.8256415Z > Task :data:packageReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.8257307Z > Task :data:parseReleaseLocalResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:13.9216505Z > Task :core:common:compileReleaseKotlin FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.4447822Z > Task :source-api:parseReleaseLocalResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.4449292Z > Task :i18n:prepareReleaseArtProfile
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.4450022Z > Task :i18n:generateReleaseResValues FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.5430358Z > Task :core-metadata:parseReleaseLocalResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.5441712Z > Task :core:common:generateReleaseResValues FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.5442854Z > Task :core:common:generateReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.5443898Z > Task :i18n:generateReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.5444738Z > Task :core:common:packageReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.5445486Z > Task :core:common:parseReleaseLocalResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.5446246Z > Task :source-api:kmpPartiallyResolvedDependenciesChecker
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.5447103Z > Task :source-api:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.5448426Z > Task :core:common:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.5449404Z > Task :core:common:javaPreCompileRelease FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.5450049Z > Task :source-api:javaPreCompileRelease FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.5450763Z > Task :core-metadata:javaPreCompileRelease FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.5453885Z > Task :domain:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.5459322Z > Task :domain:generateReleaseResValues FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.5460127Z > Task :domain:generateReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.6427401Z > Task :domain:packageReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.6428220Z > Task :domain:parseReleaseLocalResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.6429078Z > Task :i18n-ank:generateReleaseResValues FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.6429735Z > Task :i18n-ank:generateReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.7430595Z > Task :i18n-ank:packageReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.7437957Z > Task :i18n-ank:parseReleaseLocalResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.7439086Z > Task :i18n:packageReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.7439990Z > Task :i18n:parseReleaseLocalResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.7440935Z > Task :i18n-ank:generateReleaseRFile FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.7463518Z > Task :i18n-ank:kmpPartiallyResolvedDependenciesChecker
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.7489674Z > Task :i18n-ank:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.7490885Z > Task :i18n:generateReleaseRFile FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.7491849Z > Task :i18n:kmpPartiallyResolvedDependenciesChecker
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.7492596Z > Task :i18n:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Public Release	Build Release APK	2026-01-23T11:44:13.9503180Z > Task :i18n-sy:generateReleaseRFile FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.2450231Z > Task :core:common:generateReleaseRFile FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.2451411Z > Task :i18n:compileReleaseKotlinAndroid FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.3446162Z > Task :i18n-ank:compileReleaseKotlinAndroid FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.3447343Z > Task :i18n:javaPreCompileRelease FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.3448232Z > Task :i18n:compileReleaseJavaWithJavac NO-SOURCE
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.4425060Z > Task :i18n:bundleLibCompileToJarRelease
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.4429651Z > Task :i18n-sy:kmpPartiallyResolvedDependenciesChecker
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.4433796Z > Task :source-api:generateReleaseRFile FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.4437913Z > Task :i18n-sy:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.5426330Z > Task :app:mergeReleaseArtProfile
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.5467078Z > Task :core-metadata:generateReleaseRFile FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.5471437Z > Task :i18n-sy:compileReleaseKotlinAndroid FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.5475550Z > Task :i18n-sy:javaPreCompileRelease FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.5479727Z > Task :i18n-sy:compileReleaseJavaWithJavac NO-SOURCE
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.5483734Z > Task :i18n-sy:bundleLibCompileToJarRelease
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.6456603Z > Task :domain:generateReleaseRFile FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.7479378Z > Task :i18n-ank:javaPreCompileRelease FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.7484426Z > Task :i18n-ank:compileReleaseJavaWithJavac NO-SOURCE
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.7485528Z > Task :i18n-ank:bundleLibCompileToJarRelease
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.7487613Z > Task :domain:javaPreCompileRelease FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.7488409Z > Task :source-local:kmpPartiallyResolvedDependenciesChecker
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.7489463Z > Task :source-local:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.7490302Z > Task :source-local:generateReleaseResValues FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.8431658Z > Task :source-local:generateReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.8439256Z > Task :source-local:packageReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.8440410Z > Task :source-local:parseReleaseLocalResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.8441462Z > Task :core:archive:generateReleaseResValues FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.8452162Z > Task :core:archive:generateReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.8453431Z > Task :core:archive:packageReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.8454483Z > Task :core:archive:parseReleaseLocalResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:14.9431037Z > Task :core:archive:generateReleaseRFile FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:15.0424110Z > Task :source-local:generateReleaseRFile FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:15.0432547Z > Task :core:archive:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Public Release	Build Release APK	2026-01-23T11:44:15.0454124Z > Task :core:archive:javaPreCompileRelease FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:15.0459660Z > Task :source-local:javaPreCompileRelease FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:15.0462373Z > Task :data:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Public Release	Build Release APK	2026-01-23T11:44:15.5499756Z > Task :app:mergeReleaseNativeLibs
+Build & Public Release	Build Release APK	2026-01-23T11:44:15.5521413Z > Task :presentation-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Public Release	Build Release APK	2026-01-23T11:44:15.5522708Z > Task :presentation-core:generateReleaseResValues FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:15.5523698Z > Task :presentation-core:generateReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:15.5524626Z > Task :presentation-core:packageReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:15.5525576Z > Task :presentation-core:parseReleaseLocalResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:15.6431043Z > Task :data:generateReleaseDatabaseInterface FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:15.6432181Z > Task :data:generateReleaseResValues FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:15.6433187Z > Task :data:generateReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:15.6433995Z > Task :data:packageReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:15.7425378Z > Task :data:parseReleaseLocalResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:15.7426559Z > Task :core:common:compileReleaseKotlin FROM-CACHE
 --
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.2260513Z > Task :source-api:bundleLibCompileToJarRelease
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.2261258Z > Task :core:archive:exportReleaseConsumerProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.4228615Z > Task :presentation-core:compileReleaseKotlin FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.4263073Z > Task :core-metadata:compileReleaseKotlin FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.4263912Z > Task :core-metadata:compileReleaseJavaWithJavac NO-SOURCE
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.4264692Z > Task :presentation-core:javaPreCompileRelease FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.4265473Z > Task :presentation-core:compileReleaseJavaWithJavac NO-SOURCE
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.4266219Z > Task :core-metadata:bundleLibCompileToJarRelease
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.4267097Z > Task :core-metadata:mergeReleaseGeneratedProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.4267836Z > Task :core-metadata:exportReleaseConsumerProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.4268728Z > Task :presentation-widget:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.4269667Z > Task :presentation-widget:generateReleaseResValues FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.4270414Z > Task :presentation-core:bundleLibCompileToJarRelease
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.4271149Z > Task :source-api:mergeReleaseGeneratedProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.5223803Z > Task :presentation-widget:generateReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.5225167Z > Task :source-api:exportReleaseConsumerProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.5229713Z > Task :presentation-core:mergeReleaseGeneratedProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.5231191Z > Task :presentation-core:exportReleaseConsumerProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.5234655Z > Task :presentation-widget:packageReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.5235541Z > Task :flagkit:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.5236347Z > Task :flagkit:generateReleaseResValues FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.5237328Z > Task :presentation-widget:parseReleaseLocalResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.5238096Z > Task :domain:compileReleaseKotlin FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.5238757Z > Task :domain:compileReleaseJavaWithJavac NO-SOURCE
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.6206275Z > Task :flagkit:generateReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.6214555Z > Task :domain:mergeReleaseGeneratedProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.6217445Z > Task :domain:exportReleaseConsumerProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.6219338Z > Task :app:expandReleaseL8ArtProfileWildcards FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.6221191Z > Task :domain:bundleLibCompileToJarRelease
-Build & Public Release	Build Release APK	2026-01-23T11:41:14.7228531Z > Task :flagkit:packageReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:15.9446301Z > Task :data:generateReleaseRFile FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:15.9447723Z > Task :data:javaPreCompileRelease FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.2424593Z > Task :core:archive:compileReleaseKotlin FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.2426160Z > Task :core:archive:compileReleaseJavaWithJavac NO-SOURCE
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.6454145Z > Task :app:stripReleaseDebugSymbols
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.6459762Z > Task :app:extractReleaseNativeSymbolTables FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.6460587Z > Task :app:mergeReleaseNativeDebugMetadata NO-SOURCE
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.6463535Z > Task :core:archive:mergeReleaseGeneratedProguardFiles
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.6464285Z > Task :core:archive:exportReleaseConsumerProguardFiles
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.6464933Z > Task :core:archive:bundleLibCompileToJarRelease
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.6465757Z > Task :presentation-widget:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.6466740Z > Task :flagkit:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.6467559Z > Task :presentation-widget:generateReleaseResValues FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.6468267Z > Task :flagkit:generateReleaseResValues FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.6469173Z > Task :presentation-widget:generateReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.7443567Z > Task :presentation-widget:packageReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.7445025Z > Task :flagkit:generateReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.7449981Z > Task :source-api:compileReleaseKotlinAndroid FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.7452706Z > Task :source-api:compileReleaseJavaWithJavac NO-SOURCE
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.7455397Z > Task :presentation-widget:parseReleaseLocalResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.7458089Z > Task :source-api:bundleLibCompileToJarRelease
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.7467932Z > Task :presentation-core:compileReleaseKotlin FROM-CACHE
 --
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.3259627Z > Task :source-local:mergeReleaseGeneratedProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.3260439Z > Task :app:extractReleaseNativeSymbolTables FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.3261173Z > Task :app:mergeReleaseNativeDebugMetadata NO-SOURCE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.3262245Z > Task :source-local:exportReleaseConsumerProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.3262958Z > Task :flagkit:parseReleaseLocalResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.3263678Z > Task :core:common:mergeReleaseGeneratedProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.3264398Z > Task :core:common:exportReleaseConsumerProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.3265085Z > Task :i18n:mergeReleaseGeneratedProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.4205110Z > Task :i18n:exportReleaseConsumerProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.4208269Z > Task :i18n-kmk:kmpPartiallyResolvedDependenciesChecker
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.4212884Z > Task :i18n-kmk:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.4213983Z > Task :i18n-kmk:generateReleaseResValues FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.4214819Z > Task :flagkit:generateReleaseRFile FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.4215600Z > Task :i18n-kmk:generateReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.4216410Z > Task :presentation-widget:compileReleaseKotlin FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.4217430Z > Task :flagkit:compileReleaseKotlin FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.4218315Z > Task :presentation-widget:javaPreCompileRelease FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.4219269Z > Task :presentation-widget:compileReleaseJavaWithJavac NO-SOURCE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.4220168Z > Task :i18n-kmk:packageReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.4225080Z > Task :flagkit:javaPreCompileRelease FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.4226040Z > Task :presentation-widget:mergeReleaseGeneratedProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.5251384Z > Task :flagkit:compileReleaseJavaWithJavac NO-SOURCE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.5342274Z > Task :flagkit:mergeReleaseGeneratedProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.5343106Z > Task :i18n-kmk:parseReleaseLocalResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.5343802Z > Task :flagkit:exportReleaseConsumerProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.5344505Z > Task :presentation-widget:exportReleaseConsumerProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.5345171Z > Task :i18n-ank:mergeReleaseGeneratedProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.5345838Z > Task :i18n-sy:mergeReleaseGeneratedProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.5346407Z > Task :i18n-sy:exportReleaseConsumerProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.5347535Z > Task :telemetry:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.5348632Z > Task :i18n-ank:exportReleaseConsumerProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.5349320Z > Task :i18n-kmk:generateReleaseRFile FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.5350011Z > Task :telemetry:generateReleaseResValues FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.5350696Z > Task :telemetry:generateReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.5351431Z > Task :telemetry:packageReleaseResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.5352046Z > Task :data:compileReleaseKotlin FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.5352669Z > Task :data:compileReleaseJavaWithJavac NO-SOURCE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.5353286Z > Task :telemetry:parseReleaseLocalResources FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.5353991Z > Task :data:mergeReleaseGeneratedProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.5354637Z > Task :data:exportReleaseConsumerProguardFiles
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.8454792Z > Task :source-api:exportReleaseConsumerProguardFiles
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.8455501Z > Task :presentation-core:mergeReleaseGeneratedProguardFiles
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.8456189Z > Task :flagkit:parseReleaseLocalResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.8456850Z > Task :presentation-widget:generateReleaseRFile FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.9446933Z > Task :presentation-widget:javaPreCompileRelease FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.9466544Z > Task :core:common:mergeReleaseGeneratedProguardFiles
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.9467390Z > Task :presentation-core:exportReleaseConsumerProguardFiles
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.9468164Z > Task :core:common:exportReleaseConsumerProguardFiles
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.9469093Z > Task :i18n:mergeReleaseGeneratedProguardFiles
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.9469811Z > Task :i18n-kmk:kmpPartiallyResolvedDependenciesChecker
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.9474139Z > Task :i18n-kmk:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.9474981Z > Task :i18n-kmk:generateReleaseResValues FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.9476028Z > Task :i18n-kmk:generateReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.9476672Z > Task :i18n:exportReleaseConsumerProguardFiles
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.9477331Z > Task :i18n-ank:mergeReleaseGeneratedProguardFiles
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.9478020Z > Task :i18n-ank:exportReleaseConsumerProguardFiles
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.9478812Z > Task :flagkit:generateReleaseRFile FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.9479474Z > Task :i18n-sy:mergeReleaseGeneratedProguardFiles
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.9480132Z > Task :i18n-sy:exportReleaseConsumerProguardFiles
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.9480852Z > Task :telemetry:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.9481658Z > Task :telemetry:generateReleaseResValues FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.9489191Z > Task :i18n-kmk:packageReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:16.9491261Z > Task :telemetry:generateReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.0427616Z > Task :i18n-kmk:parseReleaseLocalResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.0432880Z > Task :telemetry:packageReleaseResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.0434064Z > Task :telemetry:parseReleaseLocalResources FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.0435111Z > Task :i18n-kmk:generateReleaseRFile FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.0441505Z > Task :telemetry:generateReleaseRFile FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.0442634Z > Task :flagkit:compileReleaseKotlin FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.0443574Z > Task :flagkit:javaPreCompileRelease FROM-CACHE
 --
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.6211157Z > Task :i18n-kmk:mergeReleaseGeneratedProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.6212952Z > Task :telemetry:compileReleaseKotlin FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.6213611Z > Task :telemetry:javaPreCompileRelease FROM-CACHE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.6214296Z > Task :telemetry:compileReleaseJavaWithJavac NO-SOURCE
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.6224616Z > Task :telemetry:mergeReleaseGeneratedProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.8206718Z > Task :telemetry:exportReleaseConsumerProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.8207784Z > Task :core-metadata:writeReleaseAarMetadata
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.8209910Z > Task :i18n-kmk:exportReleaseConsumerProguardFiles
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.8211998Z > Task :flagkit:writeReleaseAarMetadata
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.8212687Z > Task :domain:writeReleaseAarMetadata
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.8213412Z > Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.8214675Z > Task :data:writeReleaseAarMetadata
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.8216319Z > Task :i18n:writeReleaseAarMetadata
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.8217077Z > Task :i18n-ank:writeReleaseAarMetadata
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.8217681Z > Task :i18n-kmk:writeReleaseAarMetadata
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.9215001Z > Task :i18n-sy:writeReleaseAarMetadata
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.9219539Z > Task :app:checkReleaseDuplicateClasses
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.9228182Z > Task :presentation-core:writeReleaseAarMetadata
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.9236237Z > Task :presentation-widget:writeReleaseAarMetadata
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.9243069Z > Task :source-local:writeReleaseAarMetadata
-Build & Public Release	Build Release APK	2026-01-23T11:41:15.9254875Z > Task :source-api:writeReleaseAarMetadata
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.1459773Z > Task :domain:bundleLibCompileToJarRelease
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.1460336Z > Task :app:buildKotlinToolingMetadata
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.1460901Z > Task :i18n-ank:writeReleaseAarMetadata
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.1461451Z > Task :i18n-kmk:writeReleaseAarMetadata
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.2452840Z > Task :source-local:compileReleaseKotlinAndroid FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.2463792Z > Task :source-local:compileReleaseJavaWithJavac NO-SOURCE
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.2464604Z > Task :source-local:mergeReleaseGeneratedProguardFiles
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.4424458Z > Task :source-local:exportReleaseConsumerProguardFiles
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.4428882Z > Task :i18n-sy:writeReleaseAarMetadata
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.4432880Z > Task :presentation-core:writeReleaseAarMetadata
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.4437003Z > Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.5445221Z > Task :data:compileReleaseKotlin FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.5449451Z > Task :data:compileReleaseJavaWithJavac NO-SOURCE
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.5450252Z > Task :data:mergeReleaseGeneratedProguardFiles
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.5452143Z > Task :presentation-widget:compileReleaseKotlin FROM-CACHE
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.5453127Z > Task :data:exportReleaseConsumerProguardFiles
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.5455075Z > Task :presentation-widget:compileReleaseJavaWithJavac NO-SOURCE
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.6450503Z > Task :presentation-widget:mergeReleaseGeneratedProguardFiles
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.6451642Z > Task :app:checkReleaseDuplicateClasses
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.6452540Z > Task :presentation-widget:writeReleaseAarMetadata
+Build & Public Release	Build Release APK	2026-01-23T11:44:17.6453554Z > Task :source-api:writeReleaseAarMetadata
