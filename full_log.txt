@@ -1,852 +1,857 @@
-Build & Release	Set up job	﻿2026-01-23T08:24:11.2979191Z Current runner version: '2.331.0'
-Build & Release	Set up job	2026-01-23T08:24:11.3013907Z ##[group]Runner Image Provisioner
-Build & Release	Set up job	2026-01-23T08:24:11.3015522Z Hosted Compute Agent
-Build & Release	Set up job	2026-01-23T08:24:11.3016374Z Version: 20260115.477
-Build & Release	Set up job	2026-01-23T08:24:11.3017423Z Commit: 4b342d620503cbe250a3154040964899ea7c9b00
-Build & Release	Set up job	2026-01-23T08:24:11.3018535Z Build Date: 2026-01-15T22:32:41Z
-Build & Release	Set up job	2026-01-23T08:24:11.3019915Z Worker ID: {ff7f60e4-fd4d-4549-914c-e01b73de82a4}
-Build & Release	Set up job	2026-01-23T08:24:11.3021199Z Azure Region: centralus
-Build & Release	Set up job	2026-01-23T08:24:11.3022041Z ##[endgroup]
-Build & Release	Set up job	2026-01-23T08:24:11.3024342Z ##[group]Operating System
-Build & Release	Set up job	2026-01-23T08:24:11.3025244Z Ubuntu
-Build & Release	Set up job	2026-01-23T08:24:11.3025975Z 24.04.3
-Build & Release	Set up job	2026-01-23T08:24:11.3026676Z LTS
-Build & Release	Set up job	2026-01-23T08:24:11.3027665Z ##[endgroup]
-Build & Release	Set up job	2026-01-23T08:24:11.3028427Z ##[group]Runner Image
-Build & Release	Set up job	2026-01-23T08:24:11.3029292Z Image: ubuntu-24.04
-Build & Release	Set up job	2026-01-23T08:24:11.3030469Z Version: 20260119.4.1
-Build & Release	Set up job	2026-01-23T08:24:11.3032202Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260119.4/images/ubuntu/Ubuntu2404-Readme.md
-Build & Release	Set up job	2026-01-23T08:24:11.3035279Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260119.4
-Build & Release	Set up job	2026-01-23T08:24:11.3036911Z ##[endgroup]
-Build & Release	Set up job	2026-01-23T08:24:11.3038844Z ##[group]GITHUB_TOKEN Permissions
-Build & Release	Set up job	2026-01-23T08:24:11.3042028Z Contents: write
-Build & Release	Set up job	2026-01-23T08:24:11.3042886Z Metadata: read
-Build & Release	Set up job	2026-01-23T08:24:11.3043841Z ##[endgroup]
-Build & Release	Set up job	2026-01-23T08:24:11.3046683Z Secret source: Actions
-Build & Release	Set up job	2026-01-23T08:24:11.3048400Z Prepare workflow directory
-Build & Release	Set up job	2026-01-23T08:24:11.3467623Z Prepare all required actions
-Build & Release	Set up job	2026-01-23T08:24:11.3506824Z Getting action download info
-Build & Release	Set up job	2026-01-23T08:24:11.7694290Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
-Build & Release	Set up job	2026-01-23T08:24:11.9074454Z Download action repository 'actions/setup-java@v4' (SHA:c1e323688fd81a25caa38c78aa6df2d33d3e20d9)
-Build & Release	Set up job	2026-01-23T08:24:12.4627246Z Download action repository 'gradle/actions@v4' (SHA:748248ddd2a24f49513d8f472f81c3a07d4d50e1)
-Build & Release	Set up job	2026-01-23T08:24:13.5153856Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
-Build & Release	Set up job	2026-01-23T08:24:13.6301525Z Download action repository 'softprops/action-gh-release@v1' (SHA:de2c0eb89ae2a093876385947365aca7b0e5f844)
-Build & Release	Set up job	2026-01-23T08:24:14.1225624Z Complete job name: Build & Release
-Build & Release	Clone repo	﻿2026-01-23T08:24:14.1857762Z ##[group]Run actions/checkout@v4
-Build & Release	Clone repo	2026-01-23T08:24:14.1858337Z with:
-Build & Release	Clone repo	2026-01-23T08:24:14.1858527Z   fetch-depth: 1
-Build & Release	Clone repo	2026-01-23T08:24:14.1858737Z   repository: salmanbappi/Anikku-Mod
-Build & Release	Clone repo	2026-01-23T08:24:14.1859131Z   token: ***
-Build & Release	Clone repo	2026-01-23T08:24:14.1859306Z   ssh-strict: true
-Build & Release	Clone repo	2026-01-23T08:24:14.1859734Z   ssh-user: git
-Build & Release	Clone repo	2026-01-23T08:24:14.1859933Z   persist-credentials: true
-Build & Release	Clone repo	2026-01-23T08:24:14.1860143Z   clean: true
-Build & Release	Clone repo	2026-01-23T08:24:14.1860346Z   sparse-checkout-cone-mode: true
-Build & Release	Clone repo	2026-01-23T08:24:14.1860578Z   fetch-tags: false
-Build & Release	Clone repo	2026-01-23T08:24:14.1860767Z   show-progress: true
-Build & Release	Clone repo	2026-01-23T08:24:14.1860946Z   lfs: false
-Build & Release	Clone repo	2026-01-23T08:24:14.1861112Z   submodules: false
-Build & Release	Clone repo	2026-01-23T08:24:14.1861290Z   set-safe-directory: true
-Build & Release	Clone repo	2026-01-23T08:24:14.1861749Z ##[endgroup]
-Build & Release	Clone repo	2026-01-23T08:24:14.2909841Z Syncing repository: salmanbappi/Anikku-Mod
-Build & Release	Clone repo	2026-01-23T08:24:14.2911203Z ##[group]Getting Git version info
-Build & Release	Clone repo	2026-01-23T08:24:14.2911620Z Working directory is '/home/runner/work/Anikku-Mod/Anikku-Mod'
-Build & Release	Clone repo	2026-01-23T08:24:14.2912154Z [command]/usr/bin/git version
-Build & Release	Clone repo	2026-01-23T08:24:14.2977930Z git version 2.52.0
-Build & Release	Clone repo	2026-01-23T08:24:14.3003951Z ##[endgroup]
-Build & Release	Clone repo	2026-01-23T08:24:14.3017565Z Temporarily overriding HOME='/home/runner/work/_temp/34a4e651-d5a0-45ce-a8b1-9ab8d9dc4b97' before making global git config changes
-Build & Release	Clone repo	2026-01-23T08:24:14.3018503Z Adding repository directory to the temporary git global config as a safe directory
-Build & Release	Clone repo	2026-01-23T08:24:14.3029786Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Anikku-Mod/Anikku-Mod
-Build & Release	Clone repo	2026-01-23T08:24:14.3065897Z Deleting the contents of '/home/runner/work/Anikku-Mod/Anikku-Mod'
-Build & Release	Clone repo	2026-01-23T08:24:14.3069263Z ##[group]Initializing the repository
-Build & Release	Clone repo	2026-01-23T08:24:14.3073524Z [command]/usr/bin/git init /home/runner/work/Anikku-Mod/Anikku-Mod
-Build & Release	Clone repo	2026-01-23T08:24:14.3171829Z hint: Using 'master' as the name for the initial branch. This default branch name
-Build & Release	Clone repo	2026-01-23T08:24:14.3172894Z hint: will change to "main" in Git 3.0. To configure the initial branch name
-Build & Release	Clone repo	2026-01-23T08:24:14.3173801Z hint: to use in all of your new repositories, which will suppress this warning,
-Build & Release	Clone repo	2026-01-23T08:24:14.3174499Z hint: call:
-Build & Release	Clone repo	2026-01-23T08:24:14.3174812Z hint:
-Build & Release	Clone repo	2026-01-23T08:24:14.3175261Z hint: 	git config --global init.defaultBranch <name>
-Build & Release	Clone repo	2026-01-23T08:24:14.3175826Z hint:
-Build & Release	Clone repo	2026-01-23T08:24:14.3176327Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
-Build & Release	Clone repo	2026-01-23T08:24:14.3177238Z hint: 'development'. The just-created branch can be renamed via this command:
-Build & Release	Clone repo	2026-01-23T08:24:14.3177940Z hint:
-Build & Release	Clone repo	2026-01-23T08:24:14.3178249Z hint: 	git branch -m <name>
-Build & Release	Clone repo	2026-01-23T08:24:14.3178524Z hint:
-Build & Release	Clone repo	2026-01-23T08:24:14.3178847Z hint: Disable this message with "git config set advice.defaultBranchName false"
-Build & Release	Clone repo	2026-01-23T08:24:14.3179664Z Initialized empty Git repository in /home/runner/work/Anikku-Mod/Anikku-Mod/.git/
-Build & Release	Clone repo	2026-01-23T08:24:14.3187839Z [command]/usr/bin/git remote add origin https://github.com/salmanbappi/Anikku-Mod
-Build & Release	Clone repo	2026-01-23T08:24:14.3220141Z ##[endgroup]
-Build & Release	Clone repo	2026-01-23T08:24:14.3220575Z ##[group]Disabling automatic garbage collection
-Build & Release	Clone repo	2026-01-23T08:24:14.3224452Z [command]/usr/bin/git config --local gc.auto 0
-Build & Release	Clone repo	2026-01-23T08:24:14.3252019Z ##[endgroup]
-Build & Release	Clone repo	2026-01-23T08:24:14.3252396Z ##[group]Setting up auth
-Build & Release	Clone repo	2026-01-23T08:24:14.3258786Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
-Build & Release	Clone repo	2026-01-23T08:24:14.3287854Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
-Build & Release	Clone repo	2026-01-23T08:24:14.3626451Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
-Build & Release	Clone repo	2026-01-23T08:24:14.3657187Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
-Build & Release	Clone repo	2026-01-23T08:24:14.3898200Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
-Build & Release	Clone repo	2026-01-23T08:24:14.3930840Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
-Build & Release	Clone repo	2026-01-23T08:24:14.4157876Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
-Build & Release	Clone repo	2026-01-23T08:24:14.4191208Z ##[endgroup]
-Build & Release	Clone repo	2026-01-23T08:24:14.4191632Z ##[group]Fetching the repository
-Build & Release	Clone repo	2026-01-23T08:24:14.4199222Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +297dd43b3bede137f2d74457d59efdf214d5b2c9:refs/remotes/origin/master
-Build & Release	Clone repo	2026-01-23T08:24:14.9663824Z From https://github.com/salmanbappi/Anikku-Mod
-Build & Release	Clone repo	2026-01-23T08:24:14.9666183Z  * [new ref]         297dd43b3bede137f2d74457d59efdf214d5b2c9 -> origin/master
-Build & Release	Clone repo	2026-01-23T08:24:14.9696426Z ##[endgroup]
-Build & Release	Clone repo	2026-01-23T08:24:14.9697728Z ##[group]Determining the checkout info
-Build & Release	Clone repo	2026-01-23T08:24:14.9700615Z ##[endgroup]
-Build & Release	Clone repo	2026-01-23T08:24:14.9776829Z [command]/usr/bin/git sparse-checkout disable
-Build & Release	Clone repo	2026-01-23T08:24:14.9779618Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
-Build & Release	Clone repo	2026-01-23T08:24:14.9781214Z ##[group]Checking out the ref
-Build & Release	Clone repo	2026-01-23T08:24:14.9781920Z [command]/usr/bin/git checkout --progress --force -B master refs/remotes/origin/master
-Build & Release	Clone repo	2026-01-23T08:24:15.1290903Z Reset branch 'master'
-Build & Release	Clone repo	2026-01-23T08:24:15.1293038Z branch 'master' set up to track 'origin/master'.
-Build & Release	Clone repo	2026-01-23T08:24:15.1304153Z ##[endgroup]
-Build & Release	Clone repo	2026-01-23T08:24:15.1341795Z [command]/usr/bin/git log -1 --format=%H
-Build & Release	Clone repo	2026-01-23T08:24:15.1363651Z 297dd43b3bede137f2d74457d59efdf214d5b2c9
-Build & Release	Set up JDK	﻿2026-01-23T08:24:15.1596850Z ##[group]Run actions/setup-java@v4
-Build & Release	Set up JDK	2026-01-23T08:24:15.1597148Z with:
-Build & Release	Set up JDK	2026-01-23T08:24:15.1597330Z   java-version: 17
-Build & Release	Set up JDK	2026-01-23T08:24:15.1597704Z   distribution: temurin
-Build & Release	Set up JDK	2026-01-23T08:24:15.1597908Z   java-package: jdk
-Build & Release	Set up JDK	2026-01-23T08:24:15.1598098Z   check-latest: false
-Build & Release	Set up JDK	2026-01-23T08:24:15.1598277Z   server-id: github
-Build & Release	Set up JDK	2026-01-23T08:24:15.1598464Z   server-username: GITHUB_ACTOR
-Build & Release	Set up JDK	2026-01-23T08:24:15.1598694Z   server-password: GITHUB_TOKEN
-Build & Release	Set up JDK	2026-01-23T08:24:15.1598916Z   overwrite-settings: true
-Build & Release	Set up JDK	2026-01-23T08:24:15.1599120Z   job-status: success
-Build & Release	Set up JDK	2026-01-23T08:24:15.1599699Z   token: ***
-Build & Release	Set up JDK	2026-01-23T08:24:15.1599946Z ##[endgroup]
-Build & Release	Set up JDK	2026-01-23T08:24:15.3613076Z ##[group]Installed distributions
-Build & Release	Set up JDK	2026-01-23T08:24:15.3677591Z Resolved Java 17.0.17+10 from tool-cache
-Build & Release	Set up JDK	2026-01-23T08:24:15.3678928Z Setting Java 17.0.17+10 as the default
-Build & Release	Set up JDK	2026-01-23T08:24:15.3691811Z Creating toolchains.xml for JDK version 17 from temurin
-Build & Release	Set up JDK	2026-01-23T08:24:15.3768297Z Writing to /home/runner/.m2/toolchains.xml
-Build & Release	Set up JDK	2026-01-23T08:24:15.3768723Z 
-Build & Release	Set up JDK	2026-01-23T08:24:15.3768961Z Java configuration:
-Build & Release	Set up JDK	2026-01-23T08:24:15.3770852Z   Distribution: temurin
-Build & Release	Set up JDK	2026-01-23T08:24:15.3771280Z   Version: 17.0.17+10
-Build & Release	Set up JDK	2026-01-23T08:24:15.3772055Z   Path: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.17-10/x64
-Build & Release	Set up JDK	2026-01-23T08:24:15.3772684Z 
-Build & Release	Set up JDK	2026-01-23T08:24:15.3773503Z ##[endgroup]
-Build & Release	Set up JDK	2026-01-23T08:24:15.3788783Z Creating settings.xml with server-id: github
-Build & Release	Set up JDK	2026-01-23T08:24:15.3797300Z Writing to /home/runner/.m2/settings.xml
-Build & Release	Set up Gradle	﻿2026-01-23T08:24:15.4013296Z ##[group]Run gradle/actions/setup-gradle@v4
-Build & Release	Set up Gradle	2026-01-23T08:24:15.4013615Z with:
-Build & Release	Set up Gradle	2026-01-23T08:24:15.4013796Z   cache-disabled: false
-Build & Release	Set up Gradle	2026-01-23T08:24:15.4014011Z   cache-read-only: false
-Build & Release	Set up Gradle	2026-01-23T08:24:15.4014219Z   cache-write-only: false
-Build & Release	Set up Gradle	2026-01-23T08:24:15.4014451Z   cache-overwrite-existing: false
-Build & Release	Set up Gradle	2026-01-23T08:24:15.4014682Z   cache-cleanup: on-success
-Build & Release	Set up Gradle	2026-01-23T08:24:15.4014947Z   gradle-home-cache-includes: caches
+Build & Release	Set up job	﻿2026-01-23T08:39:29.8317888Z Current runner version: '2.331.0'
+Build & Release	Set up job	2026-01-23T08:39:29.8341676Z ##[group]Runner Image Provisioner
+Build & Release	Set up job	2026-01-23T08:39:29.8342731Z Hosted Compute Agent
+Build & Release	Set up job	2026-01-23T08:39:29.8343291Z Version: 20260115.477
+Build & Release	Set up job	2026-01-23T08:39:29.8343904Z Commit: 4b342d620503cbe250a3154040964899ea7c9b00
+Build & Release	Set up job	2026-01-23T08:39:29.8344598Z Build Date: 2026-01-15T22:32:41Z
+Build & Release	Set up job	2026-01-23T08:39:29.8345262Z Worker ID: {ab59a00e-0d90-4056-9a2b-32254ec44541}
+Build & Release	Set up job	2026-01-23T08:39:29.8345953Z Azure Region: westus3
+Build & Release	Set up job	2026-01-23T08:39:29.8346545Z ##[endgroup]
+Build & Release	Set up job	2026-01-23T08:39:29.8347921Z ##[group]Operating System
+Build & Release	Set up job	2026-01-23T08:39:29.8348539Z Ubuntu
+Build & Release	Set up job	2026-01-23T08:39:29.8349082Z 24.04.3
+Build & Release	Set up job	2026-01-23T08:39:29.8349530Z LTS
+Build & Release	Set up job	2026-01-23T08:39:29.8350037Z ##[endgroup]
+Build & Release	Set up job	2026-01-23T08:39:29.8350496Z ##[group]Runner Image
+Build & Release	Set up job	2026-01-23T08:39:29.8351110Z Image: ubuntu-24.04
+Build & Release	Set up job	2026-01-23T08:39:29.8351883Z Version: 20260119.4.1
+Build & Release	Set up job	2026-01-23T08:39:29.8352897Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260119.4/images/ubuntu/Ubuntu2404-Readme.md
+Build & Release	Set up job	2026-01-23T08:39:29.8354639Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260119.4
+Build & Release	Set up job	2026-01-23T08:39:29.8355579Z ##[endgroup]
+Build & Release	Set up job	2026-01-23T08:39:29.8356554Z ##[group]GITHUB_TOKEN Permissions
+Build & Release	Set up job	2026-01-23T08:39:29.8358311Z Contents: write
+Build & Release	Set up job	2026-01-23T08:39:29.8358993Z Metadata: read
+Build & Release	Set up job	2026-01-23T08:39:29.8359523Z ##[endgroup]
+Build & Release	Set up job	2026-01-23T08:39:29.8361748Z Secret source: Actions
+Build & Release	Set up job	2026-01-23T08:39:29.8362581Z Prepare workflow directory
+Build & Release	Set up job	2026-01-23T08:39:29.8694419Z Prepare all required actions
+Build & Release	Set up job	2026-01-23T08:39:29.8732317Z Getting action download info
+Build & Release	Set up job	2026-01-23T08:39:30.3263190Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+Build & Release	Set up job	2026-01-23T08:39:30.4457672Z Download action repository 'actions/setup-java@v4' (SHA:c1e323688fd81a25caa38c78aa6df2d33d3e20d9)
+Build & Release	Set up job	2026-01-23T08:39:31.4262984Z Download action repository 'gradle/actions@v4' (SHA:748248ddd2a24f49513d8f472f81c3a07d4d50e1)
+Build & Release	Set up job	2026-01-23T08:39:32.9926916Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+Build & Release	Set up job	2026-01-23T08:39:33.1113621Z Download action repository 'softprops/action-gh-release@v1' (SHA:de2c0eb89ae2a093876385947365aca7b0e5f844)
+Build & Release	Set up job	2026-01-23T08:39:33.9057331Z Complete job name: Build & Release
+Build & Release	Clone repo	﻿2026-01-23T08:39:33.9683216Z ##[group]Run actions/checkout@v4
+Build & Release	Clone repo	2026-01-23T08:39:33.9683783Z with:
+Build & Release	Clone repo	2026-01-23T08:39:33.9683979Z   fetch-depth: 1
+Build & Release	Clone repo	2026-01-23T08:39:33.9684190Z   repository: salmanbappi/Anikku-Mod
+Build & Release	Clone repo	2026-01-23T08:39:33.9684592Z   token: ***
+Build & Release	Clone repo	2026-01-23T08:39:33.9684777Z   ssh-strict: true
+Build & Release	Clone repo	2026-01-23T08:39:33.9684960Z   ssh-user: git
+Build & Release	Clone repo	2026-01-23T08:39:33.9685143Z   persist-credentials: true
+Build & Release	Clone repo	2026-01-23T08:39:33.9685358Z   clean: true
+Build & Release	Clone repo	2026-01-23T08:39:33.9685558Z   sparse-checkout-cone-mode: true
+Build & Release	Clone repo	2026-01-23T08:39:33.9685795Z   fetch-tags: false
+Build & Release	Clone repo	2026-01-23T08:39:33.9686000Z   show-progress: true
+Build & Release	Clone repo	2026-01-23T08:39:33.9686185Z   lfs: false
+Build & Release	Clone repo	2026-01-23T08:39:33.9686351Z   submodules: false
+Build & Release	Clone repo	2026-01-23T08:39:33.9686534Z   set-safe-directory: true
+Build & Release	Clone repo	2026-01-23T08:39:33.9686957Z ##[endgroup]
+Build & Release	Clone repo	2026-01-23T08:39:34.0779264Z Syncing repository: salmanbappi/Anikku-Mod
+Build & Release	Clone repo	2026-01-23T08:39:34.0781349Z ##[group]Getting Git version info
+Build & Release	Clone repo	2026-01-23T08:39:34.0782243Z Working directory is '/home/runner/work/Anikku-Mod/Anikku-Mod'
+Build & Release	Clone repo	2026-01-23T08:39:34.0783269Z [command]/usr/bin/git version
+Build & Release	Clone repo	2026-01-23T08:39:34.0845034Z git version 2.52.0
+Build & Release	Clone repo	2026-01-23T08:39:34.0871030Z ##[endgroup]
+Build & Release	Clone repo	2026-01-23T08:39:34.0886739Z Temporarily overriding HOME='/home/runner/work/_temp/70dd68b3-0d0a-46d9-b8b9-cd9bdb5287dc' before making global git config changes
+Build & Release	Clone repo	2026-01-23T08:39:34.0888173Z Adding repository directory to the temporary git global config as a safe directory
+Build & Release	Clone repo	2026-01-23T08:39:34.0901047Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Anikku-Mod/Anikku-Mod
+Build & Release	Clone repo	2026-01-23T08:39:34.0938751Z Deleting the contents of '/home/runner/work/Anikku-Mod/Anikku-Mod'
+Build & Release	Clone repo	2026-01-23T08:39:34.0942453Z ##[group]Initializing the repository
+Build & Release	Clone repo	2026-01-23T08:39:34.0946878Z [command]/usr/bin/git init /home/runner/work/Anikku-Mod/Anikku-Mod
+Build & Release	Clone repo	2026-01-23T08:39:34.1053574Z hint: Using 'master' as the name for the initial branch. This default branch name
+Build & Release	Clone repo	2026-01-23T08:39:34.1054627Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+Build & Release	Clone repo	2026-01-23T08:39:34.1055190Z hint: to use in all of your new repositories, which will suppress this warning,
+Build & Release	Clone repo	2026-01-23T08:39:34.1055600Z hint: call:
+Build & Release	Clone repo	2026-01-23T08:39:34.1055873Z hint:
+Build & Release	Clone repo	2026-01-23T08:39:34.1056147Z hint: 	git config --global init.defaultBranch <name>
+Build & Release	Clone repo	2026-01-23T08:39:34.1056602Z hint:
+Build & Release	Clone repo	2026-01-23T08:39:34.1057143Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+Build & Release	Clone repo	2026-01-23T08:39:34.1057893Z hint: 'development'. The just-created branch can be renamed via this command:
+Build & Release	Clone repo	2026-01-23T08:39:34.1058290Z hint:
+Build & Release	Clone repo	2026-01-23T08:39:34.1058491Z hint: 	git branch -m <name>
+Build & Release	Clone repo	2026-01-23T08:39:34.1058865Z hint:
+Build & Release	Clone repo	2026-01-23T08:39:34.1059446Z hint: Disable this message with "git config set advice.defaultBranchName false"
+Build & Release	Clone repo	2026-01-23T08:39:34.1060520Z Initialized empty Git repository in /home/runner/work/Anikku-Mod/Anikku-Mod/.git/
+Build & Release	Clone repo	2026-01-23T08:39:34.1069785Z [command]/usr/bin/git remote add origin https://github.com/salmanbappi/Anikku-Mod
+Build & Release	Clone repo	2026-01-23T08:39:34.1102975Z ##[endgroup]
+Build & Release	Clone repo	2026-01-23T08:39:34.1103637Z ##[group]Disabling automatic garbage collection
+Build & Release	Clone repo	2026-01-23T08:39:34.1107975Z [command]/usr/bin/git config --local gc.auto 0
+Build & Release	Clone repo	2026-01-23T08:39:34.1135224Z ##[endgroup]
+Build & Release	Clone repo	2026-01-23T08:39:34.1135873Z ##[group]Setting up auth
+Build & Release	Clone repo	2026-01-23T08:39:34.1142608Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Build & Release	Clone repo	2026-01-23T08:39:34.1172113Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Build & Release	Clone repo	2026-01-23T08:39:34.1502993Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Build & Release	Clone repo	2026-01-23T08:39:34.1532369Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Build & Release	Clone repo	2026-01-23T08:39:34.1747463Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Build & Release	Clone repo	2026-01-23T08:39:34.1776493Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Build & Release	Clone repo	2026-01-23T08:39:34.2003151Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+Build & Release	Clone repo	2026-01-23T08:39:34.2036971Z ##[endgroup]
+Build & Release	Clone repo	2026-01-23T08:39:34.2037679Z ##[group]Fetching the repository
+Build & Release	Clone repo	2026-01-23T08:39:34.2045903Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +96cb70e7bd1356bb23d5e36103ef51361f88a7fe:refs/remotes/origin/master
+Build & Release	Clone repo	2026-01-23T08:39:35.0611774Z From https://github.com/salmanbappi/Anikku-Mod
+Build & Release	Clone repo	2026-01-23T08:39:35.0612737Z  * [new ref]         96cb70e7bd1356bb23d5e36103ef51361f88a7fe -> origin/master
+Build & Release	Clone repo	2026-01-23T08:39:35.0644239Z ##[endgroup]
+Build & Release	Clone repo	2026-01-23T08:39:35.0644687Z ##[group]Determining the checkout info
+Build & Release	Clone repo	2026-01-23T08:39:35.0646509Z ##[endgroup]
+Build & Release	Clone repo	2026-01-23T08:39:35.0651268Z [command]/usr/bin/git sparse-checkout disable
+Build & Release	Clone repo	2026-01-23T08:39:35.0691934Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+Build & Release	Clone repo	2026-01-23T08:39:35.0778969Z ##[group]Checking out the ref
+Build & Release	Clone repo	2026-01-23T08:39:35.0779907Z [command]/usr/bin/git checkout --progress --force -B master refs/remotes/origin/master
+Build & Release	Clone repo	2026-01-23T08:39:35.2242561Z Reset branch 'master'
+Build & Release	Clone repo	2026-01-23T08:39:35.2244617Z branch 'master' set up to track 'origin/master'.
+Build & Release	Clone repo	2026-01-23T08:39:35.2256301Z ##[endgroup]
+Build & Release	Clone repo	2026-01-23T08:39:35.2294728Z [command]/usr/bin/git log -1 --format=%H
+Build & Release	Clone repo	2026-01-23T08:39:35.2316698Z 96cb70e7bd1356bb23d5e36103ef51361f88a7fe
+Build & Release	Set up JDK	﻿2026-01-23T08:39:35.2559232Z ##[group]Run actions/setup-java@v4
+Build & Release	Set up JDK	2026-01-23T08:39:35.2559564Z with:
+Build & Release	Set up JDK	2026-01-23T08:39:35.2559741Z   java-version: 17
+Build & Release	Set up JDK	2026-01-23T08:39:35.2560119Z   distribution: temurin
+Build & Release	Set up JDK	2026-01-23T08:39:35.2560328Z   java-package: jdk
+Build & Release	Set up JDK	2026-01-23T08:39:35.2560533Z   check-latest: false
+Build & Release	Set up JDK	2026-01-23T08:39:35.2560723Z   server-id: github
+Build & Release	Set up JDK	2026-01-23T08:39:35.2560923Z   server-username: GITHUB_ACTOR
+Build & Release	Set up JDK	2026-01-23T08:39:35.2561158Z   server-password: GITHUB_TOKEN
+Build & Release	Set up JDK	2026-01-23T08:39:35.2561386Z   overwrite-settings: true
+Build & Release	Set up JDK	2026-01-23T08:39:35.2561776Z   job-status: success
+Build & Release	Set up JDK	2026-01-23T08:39:35.2562102Z   token: ***
+Build & Release	Set up JDK	2026-01-23T08:39:35.2562285Z ##[endgroup]
+Build & Release	Set up JDK	2026-01-23T08:39:35.4504447Z ##[group]Installed distributions
+Build & Release	Set up JDK	2026-01-23T08:39:35.4568659Z Resolved Java 17.0.17+10 from tool-cache
+Build & Release	Set up JDK	2026-01-23T08:39:35.4570400Z Setting Java 17.0.17+10 as the default
+Build & Release	Set up JDK	2026-01-23T08:39:35.4583157Z Creating toolchains.xml for JDK version 17 from temurin
+Build & Release	Set up JDK	2026-01-23T08:39:35.4659946Z Writing to /home/runner/.m2/toolchains.xml
+Build & Release	Set up JDK	2026-01-23T08:39:35.4660751Z 
+Build & Release	Set up JDK	2026-01-23T08:39:35.4661051Z Java configuration:
+Build & Release	Set up JDK	2026-01-23T08:39:35.4661974Z   Distribution: temurin
+Build & Release	Set up JDK	2026-01-23T08:39:35.4662400Z   Version: 17.0.17+10
+Build & Release	Set up JDK	2026-01-23T08:39:35.4663654Z   Path: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.17-10/x64
+Build & Release	Set up JDK	2026-01-23T08:39:35.4664211Z 
+Build & Release	Set up JDK	2026-01-23T08:39:35.4666076Z ##[endgroup]
+Build & Release	Set up JDK	2026-01-23T08:39:35.4683008Z Creating settings.xml with server-id: github
+Build & Release	Set up JDK	2026-01-23T08:39:35.4689283Z Writing to /home/runner/.m2/settings.xml
+Build & Release	Set up Gradle	﻿2026-01-23T08:39:35.4907417Z ##[group]Run gradle/actions/setup-gradle@v4
+Build & Release	Set up Gradle	2026-01-23T08:39:35.4907729Z with:
+Build & Release	Set up Gradle	2026-01-23T08:39:35.4907905Z   cache-disabled: false
+Build & Release	Set up Gradle	2026-01-23T08:39:35.4908116Z   cache-read-only: false
+Build & Release	Set up Gradle	2026-01-23T08:39:35.4908327Z   cache-write-only: false
+Build & Release	Set up Gradle	2026-01-23T08:39:35.4908560Z   cache-overwrite-existing: false
+Build & Release	Set up Gradle	2026-01-23T08:39:35.4908797Z   cache-cleanup: on-success
+Build & Release	Set up Gradle	2026-01-23T08:39:35.4909065Z   gradle-home-cache-includes: caches
 Build & Release	Set up Gradle	notifications
 Build & Release	Set up Gradle	
-Build & Release	Set up Gradle	2026-01-23T08:24:15.4015253Z   add-job-summary: always
-Build & Release	Set up Gradle	2026-01-23T08:24:15.4015472Z   add-job-summary-as-pr-comment: never
-Build & Release	Set up Gradle	2026-01-23T08:24:15.4015737Z   dependency-graph: disabled
-Build & Release	Set up Gradle	2026-01-23T08:24:15.4016016Z   dependency-graph-report-dir: dependency-graph-reports
-Build & Release	Set up Gradle	2026-01-23T08:24:15.4016372Z   dependency-graph-continue-on-failure: true
-Build & Release	Set up Gradle	2026-01-23T08:24:15.4016642Z   build-scan-publish: false
-Build & Release	Set up Gradle	2026-01-23T08:24:15.4016860Z   validate-wrappers: true
-Build & Release	Set up Gradle	2026-01-23T08:24:15.4017068Z   allow-snapshot-wrappers: false
-Build & Release	Set up Gradle	2026-01-23T08:24:15.4017317Z   gradle-home-cache-strict-match: false
-Build & Release	Set up Gradle	2026-01-23T08:24:15.4017603Z   workflow-job-context: null
-Build & Release	Set up Gradle	2026-01-23T08:24:15.4017997Z   github-token: ***
-Build & Release	Set up Gradle	2026-01-23T08:24:15.4018178Z env:
-Build & Release	Set up Gradle	2026-01-23T08:24:15.4018444Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.17-10/x64
-Build & Release	Set up Gradle	2026-01-23T08:24:15.4018912Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.17-10/x64
-Build & Release	Set up Gradle	2026-01-23T08:24:15.4019276Z ##[endgroup]
-Build & Release	Set up Gradle	2026-01-23T08:24:15.8739927Z Merged default JDK locations into /home/runner/.m2/toolchains.xml
-Build & Release	Set up Gradle	2026-01-23T08:24:15.8742977Z Preparing cache for cleanup.
-Build & Release	Set up Gradle	2026-01-23T08:24:15.8748094Z ##[group]Restore Gradle state from cache
-Build & Release	Set up Gradle	2026-01-23T08:24:16.0311629Z Cache hit for restore-key: gradle-home-v1|Linux-X64|build-debug[965596241329c6e509da153a9e0a419a]-5e68b93d4deeabe55097d83b0cac8587ed934635
-Build & Release	Set up Gradle	2026-01-23T08:24:17.2060644Z Received 117654234 of 121848538 (96.6%), 112.2 MBs/sec
-Build & Release	Set up Gradle	2026-01-23T08:24:17.3034407Z Received 121848538 of 121848538 (100.0%), 105.8 MBs/sec
-Build & Release	Set up Gradle	2026-01-23T08:24:17.3037149Z Cache Size: ~116 MB (121848538 B)
-Build & Release	Set up Gradle	2026-01-23T08:24:17.3073001Z [command]/usr/bin/tar -xf /home/runner/work/_temp/2a9a452f-5443-42aa-961d-18f3fbf94b21/cache.tzst -P -C /home/runner/work/Anikku-Mod/Anikku-Mod --use-compress-program unzstd
-Build & Release	Set up Gradle	2026-01-23T08:24:17.7531026Z Cache restored successfully
-Build & Release	Set up Gradle	2026-01-23T08:24:17.7763518Z Restored cache entry with key gradle-home-v1|Linux-X64|build-debug[965596241329c6e509da153a9e0a419a]-297dd43b3bede137f2d74457d59efdf214d5b2c9 to /home/runner/.gradle/caches,/home/runner/.gradle/notifications,/home/runner/.gradle/.setup-gradle in 1900ms
-Build & Release	Set up Gradle	2026-01-23T08:24:17.9048895Z Cache hit for: gradle-wrapper-zips-v1-5ae5d3da5e8e0c748d04bcdd9bc97bdb
-Build & Release	Set up Gradle	2026-01-23T08:24:17.9113826Z Cache hit for: gradle-generated-gradle-jars-v1-4434c59050703a48bf14168622b59891
-Build & Release	Set up Gradle	2026-01-23T08:24:17.9132797Z Cache hit for: gradle-groovy-dsl-v1-90f5a438fa72a8945020aa0158ae163a
-Build & Release	Set up Gradle	2026-01-23T08:24:17.9159873Z Cache hit for: gradle-kotlin-dsl-v1-d5ce47fbc9d0493f4a7821e864c43c3a
-Build & Release	Set up Gradle	2026-01-23T08:24:17.9180562Z Cache hit for: gradle-dependencies-v1-98f314e8c8679f8838a6f2138114d27c
-Build & Release	Set up Gradle	2026-01-23T08:24:17.9251446Z Cache hit for: gradle-transforms-v1-a3ad3d70bb6f9ac12fe666875cf9e1d9
-Build & Release	Set up Gradle	2026-01-23T08:24:17.9304179Z Cache hit for: gradle-instrumented-jars-v1-378ee90361d1db5b49c9aec129fbc748
-Build & Release	Set up Gradle	2026-01-23T08:24:18.3404088Z Received 121723 of 121723 (100.0%), 0.5 MBs/sec
-Build & Release	Set up Gradle	2026-01-23T08:24:18.3404799Z Cache Size: ~0 MB (121723 B)
-Build & Release	Set up Gradle	2026-01-23T08:24:18.3624245Z Received 187732 of 187732 (100.0%), 0.6 MBs/sec
-Build & Release	Set up Gradle	2026-01-23T08:24:18.3630186Z Cache Size: ~0 MB (187732 B)
-Build & Release	Set up Gradle	2026-01-23T08:24:18.3631363Z [command]/usr/bin/tar -xf /home/runner/work/_temp/8c9a443b-13d4-48d1-94ce-2026427309c1/cache.tzst -P -C /home/runner/work/Anikku-Mod/Anikku-Mod --use-compress-program unzstd
-Build & Release	Set up Gradle	2026-01-23T08:24:18.3861695Z Cache restored successfully
-Build & Release	Set up Gradle	2026-01-23T08:24:18.3874523Z Restored cache entry with key gradle-instrumented-jars-v1-378ee90361d1db5b49c9aec129fbc748 to /home/runner/.gradle/caches/jars-*/*/ in 609ms
-Build & Release	Set up Gradle	2026-01-23T08:24:18.3887119Z [command]/usr/bin/tar -xf /home/runner/work/_temp/58f08a14-b7d0-455a-b64a-3a9aa82be2d4/cache.tzst -P -C /home/runner/work/Anikku-Mod/Anikku-Mod --use-compress-program unzstd
-Build & Release	Set up Gradle	2026-01-23T08:24:18.4501814Z Cache restored successfully
-Build & Release	Set up Gradle	2026-01-23T08:24:18.4916291Z Received 1624474 of 1624474 (100.0%), 3.3 MBs/sec
-Build & Release	Set up Gradle	2026-01-23T08:24:18.4917713Z Cache Size: ~2 MB (1624474 B)
-Build & Release	Set up Gradle	2026-01-23T08:24:18.4929011Z Restored cache entry with key gradle-groovy-dsl-v1-90f5a438fa72a8945020aa0158ae163a to /home/runner/.gradle/caches/*/groovy-dsl/*/ in 714ms
-Build & Release	Set up Gradle	2026-01-23T08:24:18.8278320Z Received 41092997 of 41092997 (100.0%), 51.8 MBs/sec
-Build & Release	Set up Gradle	2026-01-23T08:24:18.8279183Z Cache Size: ~39 MB (41092997 B)
-Build & Release	Set up Gradle	2026-01-23T08:24:18.8508034Z [command]/usr/bin/tar -xf /home/runner/work/_temp/8dcdbff4-8e0d-4904-abb7-fa75efe44208/cache.tzst -P -C /home/runner/work/Anikku-Mod/Anikku-Mod --use-compress-program unzstd
-Build & Release	Set up Gradle	2026-01-23T08:24:19.0416624Z Received 75497472 of 685696080 (11.0%), 71.6 MBs/sec
-Build & Release	Set up Gradle	2026-01-23T08:24:19.0555814Z Received 58720256 of 788787997 (7.4%), 55.9 MBs/sec
-Build & Release	Set up Gradle	2026-01-23T08:24:19.0905759Z Received 71303168 of 136706942 (52.2%), 67.7 MBs/sec
-Build & Release	Set up Gradle	2026-01-23T08:24:19.2691091Z [command]/usr/bin/tar -xf /home/runner/work/_temp/2fd03cdd-5e4b-4c4e-8015-1367f48c4416/cache.tzst -P -C /home/runner/work/Anikku-Mod/Anikku-Mod --use-compress-program unzstd
-Build & Release	Set up Gradle	2026-01-23T08:24:19.8184059Z Cache restored successfully
-Build & Release	Set up Gradle	2026-01-23T08:24:19.8187170Z Cache restored successfully
-Build & Release	Set up Gradle	2026-01-23T08:24:19.8235176Z Received 136706942 of 136706942 (100.0%), 75.0 MBs/sec
-Build & Release	Set up Gradle	2026-01-23T08:24:19.8238785Z Cache Size: ~130 MB (136706942 B)
-Build & Release	Set up Gradle	2026-01-23T08:24:19.8343001Z Restored cache entry with key gradle-kotlin-dsl-v1-d5ce47fbc9d0493f4a7821e864c43c3a to /home/runner/.gradle/caches/*/kotlin-dsl/accessors/*/,/home/runner/.gradle/caches/*/kotlin-dsl/scripts/*/ in 2056ms
-Build & Release	Set up Gradle	2026-01-23T08:24:19.8347415Z Restored cache entry with key gradle-generated-gradle-jars-v1-4434c59050703a48bf14168622b59891 to /home/runner/.gradle/caches/8.14.3/generated-gradle-jars/gradle-api-8.14.3.jar in 2058ms
-Build & Release	Set up Gradle	2026-01-23T08:24:19.8507030Z [command]/usr/bin/tar -xf /home/runner/work/_temp/d0543bfc-18dd-416b-a123-50673c1c9230/cache.tzst -P -C /home/runner/work/Anikku-Mod/Anikku-Mod --use-compress-program unzstd
-Build & Release	Set up Gradle	2026-01-23T08:24:20.0663054Z Received 163577856 of 685696080 (23.9%), 76.8 MBs/sec
-Build & Release	Set up Gradle	2026-01-23T08:24:20.0663899Z Received 142606336 of 788787997 (18.1%), 67.6 MBs/sec
-Build & Release	Set up Gradle	2026-01-23T08:24:20.2021232Z Cache restored successfully
-Build & Release	Set up Gradle	2026-01-23T08:24:20.2418017Z Restored cache entry with key gradle-wrapper-zips-v1-5ae5d3da5e8e0c748d04bcdd9bc97bdb to /home/runner/.gradle/wrapper/dists/gradle-8.14.3-bin/cv11ve7ro1n3o1j4so8xd9n66 in 2464ms
-Build & Release	Set up Gradle	2026-01-23T08:24:21.0710498Z Received 306184192 of 685696080 (44.7%), 96.2 MBs/sec
-Build & Release	Set up Gradle	2026-01-23T08:24:21.0711295Z Received 322961408 of 788787997 (40.9%), 102.1 MBs/sec
-Build & Release	Set up Gradle	2026-01-23T08:24:22.0714542Z Received 440401920 of 685696080 (64.2%), 104.1 MBs/sec
-Build & Release	Set up Gradle	2026-01-23T08:24:22.0715285Z Received 490733568 of 788787997 (62.2%), 116.5 MBs/sec
-Build & Release	Set up Gradle	2026-01-23T08:24:23.0718446Z Received 599785472 of 685696080 (87.5%), 113.6 MBs/sec
-Build & Release	Set up Gradle	2026-01-23T08:24:23.0719165Z Received 645922816 of 788787997 (81.9%), 122.8 MBs/sec
-Build & Release	Set up Gradle	2026-01-23T08:24:23.8703548Z Received 685696080 of 685696080 (100.0%), 112.1 MBs/sec
-Build & Release	Set up Gradle	2026-01-23T08:24:23.8706259Z Cache Size: ~654 MB (685696080 B)
-Build & Release	Set up Gradle	2026-01-23T08:24:23.8919909Z [command]/usr/bin/tar -xf /home/runner/work/_temp/536f49e2-f7ec-4daa-ad06-b662a11588d7/cache.tzst -P -C /home/runner/work/Anikku-Mod/Anikku-Mod --use-compress-program unzstd
-Build & Release	Set up Gradle	2026-01-23T08:24:24.0721797Z Received 784593693 of 788787997 (99.5%), 124.3 MBs/sec
-Build & Release	Set up Gradle	2026-01-23T08:24:24.1970219Z Received 788787997 of 788787997 (100.0%), 122.5 MBs/sec
-Build & Release	Set up Gradle	2026-01-23T08:24:24.1970932Z Cache Size: ~752 MB (788787997 B)
-Build & Release	Set up Gradle	2026-01-23T08:24:24.1995088Z [command]/usr/bin/tar -xf /home/runner/work/_temp/eb775615-07cb-415e-a6a4-29fb3c761396/cache.tzst -P -C /home/runner/work/Anikku-Mod/Anikku-Mod --use-compress-program unzstd
-Build & Release	Set up Gradle	2026-01-23T08:24:25.9366513Z Cache restored successfully
-Build & Release	Set up Gradle	2026-01-23T08:24:26.6119953Z Restored cache entry with key gradle-dependencies-v1-98f314e8c8679f8838a6f2138114d27c to /home/runner/.gradle/caches/modules-*/files-*/*/*/*/* in 8834ms
-Build & Release	Set up Gradle	2026-01-23T08:24:33.7856383Z Cache restored successfully
-Build & Release	Set up Gradle	2026-01-23T08:24:33.9177810Z Restored cache entry with key gradle-transforms-v1-a3ad3d70bb6f9ac12fe666875cf9e1d9 to /home/runner/.gradle/caches/transforms-4/*/,/home/runner/.gradle/caches/*/transforms/*/ in 16138ms
-Build & Release	Set up Gradle	2026-01-23T08:24:33.9273687Z ##[endgroup]
-Build & Release	Set up Gradle	2026-01-23T08:24:33.9763289Z ##[group]All Gradle Wrapper jars are valid
-Build & Release	Set up Gradle	2026-01-23T08:24:33.9764583Z ✓ Found known Gradle Wrapper JAR files:
-Build & Release	Set up Gradle	2026-01-23T08:24:33.9765593Z   7d3a4ac4de1c32b59bc6a4eb8ecb8e612ccd0cf1ae1e99f66902da64df296172 gradle/wrapper/gradle-wrapper.jar
-Build & Release	Set up Gradle	2026-01-23T08:24:33.9766867Z ##[endgroup]
-Build & Release	Build Debug APK	﻿2026-01-23T08:24:33.9947455Z ##[group]Run ./gradlew assembleDebug -Pinclude-telemetry=false -Penable-updater=false --no-daemon
-Build & Release	Build Debug APK	2026-01-23T08:24:33.9948629Z [36;1m./gradlew assembleDebug -Pinclude-telemetry=false -Penable-updater=false --no-daemon[0m
-Build & Release	Build Debug APK	2026-01-23T08:24:33.9983166Z shell: /usr/bin/bash -e {0}
-Build & Release	Build Debug APK	2026-01-23T08:24:33.9983471Z env:
-Build & Release	Build Debug APK	2026-01-23T08:24:33.9983813Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.17-10/x64
-Build & Release	Build Debug APK	2026-01-23T08:24:33.9984369Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.17-10/x64
-Build & Release	Build Debug APK	2026-01-23T08:24:33.9984837Z   GRADLE_ACTION_ID: gradle/actions/setup-gradle
-Build & Release	Build Debug APK	2026-01-23T08:24:33.9985185Z   GRADLE_USER_HOME: /home/runner/.gradle
-Build & Release	Build Debug APK	2026-01-23T08:24:33.9985499Z   GRADLE_BUILD_ACTION_SETUP_COMPLETED: true
-Build & Release	Build Debug APK	2026-01-23T08:24:33.9985827Z   GRADLE_BUILD_ACTION_CACHE_RESTORED: true
-Build & Release	Build Debug APK	2026-01-23T08:24:33.9986299Z   DEVELOCITY_INJECTION_INIT_SCRIPT_NAME: gradle-actions.inject-develocity.init.gradle
-Build & Release	Build Debug APK	2026-01-23T08:24:33.9986813Z   DEVELOCITY_INJECTION_CUSTOM_VALUE: gradle-actions
-Build & Release	Build Debug APK	2026-01-23T08:24:33.9987222Z   GITHUB_DEPENDENCY_GRAPH_ENABLED: false
-Build & Release	Build Debug APK	2026-01-23T08:24:33.9987505Z ##[endgroup]
-Build & Release	Build Debug APK	2026-01-23T08:24:34.7377380Z To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14.3/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
-Build & Release	Build Debug APK	2026-01-23T08:24:35.8373769Z Daemon will be stopped at the end of the build 
-Build & Release	Build Debug APK	2026-01-23T08:24:36.1376322Z Configuration on demand is an incubating feature.
-Build & Release	Build Debug APK	2026-01-23T08:24:39.5384592Z Type-safe project accessors is an incubating feature.
-Build & Release	Build Debug APK	2026-01-23T08:24:42.4421643Z > Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:42.5368914Z > Task :buildSrc:generateExternalPluginSpecBuilders FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:42.5370168Z > Task :buildSrc:extractPrecompiledScriptPluginPlugins FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:42.7366625Z > Task :buildSrc:compilePluginsBlocks FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:43.0370329Z > Task :buildSrc:generatePrecompiledScriptPluginAccessors FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:43.0371686Z > Task :buildSrc:generateScriptPluginAdapters FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:43.5365295Z > Task :buildSrc:compileKotlin FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:43.5371040Z > Task :buildSrc:compileJava NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:43.5371702Z > Task :buildSrc:compileGroovy NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:43.6380338Z > Task :buildSrc:pluginDescriptors
-Build & Release	Build Debug APK	2026-01-23T08:24:43.6381958Z > Task :buildSrc:processResources
-Build & Release	Build Debug APK	2026-01-23T08:24:43.6382481Z > Task :buildSrc:classes
-Build & Release	Build Debug APK	2026-01-23T08:24:43.9374087Z > Task :buildSrc:jar
-Build & Release	Build Debug APK	2026-01-23T08:24:53.3363935Z > Task :core-metadata:preBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.3364654Z > Task :domain:preBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.3365226Z > Task :domain:preDebugBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.3375547Z > Task :core-metadata:preDebugBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.3379011Z > Task :data:preBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.3400264Z > Task :data:preDebugBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.3400954Z > Task :core-metadata:generateDebugResValues FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.3401669Z > Task :domain:generateDebugResValues FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.3402329Z > Task :core-metadata:generateDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.3402996Z > Task :data:generateDebugResValues FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.3403643Z > Task :domain:generateDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.3404307Z > Task :data:generateDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.3404942Z > Task :data:packageDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.3405541Z > Task :flagkit:preBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.3406093Z > Task :flagkit:preDebugBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.3406698Z > Task :domain:packageDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.3407307Z > Task :flagkit:generateDebugResValues FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.3407883Z > Task :i18n:generateLocalesConfig UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.4367959Z > Task :flagkit:generateDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.5361063Z > Task :flagkit:packageDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.5362763Z > Task :i18n:generateMRcommonMain FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.5363676Z > Task :i18n:generateMRandroidDebug SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:53.5364497Z > Task :i18n-ank:generateMRcommonMain FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.5365295Z > Task :i18n-ank:generateMRandroidDebug SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:53.5366216Z > Task :i18n-ank:generateMRandroidInstrumentedTest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.5367207Z > Task :i18n-ank:generateMRandroidInstrumentedTestDebug SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:53.5368121Z > Task :i18n-ank:generateMRandroidMain FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:53.5368965Z > Task :i18n-ank:generateMRandroidRelease SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:54.0361664Z > Task :i18n:generateMRandroidInstrumentedTest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.0367092Z > Task :i18n:generateMRandroidInstrumentedTestDebug SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:54.0371501Z > Task :core-metadata:packageDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.0373968Z > Task :i18n-ank:generateMRcommonTest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.1404135Z > Task :i18n-ank:generateMRandroidUnitTest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.1409533Z > Task :i18n-kmk:generateMRcommonMain FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.1411222Z > Task :i18n-ank:generateMRandroidUnitTestDebug SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:54.1412326Z > Task :i18n-ank:generateMRandroidUnitTestRelease SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:54.1413475Z > Task :i18n-ank:preBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.1423218Z > Task :i18n-ank:preDebugBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.1424138Z > Task :i18n-kmk:generateMRandroidDebug SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:54.1425057Z > Task :i18n-ank:generateDebugResValues FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.1426114Z > Task :i18n-kmk:generateMRandroidInstrumentedTest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.1427391Z > Task :i18n-kmk:generateMRandroidInstrumentedTestDebug SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:54.1428613Z > Task :i18n-ank:generateDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.1429784Z > Task :i18n-kmk:generateMRandroidMain FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.1431406Z > Task :i18n-kmk:generateMRandroidRelease SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:54.1432644Z > Task :i18n-kmk:generateMRcommonTest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.1433667Z > Task :i18n-kmk:generateMRandroidUnitTest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.1434984Z > Task :i18n-kmk:generateMRandroidUnitTestDebug SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:54.1435907Z > Task :i18n-kmk:generateMRandroidUnitTestRelease SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:54.1441117Z > Task :i18n-kmk:preBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.1442003Z > Task :i18n-ank:packageDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.1442806Z > Task :i18n-kmk:preDebugBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.1443602Z > Task :i18n-kmk:generateDebugResValues FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.1455964Z > Task :i18n-kmk:generateDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.2370830Z > Task :i18n-sy:generateMRcommonMain FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.2414602Z > Task :i18n-sy:generateMRandroidDebug SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:54.2415348Z > Task :i18n:generateMRandroidMain FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.2416064Z > Task :i18n-sy:generateMRandroidInstrumentedTest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.2416905Z > Task :i18n:generateMRandroidRelease SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:54.2417642Z > Task :i18n-sy:generateMRandroidInstrumentedTestDebug SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:54.2418361Z > Task :i18n:generateMRcommonTest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.2418988Z > Task :i18n-kmk:packageDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.2419801Z > Task :presentation-core:preBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.2420430Z > Task :presentation-core:preDebugBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.2421143Z > Task :presentation-core:generateDebugResValues FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.2421854Z > Task :i18n:generateMRandroidUnitTest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.2422504Z > Task :i18n:generateMRandroidUnitTestDebug SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:54.2423178Z > Task :i18n:generateMRandroidUnitTestRelease SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:54.2423785Z > Task :i18n:preBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.2424281Z > Task :i18n:preDebugBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.2501503Z > Task :i18n:generateDebugResValues FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.2504401Z > Task :i18n-sy:generateMRandroidMain FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.2509760Z > Task :i18n-sy:generateMRandroidRelease SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:54.3390028Z > Task :presentation-core:generateDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.3391184Z > Task :i18n:generateDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.3392044Z > Task :i18n-sy:generateMRcommonTest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.3392942Z > Task :i18n-sy:generateMRandroidUnitTest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.3393858Z > Task :i18n-sy:generateMRandroidUnitTestDebug SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:54.3394831Z > Task :i18n-sy:generateMRandroidUnitTestRelease SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:54.3395725Z > Task :i18n-sy:preBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.3396448Z > Task :i18n-sy:preDebugBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.3397302Z > Task :presentation-core:packageDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.3398164Z > Task :presentation-widget:preBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.3398983Z > Task :presentation-widget:preDebugBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.3442938Z > Task :i18n-sy:generateDebugResValues FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.3448431Z > Task :presentation-widget:generateDebugResValues FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.3457067Z > Task :i18n-sy:generateDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.3458221Z > Task :presentation-widget:generateDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.3459606Z > Task :i18n-sy:packageDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.3460447Z > Task :source-api:preBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.3466941Z > Task :source-api:preDebugBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.3540176Z > Task :presentation-widget:packageDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.3540920Z > Task :source-local:preBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.3541535Z > Task :source-local:preDebugBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.3542202Z > Task :source-api:generateDebugResValues FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.3542879Z > Task :source-api:generateDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.4361593Z > Task :source-local:generateDebugResValues FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.4380190Z > Task :source-local:generateDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.4381338Z > Task :source-api:packageDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.4382223Z > Task :telemetry:preBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.4383055Z > Task :telemetry:preDebugBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.4390174Z > Task :telemetry:generateDebugResValues FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.4413307Z > Task :source-local:packageDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.4418216Z > Task :core:archive:preBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.4419551Z > Task :core:archive:preDebugBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.4420407Z > Task :telemetry:generateDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.4421306Z > Task :core:archive:generateDebugResValues FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.5406026Z > Task :core:archive:generateDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.5407218Z > Task :telemetry:packageDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.5408078Z > Task :core:common:preBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.5408936Z > Task :core:common:preDebugBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.5410015Z > Task :core:common:generateDebugResValues FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.5411052Z > Task :core:archive:packageDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.5412102Z > Task :core:common:generateDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.5412972Z > Task :core:common:packageDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.5413817Z > Task :i18n:packageDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6364834Z > Task :domain:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6366269Z > Task :core-metadata:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6377875Z > Task :data:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6378554Z > Task :i18n:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6379277Z > Task :flagkit:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6380142Z > Task :i18n-ank:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6380811Z > Task :i18n-sy:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6381435Z > Task :i18n-kmk:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6382448Z > Task :presentation-core:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6383154Z > Task :source-api:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6383864Z > Task :presentation-widget:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6384555Z > Task :source-local:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6385276Z > Task :telemetry:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6387404Z > Task :core:archive:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6388048Z > Task :core:common:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6388756Z > Task :core-metadata:extractDeepLinksDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6390093Z > Task :data:extractDeepLinksDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6390687Z > Task :domain:extractDeepLinksDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6391177Z > Task :app:preBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6391583Z > Task :app:preDebugBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6392087Z > Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6392879Z > Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6393554Z > Task :core-metadata:processDebugManifest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6394081Z > Task :data:processDebugManifest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.6394558Z > Task :domain:processDebugManifest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.7408122Z > Task :i18n:extractDeepLinksDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.7409002Z > Task :flagkit:extractDeepLinksDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.7409794Z > Task :i18n-ank:extractDeepLinksDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.7410704Z > Task :i18n:processDebugManifest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.7411365Z > Task :flagkit:processDebugManifest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.7413662Z > Task :i18n-ank:processDebugManifest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.7426225Z > Task :i18n-sy:extractDeepLinksDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.7426959Z > Task :presentation-core:extractDeepLinksDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.7427633Z > Task :i18n-kmk:extractDeepLinksDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.7428290Z > Task :i18n-kmk:processDebugManifest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.7429566Z > Task :presentation-core:processDebugManifest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.7430317Z > Task :i18n-sy:processDebugManifest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.7430989Z > Task :source-local:extractDeepLinksDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.7431683Z > Task :source-api:extractDeepLinksDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.7432399Z > Task :presentation-widget:extractDeepLinksDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.7433102Z > Task :source-local:processDebugManifest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.7433832Z > Task :presentation-widget:processDebugManifest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.7460045Z > Task :source-api:processDebugManifest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.7460754Z > Task :telemetry:extractDeepLinksDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.7461452Z > Task :core:common:extractDeepLinksDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.7462155Z > Task :core:archive:extractDeepLinksDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.8360960Z > Task :core:archive:processDebugManifest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.8390197Z > Task :core:common:processDebugManifest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.8391270Z > Task :telemetry:processDebugManifest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.8392281Z > Task :core-metadata:compileDebugLibraryResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.8393299Z > Task :core-metadata:parseDebugLocalResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.8394279Z > Task :source-api:parseDebugLocalResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.8395210Z > Task :i18n:parseDebugLocalResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.8396092Z > Task :core:common:parseDebugLocalResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.8397038Z > Task :i18n-sy:parseDebugLocalResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.8397996Z > Task :data:compileDebugLibraryResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.8398971Z > Task :data:parseDebugLocalResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.8400319Z > Task :domain:parseDebugLocalResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.8401259Z > Task :i18n-ank:parseDebugLocalResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.8402161Z > Task :i18n-sy:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.8403332Z > Task :i18n:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.8404206Z > Task :i18n-ank:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.8405159Z > Task :domain:compileDebugLibraryResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.9396540Z > Task :i18n:compileDebugLibraryResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.9397396Z > Task :i18n-ank:compileDebugLibraryResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.9398157Z > Task :i18n-kmk:compileDebugLibraryResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.9398891Z > Task :i18n-kmk:parseDebugLocalResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.9399782Z > Task :i18n-kmk:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.9400458Z > Task :i18n-sy:compileDebugLibraryResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.9401178Z > Task :flagkit:compileDebugLibraryResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.9402021Z > Task :presentation-core:compileDebugLibraryResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.9402804Z > Task :flagkit:parseDebugLocalResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.9403605Z > Task :presentation-core:parseDebugLocalResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.9404485Z > Task :presentation-widget:compileDebugLibraryResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:54.9405338Z > Task :source-api:compileDebugLibraryResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:55.0360372Z > Task :presentation-widget:parseDebugLocalResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:55.0365661Z > Task :source-local:compileDebugLibraryResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:55.0366715Z > Task :core:archive:parseDebugLocalResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:55.0368680Z > Task :source-local:parseDebugLocalResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:55.0377247Z > Task :telemetry:compileDebugLibraryResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:55.0378053Z > Task :core:archive:compileDebugLibraryResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:55.0378945Z > Task :core-metadata:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:55.0386947Z > Task :source-api:kmpPartiallyResolvedDependenciesChecker
-Build & Release	Build Debug APK	2026-01-23T08:24:55.0387854Z > Task :source-api:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:55.0389145Z > Task :i18n:kmpPartiallyResolvedDependenciesChecker
-Build & Release	Build Debug APK	2026-01-23T08:24:55.0390125Z > Task :i18n:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:55.0390906Z > Task :telemetry:parseDebugLocalResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:55.2374255Z > Task :telemetry:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:55.2378181Z > Task :i18n-sy:kmpPartiallyResolvedDependenciesChecker
-Build & Release	Build Debug APK	2026-01-23T08:24:55.2381901Z > Task :i18n-sy:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:55.4377632Z > Task :core:common:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:55.6400268Z > Task :source-api:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:55.7373969Z > Task :i18n:compileDebugKotlinAndroid FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:55.7374785Z > Task :i18n-sy:compileDebugKotlinAndroid FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:55.7375531Z > Task :core-metadata:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:55.8360376Z > Task :flagkit:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:55.8361361Z > Task :core:archive:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:55.8363871Z > Task :core:common:compileDebugLibraryResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:55.8364892Z > Task :domain:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:55.9362332Z > Task :i18n:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.0367999Z > Task :source-local:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.0404495Z > Task :i18n:compileDebugJavaWithJavac NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.0405215Z > Task :data:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.0405908Z > Task :app:dataBindingMergeDependencyArtifactsDebug
-Build & Release	Build Debug APK	2026-01-23T08:24:56.0406595Z > Task :app:generateDebugResValues FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.0407279Z > Task :presentation-core:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.0407986Z > Task :i18n-sy:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.0408681Z > Task :i18n-sy:compileDebugJavaWithJavac NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.0409323Z > Task :i18n:bundleLibCompileToJarDebug
-Build & Release	Build Debug APK	2026-01-23T08:24:56.0410811Z > Task :core:common:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:56.0411600Z > Task :i18n-sy:bundleLibCompileToJarDebug
-Build & Release	Build Debug APK	2026-01-23T08:24:56.0412220Z > Task :core:common:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.0412879Z > Task :source-api:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.0413553Z > Task :core-metadata:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.0414313Z > Task :data:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:56.1369209Z > Task :app:generateDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.1370229Z > Task :data:generateDebugDatabaseInterface FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.1371080Z > Task :domain:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:56.1371922Z > Task :i18n-ank:kmpPartiallyResolvedDependenciesChecker
-Build & Release	Build Debug APK	2026-01-23T08:24:56.1372740Z > Task :i18n-ank:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:56.2394349Z > Task :i18n-ank:compileDebugKotlinAndroid FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.2395208Z > Task :i18n-ank:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.2395879Z > Task :i18n-ank:compileDebugJavaWithJavac NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.2396459Z > Task :i18n-ank:bundleLibCompileToJarDebug
-Build & Release	Build Debug APK	2026-01-23T08:24:56.2397076Z > Task :domain:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.2397690Z > Task :data:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.2398440Z > Task :flagkit:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:56.2399194Z > Task :flagkit:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.2400093Z > Task :i18n-kmk:kmpPartiallyResolvedDependenciesChecker
-Build & Release	Build Debug APK	2026-01-23T08:24:56.2400915Z > Task :i18n-kmk:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:56.3368339Z > Task :presentation-widget:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.3391653Z > Task :presentation-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:56.3398876Z > Task :presentation-core:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.3400309Z > Task :presentation-widget:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:56.3401167Z > Task :presentation-widget:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.3401897Z > Task :source-local:kmpPartiallyResolvedDependenciesChecker
-Build & Release	Build Debug APK	2026-01-23T08:24:56.3402680Z > Task :source-local:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:56.3403614Z > Task :core:archive:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:56.3404410Z > Task :core:archive:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.3405031Z > Task :source-local:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.3405721Z > Task :telemetry:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:24:56.3406493Z > Task :i18n-kmk:compileDebugKotlinAndroid FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.3407122Z > Task :i18n-kmk:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.3407722Z > Task :i18n-kmk:compileDebugJavaWithJavac NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.3408595Z > Task :i18n-kmk:bundleLibCompileToJarDebug
-Build & Release	Build Debug APK	2026-01-23T08:24:56.4372179Z > Task :telemetry:compileDebugKotlin FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.4373264Z > Task :telemetry:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.4374136Z > Task :telemetry:compileDebugJavaWithJavac NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.4374896Z > Task :telemetry:bundleLibCompileToJarDebug
-Build & Release	Build Debug APK	2026-01-23T08:24:56.4375569Z > Task :core-metadata:mergeDebugShaders
-Build & Release	Build Debug APK	2026-01-23T08:24:56.4376210Z > Task :data:mergeDebugShaders
-Build & Release	Build Debug APK	2026-01-23T08:24:56.4376879Z > Task :core-metadata:compileDebugShaders NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.4377662Z > Task :core-metadata:generateDebugAssets UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.4378421Z > Task :data:compileDebugShaders NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.4379184Z > Task :data:generateDebugAssets UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.5359165Z > Task :core-metadata:mergeDebugAssets
-Build & Release	Build Debug APK	2026-01-23T08:24:56.5363868Z > Task :data:mergeDebugAssets
-Build & Release	Build Debug APK	2026-01-23T08:24:56.5367997Z > Task :flagkit:mergeDebugShaders
-Build & Release	Build Debug APK	2026-01-23T08:24:56.5372372Z > Task :domain:mergeDebugShaders
-Build & Release	Build Debug APK	2026-01-23T08:24:56.5376742Z > Task :flagkit:compileDebugShaders NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.5381137Z > Task :flagkit:generateDebugAssets UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.5385597Z > Task :domain:compileDebugShaders NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.5389046Z > Task :domain:generateDebugAssets UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.5391707Z > Task :app:prepareDebugShortcutXML
-Build & Release	Build Debug APK	2026-01-23T08:24:56.5396581Z > Task :domain:mergeDebugAssets
-Build & Release	Build Debug APK	2026-01-23T08:24:56.5397104Z > Task :flagkit:mergeDebugAssets
-Build & Release	Build Debug APK	2026-01-23T08:24:56.5397704Z > Task :app:prepareLibraryDefinitionsDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.5398300Z > Task :i18n:mergeDebugShaders
-Build & Release	Build Debug APK	2026-01-23T08:24:56.5398756Z > Task :i18n-ank:mergeDebugShaders
-Build & Release	Build Debug APK	2026-01-23T08:24:56.5399257Z > Task :i18n:compileDebugShaders NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.5402843Z > Task :i18n:debugAssetsCopyForAGP NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.5403476Z > Task :i18n:generateDebugAssets UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.5404014Z > Task :i18n-ank:compileDebugShaders NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.5404640Z > Task :i18n-ank:debugAssetsCopyForAGP NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.5405242Z > Task :i18n-ank:generateDebugAssets UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.5405794Z > Task :i18n:mergeDebugAssets
-Build & Release	Build Debug APK	2026-01-23T08:24:56.6369523Z > Task :i18n-ank:mergeDebugAssets
-Build & Release	Build Debug APK	2026-01-23T08:24:56.6377274Z > Task :i18n-kmk:mergeDebugShaders
-Build & Release	Build Debug APK	2026-01-23T08:24:56.6377924Z > Task :i18n-kmk:compileDebugShaders NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.6380211Z > Task :i18n-kmk:debugAssetsCopyForAGP NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.6380909Z > Task :i18n-kmk:generateDebugAssets UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.7372826Z > Task :i18n-sy:mergeDebugShaders
-Build & Release	Build Debug APK	2026-01-23T08:24:56.7373831Z > Task :i18n-sy:compileDebugShaders NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.7374681Z > Task :i18n-sy:debugAssetsCopyForAGP NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.7375605Z > Task :i18n-sy:generateDebugAssets UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.7376501Z > Task :i18n-kmk:mergeDebugAssets
-Build & Release	Build Debug APK	2026-01-23T08:24:56.7377249Z > Task :presentation-core:mergeDebugShaders
-Build & Release	Build Debug APK	2026-01-23T08:24:56.7382721Z > Task :i18n-sy:mergeDebugAssets
-Build & Release	Build Debug APK	2026-01-23T08:24:56.7383547Z > Task :presentation-core:compileDebugShaders NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.7386326Z > Task :presentation-core:generateDebugAssets UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.7387186Z > Task :presentation-widget:mergeDebugShaders
-Build & Release	Build Debug APK	2026-01-23T08:24:56.7388249Z > Task :presentation-core:mergeDebugAssets
-Build & Release	Build Debug APK	2026-01-23T08:24:56.7389793Z > Task :presentation-widget:compileDebugShaders NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.7390788Z > Task :presentation-widget:generateDebugAssets UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.7392369Z > Task :presentation-widget:mergeDebugAssets
-Build & Release	Build Debug APK	2026-01-23T08:24:56.7393324Z > Task :source-api:mergeDebugShaders
-Build & Release	Build Debug APK	2026-01-23T08:24:56.7394065Z > Task :source-api:compileDebugShaders NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.7394968Z > Task :source-api:debugAssetsCopyForAGP NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.7395769Z > Task :source-api:generateDebugAssets UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.8376271Z > Task :source-local:mergeDebugShaders
-Build & Release	Build Debug APK	2026-01-23T08:24:56.8378872Z > Task :source-local:compileDebugShaders NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.8381248Z > Task :source-local:debugAssetsCopyForAGP NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.8385437Z > Task :source-local:generateDebugAssets UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.8389621Z > Task :source-api:mergeDebugAssets
-Build & Release	Build Debug APK	2026-01-23T08:24:56.8393888Z > Task :source-local:mergeDebugAssets
-Build & Release	Build Debug APK	2026-01-23T08:24:56.8397946Z > Task :telemetry:mergeDebugShaders
-Build & Release	Build Debug APK	2026-01-23T08:24:56.8402086Z > Task :core:archive:mergeDebugShaders
-Build & Release	Build Debug APK	2026-01-23T08:24:56.8406170Z > Task :telemetry:compileDebugShaders NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.8410506Z > Task :telemetry:generateDebugAssets UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.8414561Z > Task :core:archive:compileDebugShaders NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.8418620Z > Task :core:archive:generateDebugAssets UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.8422757Z > Task :core:archive:mergeDebugAssets
-Build & Release	Build Debug APK	2026-01-23T08:24:56.8426947Z > Task :telemetry:mergeDebugAssets
-Build & Release	Build Debug APK	2026-01-23T08:24:56.8430077Z > Task :core:common:mergeDebugShaders
-Build & Release	Build Debug APK	2026-01-23T08:24:56.8432636Z > Task :i18n:bundleLibRuntimeToJarDebug
-Build & Release	Build Debug APK	2026-01-23T08:24:56.8435483Z > Task :core:common:compileDebugShaders NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.8437489Z > Task :core:common:generateDebugAssets UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:24:56.8443953Z > Task :core:common:mergeDebugAssets
-Build & Release	Build Debug APK	2026-01-23T08:24:56.8444528Z > Task :i18n-kmk:bundleLibRuntimeToJarDebug
-Build & Release	Build Debug APK	2026-01-23T08:24:56.8445115Z > Task :i18n-ank:bundleLibRuntimeToJarDebug
-Build & Release	Build Debug APK	2026-01-23T08:24:56.9402463Z > Task :i18n-sy:bundleLibRuntimeToJarDebug
-Build & Release	Build Debug APK	2026-01-23T08:24:56.9405197Z > Task :telemetry:bundleLibRuntimeToJarDebug
-Build & Release	Build Debug APK	2026-01-23T08:24:56.9407752Z > Task :i18n:processDebugJavaRes
-Build & Release	Build Debug APK	2026-01-23T08:24:56.9409840Z > Task :i18n-ank:processDebugJavaRes
-Build & Release	Build Debug APK	2026-01-23T08:24:56.9411740Z > Task :i18n-sy:processDebugJavaRes
-Build & Release	Build Debug APK	2026-01-23T08:24:56.9413565Z > Task :i18n-kmk:processDebugJavaRes
-Build & Release	Build Debug APK	2026-01-23T08:24:56.9416069Z > Task :telemetry:processDebugJavaRes
-Build & Release	Build Debug APK	2026-01-23T08:24:57.0374331Z > Task :i18n-kmk:bundleLibRuntimeToDirDebug
-Build & Release	Build Debug APK	2026-01-23T08:24:57.0400170Z > Task :i18n:bundleLibRuntimeToDirDebug
-Build & Release	Build Debug APK	2026-01-23T08:24:57.0400844Z > Task :i18n-ank:bundleLibRuntimeToDirDebug
-Build & Release	Build Debug APK	2026-01-23T08:24:57.0401454Z > Task :i18n-sy:bundleLibRuntimeToDirDebug
-Build & Release	Build Debug APK	2026-01-23T08:24:57.0402036Z > Task :telemetry:bundleLibRuntimeToDirDebug
-Build & Release	Build Debug APK	2026-01-23T08:24:57.0402633Z > Task :core-metadata:mergeDebugJniLibFolders
-Build & Release	Build Debug APK	2026-01-23T08:24:57.0403211Z > Task :data:mergeDebugJniLibFolders
-Build & Release	Build Debug APK	2026-01-23T08:24:57.0403807Z > Task :core-metadata:mergeDebugNativeLibs NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.0404455Z > Task :data:mergeDebugNativeLibs NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.1360285Z > Task :core-metadata:copyDebugJniLibsProjectOnly
-Build & Release	Build Debug APK	2026-01-23T08:24:57.1361229Z > Task :data:copyDebugJniLibsProjectOnly
-Build & Release	Build Debug APK	2026-01-23T08:24:57.1361928Z > Task :flagkit:mergeDebugJniLibFolders
-Build & Release	Build Debug APK	2026-01-23T08:24:57.1362544Z > Task :domain:mergeDebugJniLibFolders
-Build & Release	Build Debug APK	2026-01-23T08:24:57.1363120Z > Task :flagkit:mergeDebugNativeLibs NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.1363841Z > Task :domain:mergeDebugNativeLibs NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.1364627Z > Task :flagkit:copyDebugJniLibsProjectOnly
-Build & Release	Build Debug APK	2026-01-23T08:24:57.1365877Z > Task :domain:copyDebugJniLibsProjectOnly
-Build & Release	Build Debug APK	2026-01-23T08:24:57.1366647Z > Task :i18n:mergeDebugJniLibFolders
-Build & Release	Build Debug APK	2026-01-23T08:24:57.1367342Z > Task :i18n-ank:mergeDebugJniLibFolders
-Build & Release	Build Debug APK	2026-01-23T08:24:57.1368033Z > Task :i18n:mergeDebugNativeLibs NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.1368774Z > Task :i18n-ank:mergeDebugNativeLibs NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.1369748Z > Task :i18n:copyDebugJniLibsProjectOnly
-Build & Release	Build Debug APK	2026-01-23T08:24:57.1370476Z > Task :i18n-ank:copyDebugJniLibsProjectOnly
-Build & Release	Build Debug APK	2026-01-23T08:24:57.2379878Z > Task :i18n-kmk:mergeDebugJniLibFolders
-Build & Release	Build Debug APK	2026-01-23T08:24:57.2380692Z > Task :i18n-sy:mergeDebugJniLibFolders
-Build & Release	Build Debug APK	2026-01-23T08:24:57.2384526Z > Task :i18n-kmk:mergeDebugNativeLibs NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.2389234Z > Task :i18n-sy:mergeDebugNativeLibs NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.2390060Z > Task :i18n-kmk:copyDebugJniLibsProjectOnly
-Build & Release	Build Debug APK	2026-01-23T08:24:57.2390832Z > Task :i18n-sy:copyDebugJniLibsProjectOnly
-Build & Release	Build Debug APK	2026-01-23T08:24:57.2391461Z > Task :presentation-widget:mergeDebugJniLibFolders
-Build & Release	Build Debug APK	2026-01-23T08:24:57.2402377Z > Task :presentation-core:mergeDebugJniLibFolders
-Build & Release	Build Debug APK	2026-01-23T08:24:57.2403098Z > Task :presentation-widget:mergeDebugNativeLibs NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.2403824Z > Task :presentation-core:mergeDebugNativeLibs NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.2404542Z > Task :presentation-widget:copyDebugJniLibsProjectOnly
-Build & Release	Build Debug APK	2026-01-23T08:24:57.2405283Z > Task :presentation-core:copyDebugJniLibsProjectOnly
-Build & Release	Build Debug APK	2026-01-23T08:24:57.2405913Z > Task :source-api:mergeDebugJniLibFolders
-Build & Release	Build Debug APK	2026-01-23T08:24:57.2406495Z > Task :source-local:mergeDebugJniLibFolders
-Build & Release	Build Debug APK	2026-01-23T08:24:57.2407117Z > Task :source-local:mergeDebugNativeLibs NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.2407761Z > Task :source-api:mergeDebugNativeLibs NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.2408408Z > Task :source-local:copyDebugJniLibsProjectOnly
-Build & Release	Build Debug APK	2026-01-23T08:24:57.2409032Z > Task :source-api:copyDebugJniLibsProjectOnly
-Build & Release	Build Debug APK	2026-01-23T08:24:57.2409797Z > Task :telemetry:mergeDebugJniLibFolders
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3364708Z > Task :telemetry:mergeDebugNativeLibs NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3391400Z > Task :core:archive:mergeDebugJniLibFolders
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3392687Z > Task :telemetry:copyDebugJniLibsProjectOnly
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3393487Z > Task :core:archive:mergeDebugNativeLibs NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3394306Z > Task :core:archive:copyDebugJniLibsProjectOnly
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3395141Z > Task :core-metadata:stripDebugDebugSymbols NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3395958Z > Task :core:common:mergeDebugJniLibFolders
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3396782Z > Task :core-metadata:copyDebugJniLibsProjectAndLocalJars
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3397671Z > Task :core:common:mergeDebugNativeLibs NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3398545Z > Task :core-metadata:extractDeepLinksForAarDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3399603Z > Task :core-metadata:prepareDebugArtProfile
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3400486Z > Task :core:common:copyDebugJniLibsProjectOnly
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3401279Z > Task :data:stripDebugDebugSymbols NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3402058Z > Task :data:copyDebugJniLibsProjectAndLocalJars
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3402876Z > Task :data:extractDeepLinksForAarDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3403682Z > Task :core-metadata:prepareLintJarForPublish
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3404421Z > Task :data:prepareDebugArtProfile
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3405143Z > Task :domain:stripDebugDebugSymbols NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3405879Z > Task :data:prepareLintJarForPublish
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3406642Z > Task :domain:copyDebugJniLibsProjectAndLocalJars
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3407456Z > Task :flagkit:stripDebugDebugSymbols NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3408258Z > Task :domain:extractDeepLinksForAarDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3409032Z > Task :domain:prepareDebugArtProfile
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3409982Z > Task :flagkit:copyDebugJniLibsProjectAndLocalJars
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3410839Z > Task :flagkit:extractDeepLinksForAarDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.3411623Z > Task :domain:prepareLintJarForPublish
-Build & Release	Build Debug APK	2026-01-23T08:24:57.4413816Z > Task :i18n:stripDebugDebugSymbols NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.4414940Z > Task :flagkit:prepareDebugArtProfile
-Build & Release	Build Debug APK	2026-01-23T08:24:57.4416307Z > Task :i18n:copyDebugJniLibsProjectAndLocalJars
-Build & Release	Build Debug APK	2026-01-23T08:24:57.4417145Z > Task :flagkit:prepareLintJarForPublish
-Build & Release	Build Debug APK	2026-01-23T08:24:57.4417982Z > Task :i18n-ank:stripDebugDebugSymbols NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.4418878Z > Task :i18n-ank:copyDebugJniLibsProjectAndLocalJars
-Build & Release	Build Debug APK	2026-01-23T08:24:57.4419964Z > Task :app:mergeDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.6361340Z > Task :app:dataBindingGenBaseClassesDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:57.6364600Z > Task :app:generateDebugBuildConfig
-Build & Release	Build Debug APK	2026-01-23T08:24:58.0362848Z > Task :app:checkDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:24:58.0366905Z > Task :app:mapDebugSourceSetPaths
-Build & Release	Build Debug APK	2026-01-23T08:24:58.0371324Z > Task :app:createDebugCompatibleScreenManifests
-Build & Release	Build Debug APK	2026-01-23T08:24:58.1400806Z > Task :app:extractDeepLinksDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:58.6359982Z > Task :app:processDebugMainManifest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:58.6365385Z > Task :app:processDebugManifest FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:58.6366991Z > Task :app:processDebugManifestForPackage FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.2386768Z > Task :i18n-ank:extractDebugAnnotations FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.2397042Z > Task :i18n-ank:extractDeepLinksForAarDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.2403248Z > Task :i18n-ank:mergeDebugGeneratedProguardFiles
-Build & Release	Build Debug APK	2026-01-23T08:24:59.2403919Z > Task :i18n-ank:mergeDebugConsumerProguardFiles
-Build & Release	Build Debug APK	2026-01-23T08:24:59.2404464Z > Task :i18n-ank:prepareDebugArtProfile
-Build & Release	Build Debug APK	2026-01-23T08:24:59.2404996Z > Task :i18n:extractDebugAnnotations FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.2405597Z > Task :i18n:extractDeepLinksForAarDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.2406241Z > Task :i18n:mergeDebugGeneratedProguardFiles
-Build & Release	Build Debug APK	2026-01-23T08:24:59.2406838Z > Task :i18n-ank:prepareLintJarForPublish
-Build & Release	Build Debug APK	2026-01-23T08:24:59.2407430Z > Task :i18n:mergeDebugConsumerProguardFiles
-Build & Release	Build Debug APK	2026-01-23T08:24:59.2408016Z > Task :i18n:prepareDebugArtProfile
-Build & Release	Build Debug APK	2026-01-23T08:24:59.3402584Z > Task :i18n:prepareLintJarForPublish
-Build & Release	Build Debug APK	2026-01-23T08:24:59.4360537Z > Task :i18n:mergeDebugJavaResource
-Build & Release	Build Debug APK	2026-01-23T08:24:59.4361540Z > Task :i18n-ank:mergeDebugJavaResource
-Build & Release	Build Debug APK	2026-01-23T08:24:59.4362565Z > Task :i18n-ank:syncDebugLibJars FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.4363303Z > Task :i18n:syncDebugLibJars FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.5361405Z > Task :i18n-ank:bundleDebugAar
-Build & Release	Build Debug APK	2026-01-23T08:24:59.5362654Z > Task :i18n-ank:assembleDebug
-Build & Release	Build Debug APK	2026-01-23T08:24:59.5363411Z > Task :i18n-kmk:stripDebugDebugSymbols NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.5364379Z > Task :i18n-kmk:copyDebugJniLibsProjectAndLocalJars
-Build & Release	Build Debug APK	2026-01-23T08:24:59.5365242Z > Task :i18n-kmk:extractDebugAnnotations FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.5366062Z > Task :i18n-kmk:extractDeepLinksForAarDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.6399904Z > Task :i18n-kmk:mergeDebugGeneratedProguardFiles
-Build & Release	Build Debug APK	2026-01-23T08:24:59.6401039Z > Task :i18n-kmk:mergeDebugConsumerProguardFiles
-Build & Release	Build Debug APK	2026-01-23T08:24:59.6401898Z > Task :i18n-kmk:prepareDebugArtProfile
-Build & Release	Build Debug APK	2026-01-23T08:24:59.6402613Z > Task :i18n-kmk:prepareLintJarForPublish
-Build & Release	Build Debug APK	2026-01-23T08:24:59.6403314Z > Task :i18n-kmk:mergeDebugJavaResource
-Build & Release	Build Debug APK	2026-01-23T08:24:59.6403986Z > Task :i18n-kmk:syncDebugLibJars FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.6404680Z > Task :i18n-kmk:bundleDebugAar
-Build & Release	Build Debug APK	2026-01-23T08:24:59.6405283Z > Task :i18n-kmk:assembleDebug
-Build & Release	Build Debug APK	2026-01-23T08:24:59.6406041Z > Task :i18n-sy:stripDebugDebugSymbols NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.6406912Z > Task :i18n-sy:copyDebugJniLibsProjectAndLocalJars
-Build & Release	Build Debug APK	2026-01-23T08:24:59.7360618Z > Task :i18n-sy:extractDebugAnnotations FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.7401871Z > Task :i18n-sy:extractDeepLinksForAarDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.7405871Z > Task :i18n-sy:mergeDebugGeneratedProguardFiles
-Build & Release	Build Debug APK	2026-01-23T08:24:59.7407539Z > Task :i18n-sy:mergeDebugConsumerProguardFiles
-Build & Release	Build Debug APK	2026-01-23T08:24:59.7409138Z > Task :i18n-sy:prepareDebugArtProfile
-Build & Release	Build Debug APK	2026-01-23T08:24:59.7410909Z > Task :i18n-sy:prepareLintJarForPublish
-Build & Release	Build Debug APK	2026-01-23T08:24:59.7412427Z > Task :i18n-sy:mergeDebugJavaResource
-Build & Release	Build Debug APK	2026-01-23T08:24:59.7413981Z > Task :i18n-sy:syncDebugLibJars FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.8366301Z > Task :i18n:bundleDebugAar
-Build & Release	Build Debug APK	2026-01-23T08:24:59.8370794Z > Task :i18n:assembleDebug
-Build & Release	Build Debug APK	2026-01-23T08:24:59.8375339Z > Task :presentation-core:stripDebugDebugSymbols NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.8379756Z > Task :presentation-core:copyDebugJniLibsProjectAndLocalJars
-Build & Release	Build Debug APK	2026-01-23T08:24:59.8384289Z > Task :presentation-core:extractDeepLinksForAarDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.8385646Z > Task :presentation-core:prepareDebugArtProfile
-Build & Release	Build Debug APK	2026-01-23T08:24:59.8386705Z > Task :presentation-core:prepareLintJarForPublish
-Build & Release	Build Debug APK	2026-01-23T08:24:59.8387706Z > Task :presentation-widget:stripDebugDebugSymbols NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.8388996Z > Task :presentation-widget:copyDebugJniLibsProjectAndLocalJars
-Build & Release	Build Debug APK	2026-01-23T08:24:59.8391147Z > Task :presentation-widget:extractDeepLinksForAarDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.8392791Z > Task :presentation-widget:prepareDebugArtProfile
-Build & Release	Build Debug APK	2026-01-23T08:24:59.8393796Z > Task :presentation-widget:prepareLintJarForPublish
-Build & Release	Build Debug APK	2026-01-23T08:24:59.8462485Z > Task :source-api:stripDebugDebugSymbols NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.8463431Z > Task :source-api:copyDebugJniLibsProjectAndLocalJars
-Build & Release	Build Debug APK	2026-01-23T08:24:59.8464225Z > Task :i18n-sy:bundleDebugAar
-Build & Release	Build Debug APK	2026-01-23T08:24:59.8465475Z > Task :source-api:extractDeepLinksForAarDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.8467026Z > Task :i18n-sy:assembleDebug
-Build & Release	Build Debug APK	2026-01-23T08:24:59.8467747Z > Task :source-local:stripDebugDebugSymbols NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9373252Z > Task :source-api:prepareDebugArtProfile
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9374367Z > Task :source-local:copyDebugJniLibsProjectAndLocalJars
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9375166Z > Task :source-api:prepareLintJarForPublish
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9375904Z > Task :telemetry:stripDebugDebugSymbols NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9376777Z > Task :telemetry:copyDebugJniLibsProjectAndLocalJars
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9377670Z > Task :source-local:extractDeepLinksForAarDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9378457Z > Task :source-local:prepareDebugArtProfile
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9379146Z > Task :source-local:prepareLintJarForPublish
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9380178Z > Task :core:archive:stripDebugDebugSymbols NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9381306Z > Task :telemetry:extractDebugAnnotations FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9382727Z > Task :telemetry:extractDeepLinksForAarDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9385025Z > Task :core:archive:copyDebugJniLibsProjectAndLocalJars
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9386518Z > Task :telemetry:mergeDebugGeneratedProguardFiles
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9388095Z > Task :core:archive:extractDeepLinksForAarDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9389745Z > Task :telemetry:mergeDebugConsumerProguardFiles
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9392022Z > Task :core:archive:prepareDebugArtProfile
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9392628Z > Task :telemetry:prepareDebugArtProfile
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9393202Z > Task :telemetry:prepareLintJarForPublish
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9393794Z > Task :core:archive:prepareLintJarForPublish
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9394430Z > Task :core:common:stripDebugDebugSymbols NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9395038Z > Task :telemetry:mergeDebugJavaResource
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9395667Z > Task :core:common:copyDebugJniLibsProjectAndLocalJars
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9396345Z > Task :telemetry:syncDebugLibJars FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:24:59.9396996Z > Task :core:common:extractDeepLinksForAarDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:25:00.0389084Z > Task :telemetry:bundleDebugAar
-Build & Release	Build Debug APK	2026-01-23T08:25:00.0390496Z > Task :telemetry:assembleDebug
-Build & Release	Build Debug APK	2026-01-23T08:25:00.0391156Z > Task :core:common:prepareDebugArtProfile
-Build & Release	Build Debug APK	2026-01-23T08:25:00.0391867Z > Task :core:common:prepareLintJarForPublish
-Build & Release	Build Debug APK	2026-01-23T08:25:00.2360967Z > Task :app:processDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:25:00.3381861Z > Task :app:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:25:00.3383073Z > Task :app:generateDebugAssets UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:25:00.5360120Z > Task :app:mergeDebugAssets
-Build & Release	Build Debug APK	2026-01-23T08:25:00.6372079Z > Task :app:compressDebugAssets FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:25:00.7360083Z > Task :app:l8DexDesugarLibDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:25:00.7361311Z > Task :app:desugarDebugFileDependencies FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:25:01.1402939Z > Task :app:mergeDebugJniLibFolders
-Build & Release	Build Debug APK	2026-01-23T08:25:01.2360956Z > Task :app:checkDebugDuplicateClasses
-Build & Release	Build Debug APK	2026-01-23T08:25:02.7359517Z > Task :app:mergeDebugNativeLibs
-Build & Release	Build Debug APK	2026-01-23T08:25:02.9412230Z > Task :app:mergeExtDexDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:25:04.2359786Z > Task :app:stripDebugDebugSymbols
-Build & Release	Build Debug APK	2026-01-23T08:25:04.4360020Z > Task :app:validateSigningDebug
-Build & Release	Build Debug APK	2026-01-23T08:25:04.4364114Z > Task :app:writeDebugAppMetadata
-Build & Release	Build Debug APK	2026-01-23T08:25:04.4367894Z > Task :app:writeDebugSigningConfigVersions
-Build & Release	Build Debug APK	2026-01-23T08:25:09.5363693Z 
-Build & Release	Build Debug APK	2026-01-23T08:25:09.5367509Z > Task :core:common:compileDebugKotlin FAILED
-Build & Release	Build Debug APK	2026-01-23T08:25:09.5373968Z e: file:///home/runner/work/Anikku-Mod/Anikku-Mod/core/common/src/main/kotlin/eu/kanade/tachiyomi/network/NetworkHelper.kt:196:27 Unresolved reference 'Request'.
-Build & Release	Build Debug APK	2026-01-23T08:25:09.5377397Z e: file:///home/runner/work/Anikku-Mod/Anikku-Mod/core/common/src/main/kotlin/eu/kanade/tachiyomi/network/NetworkHelper.kt:213:28 Cannot infer type for type parameter 'R'. Specify it explicitly.
-Build & Release	Build Debug APK	2026-01-23T08:25:09.5382045Z e: file:///home/runner/work/Anikku-Mod/Anikku-Mod/core/common/src/main/kotlin/eu/kanade/tachiyomi/network/NetworkHelper.kt:214:35 Cannot infer type for type parameter 'R'. Specify it explicitly.
-Build & Release	Build Debug APK	2026-01-23T08:25:09.5384095Z gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run-1769156677847.json
-Build & Release	Build Debug APK	2026-01-23T08:25:09.5389697Z e: file:///home/runner/work/Anikku-Mod/Anikku-Mod/core/common/src/main/kotlin/eu/kanade/tachiyomi/network/NetworkHelper.kt:218:36 Unresolved reference 'launch'.
-Build & Release	Build Debug APK	2026-01-23T08:25:09.5392076Z e: file:///home/runner/work/Anikku-Mod/Anikku-Mod/core/common/src/main/kotlin/eu/kanade/tachiyomi/network/NetworkHelper.kt:223:43 Unresolved reference 'Request'.
-Build & Release	Build Debug APK	2026-01-23T08:25:09.5394833Z e: file:///home/runner/work/Anikku-Mod/Anikku-Mod/core/common/src/main/kotlin/eu/kanade/tachiyomi/network/NetworkHelper.kt:255:48 Suspension functions can only be called within coroutine body.
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6361393Z 
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6364128Z [Incubating] Problems report is available at: file:///home/runner/work/Anikku-Mod/Anikku-Mod/build/reports/problems/problems-report.html
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6367091Z 
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6368943Z FAILURE: Build failed with an exception.
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6375328Z 
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6378682Z Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6380572Z 
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6380583Z 
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6381462Z * What went wrong:
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6382462Z You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6384625Z 
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6385654Z For more on this, please refer to https://docs.gradle.org/8.14.3/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6387972Z Execution failed for task ':core:common:compileDebugKotlin'.
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6388681Z 391 actionable tasks: 184 executed, 207 from cache
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6392027Z > A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6393629Z    > Compilation error. See log for more details
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6394198Z 
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6394497Z * Try:
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6395074Z > Run with --stacktrace option to get the stack trace.
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6395891Z > Run with --info or --debug option to get more log output.
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6396701Z > Run with --scan to get full insights.
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6397428Z > Get more help at https://help.gradle.org.
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6397994Z 
-Build & Release	Build Debug APK	2026-01-23T08:25:09.6398318Z BUILD FAILED in 35s
-Build & Release	Build Debug APK	2026-01-23T08:25:10.0853763Z ##[error]Process completed with exit code 1.
-Build & Release	Post Set up Gradle	﻿2026-01-23T08:25:10.1039250Z Post job cleanup.
-Build & Release	Post Set up Gradle	2026-01-23T08:25:10.4229769Z In post-action step
-Build & Release	Post Set up Gradle	2026-01-23T08:25:10.4241616Z ##[group]Stopping Gradle daemons
-Build & Release	Post Set up Gradle	2026-01-23T08:25:10.4243162Z Stopping Gradle daemons for /home/runner/.gradle/wrapper/dists/gradle-8.14.3-bin/cv11ve7ro1n3o1j4so8xd9n66/gradle-8.14.3
-Build & Release	Post Set up Gradle	2026-01-23T08:25:10.4261611Z [command]/home/runner/.gradle/wrapper/dists/gradle-8.14.3-bin/cv11ve7ro1n3o1j4so8xd9n66/gradle-8.14.3/bin/gradle --stop
-Build & Release	Post Set up Gradle	2026-01-23T08:25:11.0084928Z No Gradle daemons are running.
-Build & Release	Post Set up Gradle	2026-01-23T08:25:11.0166096Z ##[endgroup]
-Build & Release	Post Set up Gradle	2026-01-23T08:25:11.0167952Z Not performing cache-cleanup due to build failure
-Build & Release	Post Set up Gradle	2026-01-23T08:25:11.0168931Z ##[group]Caching Gradle state
-Build & Release	Post Set up Gradle	2026-01-23T08:25:17.9094191Z [command]/usr/bin/tar --posix -cf cache.tzst --exclude cache.tzst -P -C /home/runner/work/Anikku-Mod/Anikku-Mod --files-from manifest.txt --use-compress-program zstdmt
-Build & Release	Post Set up Gradle	2026-01-23T08:25:19.5022569Z Sent 62717952 of 121846838 (51.5%), 59.8 MBs/sec
-Build & Release	Post Set up Gradle	2026-01-23T08:25:20.5031657Z Sent 121846838 of 121846838 (100.0%), 58.1 MBs/sec
-Build & Release	Post Set up Gradle	2026-01-23T08:25:20.9648818Z Saved cache entry with key gradle-home-v1|Linux-X64|build-debug[965596241329c6e509da153a9e0a419a]-297dd43b3bede137f2d74457d59efdf214d5b2c9 from /home/runner/.gradle/caches,/home/runner/.gradle/notifications,/home/runner/.gradle/.setup-gradle in 3071ms
-Build & Release	Post Set up Gradle	2026-01-23T08:25:20.9650404Z ##[endgroup]
-Build & Release	Post Set up Gradle	2026-01-23T08:25:20.9654837Z Generating Job Summary
-Build & Release	Post Set up Gradle	2026-01-23T08:25:20.9666687Z Completed post-action step
-Build & Release	Post Set up JDK	﻿2026-01-23T08:25:20.9903182Z Post job cleanup.
-Build & Release	Post Clone repo	﻿2026-01-23T08:25:21.1628743Z Post job cleanup.
-Build & Release	Post Clone repo	2026-01-23T08:25:21.2571108Z [command]/usr/bin/git version
-Build & Release	Post Clone repo	2026-01-23T08:25:21.2615771Z git version 2.52.0
-Build & Release	Post Clone repo	2026-01-23T08:25:21.2659166Z Temporarily overriding HOME='/home/runner/work/_temp/6b2b720a-3fc0-42b3-bd9e-d3e6d4caf80b' before making global git config changes
-Build & Release	Post Clone repo	2026-01-23T08:25:21.2660916Z Adding repository directory to the temporary git global config as a safe directory
-Build & Release	Post Clone repo	2026-01-23T08:25:21.2666098Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Anikku-Mod/Anikku-Mod
-Build & Release	Post Clone repo	2026-01-23T08:25:21.2706344Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
-Build & Release	Post Clone repo	2026-01-23T08:25:21.2739591Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
-Build & Release	Post Clone repo	2026-01-23T08:25:21.2972514Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
-Build & Release	Post Clone repo	2026-01-23T08:25:21.2992837Z http.https://github.com/.extraheader
-Build & Release	Post Clone repo	2026-01-23T08:25:21.3005543Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
-Build & Release	Post Clone repo	2026-01-23T08:25:21.3035562Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
-Build & Release	Post Clone repo	2026-01-23T08:25:21.3257736Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
-Build & Release	Post Clone repo	2026-01-23T08:25:21.3288386Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
-Build & Release	Complete job	﻿2026-01-23T08:25:21.3611013Z Cleaning up orphan processes
+Build & Release	Set up Gradle	2026-01-23T08:39:35.4909375Z   add-job-summary: always
+Build & Release	Set up Gradle	2026-01-23T08:39:35.4909599Z   add-job-summary-as-pr-comment: never
+Build & Release	Set up Gradle	2026-01-23T08:39:35.4909865Z   dependency-graph: disabled
+Build & Release	Set up Gradle	2026-01-23T08:39:35.4910148Z   dependency-graph-report-dir: dependency-graph-reports
+Build & Release	Set up Gradle	2026-01-23T08:39:35.4910511Z   dependency-graph-continue-on-failure: true
+Build & Release	Set up Gradle	2026-01-23T08:39:35.4910791Z   build-scan-publish: false
+Build & Release	Set up Gradle	2026-01-23T08:39:35.4911027Z   validate-wrappers: true
+Build & Release	Set up Gradle	2026-01-23T08:39:35.4911246Z   allow-snapshot-wrappers: false
+Build & Release	Set up Gradle	2026-01-23T08:39:35.4911682Z   gradle-home-cache-strict-match: false
+Build & Release	Set up Gradle	2026-01-23T08:39:35.4911991Z   workflow-job-context: null
+Build & Release	Set up Gradle	2026-01-23T08:39:35.4912360Z   github-token: ***
+Build & Release	Set up Gradle	2026-01-23T08:39:35.4912549Z env:
+Build & Release	Set up Gradle	2026-01-23T08:39:35.4912823Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.17-10/x64
+Build & Release	Set up Gradle	2026-01-23T08:39:35.4913300Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.17-10/x64
+Build & Release	Set up Gradle	2026-01-23T08:39:35.4913654Z ##[endgroup]
+Build & Release	Set up Gradle	2026-01-23T08:39:35.9367142Z Merged default JDK locations into /home/runner/.m2/toolchains.xml
+Build & Release	Set up Gradle	2026-01-23T08:39:35.9369882Z Preparing cache for cleanup.
+Build & Release	Set up Gradle	2026-01-23T08:39:35.9375333Z ##[group]Restore Gradle state from cache
+Build & Release	Set up Gradle	2026-01-23T08:39:36.1906727Z Cache hit for restore-key: gradle-home-v1|Linux-X64|build-debug[965596241329c6e509da153a9e0a419a]-903723e0c0b11d1f385b105c0ea1989305627b41
+Build & Release	Set up Gradle	2026-01-23T08:39:37.4173980Z Received 37748736 of 128052469 (29.5%), 36.0 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:38.0122881Z Received 128052469 of 128052469 (100.0%), 76.5 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:38.0125257Z Cache Size: ~122 MB (128052469 B)
+Build & Release	Set up Gradle	2026-01-23T08:39:38.0160536Z [command]/usr/bin/tar -xf /home/runner/work/_temp/59bab33a-a6e7-46c6-85e6-fb35fab4b4c7/cache.tzst -P -C /home/runner/work/Anikku-Mod/Anikku-Mod --use-compress-program unzstd
+Build & Release	Set up Gradle	2026-01-23T08:39:38.4452198Z Cache restored successfully
+Build & Release	Set up Gradle	2026-01-23T08:39:38.4697511Z Restored cache entry with key gradle-home-v1|Linux-X64|build-debug[965596241329c6e509da153a9e0a419a]-96cb70e7bd1356bb23d5e36103ef51361f88a7fe to /home/runner/.gradle/caches,/home/runner/.gradle/notifications,/home/runner/.gradle/.setup-gradle in 2530ms
+Build & Release	Set up Gradle	2026-01-23T08:39:38.6820856Z Cache hit for: gradle-generated-gradle-jars-v1-4434c59050703a48bf14168622b59891
+Build & Release	Set up Gradle	2026-01-23T08:39:38.6986241Z Cache hit for: gradle-wrapper-zips-v1-5ae5d3da5e8e0c748d04bcdd9bc97bdb
+Build & Release	Set up Gradle	2026-01-23T08:39:38.6990911Z Cache hit for: gradle-instrumented-jars-v1-378ee90361d1db5b49c9aec129fbc748
+Build & Release	Set up Gradle	2026-01-23T08:39:38.6996404Z Cache hit for: gradle-dependencies-v1-98f314e8c8679f8838a6f2138114d27c
+Build & Release	Set up Gradle	2026-01-23T08:39:38.7036135Z Cache hit for: gradle-kotlin-dsl-v1-d5ce47fbc9d0493f4a7821e864c43c3a
+Build & Release	Set up Gradle	2026-01-23T08:39:38.7056725Z Cache hit for: gradle-transforms-v1-ebebd22b357c090f2d2fe27f745e03ad
+Build & Release	Set up Gradle	2026-01-23T08:39:38.7061406Z Cache hit for: gradle-groovy-dsl-v1-90f5a438fa72a8945020aa0158ae163a
+Build & Release	Set up Gradle	2026-01-23T08:39:39.3007900Z Received 187732 of 187732 (100.0%), 0.5 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:39.3008674Z Cache Size: ~0 MB (187732 B)
+Build & Release	Set up Gradle	2026-01-23T08:39:39.3034725Z [command]/usr/bin/tar -xf /home/runner/work/_temp/0ea8ec92-eedb-4681-9731-488d7321d04f/cache.tzst -P -C /home/runner/work/Anikku-Mod/Anikku-Mod --use-compress-program unzstd
+Build & Release	Set up Gradle	2026-01-23T08:39:39.3262683Z Cache restored successfully
+Build & Release	Set up Gradle	2026-01-23T08:39:39.3265090Z Restored cache entry with key gradle-groovy-dsl-v1-90f5a438fa72a8945020aa0158ae163a to /home/runner/.gradle/caches/*/groovy-dsl/*/ in 855ms
+Build & Release	Set up Gradle	2026-01-23T08:39:39.3855971Z Received 121723 of 121723 (100.0%), 0.3 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:39.3857206Z Cache Size: ~0 MB (121723 B)
+Build & Release	Set up Gradle	2026-01-23T08:39:39.4050020Z [command]/usr/bin/tar -xf /home/runner/work/_temp/a6b18393-4885-49c4-a684-f8a41c0b569b/cache.tzst -P -C /home/runner/work/Anikku-Mod/Anikku-Mod --use-compress-program unzstd
+Build & Release	Set up Gradle	2026-01-23T08:39:39.4203318Z Cache restored successfully
+Build & Release	Set up Gradle	2026-01-23T08:39:39.4205885Z Restored cache entry with key gradle-instrumented-jars-v1-378ee90361d1db5b49c9aec129fbc748 to /home/runner/.gradle/caches/jars-*/*/ in 949ms
+Build & Release	Set up Gradle	2026-01-23T08:39:39.7460338Z Received 1624474 of 1624474 (100.0%), 2.0 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:39.7461878Z Cache Size: ~2 MB (1624474 B)
+Build & Release	Set up Gradle	2026-01-23T08:39:39.7603341Z [command]/usr/bin/tar -xf /home/runner/work/_temp/9b2d88ad-f01b-4323-b4bc-43939f8f4196/cache.tzst -P -C /home/runner/work/Anikku-Mod/Anikku-Mod --use-compress-program unzstd
+Build & Release	Set up Gradle	2026-01-23T08:39:39.9233789Z Received 20971520 of 41092997 (51.0%), 19.9 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:39.9471359Z Received 25165824 of 136706942 (18.4%), 23.7 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:39.9575049Z Received 12582912 of 685696080 (1.8%), 12.0 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:39.9704718Z Received 29360128 of 788939691 (3.7%), 28.0 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:40.1060113Z Received 41092997 of 41092997 (100.0%), 32.8 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:40.1063947Z Cache Size: ~39 MB (41092997 B)
+Build & Release	Set up Gradle	2026-01-23T08:39:40.2125101Z [command]/usr/bin/tar -xf /home/runner/work/_temp/0ed43669-ad8a-44b7-9591-48237b3d66c8/cache.tzst -P -C /home/runner/work/Anikku-Mod/Anikku-Mod --use-compress-program unzstd
+Build & Release	Set up Gradle	2026-01-23T08:39:40.6337053Z Cache restored successfully
+Build & Release	Set up Gradle	2026-01-23T08:39:40.6575995Z Cache restored successfully
+Build & Release	Set up Gradle	2026-01-23T08:39:40.6578570Z Restored cache entry with key gradle-kotlin-dsl-v1-d5ce47fbc9d0493f4a7821e864c43c3a to /home/runner/.gradle/caches/*/kotlin-dsl/accessors/*/,/home/runner/.gradle/caches/*/kotlin-dsl/scripts/*/ in 2186ms
+Build & Release	Set up Gradle	2026-01-23T08:39:40.6662659Z Restored cache entry with key gradle-generated-gradle-jars-v1-4434c59050703a48bf14168622b59891 to /home/runner/.gradle/caches/8.14.3/generated-gradle-jars/gradle-api-8.14.3.jar in 2195ms
+Build & Release	Set up Gradle	2026-01-23T08:39:40.9947221Z Received 125829120 of 136706942 (92.0%), 58.3 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:40.9947772Z Received 117440512 of 685696080 (17.1%), 54.9 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:40.9948186Z Received 134217728 of 788939691 (17.0%), 63.2 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:41.3233395Z Received 136706942 of 136706942 (100.0%), 54.6 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:41.3235922Z Cache Size: ~130 MB (136706942 B)
+Build & Release	Set up Gradle	2026-01-23T08:39:41.3263407Z [command]/usr/bin/tar -xf /home/runner/work/_temp/73e9c1c2-83ff-47ab-ae42-a9ef0e2e32e5/cache.tzst -P -C /home/runner/work/Anikku-Mod/Anikku-Mod --use-compress-program unzstd
+Build & Release	Set up Gradle	2026-01-23T08:39:41.6148845Z Cache restored successfully
+Build & Release	Set up Gradle	2026-01-23T08:39:41.6477039Z Restored cache entry with key gradle-wrapper-zips-v1-5ae5d3da5e8e0c748d04bcdd9bc97bdb to /home/runner/.gradle/wrapper/dists/gradle-8.14.3-bin/cv11ve7ro1n3o1j4so8xd9n66 in 3173ms
+Build & Release	Set up Gradle	2026-01-23T08:39:41.9947020Z Received 197132288 of 685696080 (28.7%), 61.9 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:41.9949035Z Received 255852544 of 788939691 (32.4%), 80.7 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:42.9952860Z Received 297795584 of 685696080 (43.4%), 70.3 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:42.9953562Z Received 364904448 of 788939691 (46.3%), 86.5 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:43.9957664Z Received 402653184 of 685696080 (58.7%), 76.2 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:43.9958330Z Received 469762048 of 788939691 (59.5%), 89.2 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:44.9963758Z Received 528482304 of 685696080 (77.1%), 83.4 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:44.9964727Z Received 570425344 of 788939691 (72.3%), 90.3 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:45.9966978Z Received 641728512 of 685696080 (93.6%), 86.9 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:45.9967815Z Received 671088640 of 788939691 (85.1%), 91.1 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:46.6303234Z Received 685696080 of 685696080 (100.0%), 85.2 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:46.6306082Z Cache Size: ~654 MB (685696080 B)
+Build & Release	Set up Gradle	2026-01-23T08:39:46.6358314Z [command]/usr/bin/tar -xf /home/runner/work/_temp/a5470722-54ce-43ba-89bf-3b6963ddfc33/cache.tzst -P -C /home/runner/work/Anikku-Mod/Anikku-Mod --use-compress-program unzstd
+Build & Release	Set up Gradle	2026-01-23T08:39:46.9104329Z Received 788939691 of 788939691 (100.0%), 94.8 MBs/sec
+Build & Release	Set up Gradle	2026-01-23T08:39:46.9105015Z Cache Size: ~752 MB (788939691 B)
+Build & Release	Set up Gradle	2026-01-23T08:39:46.9403588Z [command]/usr/bin/tar -xf /home/runner/work/_temp/144bf560-46db-4eb5-aed1-91136eac5537/cache.tzst -P -C /home/runner/work/Anikku-Mod/Anikku-Mod --use-compress-program unzstd
+Build & Release	Set up Gradle	2026-01-23T08:39:48.9273530Z Cache restored successfully
+Build & Release	Set up Gradle	2026-01-23T08:39:49.1780217Z Restored cache entry with key gradle-dependencies-v1-98f314e8c8679f8838a6f2138114d27c to /home/runner/.gradle/caches/modules-*/files-*/*/*/*/* in 10707ms
+Build & Release	Set up Gradle	2026-01-23T08:39:56.1486985Z Cache restored successfully
+Build & Release	Set up Gradle	2026-01-23T08:39:56.2803230Z Restored cache entry with key gradle-transforms-v1-ebebd22b357c090f2d2fe27f745e03ad to /home/runner/.gradle/caches/transforms-4/*/,/home/runner/.gradle/caches/*/transforms/*/ in 17808ms
+Build & Release	Set up Gradle	2026-01-23T08:39:56.2914632Z ##[endgroup]
+Build & Release	Set up Gradle	2026-01-23T08:39:56.3398631Z ##[group]All Gradle Wrapper jars are valid
+Build & Release	Set up Gradle	2026-01-23T08:39:56.3399972Z ✓ Found known Gradle Wrapper JAR files:
+Build & Release	Set up Gradle	2026-01-23T08:39:56.3400948Z   7d3a4ac4de1c32b59bc6a4eb8ecb8e612ccd0cf1ae1e99f66902da64df296172 gradle/wrapper/gradle-wrapper.jar
+Build & Release	Set up Gradle	2026-01-23T08:39:56.3402502Z ##[endgroup]
+Build & Release	Build Debug APK	﻿2026-01-23T08:39:56.3564464Z ##[group]Run ./gradlew assembleDebug -Pinclude-telemetry=false -Penable-updater=false --no-daemon
+Build & Release	Build Debug APK	2026-01-23T08:39:56.3565295Z [36;1m./gradlew assembleDebug -Pinclude-telemetry=false -Penable-updater=false --no-daemon[0m
+Build & Release	Build Debug APK	2026-01-23T08:39:56.3599332Z shell: /usr/bin/bash -e {0}
+Build & Release	Build Debug APK	2026-01-23T08:39:56.3599645Z env:
+Build & Release	Build Debug APK	2026-01-23T08:39:56.3599989Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.17-10/x64
+Build & Release	Build Debug APK	2026-01-23T08:39:56.3600535Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.17-10/x64
+Build & Release	Build Debug APK	2026-01-23T08:39:56.3600997Z   GRADLE_ACTION_ID: gradle/actions/setup-gradle
+Build & Release	Build Debug APK	2026-01-23T08:39:56.3601361Z   GRADLE_USER_HOME: /home/runner/.gradle
+Build & Release	Build Debug APK	2026-01-23T08:39:56.3601894Z   GRADLE_BUILD_ACTION_SETUP_COMPLETED: true
+Build & Release	Build Debug APK	2026-01-23T08:39:56.3602224Z   GRADLE_BUILD_ACTION_CACHE_RESTORED: true
+Build & Release	Build Debug APK	2026-01-23T08:39:56.3602686Z   DEVELOCITY_INJECTION_INIT_SCRIPT_NAME: gradle-actions.inject-develocity.init.gradle
+Build & Release	Build Debug APK	2026-01-23T08:39:56.3603201Z   DEVELOCITY_INJECTION_CUSTOM_VALUE: gradle-actions
+Build & Release	Build Debug APK	2026-01-23T08:39:56.3603585Z   GITHUB_DEPENDENCY_GRAPH_ENABLED: false
+Build & Release	Build Debug APK	2026-01-23T08:39:56.3603878Z ##[endgroup]
+Build & Release	Build Debug APK	2026-01-23T08:39:57.2454466Z To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14.3/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Build & Release	Build Debug APK	2026-01-23T08:39:58.4442366Z Daemon will be stopped at the end of the build 
+Build & Release	Build Debug APK	2026-01-23T08:39:58.7445577Z Configuration on demand is an incubating feature.
+Build & Release	Build Debug APK	2026-01-23T08:40:03.3443338Z Type-safe project accessors is an incubating feature.
+Build & Release	Build Debug APK	2026-01-23T08:40:06.7453220Z > Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:06.8468240Z > Task :buildSrc:generateExternalPluginSpecBuilders FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:06.9447421Z > Task :buildSrc:extractPrecompiledScriptPluginPlugins FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:07.0502557Z > Task :buildSrc:compilePluginsBlocks FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:07.3442284Z > Task :buildSrc:generatePrecompiledScriptPluginAccessors FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:07.3443974Z > Task :buildSrc:generateScriptPluginAdapters FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:07.8442407Z > Task :buildSrc:compileKotlin FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:07.8448463Z > Task :buildSrc:compileJava NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:07.8455999Z > Task :buildSrc:compileGroovy NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:07.8458617Z > Task :buildSrc:pluginDescriptors
+Build & Release	Build Debug APK	2026-01-23T08:40:07.9443168Z > Task :buildSrc:processResources
+Build & Release	Build Debug APK	2026-01-23T08:40:07.9446818Z > Task :buildSrc:classes
+Build & Release	Build Debug APK	2026-01-23T08:40:08.2464468Z > Task :buildSrc:jar
+Build & Release	Build Debug APK	2026-01-23T08:40:17.9448379Z > Task :domain:preBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:17.9461113Z > Task :data:preBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:17.9462287Z > Task :domain:preDebugBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:17.9482234Z > Task :core-metadata:preBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:17.9483370Z > Task :data:preDebugBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:17.9484644Z > Task :core-metadata:preDebugBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:17.9486292Z > Task :core-metadata:generateDebugResValues FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:17.9487059Z > Task :data:generateDebugResValues FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:17.9488134Z > Task :domain:generateDebugResValues FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:17.9489405Z > Task :core-metadata:generateDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:17.9490498Z > Task :data:generateDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:17.9491670Z > Task :app:preBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:17.9492924Z > Task :domain:generateDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:18.0498022Z > Task :data:packageDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:18.0498812Z > Task :flagkit:preBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:18.0499521Z > Task :flagkit:preDebugBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:18.0500151Z > Task :flagkit:generateDebugResValues FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:18.0500839Z > Task :domain:packageDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:18.0501666Z > Task :i18n:generateLocalesConfig UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:18.0502304Z > Task :flagkit:generateDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:18.1456612Z > Task :i18n:generateMRcommonMain FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:18.1457485Z > Task :i18n:generateMRandroidDebug SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:18.1458147Z > Task :flagkit:packageDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:18.1458819Z > Task :i18n-ank:generateMRcommonMain FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:18.1459458Z > Task :i18n-ank:generateMRandroidDebug SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:18.1460196Z > Task :i18n-ank:generateMRandroidInstrumentedTest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:18.1461057Z > Task :i18n-ank:generateMRandroidInstrumentedTestDebug SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:18.1462007Z > Task :i18n-ank:generateMRandroidMain FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:18.1462737Z > Task :i18n-ank:generateMRandroidRelease SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:20.3442441Z > Task :i18n:generateMRandroidInstrumentedTest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.3447507Z > Task :core-metadata:packageDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.3449289Z > Task :i18n:generateMRandroidInstrumentedTestDebug SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:20.3455392Z > Task :i18n-kmk:generateMRcommonMain FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.3456923Z > Task :i18n-kmk:generateMRandroidDebug SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:20.3465695Z > Task :i18n-ank:generateMRcommonTest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.4460418Z > Task :i18n-kmk:generateMRandroidInstrumentedTest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.4474228Z > Task :i18n-kmk:generateMRandroidInstrumentedTestDebug SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:20.4475106Z > Task :i18n-ank:generateMRandroidUnitTest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.4475858Z > Task :i18n-ank:generateMRandroidUnitTestDebug SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:20.4476628Z > Task :i18n-ank:generateMRandroidUnitTestRelease SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:20.4477608Z > Task :i18n-ank:preBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.4478160Z > Task :i18n-ank:preDebugBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.4478786Z > Task :i18n-ank:generateDebugResValues FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.4479443Z > Task :i18n-ank:generateDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.4480106Z > Task :i18n-kmk:generateMRandroidMain FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.4480760Z > Task :i18n-kmk:generateMRandroidRelease SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:20.4512303Z > Task :i18n-kmk:generateMRcommonTest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.4528796Z > Task :i18n-kmk:generateMRandroidUnitTest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.4529571Z > Task :i18n-kmk:generateMRandroidUnitTestDebug SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:20.4530323Z > Task :i18n-kmk:generateMRandroidUnitTestRelease SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:20.4530968Z > Task :i18n-kmk:preBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.4531673Z > Task :i18n-kmk:preDebugBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.4532331Z > Task :i18n-ank:packageDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.4533205Z > Task :i18n-kmk:generateDebugResValues FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.5453209Z > Task :i18n-kmk:generateDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6467411Z > Task :i18n:generateMRandroidMain FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6468558Z > Task :i18n:generateMRandroidRelease SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6469550Z > Task :i18n-kmk:packageDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6470471Z > Task :presentation-core:preBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6471199Z > Task :presentation-core:preDebugBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6472026Z > Task :i18n-sy:generateMRcommonMain FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6472684Z > Task :i18n-sy:generateMRandroidDebug SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6473394Z > Task :presentation-core:generateDebugResValues FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6474131Z > Task :i18n:generateMRcommonTest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6474873Z > Task :i18n-sy:generateMRandroidInstrumentedTest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6475741Z > Task :i18n-sy:generateMRandroidInstrumentedTestDebug SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6476535Z > Task :i18n:generateMRandroidUnitTest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6477209Z > Task :i18n:generateMRandroidUnitTestDebug SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6477916Z > Task :i18n:generateMRandroidUnitTestRelease SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6478542Z > Task :i18n:preBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6479047Z > Task :i18n:preDebugBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6479666Z > Task :i18n:generateDebugResValues FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6480685Z > Task :presentation-core:generateDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6481609Z > Task :i18n:generateDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6482348Z > Task :presentation-core:packageDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6483059Z > Task :presentation-widget:preBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6483736Z > Task :presentation-widget:preDebugBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6484516Z > Task :presentation-widget:generateDebugResValues FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6485272Z > Task :i18n-sy:generateMRandroidMain FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6485933Z > Task :i18n-sy:generateMRandroidRelease SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6486593Z > Task :i18n-sy:generateMRcommonTest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6487323Z > Task :presentation-widget:generateDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.6488088Z > Task :i18n-sy:generateMRandroidUnitTest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.7499821Z > Task :i18n-sy:generateMRandroidUnitTestDebug SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:20.7500706Z > Task :i18n-sy:generateMRandroidUnitTestRelease SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:20.7501406Z > Task :i18n-sy:preBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.7502215Z > Task :i18n-sy:preDebugBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.7502869Z > Task :i18n-sy:generateDebugResValues FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.7503510Z > Task :i18n-sy:generateDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.7504268Z > Task :presentation-widget:packageDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.7504865Z > Task :source-api:preBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.7505366Z > Task :source-api:preDebugBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.7506332Z > Task :source-api:generateDebugResValues FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.7506995Z > Task :source-api:generateDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.7507628Z > Task :source-api:packageDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.7508201Z > Task :source-local:preBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.7508821Z > Task :source-local:preDebugBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.7509472Z > Task :source-local:generateDebugResValues FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.7510123Z > Task :source-local:generateDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.7510764Z > Task :i18n-sy:packageDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.7511383Z > Task :telemetry:preBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.7512234Z > Task :source-local:packageDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.7523921Z > Task :telemetry:preDebugBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.7524533Z > Task :core:archive:preBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.7525164Z > Task :telemetry:generateDebugResValues FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.8471081Z > Task :core:archive:preDebugBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.8492728Z > Task :core:archive:generateDebugResValues FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.8493459Z > Task :telemetry:generateDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.8494124Z > Task :core:archive:generateDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.8494784Z > Task :telemetry:packageDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.8495477Z > Task :core:archive:packageDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.8496063Z > Task :core:common:preBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.8496611Z > Task :core:common:preDebugBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.8497223Z > Task :core:common:generateDebugResValues FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.8497870Z > Task :core:common:generateDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.8498516Z > Task :core:common:packageDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.9479788Z > Task :i18n:packageDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.9484905Z > Task :core-metadata:writeDebugAarMetadata
+Build & Release	Build Debug APK	2026-01-23T08:40:20.9489428Z > Task :domain:writeDebugAarMetadata
+Build & Release	Build Debug APK	2026-01-23T08:40:20.9493942Z > Task :data:writeDebugAarMetadata
+Build & Release	Build Debug APK	2026-01-23T08:40:20.9498943Z > Task :flagkit:writeDebugAarMetadata
+Build & Release	Build Debug APK	2026-01-23T08:40:20.9508070Z > Task :i18n-ank:writeDebugAarMetadata
+Build & Release	Build Debug APK	2026-01-23T08:40:20.9510351Z > Task :i18n:writeDebugAarMetadata
+Build & Release	Build Debug APK	2026-01-23T08:40:20.9513124Z > Task :i18n-sy:writeDebugAarMetadata
+Build & Release	Build Debug APK	2026-01-23T08:40:20.9517585Z > Task :i18n-kmk:writeDebugAarMetadata
+Build & Release	Build Debug APK	2026-01-23T08:40:20.9519712Z > Task :presentation-core:writeDebugAarMetadata
+Build & Release	Build Debug APK	2026-01-23T08:40:20.9527779Z > Task :source-api:writeDebugAarMetadata
+Build & Release	Build Debug APK	2026-01-23T08:40:20.9528465Z > Task :presentation-widget:writeDebugAarMetadata
+Build & Release	Build Debug APK	2026-01-23T08:40:20.9529125Z > Task :source-local:writeDebugAarMetadata
+Build & Release	Build Debug APK	2026-01-23T08:40:20.9529711Z > Task :telemetry:writeDebugAarMetadata
+Build & Release	Build Debug APK	2026-01-23T08:40:20.9530291Z > Task :core:archive:writeDebugAarMetadata
+Build & Release	Build Debug APK	2026-01-23T08:40:20.9530871Z > Task :core:common:writeDebugAarMetadata
+Build & Release	Build Debug APK	2026-01-23T08:40:20.9531760Z > Task :core-metadata:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.9532465Z > Task :data:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:20.9533073Z > Task :domain:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0457840Z > Task :domain:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0482236Z > Task :flagkit:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0483118Z > Task :data:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0483900Z > Task :i18n:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0485066Z > Task :core-metadata:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0485793Z > Task :flagkit:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0486484Z > Task :i18n-ank:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0487125Z > Task :app:preDebugBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0487776Z > Task :i18n-kmk:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0488561Z > Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0489394Z > Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0490716Z > Task :i18n:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0491640Z > Task :i18n-ank:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0492465Z > Task :i18n-kmk:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0493263Z > Task :i18n-sy:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0494125Z > Task :presentation-core:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0498369Z > Task :presentation-widget:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0500069Z > Task :presentation-widget:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0500815Z > Task :i18n-sy:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0501771Z > Task :presentation-core:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0502547Z > Task :source-api:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0503298Z > Task :source-local:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0504051Z > Task :telemetry:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0504785Z > Task :source-api:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0505479Z > Task :telemetry:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0511376Z > Task :core:archive:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0512274Z > Task :source-local:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.0512937Z > Task :core:common:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.1459492Z > Task :core-metadata:compileDebugLibraryResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.1460852Z > Task :core:archive:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.1462115Z > Task :core:common:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.1466550Z > Task :source-api:parseDebugLocalResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.1468598Z > Task :core-metadata:parseDebugLocalResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.1469540Z > Task :i18n:parseDebugLocalResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.1470773Z > Task :i18n-sy:parseDebugLocalResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.1472001Z > Task :core:common:parseDebugLocalResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.1488212Z > Task :data:compileDebugLibraryResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.1489319Z > Task :data:parseDebugLocalResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.1490220Z > Task :domain:parseDebugLocalResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.1491065Z > Task :i18n-ank:parseDebugLocalResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.1492032Z > Task :i18n:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.1493067Z > Task :i18n-sy:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.2467639Z > Task :domain:compileDebugLibraryResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.2472457Z > Task :i18n-ank:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.2476851Z > Task :i18n:compileDebugLibraryResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.2481066Z > Task :i18n-ank:compileDebugLibraryResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.2483365Z > Task :i18n-kmk:compileDebugLibraryResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.2484771Z > Task :i18n-kmk:parseDebugLocalResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.3453044Z > Task :i18n-kmk:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.3454574Z > Task :i18n-sy:compileDebugLibraryResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.3455685Z > Task :presentation-core:compileDebugLibraryResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.3456799Z > Task :flagkit:compileDebugLibraryResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.3457796Z > Task :presentation-core:parseDebugLocalResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.3458802Z > Task :flagkit:parseDebugLocalResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.3459812Z > Task :presentation-widget:compileDebugLibraryResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.3461717Z > Task :source-api:compileDebugLibraryResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.3462952Z > Task :presentation-widget:parseDebugLocalResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.3464011Z > Task :source-local:compileDebugLibraryResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.3464983Z > Task :core:archive:parseDebugLocalResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.3465917Z > Task :source-local:parseDebugLocalResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.3467389Z > Task :telemetry:compileDebugLibraryResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.3468382Z > Task :core:archive:compileDebugLibraryResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.3469476Z > Task :core-metadata:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:21.3470603Z > Task :source-api:kmpPartiallyResolvedDependenciesChecker
+Build & Release	Build Debug APK	2026-01-23T08:40:21.3473865Z > Task :source-api:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:21.3475052Z > Task :i18n:kmpPartiallyResolvedDependenciesChecker
+Build & Release	Build Debug APK	2026-01-23T08:40:21.3476132Z > Task :i18n:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:21.3478687Z > Task :telemetry:parseDebugLocalResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.4463209Z > Task :telemetry:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.4464709Z > Task :i18n-sy:kmpPartiallyResolvedDependenciesChecker
+Build & Release	Build Debug APK	2026-01-23T08:40:21.4465851Z > Task :i18n-sy:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:21.6542689Z > Task :core:common:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.7441969Z > Task :i18n-sy:compileDebugKotlinAndroid FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.7443092Z > Task :i18n:compileDebugKotlinAndroid FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.8453794Z > Task :flagkit:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.9443555Z > Task :core:archive:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.9452279Z > Task :core:common:compileDebugLibraryResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.9456586Z > Task :i18n:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:21.9462261Z > Task :i18n:compileDebugJavaWithJavac NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.2456127Z > Task :source-api:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.3441267Z > Task :core-metadata:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.4453438Z > Task :i18n:bundleLibCompileToJarDebug
+Build & Release	Build Debug APK	2026-01-23T08:40:22.4454478Z > Task :i18n-sy:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.4455142Z > Task :i18n-sy:compileDebugJavaWithJavac NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.4455842Z > Task :i18n-sy:bundleLibCompileToJarDebug
+Build & Release	Build Debug APK	2026-01-23T08:40:22.4456701Z > Task :core:common:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:22.4457544Z > Task :domain:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.4458263Z > Task :presentation-core:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.6465034Z > Task :data:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.7464089Z > Task :presentation-widget:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.7473812Z > Task :app:generateDebugResValues FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.7474521Z > Task :source-local:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.7475201Z > Task :source-api:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.7475912Z > Task :core-metadata:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.7476743Z > Task :data:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:22.8467102Z > Task :app:dataBindingMergeDependencyArtifactsDebug
+Build & Release	Build Debug APK	2026-01-23T08:40:22.8468796Z > Task :domain:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:22.8483020Z > Task :i18n-ank:kmpPartiallyResolvedDependenciesChecker
+Build & Release	Build Debug APK	2026-01-23T08:40:22.8484137Z > Task :i18n-ank:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:22.8485124Z > Task :app:generateDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.8485991Z > Task :data:generateDebugDatabaseInterface FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.8486851Z > Task :domain:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.8487685Z > Task :data:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.8488953Z > Task :flagkit:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:22.8489730Z > Task :flagkit:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.8490430Z > Task :i18n-kmk:kmpPartiallyResolvedDependenciesChecker
+Build & Release	Build Debug APK	2026-01-23T08:40:22.8491244Z > Task :i18n-kmk:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:22.8492273Z > Task :i18n-ank:compileDebugKotlinAndroid FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.8492920Z > Task :i18n-ank:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.9445227Z > Task :i18n-ank:compileDebugJavaWithJavac NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.9447588Z > Task :i18n-ank:bundleLibCompileToJarDebug
+Build & Release	Build Debug APK	2026-01-23T08:40:22.9448800Z > Task :presentation-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:22.9450034Z > Task :presentation-core:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.9451098Z > Task :presentation-widget:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:22.9452509Z > Task :presentation-widget:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.9453576Z > Task :source-local:kmpPartiallyResolvedDependenciesChecker
+Build & Release	Build Debug APK	2026-01-23T08:40:22.9454718Z > Task :source-local:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:22.9455925Z > Task :core:archive:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:22.9456986Z > Task :core:archive:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.9457874Z > Task :source-local:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.9458914Z > Task :telemetry:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:40:22.9460020Z > Task :i18n-kmk:compileDebugKotlinAndroid FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.9460933Z > Task :i18n-kmk:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.9462031Z > Task :i18n-kmk:compileDebugJavaWithJavac NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:22.9462929Z > Task :telemetry:compileDebugKotlin FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.0442600Z > Task :i18n-kmk:bundleLibCompileToJarDebug
+Build & Release	Build Debug APK	2026-01-23T08:40:23.0443501Z > Task :telemetry:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.0444756Z > Task :telemetry:compileDebugJavaWithJavac NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.0445481Z > Task :telemetry:bundleLibCompileToJarDebug
+Build & Release	Build Debug APK	2026-01-23T08:40:23.1449604Z > Task :data:mergeDebugShaders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.1450558Z > Task :core-metadata:mergeDebugShaders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.1451269Z > Task :data:compileDebugShaders NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.1452159Z > Task :core-metadata:compileDebugShaders NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.1452794Z > Task :data:generateDebugAssets UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.1453424Z > Task :core-metadata:generateDebugAssets UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.1453994Z > Task :data:mergeDebugAssets
+Build & Release	Build Debug APK	2026-01-23T08:40:23.1454494Z > Task :core-metadata:mergeDebugAssets
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2474476Z > Task :domain:mergeDebugShaders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2476352Z > Task :domain:compileDebugShaders NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2477287Z > Task :flagkit:mergeDebugShaders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2485234Z > Task :domain:generateDebugAssets UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2486668Z > Task :core:common:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2487456Z > Task :flagkit:compileDebugShaders NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2488244Z > Task :flagkit:generateDebugAssets UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2489040Z > Task :domain:mergeDebugAssets
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2489665Z > Task :flagkit:mergeDebugAssets
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2490302Z > Task :i18n:mergeDebugShaders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2490952Z > Task :i18n:compileDebugShaders NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2491842Z > Task :i18n-ank:mergeDebugShaders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2492631Z > Task :i18n:debugAssetsCopyForAGP NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2493450Z > Task :i18n:generateDebugAssets UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2494270Z > Task :i18n-ank:compileDebugShaders NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2495037Z > Task :i18n-ank:debugAssetsCopyForAGP NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2495863Z > Task :i18n-ank:generateDebugAssets UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2496632Z > Task :i18n:mergeDebugAssets
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2504916Z > Task :i18n-kmk:mergeDebugShaders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2505534Z > Task :i18n-kmk:compileDebugShaders NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2506185Z > Task :i18n-kmk:debugAssetsCopyForAGP NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2507255Z > Task :i18n-kmk:generateDebugAssets UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2507908Z > Task :i18n-ank:mergeDebugAssets
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2508459Z > Task :i18n-sy:mergeDebugShaders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2508994Z > Task :i18n-kmk:mergeDebugAssets
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2509568Z > Task :i18n-sy:compileDebugShaders NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2510552Z > Task :i18n-sy:debugAssetsCopyForAGP NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.2511210Z > Task :i18n-sy:generateDebugAssets UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3447390Z > Task :presentation-core:mergeDebugShaders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3468179Z > Task :presentation-core:compileDebugShaders NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3469432Z > Task :presentation-core:generateDebugAssets UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3470413Z > Task :i18n-sy:mergeDebugAssets
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3471103Z > Task :presentation-core:mergeDebugAssets
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3472022Z > Task :presentation-widget:mergeDebugShaders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3472744Z > Task :source-api:mergeDebugShaders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3473791Z > Task :presentation-widget:compileDebugShaders NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3474690Z > Task :presentation-widget:generateDebugAssets UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3476222Z > Task :source-api:compileDebugShaders NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3477176Z > Task :source-api:debugAssetsCopyForAGP NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3478102Z > Task :source-api:generateDebugAssets UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3479284Z > Task :presentation-widget:mergeDebugAssets
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3480114Z > Task :source-api:mergeDebugAssets
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3480855Z > Task :source-local:mergeDebugShaders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3481725Z > Task :source-local:compileDebugShaders NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3482563Z > Task :source-local:debugAssetsCopyForAGP NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3485610Z > Task :source-local:generateDebugAssets UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3486226Z > Task :telemetry:mergeDebugShaders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3486759Z > Task :source-local:mergeDebugAssets
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3487330Z > Task :telemetry:compileDebugShaders NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3487916Z > Task :telemetry:generateDebugAssets UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3488462Z > Task :core:archive:mergeDebugShaders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3489000Z > Task :core:archive:compileDebugShaders NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3489663Z > Task :core:archive:generateDebugAssets UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3490266Z > Task :telemetry:mergeDebugAssets
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3490799Z > Task :core:archive:mergeDebugAssets
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3491314Z > Task :core:common:mergeDebugShaders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3492080Z > Task :core:common:compileDebugShaders NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3492711Z > Task :core:common:generateDebugAssets UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3493295Z > Task :i18n:bundleLibRuntimeToJarDebug
+Build & Release	Build Debug APK	2026-01-23T08:40:23.3494216Z > Task :core:common:mergeDebugAssets
+Build & Release	Build Debug APK	2026-01-23T08:40:23.4444969Z > Task :i18n-kmk:bundleLibRuntimeToJarDebug
+Build & Release	Build Debug APK	2026-01-23T08:40:23.4449118Z > Task :i18n-ank:bundleLibRuntimeToJarDebug
+Build & Release	Build Debug APK	2026-01-23T08:40:23.4453806Z > Task :i18n-sy:bundleLibRuntimeToJarDebug
+Build & Release	Build Debug APK	2026-01-23T08:40:23.4456444Z > Task :telemetry:bundleLibRuntimeToJarDebug
+Build & Release	Build Debug APK	2026-01-23T08:40:23.4464741Z > Task :i18n:processDebugJavaRes
+Build & Release	Build Debug APK	2026-01-23T08:40:23.4466842Z > Task :i18n-ank:processDebugJavaRes
+Build & Release	Build Debug APK	2026-01-23T08:40:23.4468673Z > Task :i18n-kmk:processDebugJavaRes
+Build & Release	Build Debug APK	2026-01-23T08:40:23.4469445Z > Task :i18n-sy:processDebugJavaRes
+Build & Release	Build Debug APK	2026-01-23T08:40:23.5458273Z > Task :telemetry:processDebugJavaRes
+Build & Release	Build Debug APK	2026-01-23T08:40:23.5459266Z > Task :i18n:bundleLibRuntimeToDirDebug
+Build & Release	Build Debug APK	2026-01-23T08:40:23.5460673Z > Task :i18n-kmk:bundleLibRuntimeToDirDebug
+Build & Release	Build Debug APK	2026-01-23T08:40:23.5461821Z > Task :i18n-ank:bundleLibRuntimeToDirDebug
+Build & Release	Build Debug APK	2026-01-23T08:40:23.5463056Z > Task :i18n-sy:bundleLibRuntimeToDirDebug
+Build & Release	Build Debug APK	2026-01-23T08:40:23.6440582Z > Task :telemetry:bundleLibRuntimeToDirDebug
+Build & Release	Build Debug APK	2026-01-23T08:40:23.6453447Z > Task :core-metadata:mergeDebugJniLibFolders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.6454761Z > Task :core-metadata:mergeDebugNativeLibs NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.6456860Z > Task :core-metadata:copyDebugJniLibsProjectOnly
+Build & Release	Build Debug APK	2026-01-23T08:40:23.6458479Z > Task :data:mergeDebugJniLibFolders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.6477612Z > Task :data:mergeDebugNativeLibs NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.6482137Z > Task :data:copyDebugJniLibsProjectOnly
+Build & Release	Build Debug APK	2026-01-23T08:40:23.6483357Z > Task :domain:mergeDebugJniLibFolders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.6484564Z > Task :flagkit:mergeDebugJniLibFolders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.6486141Z > Task :domain:mergeDebugNativeLibs NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.6487233Z > Task :flagkit:mergeDebugNativeLibs NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.6489297Z > Task :domain:copyDebugJniLibsProjectOnly
+Build & Release	Build Debug APK	2026-01-23T08:40:23.6489899Z > Task :app:prepareDebugShortcutXML
+Build & Release	Build Debug APK	2026-01-23T08:40:23.6490489Z > Task :flagkit:copyDebugJniLibsProjectOnly
+Build & Release	Build Debug APK	2026-01-23T08:40:23.6491182Z > Task :app:prepareLibraryDefinitionsDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.6492041Z > Task :i18n:mergeDebugJniLibFolders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.6492580Z > Task :i18n-ank:mergeDebugJniLibFolders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.6493177Z > Task :i18n-ank:mergeDebugNativeLibs NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.6493798Z > Task :i18n:mergeDebugNativeLibs NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.6494398Z > Task :i18n:copyDebugJniLibsProjectOnly
+Build & Release	Build Debug APK	2026-01-23T08:40:23.6494986Z > Task :i18n-ank:copyDebugJniLibsProjectOnly
+Build & Release	Build Debug APK	2026-01-23T08:40:23.8443944Z > Task :i18n-kmk:mergeDebugJniLibFolders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.8448961Z > Task :i18n-sy:mergeDebugJniLibFolders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.8450065Z > Task :i18n-sy:mergeDebugNativeLibs NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.8454643Z > Task :i18n-kmk:mergeDebugNativeLibs NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.8455676Z > Task :i18n-kmk:copyDebugJniLibsProjectOnly
+Build & Release	Build Debug APK	2026-01-23T08:40:23.8456560Z > Task :i18n-sy:copyDebugJniLibsProjectOnly
+Build & Release	Build Debug APK	2026-01-23T08:40:23.8457280Z > Task :presentation-widget:mergeDebugJniLibFolders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.8457994Z > Task :presentation-core:mergeDebugJniLibFolders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.8458738Z > Task :presentation-widget:mergeDebugNativeLibs NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.8459514Z > Task :presentation-core:mergeDebugNativeLibs NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.8460642Z > Task :presentation-widget:copyDebugJniLibsProjectOnly
+Build & Release	Build Debug APK	2026-01-23T08:40:23.8461400Z > Task :presentation-core:copyDebugJniLibsProjectOnly
+Build & Release	Build Debug APK	2026-01-23T08:40:23.8462214Z > Task :source-api:mergeDebugJniLibFolders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.9442906Z > Task :source-api:mergeDebugNativeLibs NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.9447447Z > Task :source-local:mergeDebugJniLibFolders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.9452186Z > Task :source-local:mergeDebugNativeLibs NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.9456908Z > Task :source-api:copyDebugJniLibsProjectOnly
+Build & Release	Build Debug APK	2026-01-23T08:40:23.9459149Z > Task :source-local:copyDebugJniLibsProjectOnly
+Build & Release	Build Debug APK	2026-01-23T08:40:23.9460157Z > Task :core:archive:mergeDebugJniLibFolders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.9461042Z > Task :telemetry:mergeDebugJniLibFolders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.9462621Z > Task :core:archive:mergeDebugNativeLibs NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.9463949Z > Task :telemetry:mergeDebugNativeLibs NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.9464937Z > Task :telemetry:copyDebugJniLibsProjectOnly
+Build & Release	Build Debug APK	2026-01-23T08:40:23.9466806Z > Task :core:archive:copyDebugJniLibsProjectOnly
+Build & Release	Build Debug APK	2026-01-23T08:40:23.9467791Z > Task :core-metadata:stripDebugDebugSymbols NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.9503440Z > Task :core:common:mergeDebugJniLibFolders
+Build & Release	Build Debug APK	2026-01-23T08:40:23.9504480Z > Task :core-metadata:copyDebugJniLibsProjectAndLocalJars
+Build & Release	Build Debug APK	2026-01-23T08:40:23.9505549Z > Task :core-metadata:extractDeepLinksForAarDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.9506625Z > Task :core:common:mergeDebugNativeLibs NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.9507561Z > Task :core:common:copyDebugJniLibsProjectOnly
+Build & Release	Build Debug APK	2026-01-23T08:40:23.9508418Z > Task :data:stripDebugDebugSymbols NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:23.9509257Z > Task :core-metadata:prepareDebugArtProfile
+Build & Release	Build Debug APK	2026-01-23T08:40:23.9510098Z > Task :data:copyDebugJniLibsProjectAndLocalJars
+Build & Release	Build Debug APK	2026-01-23T08:40:24.0458470Z > Task :data:extractDeepLinksForAarDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:24.0461188Z > Task :data:prepareDebugArtProfile
+Build & Release	Build Debug APK	2026-01-23T08:40:24.0464097Z > Task :core-metadata:prepareLintJarForPublish
+Build & Release	Build Debug APK	2026-01-23T08:40:24.0466822Z > Task :domain:stripDebugDebugSymbols NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:24.0469481Z > Task :data:prepareLintJarForPublish
+Build & Release	Build Debug APK	2026-01-23T08:40:24.0504900Z > Task :flagkit:stripDebugDebugSymbols NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:24.0506280Z > Task :domain:copyDebugJniLibsProjectAndLocalJars
+Build & Release	Build Debug APK	2026-01-23T08:40:24.0507397Z > Task :domain:extractDeepLinksForAarDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:24.0508424Z > Task :flagkit:copyDebugJniLibsProjectAndLocalJars
+Build & Release	Build Debug APK	2026-01-23T08:40:24.0509463Z > Task :domain:prepareDebugArtProfile
+Build & Release	Build Debug APK	2026-01-23T08:40:24.0510160Z > Task :flagkit:extractDeepLinksForAarDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:24.0510860Z > Task :flagkit:prepareDebugArtProfile
+Build & Release	Build Debug APK	2026-01-23T08:40:24.0511642Z > Task :domain:prepareLintJarForPublish
+Build & Release	Build Debug APK	2026-01-23T08:40:24.0512274Z > Task :i18n:stripDebugDebugSymbols NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:24.0512902Z > Task :flagkit:prepareLintJarForPublish
+Build & Release	Build Debug APK	2026-01-23T08:40:24.0513514Z > Task :i18n-ank:stripDebugDebugSymbols NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:24.0514178Z > Task :i18n:copyDebugJniLibsProjectAndLocalJars
+Build & Release	Build Debug APK	2026-01-23T08:40:24.0514868Z > Task :i18n-ank:copyDebugJniLibsProjectAndLocalJars
+Build & Release	Build Debug APK	2026-01-23T08:40:24.6443060Z > Task :app:mergeDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:24.7463002Z > Task :app:dataBindingGenBaseClassesDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:24.8477696Z > Task :app:generateDebugBuildConfig
+Build & Release	Build Debug APK	2026-01-23T08:40:25.1440878Z > Task :app:checkDebugAarMetadata
+Build & Release	Build Debug APK	2026-01-23T08:40:25.1443648Z > Task :app:mapDebugSourceSetPaths
+Build & Release	Build Debug APK	2026-01-23T08:40:25.2441072Z > Task :app:createDebugCompatibleScreenManifests
+Build & Release	Build Debug APK	2026-01-23T08:40:25.2442572Z > Task :app:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:25.5441060Z > Task :app:processDebugMainManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:25.5445471Z > Task :app:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:25.6459929Z > Task :app:processDebugManifestForPackage FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.1442510Z > Task :i18n:extractDebugAnnotations FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.1443663Z > Task :i18n-ank:extractDebugAnnotations FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.1444611Z > Task :i18n:extractDeepLinksForAarDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.1445492Z > Task :i18n-ank:extractDeepLinksForAarDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.1446190Z > Task :i18n-ank:mergeDebugGeneratedProguardFiles
+Build & Release	Build Debug APK	2026-01-23T08:40:26.1446816Z > Task :i18n:mergeDebugGeneratedProguardFiles
+Build & Release	Build Debug APK	2026-01-23T08:40:26.1447425Z > Task :i18n:mergeDebugConsumerProguardFiles
+Build & Release	Build Debug APK	2026-01-23T08:40:26.1448043Z > Task :i18n-ank:mergeDebugConsumerProguardFiles
+Build & Release	Build Debug APK	2026-01-23T08:40:26.1448661Z > Task :i18n:prepareDebugArtProfile
+Build & Release	Build Debug APK	2026-01-23T08:40:26.1449181Z > Task :i18n-ank:prepareDebugArtProfile
+Build & Release	Build Debug APK	2026-01-23T08:40:26.2484583Z > Task :i18n:prepareLintJarForPublish
+Build & Release	Build Debug APK	2026-01-23T08:40:26.2485721Z > Task :i18n-ank:prepareLintJarForPublish
+Build & Release	Build Debug APK	2026-01-23T08:40:26.4440907Z > Task :i18n-ank:mergeDebugJavaResource
+Build & Release	Build Debug APK	2026-01-23T08:40:26.4445296Z > Task :i18n:mergeDebugJavaResource
+Build & Release	Build Debug APK	2026-01-23T08:40:26.4446470Z > Task :i18n:syncDebugLibJars FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.4447279Z > Task :i18n-ank:syncDebugLibJars FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.5441157Z > Task :i18n-ank:bundleDebugAar
+Build & Release	Build Debug APK	2026-01-23T08:40:26.5441909Z > Task :i18n-ank:assembleDebug
+Build & Release	Build Debug APK	2026-01-23T08:40:26.5442465Z > Task :i18n-kmk:stripDebugDebugSymbols NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.5443134Z > Task :i18n-kmk:copyDebugJniLibsProjectAndLocalJars
+Build & Release	Build Debug APK	2026-01-23T08:40:26.5443784Z > Task :i18n-kmk:extractDebugAnnotations FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.5444443Z > Task :i18n-kmk:extractDeepLinksForAarDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.5445156Z > Task :i18n-kmk:mergeDebugGeneratedProguardFiles
+Build & Release	Build Debug APK	2026-01-23T08:40:26.5445770Z > Task :i18n-kmk:mergeDebugConsumerProguardFiles
+Build & Release	Build Debug APK	2026-01-23T08:40:26.5446339Z > Task :i18n-kmk:prepareDebugArtProfile
+Build & Release	Build Debug APK	2026-01-23T08:40:26.5446868Z > Task :i18n-kmk:prepareLintJarForPublish
+Build & Release	Build Debug APK	2026-01-23T08:40:26.6441188Z > Task :i18n-kmk:mergeDebugJavaResource
+Build & Release	Build Debug APK	2026-01-23T08:40:26.6442481Z > Task :i18n-kmk:syncDebugLibJars FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.6443288Z > Task :i18n-kmk:bundleDebugAar
+Build & Release	Build Debug APK	2026-01-23T08:40:26.6444383Z > Task :i18n-kmk:assembleDebug
+Build & Release	Build Debug APK	2026-01-23T08:40:26.6445203Z > Task :i18n-sy:stripDebugDebugSymbols NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.6446236Z > Task :i18n-sy:copyDebugJniLibsProjectAndLocalJars
+Build & Release	Build Debug APK	2026-01-23T08:40:26.7443153Z > Task :i18n-sy:extractDebugAnnotations FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.7456130Z > Task :i18n-sy:extractDeepLinksForAarDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.7457291Z > Task :i18n-sy:mergeDebugGeneratedProguardFiles
+Build & Release	Build Debug APK	2026-01-23T08:40:26.7457987Z > Task :i18n-sy:mergeDebugConsumerProguardFiles
+Build & Release	Build Debug APK	2026-01-23T08:40:26.7458918Z > Task :i18n-sy:prepareDebugArtProfile
+Build & Release	Build Debug APK	2026-01-23T08:40:26.7459479Z > Task :i18n-sy:prepareLintJarForPublish
+Build & Release	Build Debug APK	2026-01-23T08:40:26.7460037Z > Task :i18n-sy:mergeDebugJavaResource
+Build & Release	Build Debug APK	2026-01-23T08:40:26.7460548Z > Task :i18n:bundleDebugAar
+Build & Release	Build Debug APK	2026-01-23T08:40:26.7460972Z > Task :i18n:assembleDebug
+Build & Release	Build Debug APK	2026-01-23T08:40:26.7461611Z > Task :i18n-sy:syncDebugLibJars FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.7462251Z > Task :presentation-core:stripDebugDebugSymbols NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.7463062Z > Task :presentation-core:copyDebugJniLibsProjectAndLocalJars
+Build & Release	Build Debug APK	2026-01-23T08:40:26.7463907Z > Task :presentation-core:extractDeepLinksForAarDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.8443121Z > Task :presentation-core:prepareDebugArtProfile
+Build & Release	Build Debug APK	2026-01-23T08:40:26.8444303Z > Task :presentation-core:prepareLintJarForPublish
+Build & Release	Build Debug APK	2026-01-23T08:40:26.8445248Z > Task :presentation-widget:stripDebugDebugSymbols NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.8446251Z > Task :presentation-widget:copyDebugJniLibsProjectAndLocalJars
+Build & Release	Build Debug APK	2026-01-23T08:40:26.8447159Z > Task :presentation-widget:extractDeepLinksForAarDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.8447911Z > Task :presentation-widget:prepareDebugArtProfile
+Build & Release	Build Debug APK	2026-01-23T08:40:26.8448580Z > Task :presentation-widget:prepareLintJarForPublish
+Build & Release	Build Debug APK	2026-01-23T08:40:26.8449239Z > Task :source-api:stripDebugDebugSymbols NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.8449923Z > Task :source-api:copyDebugJniLibsProjectAndLocalJars
+Build & Release	Build Debug APK	2026-01-23T08:40:26.8450634Z > Task :source-api:extractDeepLinksForAarDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.8451264Z > Task :source-api:prepareDebugArtProfile
+Build & Release	Build Debug APK	2026-01-23T08:40:26.8452025Z > Task :source-api:prepareLintJarForPublish
+Build & Release	Build Debug APK	2026-01-23T08:40:26.8452627Z > Task :source-local:stripDebugDebugSymbols NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.8453311Z > Task :source-local:copyDebugJniLibsProjectAndLocalJars
+Build & Release	Build Debug APK	2026-01-23T08:40:26.8454037Z > Task :source-local:extractDeepLinksForAarDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.8454655Z > Task :i18n-sy:bundleDebugAar
+Build & Release	Build Debug APK	2026-01-23T08:40:26.8455111Z > Task :i18n-sy:assembleDebug
+Build & Release	Build Debug APK	2026-01-23T08:40:26.8455642Z > Task :telemetry:stripDebugDebugSymbols NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.8456250Z > Task :source-local:prepareDebugArtProfile
+Build & Release	Build Debug APK	2026-01-23T08:40:26.8457024Z > Task :telemetry:copyDebugJniLibsProjectAndLocalJars
+Build & Release	Build Debug APK	2026-01-23T08:40:26.9449150Z > Task :source-local:prepareLintJarForPublish
+Build & Release	Build Debug APK	2026-01-23T08:40:26.9450154Z > Task :core:archive:stripDebugDebugSymbols NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.9451579Z > Task :core:archive:copyDebugJniLibsProjectAndLocalJars
+Build & Release	Build Debug APK	2026-01-23T08:40:26.9452507Z > Task :core:archive:extractDeepLinksForAarDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.9453221Z > Task :core:archive:prepareDebugArtProfile
+Build & Release	Build Debug APK	2026-01-23T08:40:26.9457802Z > Task :core:archive:prepareLintJarForPublish
+Build & Release	Build Debug APK	2026-01-23T08:40:26.9458660Z > Task :core:common:stripDebugDebugSymbols NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.9459399Z > Task :telemetry:extractDebugAnnotations FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.9460245Z > Task :core:common:copyDebugJniLibsProjectAndLocalJars
+Build & Release	Build Debug APK	2026-01-23T08:40:26.9461150Z > Task :telemetry:extractDeepLinksForAarDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.9462227Z > Task :core:common:extractDeepLinksForAarDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:26.9463072Z > Task :telemetry:mergeDebugGeneratedProguardFiles
+Build & Release	Build Debug APK	2026-01-23T08:40:26.9463840Z > Task :core:common:prepareDebugArtProfile
+Build & Release	Build Debug APK	2026-01-23T08:40:26.9464593Z > Task :telemetry:mergeDebugConsumerProguardFiles
+Build & Release	Build Debug APK	2026-01-23T08:40:26.9465309Z > Task :telemetry:prepareDebugArtProfile
+Build & Release	Build Debug APK	2026-01-23T08:40:26.9466021Z > Task :core:common:prepareLintJarForPublish
+Build & Release	Build Debug APK	2026-01-23T08:40:26.9466724Z > Task :telemetry:prepareLintJarForPublish
+Build & Release	Build Debug APK	2026-01-23T08:40:26.9467398Z > Task :telemetry:mergeDebugJavaResource
+Build & Release	Build Debug APK	2026-01-23T08:40:27.0464634Z > Task :telemetry:syncDebugLibJars FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:27.0465294Z > Task :telemetry:bundleDebugAar
+Build & Release	Build Debug APK	2026-01-23T08:40:27.0465780Z > Task :telemetry:assembleDebug
+Build & Release	Build Debug APK	2026-01-23T08:40:27.2441239Z > Task :app:processDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:27.2446473Z > Task :app:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:27.2451013Z > Task :app:generateDebugAssets UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:40:27.4440701Z > Task :app:mergeDebugAssets
+Build & Release	Build Debug APK	2026-01-23T08:40:27.4441343Z > Task :app:compressDebugAssets FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:27.6445558Z > Task :app:l8DexDesugarLibDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:27.6446377Z > Task :app:desugarDebugFileDependencies FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:28.1464714Z > Task :app:mergeDebugJniLibFolders
+Build & Release	Build Debug APK	2026-01-23T08:40:28.4454290Z > Task :app:checkDebugDuplicateClasses
+Build & Release	Build Debug APK	2026-01-23T08:40:29.8442224Z > Task :app:mergeDebugNativeLibs
+Build & Release	Build Debug APK	2026-01-23T08:40:30.0441128Z > Task :app:mergeExtDexDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:40:31.2440685Z > Task :app:stripDebugDebugSymbols
+Build & Release	Build Debug APK	2026-01-23T08:40:31.7440370Z > Task :app:validateSigningDebug
+Build & Release	Build Debug APK	2026-01-23T08:40:31.7441201Z > Task :app:writeDebugAppMetadata
+Build & Release	Build Debug APK	2026-01-23T08:40:31.7442048Z > Task :app:writeDebugSigningConfigVersions
+Build & Release	Build Debug APK	2026-01-23T08:40:36.2444510Z 
+Build & Release	Build Debug APK	2026-01-23T08:40:36.2446430Z > Task :core:common:compileDebugKotlin
+Build & Release	Build Debug APK	2026-01-23T08:40:36.2447854Z e: file:///home/runner/work/Anikku-Mod/Anikku-Mod/core/common/src/main/kotlin/eu/kanade/tachiyomi/network/NetworkHelper.kt:136:25 Unresolved reference 'logcat'.
+Build & Release	Build Debug APK	2026-01-23T08:40:36.2449952Z e: file:///home/runner/work/Anikku-Mod/Anikku-Mod/core/common/src/main/kotlin/eu/kanade/tachiyomi/network/NetworkHelper.kt:146:17 Unresolved reference 'logcat'.
+Build & Release	Build Debug APK	2026-01-23T08:40:36.2452120Z e: file:///home/runner/work/Anikku-Mod/Anikku-Mod/core/common/src/main/kotlin/eu/kanade/tachiyomi/network/NetworkHelper.kt:182:9 Unresolved reference 'logcat'.
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3443409Z 
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3447846Z > Task :core:common:compileDebugKotlin FAILED
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3453309Z gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run-1769157600856.json
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3457715Z 
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3462255Z [Incubating] Problems report is available at: file:///home/runner/work/Anikku-Mod/Anikku-Mod/build/reports/problems/problems-report.html
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3468913Z 
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3472701Z FAILURE: Build failed with an exception.
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3476556Z 
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3480160Z * What went wrong:
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3483870Z Execution failed for task ':core:common:compileDebugKotlin'.
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3484428Z 
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3487711Z > A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3489352Z Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3493312Z    > Compilation error. See log for more details
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3493743Z 
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3494696Z You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3495601Z 
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3496438Z For more on this, please refer to https://docs.gradle.org/8.14.3/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3497639Z 391 actionable tasks: 184 executed, 207 from cache
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3498042Z 
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3498171Z * Try:
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3498587Z > Run with --stacktrace option to get the stack trace.
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3499232Z > Run with --info or --debug option to get more log output.
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3499815Z > Run with --scan to get full insights.
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3500325Z > Get more help at https://help.gradle.org.
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3500683Z 
+Build & Release	Build Debug APK	2026-01-23T08:40:36.3500833Z BUILD FAILED in 39s
+Build & Release	Build Debug APK	2026-01-23T08:40:36.8557895Z ##[error]Process completed with exit code 1.
+Build & Release	Post Set up Gradle	﻿2026-01-23T08:40:36.8743447Z Post job cleanup.
+Build & Release	Post Set up Gradle	2026-01-23T08:40:37.1914940Z In post-action step
+Build & Release	Post Set up Gradle	2026-01-23T08:40:37.1926864Z ##[group]Stopping Gradle daemons
+Build & Release	Post Set up Gradle	2026-01-23T08:40:37.1928425Z Stopping Gradle daemons for /home/runner/.gradle/wrapper/dists/gradle-8.14.3-bin/cv11ve7ro1n3o1j4so8xd9n66/gradle-8.14.3
+Build & Release	Post Set up Gradle	2026-01-23T08:40:37.1946843Z [command]/home/runner/.gradle/wrapper/dists/gradle-8.14.3-bin/cv11ve7ro1n3o1j4so8xd9n66/gradle-8.14.3/bin/gradle --stop
+Build & Release	Post Set up Gradle	2026-01-23T08:40:37.7703313Z No Gradle daemons are running.
+Build & Release	Post Set up Gradle	2026-01-23T08:40:37.7790634Z ##[endgroup]
+Build & Release	Post Set up Gradle	2026-01-23T08:40:37.7793018Z Not performing cache-cleanup due to build failure
+Build & Release	Post Set up Gradle	2026-01-23T08:40:37.7793769Z ##[group]Caching Gradle state
+Build & Release	Post Set up Gradle	2026-01-23T08:40:44.7679812Z [command]/usr/bin/tar --posix -cf cache.tzst --exclude cache.tzst -P -C /home/runner/work/Anikku-Mod/Anikku-Mod --files-from manifest.txt --use-compress-program zstdmt
+Build & Release	Post Set up Gradle	2026-01-23T08:40:46.5290573Z Sent 35979264 of 128053789 (28.1%), 34.3 MBs/sec
+Build & Release	Post Set up Gradle	2026-01-23T08:40:47.5294230Z Sent 101318656 of 128053789 (79.1%), 48.3 MBs/sec
+Build & Release	Post Set up Gradle	2026-01-23T08:40:48.0208602Z Sent 128053789 of 128053789 (100.0%), 49.0 MBs/sec
+Build & Release	Post Set up Gradle	2026-01-23T08:40:48.3308392Z Saved cache entry with key gradle-home-v1|Linux-X64|build-debug[965596241329c6e509da153a9e0a419a]-96cb70e7bd1356bb23d5e36103ef51361f88a7fe from /home/runner/.gradle/caches,/home/runner/.gradle/notifications,/home/runner/.gradle/.setup-gradle in 3583ms
+Build & Release	Post Set up Gradle	2026-01-23T08:40:48.3311652Z ##[endgroup]
+Build & Release	Post Set up Gradle	2026-01-23T08:40:48.3316748Z Generating Job Summary
+Build & Release	Post Set up Gradle	2026-01-23T08:40:48.3330686Z Completed post-action step
+Build & Release	Post Set up JDK	﻿2026-01-23T08:40:48.3553152Z Post job cleanup.
+Build & Release	Post Clone repo	﻿2026-01-23T08:40:48.5284048Z Post job cleanup.
+Build & Release	Post Clone repo	2026-01-23T08:40:48.6285133Z [command]/usr/bin/git version
+Build & Release	Post Clone repo	2026-01-23T08:40:48.6325469Z git version 2.52.0
+Build & Release	Post Clone repo	2026-01-23T08:40:48.6368868Z Temporarily overriding HOME='/home/runner/work/_temp/bcbd6113-25dd-4c1c-a299-3a35baf25c1a' before making global git config changes
+Build & Release	Post Clone repo	2026-01-23T08:40:48.6370349Z Adding repository directory to the temporary git global config as a safe directory
+Build & Release	Post Clone repo	2026-01-23T08:40:48.6376103Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Anikku-Mod/Anikku-Mod
+Build & Release	Post Clone repo	2026-01-23T08:40:48.6412325Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Build & Release	Post Clone repo	2026-01-23T08:40:48.6444840Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Build & Release	Post Clone repo	2026-01-23T08:40:48.6675718Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Build & Release	Post Clone repo	2026-01-23T08:40:48.6697235Z http.https://github.com/.extraheader
+Build & Release	Post Clone repo	2026-01-23T08:40:48.6709618Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+Build & Release	Post Clone repo	2026-01-23T08:40:48.6740657Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Build & Release	Post Clone repo	2026-01-23T08:40:48.6962496Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Build & Release	Post Clone repo	2026-01-23T08:40:48.6993509Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Build & Release	Complete job	﻿2026-01-23T08:40:48.7320882Z Cleaning up orphan processes
