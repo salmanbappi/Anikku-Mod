@@ -1,7 +1,7 @@
 name: Dev Build
 on:
   push:
-    branches-ignore:
+    branches:
       - master
     paths-ignore:
       - '**.md'
