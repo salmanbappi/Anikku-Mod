@@ -414,7 +414,7 @@
     <string name="restoring_backup_error">Khôi phục thất bại</string>
     <string name="restore_in_progress">Đang trong quá trình phục hồi</string>
     <string name="creating_backup_error">Lưu trữ thất bại</string>
-    <string name="restore_duration">%02d phút, %02d giây</string>
+    <string name="restore_duration">%1$02d phút, %2$02d giây</string>
     <string name="backup_restore_content_full">Bạn sẽ cần cài đặt bất kỳ tiện ích mở rộng nào bị thiếu rồi đăng nhập vào các dịch vụ theo dõi để sử dụng chúng.</string>
     <string name="backup_restore_missing_trackers">Bộ theo dõi chưa được đăng nhập vào :</string>
     <string name="backup_restore_missing_sources">Nguồn không tìm thấy :</string>
@@ -1040,7 +1040,7 @@
     <string name="wsrv">wsrv.nl</string>
     <string name="data_saver_server_summary">Điền url máy chủ Bandwidth Hero Proxy tại đây</string>
     <string name="pref_enable_auto_skip_ani_skip">Bật tự động skip</string>
-    <string name="player_aniskip_dontskip_toast">Skip sau %d giây</string>
+    <string name="player_aniskip_dontskip_toast">Skip sau %2$d giây</string>
     <string name="label_anime_extensions">Anime Extensions</string>
     <string name="label_migration_anime">Di chuyển Anime</string>
     <string name="choose_video_quality">Chọn chất lượng video:</string>

@@ -294,7 +294,7 @@
     <string name="notification_cover_update_failed">आवरण अपडेट गर्न असफल भयो</string>
     <string name="notification_first_add_to_library">यो गर्नु अघि कृपया आफ्नो पुस्तकालयमा यस इन्ट्रीलाई राख्नुहोस्</string>
     <string name="download_notifier_downloader_title">डाउनलोडर</string>
-    <string name="restore_duration">%02d मिनेट, %02d सेकेन्ड</string>
+    <string name="restore_duration">%1$02d मिनेट, %2$02d सेकेन्ड</string>
     <string name="backup_in_progress">ब्याकअप पहिले नै प्रगतिमा छ</string>
     <string name="update_check_notification_update_available">नयाँ संस्करण उपलब्ध छ!</string>
     <string name="rotation_portrait">पोर्ट्रेट</string>

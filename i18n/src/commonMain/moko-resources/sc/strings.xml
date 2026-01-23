@@ -344,7 +344,7 @@
     <string name="restore_in_progress">Su riprìstinu est giai in cursu</string>
     <string name="creating_backup_error">Còpia de seguresa fallida</string>
     <string name="backup_in_progress">Sa còpia de seguresa est giai in cursu</string>
-    <string name="restore_duration">%02d min e %02d seg</string>
+    <string name="restore_duration">%1$02d min e %2$02d seg</string>
     <string name="local_source_help_guide">Ghia a sas fontes locales</string>
     <string name="downloaded_only_summary">Filtrat totu sos elementos in sa biblioteca tua</string>
     <string name="pref_category_for_this_series">Pro custa sèrie</string>
