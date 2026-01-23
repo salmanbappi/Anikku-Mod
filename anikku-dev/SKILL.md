@@ -23,5 +23,18 @@ description: Automates git deployment and build monitoring. Use when the user wa
     - **Plan a Fix**: Propose or implement a fix based on the error.
     - **Retry**: After fixing, ask the user if they want to try deploying again.
 
+## Maintenance & Mod Notes
+
+### 1. Download Engine
+- **Multi-threaded Logic**: Located in `core:common` module (`NetworkHelper.kt`). Uses `RandomAccessFile` and `Range` headers.
+- **Import Constraints**: In `Downloader.kt`, always use fully qualified names for `java.io.File` and `java.io.InputStream` to avoid collision with `com.hippo.unifile.UniFile` and internal project symbols.
+
+### 2. Build Stability
+- **String Resources**: Release builds use strict AAPT2 validation. All strings with multiple placeholders (e.g., `%s %d`) **MUST** use positional markers (e.g., `%1$s %2$d`). If build fails with "Multiple substitutions", check `i18n` module XMLs.
+- **Keystore**: The release keystore `app/anikku-mod.jks` is tracked in Git. Password is `salman2005`.
+
+### 3. Performance Optimizations
+- **Batch Status**: `AnimeScreenModel.kt` uses a batch check for downloaded directory names to avoid UI stutters when scrolling large lists.
+
 ## Scripts
 - `deploy.sh`: Commits, pushes, watches the build, and downloads logs on failure.
