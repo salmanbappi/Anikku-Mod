@@ -53,8 +53,8 @@ if (Config.includeTelemetry && file("google-services.json").exists()) {
 
         applicationId = "app.anikku.mod" // Changed ID so it doesn't conflict with the original app
 
-        versionCode = 5
-        versionName = "0.1.5-MOD"
+        versionCode = 6
+        versionName = "0.1.6-MOD"
 
         buildConfigField("String", "COMMIT_COUNT", "\"${getCommitCount()}\"")
         buildConfigField("String", "COMMIT_SHA", "\"${getGitSha()}\"")
