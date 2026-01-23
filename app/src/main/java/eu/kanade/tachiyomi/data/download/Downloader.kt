@@ -48,9 +48,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import logcat.LogPriority
-import java.io.File
-import java.io.IOException
-import java.io.InputStream
 import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.core.common.storage.extension
 import tachiyomi.core.common.util.lang.launchIO
@@ -64,9 +61,6 @@ import tachiyomi.i18n.MR
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import uy.kohesive.injekt.injectLazy
-import java.io.File
-import java.io.IOException
-import java.io.InputStream
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.coroutineContext
 
@@ -523,7 +517,7 @@ class Downloader(
         val videoFile = tmpDir.createFile("$filename.tmp")!!
 
         // Convert UniFile to java.io.File for NetworkHelper
-        val outputFile = File(context.cacheDir, "${filename}_temp_download")
+        val outputFile = java.io.File(context.cacheDir, "${filename}_temp_download")
         
         try {
             networkHelper.multiThreadedDownload(
@@ -539,7 +533,7 @@ class Downloader(
             )
 
             // Copy from cache to UniFile
-            (outputFile.inputStream() as InputStream).use { input ->
+            (outputFile.inputStream() as java.io.InputStream).use { input ->
                 videoFile.openOutputStream().use { output ->
                     input.copyTo(output)
                 }
