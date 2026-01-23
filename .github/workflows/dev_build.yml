@@ -41,9 +41,9 @@ jobs:
       - name: Rename APK
         run: |
           VERSION="${{ github.ref_name }}"
-          # Sanitize version for filename (replace / with -)
           VERSION=${VERSION//\//-}
-          mv app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/Anikku-Mod-$VERSION.apk
+          # Find any apk in the debug folder and rename it
+          find app/build/outputs/apk/debug/ -name "*.apk" -exec mv {} app/build/outputs/apk/debug/Anikku-Mod-$VERSION.apk \;
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
