@@ -396,6 +396,7 @@ private fun SourceSwitchPreference(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
 
     TextPreferenceWidget(
         modifier = modifier,
@@ -425,7 +426,10 @@ private fun SourceSwitchPreference(
                 )
             }
         },
-        onPreferenceClick = { onClickSource(source.source.id) },
+        onPreferenceClick = {
+            haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+            onClickSource(source.source.id)
+        },
     )
 }
 

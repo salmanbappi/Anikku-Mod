@@ -220,6 +220,25 @@ class DownloadCache(
     }
 
     /**
+     * Returns a set of episode directory names for a specific anime.
+     *
+     * @param anime the anime to check.
+     * @return a set of downloaded episode directory names.
+     */
+    fun getDownloadedEpisodeDirs(anime: Anime): Set<String> {
+        renewCache()
+
+        val sourceDir = rootDownloadsDir.sourceDirs[anime.source]
+        if (sourceDir != null) {
+            val animeDir = sourceDir.animeDirs[provider.getAnimeDirName(anime.title)]
+            if (animeDir != null) {
+                return animeDir.episodeDirs
+            }
+        }
+        return emptySet()
+    }
+
+    /**
      * Adds an episode that has just been download to this cache.
      *
      * @param episodeDirName the downloaded episode's directory name.

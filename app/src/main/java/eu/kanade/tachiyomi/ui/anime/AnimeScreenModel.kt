@@ -114,6 +114,7 @@ class AnimeScreenModel(
     private val trackEpisode: TrackEpisode = Injekt.get(),
     private val downloadManager: DownloadManager = Injekt.get(),
     private val downloadCache: DownloadCache = Injekt.get(),
+    private val downloadProvider: eu.kanade.tachiyomi.data.download.DownloadProvider = Injekt.get(),
     private val getAnimeAndEpisodes: GetAnimeWithEpisodes = Injekt.get(),
     // SY -->
     private val sourceManager: SourceManager = Injekt.get(),
@@ -604,6 +605,9 @@ class AnimeScreenModel(
 
     private fun List<Episode>.toEpisodeListItems(anime: Anime): List<EpisodeList.Item> {
         val isLocal = anime.isLocal()
+        // Optimization: Get all downloaded episode directories for this anime once
+        val downloadedEpisodeDirs = if (isLocal) emptySet() else downloadManager.getDownloadedEpisodeDirs(anime)
+
         return map { episode ->
             val activeDownload = if (isLocal) {
                 null
@@ -612,13 +616,13 @@ class AnimeScreenModel(
             }
             val downloaded = if (isLocal) {
                 true
-            } else {
-                downloadManager.isEpisodeDownloaded(
+            } else if (downloadedEpisodeDirs.isNotEmpty()) {
+                downloadProvider.getValidEpisodeDirNames(
                     episode.name,
                     episode.scanlator,
-                    anime.title,
-                    anime.source,
-                )
+                ).any { it in downloadedEpisodeDirs }
+            } else {
+                false
             }
             val downloadState = when {
                 activeDownload != null -> activeDownload.status

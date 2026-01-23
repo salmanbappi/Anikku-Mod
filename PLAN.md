@@ -15,10 +15,18 @@
 - [x] **Animation & UX**
     - [x] Smooth transitions (Material Shared Axis)
     - [x] Fast response (IO-offloaded downloading)
+    - [x] Removed non-official build warnings (F-Droid cleanup)
 - [x] **Haptic Feedback Integration**
     - [x] Navigation bar haptics
     - [x] Settings Toggles/Switches haptics
     - [x] Text Preference haptics
+    - [x] Library and Search item click haptics (Premium feel)
+    - [x] Episode list item click haptics
+    - [x] Logo header interaction haptics
+- [x] **Performance Optimizations**
+    - [x] Optimized episode list loading with batch download status checking
+    - [x] Parallel global search (default 5 threads)
+    - [x] Enhanced R8/Proguard optimizations for Release builds
 
 ## Context
 - Project: Anikku Mod
