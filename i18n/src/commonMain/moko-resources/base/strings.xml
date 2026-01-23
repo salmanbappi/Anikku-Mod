@@ -398,7 +398,7 @@
     <string name="mpv_media_title">%1$s - E%2$s - %3$s</string>
     <string name="toast_sleep_timer_ended">Sleep timer ended</string>
     <string name="player_generic_unit_ms">ms</string>
-    <string name="player_gesture_seek_indicator" translatable="false">%c%s\n[%s]</string>
+    <string name="player_gesture_seek_indicator" translatable="false">%1$c%2$s\n[%3$s]</string>
     <string name="numeric_chooser_value_too_big">Value too big</string>
     <string name="numeric_chooser_value_too_small">Value too small</string>
     <string name="enable_auto_play">Auto-play is on</string>
@@ -418,9 +418,9 @@
     <!-- Sheets -->
 
     <string name="player_sheets_delay_set_as_default">Set as default</string>
-    <string name="player_sheets_track_title_w_lang" translatable="false">#%d: %s (%s)</string>
-    <string name="player_sheets_track_title_wo_lang" translatable="false">#%d: %s</string>
-    <string name="player_sheets_track_lang_wo_title" translatable="false">#%d: %s</string>
+    <string name="player_sheets_track_title_w_lang" translatable="false">#%1$d: %2$s (%3$s)</string>
+    <string name="player_sheets_track_title_wo_lang" translatable="false">#%1$d: %2$s</string>
+    <string name="player_sheets_track_lang_wo_title" translatable="false">#%1$d: %2$s</string>
     <string name="player_sheets_track_delay">Delay</string>
     <string name="player_sheets_track_palette">Palette</string>
 
@@ -506,7 +506,7 @@
     <string name="player_sheets_custom_buttons_title">Custom buttons</string>
     <string name="player_seek_n_seconds">%d seconds</string>
     <string name="player_speed" translatable="false">%.2fx</string>
-    <string name="player_gesture_seek_indicator" translatable="false">%c%s\n[%s]</string>
+    <string name="player_gesture_seek_indicator" translatable="false">%1$c%2$s\n[%3$s]</string>
     <string name="timer_title">Sleep Timer</string>
     <string name="timer_remaining">%s remaining</string>
     <string name="timer_picker_enter_timer">Enter duration</string>

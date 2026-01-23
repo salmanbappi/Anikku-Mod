@@ -923,7 +923,7 @@
     <string name="local_manga_source">Izvor lokalnog manga</string>
     <string name="local_anime_source">Izvor lokalnog animea</string>
     <string name="delete_downloads_for_anime">Izbrisati preuzete epizode?</string>
-    <string name="episode_downloading_progress">Preuzimanje (%d% %)</string>
+    <string name="episode_downloading_progress">Preuzimanje (%1$d% %)</string>
     <string name="show_episode_number">Broj epizode</string>
     <string name="plan_to_watch">Planiram gledati</string>
     <string name="not_interesting">Nezanimljivo</string>
