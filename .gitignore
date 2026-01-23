@@ -1,0 +1,23 @@
+# Build files
+.gradle
+#.vscode
+.kotlin
+build
+
+# IDE files
+*.iml
+.idea/*
+!.idea/icon.png
+/captures
+.history
+
+# Configuration files
+local.properties
+
+# macOS specific files
+.DS_Store
+
+/app/client_secrets.json
+/app/google-services.json
+*.jks
+app/standard/preview/*

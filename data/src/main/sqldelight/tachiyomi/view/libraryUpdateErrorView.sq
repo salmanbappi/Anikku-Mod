@@ -1,0 +1,17 @@
+CREATE VIEW libraryUpdateErrorView AS
+SELECT
+    animes._id AS animeId,
+    animes.title AS animeTitle,
+    animes.source,
+    animes.favorite,
+    animes.thumbnail_url AS thumbnailUrl,
+    animes.cover_last_modified AS coverLastModified,
+    libraryUpdateError._id AS errorId,
+    libraryUpdateError.message_id AS messageId
+FROM animes JOIN libraryUpdateError
+ON animes._id = libraryUpdateError.anime_id
+WHERE favorite = 1;
+
+errors:
+SELECT *
+FROM libraryUpdateErrorView;
