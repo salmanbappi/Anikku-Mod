@@ -26,6 +26,7 @@ fun TextPreferenceWidget(
     widget: @Composable (() -> Unit)? = null,
     onPreferenceClick: (() -> Unit)? = null,
 ) {
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     BasePreferenceWidget(
         modifier = modifier,
         title = title,
@@ -54,7 +55,12 @@ fun TextPreferenceWidget(
         } else {
             null
         },
-        onClick = onPreferenceClick,
+        onClick = onPreferenceClick?.let {
+            {
+                haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                it()
+            }
+        },
         widget = widget,
     )
 }
