@@ -78,6 +78,7 @@ class Downloader(
     private val provider: DownloadProvider,
     private val cache: DownloadCache,
     private val sourceManager: SourceManager = Injekt.get(),
+    private val networkHelper: eu.kanade.tachiyomi.network.NetworkHelper = Injekt.get(),
 ) {
     /**
      * Store for persisting downloads across restarts.
@@ -205,7 +206,7 @@ class Downloader(
                             it.status.value <= Download.State.DOWNLOADING.value
                         } // Ignore completed downloads, leave them in the queue
                         .groupBy { it.source }
-                        .toList().take(3) // Concurrently download from 5 different sources
+                        .toList().take(preferences.concurrentDownloads().get()) // Concurrent download from user setting sources
                         .map { (_, downloads) -> downloads.first() }
                     emit(activeDownloads)
 
@@ -473,8 +474,12 @@ class Downloader(
                 file = try {
                     if (isTor(download.video!!)) {
                         torrentDownload(download, tmpDir, filename)
-                    } else {
+                    } else if (download.video!!.videoUrl.contains(".m3u8") ||
+                        download.video!!.videoUrl.contains(".mpd")
+                    ) {
                         ffmpegDownload(download, tmpDir, filename)
+                    } else {
+                        internalDownload(download, tmpDir, filename)
                     }
                 } catch (e: Exception) {
                     notifier.onError(
@@ -500,6 +505,49 @@ class Downloader(
 
     private fun isTor(video: Video): Boolean {
         return (video.videoUrl.startsWith("magnet") || video.videoUrl.endsWith(".torrent"))
+    }
+
+    private suspend fun internalDownload(
+        download: Download,
+        tmpDir: UniFile,
+        filename: String,
+    ): UniFile {
+        val video = download.video!!
+        tmpDir.findFile("$filename.tmp")?.delete()
+        val videoFile = tmpDir.createFile("$filename.tmp")!!
+
+        // Convert UniFile to java.io.File for NetworkHelper
+        val outputFile = File(context.cacheDir, "${filename}_temp_download")
+        
+        try {
+            networkHelper.multiThreadedDownload(
+                url = video.videoUrl,
+                outputFile = outputFile,
+                headers = video.headers ?: download.source.headers,
+                threadCount = preferences.downloadThreads().get(),
+                onProgress = { downloaded, total ->
+                    if (total > 0) {
+                        download.progress = (100 * downloaded / total).toInt()
+                    }
+                }
+            )
+
+            // Copy from cache to UniFile
+            outputFile.inputStream().use { input ->
+                videoFile.openOutputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            outputFile.delete()
+
+            val file = tmpDir.findFile("$filename.tmp")?.apply {
+                renameTo("$filename.mkv")
+            }
+            return file ?: throw Exception("Downloaded file not found")
+        } catch (e: Exception) {
+            outputFile.delete()
+            throw e
+        }
     }
 
     private fun torrentDownload(

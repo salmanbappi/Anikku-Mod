@@ -1,22 +1,24 @@
 # Anikku Project Plan
 
 ## Current Objectives
-- [x] **Project Tracking Skill**
-    - [x] Initialize Skill
-    - [x] Configure SKILL.md
-    - [x] Package and Install
-- [x] **Player Customization**
-    - [x] Locate player files
+- [x] **Project Tracking & CI/CD**
+    - [x] Initialize Dev Skill
+    - [x] Auto-Release Workflow (Unique builds per push)
+    - [x] APK Architecture-specific naming
+- [ ] **Player Customization**
     - [x] Implement 2x speed on long press
-        - [x] Modify `GestureHandler.kt`
-        - [x] Add `DoubleSpeedPlayerUpdate` to `PlayerUpdates.kt`
-        - [x] Enable update in `PlayerControls.kt`
-    - [ ] Verify changes (Manual Test)
-- [x] **Fast CI/CD Setup**
-    - [x] Review existing workflows
-    - [x] Create optimized 'dev' workflow for fast feedback
+    - [ ] Add more gesture haptics (volume/brightness)
+- [ ] **Download Improvements**
+    - [ ] Investigate download speed/concurrency
+    - [ ] UI feedback for download progress
+- [ ] **Animation & UX**
+    - [ ] Smooth transitions between screens
+    - [ ] "Fast Response" optimizations (Input lag reduction)
+- [ ] **Haptic Feedback Integration**
+    - [ ] Navigation bar haptics
+    - [ ] Button/Toggle haptics
 
 ## Context
-- Project: Anikku (Komikku fork for Anime?)
-- Platform: Android
-- Environment: Termux on Android
+- Project: Anikku Mod
+- Platform: Android (Kotlin/Compose)
+- Focus: Performance, Tactile Feedback, Speed.
