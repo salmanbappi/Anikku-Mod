@@ -179,6 +179,86 @@ open /* SY <-- */ class NetworkHelper(
         // Apply jitter by adding a random value to avoid synchronized retries in distributed systems
         return (delay + Random.nextLong(0, 1000)).coerceAtMost(maxDelay)
     }
+
+    /**
+     * Downloads a file using multiple threads/connections in parallel.
+     */
+    suspend fun multiThreadedDownload(
+        url: String,
+        outputFile: File,
+        headers: Headers = Headers.Builder().build(),
+        threadCount: Int = 4,
+        onProgress: (Long, Long) -> Unit = { _, _ -> },
+    ) {
+        val client = clientWithTimeOut(callTimeout = 0) // No timeout for big downloads
+
+        // 1. Get total file size
+        val headRequest = Request.Builder().url(url).headers(headers).head().build()
+        val totalSize = client.newCall(headRequest).execute().use { response ->
+            if (!response.isSuccessful) throw IOException("Failed to get file size: ${response.code}")
+            response.header("Content-Length")?.toLong() ?: throw IOException("Content-Length missing")
+        }
+
+        if (totalSize <= 0) throw IOException("Invalid content length")
+
+        // 2. Prepare file
+        val randomAccessFile = RandomAccessFile(outputFile, "rw")
+        randomAccessFile.setLength(totalSize)
+        randomAccessFile.close()
+
+        val chunkSize = totalSize / threadCount
+        val progressMap = mutableMapOf<Int, Long>()
+        var totalDownloaded = 0L
+
+        kotlinx.coroutines.coroutineScope {
+            (0 until threadCount).map { i ->
+                val start = i * chunkSize
+                val end = if (i == threadCount - 1) totalSize - 1 else (i + 1) * chunkSize - 1
+
+                kotlinx.coroutines.launch(kotlinx.coroutines.Dispatchers.IO) {
+                    var attempt = 0
+                    var currentStart = start
+                    while (attempt < MAX_RETRY && currentStart <= end) {
+                        try {
+                            val request = Request.Builder()
+                                .url(url)
+                                .headers(headers)
+                                .addHeader("Range", "bytes=$currentStart-$end")
+                                .build()
+
+                            client.newCall(request).execute().use { response ->
+                                if (response.code != 206 && response.code != 200) {
+                                    throw IOException("Unexpected response code: ${response.code}")
+                                }
+
+                                val body = response.body ?: throw IOException("Empty body")
+                                RandomAccessFile(outputFile, "rw").use { file ->
+                                    file.seek(currentStart)
+                                    val buffer = ByteArray(16 * 1024)
+                                    var bytesRead: Int
+                                    val bis = body.byteStream()
+                                    while (bis.read(buffer).also { bytesRead = it } != -1) {
+                                        file.write(buffer, 0, bytesRead)
+                                        currentStart += bytesRead
+                                        synchronized(progressMap) {
+                                            progressMap[i] = currentStart - start
+                                            totalDownloaded = progressMap.values.sum()
+                                        }
+                                        onProgress(totalDownloaded, totalSize)
+                                    }
+                                }
+                                return@launch // Success
+                            }
+                        } catch (e: Exception) {
+                            attempt++
+                            if (attempt >= MAX_RETRY) throw e
+                            kotlinx.coroutines.delay(1000L * attempt)
+                        }
+                    }
+                }
+            }
+        }
+    }
     // KMK <--
 
     /**

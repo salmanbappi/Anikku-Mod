@@ -99,6 +99,7 @@ object SettingsDownloadScreen : SearchableSettings {
                 downloadPreferences = downloadPreferences,
                 allAnimeCategories = allAnimeCategories.toImmutableList(),
             ),
+            getInternalDownloaderGroup(downloadPreferences = downloadPreferences),
             getDownloadAheadGroup(downloadPreferences = downloadPreferences),
             getExternalDownloaderGroup(
                 downloadPreferences = downloadPreferences,
@@ -283,6 +284,29 @@ object SettingsDownloadScreen : SearchableSettings {
                     pref = externalDownloaderPreference,
                     title = stringResource(MR.strings.pref_external_downloader_selection),
                     entries = packageNamesMap.toPersistentMap(),
+                ),
+            ),
+        )
+    }
+
+    @Composable
+    private fun getInternalDownloaderGroup(
+        downloadPreferences: DownloadPreferences,
+    ): Preference.PreferenceGroup {
+        return Preference.PreferenceGroup(
+            title = "Internal Downloader",
+            preferenceItems = persistentListOf(
+                Preference.PreferenceItem.ListPreference(
+                    pref = downloadPreferences.concurrentDownloads(),
+                    title = "Concurrent downloads",
+                    subtitle = "Number of episodes to download at once",
+                    entries = (1..30).associateWith { it.toString() }.toImmutableMap(),
+                ),
+                Preference.PreferenceItem.ListPreference(
+                    pref = downloadPreferences.downloadThreads(),
+                    title = "Download threads",
+                    subtitle = "Number of connections per file (for supported sources)",
+                    entries = (1..16).associateWith { it.toString() }.toImmutableMap(),
                 ),
             ),
         )
