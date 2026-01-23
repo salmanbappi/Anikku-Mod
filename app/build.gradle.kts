@@ -20,16 +20,41 @@ if (Config.includeTelemetry && file("google-services.json").exists()) {
     }
 }
 
-shortcutHelper.setFilePath("./shortcuts.xml")
+    shortcutHelper.setFilePath("./shortcuts.xml")
 
-android {
-    namespace = "eu.kanade.tachiyomi"
 
-    defaultConfig {
-        applicationId = "app.anikku"
+
+    android {
+
+        namespace = "eu.kanade.tachiyomi"
+
+
+
+        signingConfigs {
+
+            create("release") {
+
+                storeFile = file("anikku-mod.jks")
+
+                storePassword = "salman2005"
+
+                keyAlias = "anikku"
+
+                keyPassword = "salman2005"
+
+            }
+
+        }
+
+
+
+        defaultConfig {
+
+
+        applicationId = "app.anikku.mod" // Changed ID so it doesn't conflict with the original app
 
         versionCode = 5
-        versionName = "0.1.5"
+        versionName = "0.1.5-MOD"
 
         buildConfigField("String", "COMMIT_COUNT", "\"${getCommitCount()}\"")
         buildConfigField("String", "COMMIT_SHA", "\"${getGitSha()}\"")
@@ -51,6 +76,8 @@ android {
             isShrinkResources = Config.enableCodeShrink
 
             proguardFiles("proguard-android-optimize.txt", "proguard-rules.pro")
+
+            signingConfig = signingConfigs.getByName("release")
 
             buildConfigField("String", "BUILD_TIME", "\"${getBuildTime(useLastCommitTime = true)}\"")
         }

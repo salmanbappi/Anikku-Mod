@@ -1,4 +1,4 @@
-name: Dev Build
+name: Official Release
 on:
   push:
     branches:
@@ -14,8 +14,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-preview:
-    name: Build & Release
+  build-release:
+    name: Build & Public Release
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -35,17 +35,16 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build Preview APK
-        run: ./gradlew assemblePreview -Pinclude-telemetry=false -Penable-updater=false --no-daemon
+      - name: Build Release APK
+        run: ./gradlew assembleRelease -Pinclude-telemetry=false -Penable-updater=false --no-daemon
 
       - name: Rename APK
         run: |
           VERSION="${{ github.ref_name }}"
           VERSION=${VERSION//\//-}
-          # Move to the preview folder and rename each file individually
-          cd app/build/outputs/apk/preview/
+          cd app/build/outputs/apk/release/
           for f in *.apk; do
-            mv "$f" "Anikku-Mod-$VERSION-$f"
+            mv "$f" "Anikku-Mod-Release-$VERSION-$f"
           done
 
       - name: Get Version
@@ -54,24 +53,23 @@ jobs:
           V_NAME=$(grep 'versionName = "' app/build.gradle.kts | cut -d'"' -f2)
           echo "version=$V_NAME" >> $GITHUB_OUTPUT
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Anikku-Mod-${{ github.ref_name }}
-          path: app/build/outputs/apk/preview/*.apk
-          retention-days: 5
-
-      - name: Create Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.get_version.outputs.version }}-b${{ github.run_number }}
-          name: Release v${{ steps.get_version.outputs.version }} (Build ${{ github.run_number }})
-          files: app/build/outputs/apk/preview/*.apk
+          name: Official Release v${{ steps.get_version.outputs.version }}
+          files: app/build/outputs/apk/release/*.apk
           draft: false
           prerelease: false
           body: |
-            ### 🚀 Optimized Preview Build
-            - Branch: `${{ github.ref_name }}`
-            - Commit: `${{ github.sha }}`
-            - Performance: **Optimized (R8 Enabled)**
-            - Note: This is an unoptimized preview build for faster testing.
+            ## 🚀 Anikku Mod - Official Public Release
+            
+            This is an optimized, multi-threaded release build.
+            
+            ### ✨ Features
+            - **2x Speed Toggle**: Long-press in player.
+            - **Fast Downloader**: Multi-threaded chunks (1DM+ Style).
+            - **Tactile UX**: Haptic feedback on tabs and settings.
+            - **Performance**: Full R8 optimization enabled.
+            
+            **📥 Download:** Choose the `arm64-v8a` version for your phone.
