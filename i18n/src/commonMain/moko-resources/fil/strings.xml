@@ -391,7 +391,7 @@
     <string name="creating_backup">Bina-backup</string>
     <string name="backup_choice">Anong iba-backup mo\?</string>
     <string name="backup_in_progress">Bina-backup na</string>
-    <string name="restore_duration">%02d (na) min, %02d (na) seg</string>
+    <string name="restore_duration">%1$02d (na) min, %2$02d (na) seg</string>
     <string name="no_pinned_sources">Wala kang naka-pin na source</string>
     <string name="channel_complete">Tapos na</string>
     <string name="channel_errors">Mga error</string>
@@ -918,7 +918,7 @@
     <string name="pref_remove_exclude_categories_anime">Hindi kasama ang mga kategorya ng anime</string>
     <string name="pref_bottom_nav_no_updates">Ilipat ang Bago sa Higit Pa na tab</string>
     <string name="pref_progress_mark_as_seen">Sa anong punto upang markahan ang episode bilang nakita</string>
-    <string name="player_aniskip_dontskip_toast">Laktawan ang %s sa loob ng %d segundo</string>
+    <string name="player_aniskip_dontskip_toast">Laktawan ang %1$s sa loob ng %2$d segundo</string>
     <string name="action_edit_manga_categories">I-edit ang mga kategorya ng manga</string>
     <string name="action_display_show_continue_reading_button">Ipakita ang pindutan sa tuluyang panonood/pagbasa</string>
     <string name="action_start_download_externally">Gumamit ng external downloader</string>
@@ -1174,7 +1174,7 @@
     <string name="player_sheets_filters_Saturation">Saturation</string>
     <string name="player_sheets_filters_warning">Maaaring hindi gumana ang ilang filter sa iyong kasalukuyang video driver</string>
     <string name="player_sheets_add_ext_audio">Magdagdag ng mga external na audio track</string>
-    <string name="player_sheets_decoder_formatted">%s (%s)</string>
+    <string name="player_sheets_decoder_formatted">%1$s (%2$s)</string>
     <string name="player_sheets_more_title">Higit pa</string>
     <string name="pref_audio_channels">Mga channel ng audio</string>
     <string name="player_sheets_tracks_off">Naka-off</string>

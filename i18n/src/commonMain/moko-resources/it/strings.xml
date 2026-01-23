@@ -350,7 +350,7 @@
     <string name="check_for_updates">Controlla aggiornamenti</string>
     <string name="battery_optimization_setting_activity_not_found">Impossibile aprire le impostazioni del dispositivo</string>
     <string name="pref_refresh_library_covers">Aggiorna le copertine della libreria</string>
-    <string name="restore_duration">%02d min, %02d sec</string>
+    <string name="restore_duration">%1$02d min, %2$02d sec</string>
     <string name="tracking_info">Sincronizzazione a senso unico per aggiornare l\'avanzamento dei capitoli sui servizi di tracking. Imposta il tracking per le singole voci dai loro pulsanti di tracking.</string>
     <string name="gray_background">Grigio</string>
     <string name="page_list_empty_error">Nessuna pagina trovata</string>
@@ -930,7 +930,7 @@
     <string name="pref_waiting_time_aniskip_7">7 secondi</string>
     <string name="pref_waiting_time_aniskip_8">8 secondi</string>
     <string name="pref_waiting_time_aniskip_10">10 secondi</string>
-    <string name="player_aniskip_dontskip_toast">Salto di %s in %d secondi</string>
+    <string name="player_aniskip_dontskip_toast">Salto di %1$s in %2$d secondi</string>
     <string name="player_aniskip_skip">%s saltati</string>
     <string name="notification_episodes_single">Episodio %1$s</string>
     <string name="notification_episodes_single_and_more">Episodio %1$s e altri %2$d</string>
@@ -1107,7 +1107,7 @@
     <string name="pref_auto_update_manga_on_mark_read">Aggiorna l\'avanzamento quando viene contrassegnato come letto/visitato</string>
     <string name="pref_debanding_yuv420p">YUV420P</string>
     <string name="pref_mpv_scripts">Abilita script MPV</string>
-    <string name="player_sheets_decoder_formatted">%s (%s)</string>
+    <string name="player_sheets_decoder_formatted">%1$s (%2$s)</string>
     <string name="pref_media_info">Quando un controllo multimediale è impostato su Personalizzato, può essere vincolato tramite input.conf. I codici chiave sono 0x10004 per precedente, 0x10005 per riproduci/pausa, e 0x10006 per successivo.</string>
     <string name="pref_player_subtitle_blacklist">Blacklist</string>
     <string name="pref_use_yuv420p_subtitle">Può risolvere le schermate nere in alcuni codec video e anche migliorare le prestazioni a scapito della qualità</string>

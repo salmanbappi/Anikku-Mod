@@ -347,7 +347,7 @@
     <string name="restore_in_progress">Восстановление уже выполняется</string>
     <string name="creating_backup_error">Не удалось создать резервную копию</string>
     <string name="backup_in_progress">Резервная копия уже выполняется</string>
-    <string name="restore_duration">%02d мин, %02d сек</string>
+    <string name="restore_duration">%1$02d мин, %2$02d сек</string>
     <string name="viewer">Режим чтения</string>
     <string name="pref_category_for_this_series">Для этой серии</string>
     <string name="gray_background">Серый</string>
@@ -928,7 +928,7 @@
     <string name="pref_invalidate_download_cache_summary">Заставить приложение повторно проверять загруженные главы и эпизоды</string>
     <string name="label_updates">Манга</string>
     <string name="video_stretch_screen">Растянуто на экране</string>
-    <string name="player_aniskip_dontskip_toast">%s: будет пропущено через %d сек.</string>
+    <string name="player_aniskip_dontskip_toast">%1$s: будет пропущено через %2$d сек.</string>
     <string name="label_migration_anime">Перенести аниме</string>
     <string name="choose_video_quality">Выберите качество видео:</string>
     <string name="extension_settings">Настройки расширений</string>
@@ -1192,7 +1192,7 @@
     <string name="pref_player_custom_button">Настраиваемые кнопки</string>
     <string name="pref_player_custom_button_summary">Выполнение lua-кода с помощью настраиваемых кнопок</string>
     <string name="pref_player_custom_button_header">Изменить настраиваемые кнопки</string>
-    <string name="player_sheets_decoder_formatted">%s (%s)</string>
+    <string name="player_sheets_decoder_formatted">%1$s (%2$s)</string>
     <string name="player_sheets_sub_delay_audio_sound_heard">Услышанный звук</string>
     <string name="player_sheets_sub_delay_sound_sound_spotted">Замеченный звук</string>
     <string name="player_sheets_sub_colors_title">Цвета</string>
