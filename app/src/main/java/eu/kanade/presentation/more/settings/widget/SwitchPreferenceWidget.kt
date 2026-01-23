@@ -21,6 +21,7 @@ fun SwitchPreferenceWidget(
     checked: Boolean = false,
     onCheckedChanged: (Boolean) -> Unit,
 ) {
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     TextPreferenceWidget(
         modifier = modifier,
         title = title,
@@ -33,7 +34,10 @@ fun SwitchPreferenceWidget(
                 modifier = Modifier.padding(start = TrailingWidgetBuffer),
             )
         },
-        onPreferenceClick = { onCheckedChanged(!checked) },
+        onPreferenceClick = {
+            haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+            onCheckedChanged(!checked)
+        },
     )
 }
 

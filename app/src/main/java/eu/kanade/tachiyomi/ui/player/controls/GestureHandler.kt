@@ -266,27 +266,31 @@ fun GestureHandler(
                                 originalMPVVolume = currentMPVVolume
                                 startingY = change.position.y
                             }
-                            viewModel.changeVolumeTo(
-                                calculateNewVerticalGestureValue(
+                            val newVal = calculateNewVerticalGestureValue(
                                     originalVolume,
                                     startingY,
                                     change.position.y,
                                     volumeGestureSens,
-                                ),
-                            )
+                                )
+                            if ((newVal <= 0 && currentVolume > 0) || (newVal >= viewModel.maxVolume && currentVolume < viewModel.maxVolume)) {
+                                haptics.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                            }
+                            viewModel.changeVolumeTo(newVal)
                         }
                         viewModel.displayVolumeSlider()
                     }
                     val changeBrightness: () -> Unit = {
                         if (startingY == 0f) startingY = change.position.y
-                        viewModel.changeBrightnessTo(
-                            calculateNewVerticalGestureValue(
+                        val newVal = calculateNewVerticalGestureValue(
                                 originalBrightness,
                                 startingY,
                                 change.position.y,
                                 brightnessGestureSens,
-                            ),
-                        )
+                            )
+                        if ((newVal <= 0f && currentBrightness > 0f) || (newVal >= 1f && currentBrightness < 1f)) {
+                            haptics.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                        }
+                        viewModel.changeBrightnessTo(newVal)
                         viewModel.displayBrightnessSlider()
                     }
                     if (swapVolumeBrightness) {
