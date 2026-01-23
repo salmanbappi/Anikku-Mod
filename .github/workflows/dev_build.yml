@@ -42,7 +42,12 @@ jobs:
         run: |
           VERSION="${{ github.ref_name }}"
           VERSION=${VERSION//\//-}
-          find app/build/outputs/apk/debug/ -name "*.apk" -exec mv {} app/build/outputs/apk/debug/Anikku-Mod-$VERSION.apk \;
+          # Move to the folder and rename each file individually to avoid overwriting
+          cd app/build/outputs/apk/debug/
+          for f in *.apk; do
+            mv "$f" "Anikku-Mod-$VERSION-$f"
+          done
+
 
       - name: Get Version
         id: get_version
