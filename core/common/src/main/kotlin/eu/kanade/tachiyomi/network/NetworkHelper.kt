@@ -9,7 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import logcat.LogPriority
 import okhttp3.Cache
 import okhttp3.Headers
 import okhttp3.OkHttpClient
@@ -17,7 +16,6 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.brotli.BrotliInterceptor
 import okhttp3.logging.HttpLoggingInterceptor
-import tachiyomi.core.common.util.system.logcat
 import java.io.File
 import java.io.IOException
 import java.io.RandomAccessFile
@@ -134,7 +132,7 @@ open /* SY <-- */ class NetworkHelper(
                         }
                     } else {
                         attempt++
-                        logcat(LogPriority.ERROR) { "Unexpected response code: ${response.code}. Retrying..." }
+                        android.util.Log.e("NetworkHelper", "Unexpected response code: ${response.code}. Retrying...")
                         if (response.code == 416) {
                             // 416: Range Not Satisfiable
                             outputFile.delete()
@@ -144,7 +142,7 @@ open /* SY <-- */ class NetworkHelper(
                 }
                 if (failed) exponentialBackoff(attempt - 1)
             } catch (e: IOException) {
-                logcat(LogPriority.ERROR) { "Download interrupted: ${e.message}. Retrying..." }
+                android.util.Log.e("NetworkHelper", "Download interrupted: ${e.message}. Retrying...")
                 // Wait or handle as needed before retrying
                 attempt++
                 exponentialBackoff(attempt - 1)
@@ -180,7 +178,7 @@ open /* SY <-- */ class NetworkHelper(
     private fun calculateExponentialBackoff(attempt: Int, baseDelay: Long = 1000L, maxDelay: Long = 32000L): Long {
         // Calculate the exponential delay
         val delay = baseDelay * 2.0.pow(attempt).toLong()
-        logcat(LogPriority.ERROR) { "Exponential backoff delay: $delay ms" }
+        android.util.Log.e("NetworkHelper", "Exponential backoff delay: $delay ms")
         // Apply jitter by adding a random value to avoid synchronized retries in distributed systems
         return (delay + Random.nextLong(0, 1000)).coerceAtMost(maxDelay)
     }

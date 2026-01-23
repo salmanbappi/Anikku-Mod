@@ -1,128 +1,126 @@
-Build & Release	Build Debug APK	2026-01-23T08:31:55.7804440Z   GRADLE_BUILD_ACTION_SETUP_COMPLETED: true
-Build & Release	Build Debug APK	2026-01-23T08:31:55.7804960Z   GRADLE_BUILD_ACTION_CACHE_RESTORED: true
-Build & Release	Build Debug APK	2026-01-23T08:31:55.7824779Z   DEVELOCITY_INJECTION_INIT_SCRIPT_NAME: gradle-actions.inject-develocity.init.gradle
-Build & Release	Build Debug APK	2026-01-23T08:31:55.7825341Z   DEVELOCITY_INJECTION_CUSTOM_VALUE: gradle-actions
-Build & Release	Build Debug APK	2026-01-23T08:31:55.7825751Z   GITHUB_DEPENDENCY_GRAPH_ENABLED: false
-Build & Release	Build Debug APK	2026-01-23T08:31:55.7826046Z ##[endgroup]
-Build & Release	Build Debug APK	2026-01-23T08:31:57.1860545Z To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14.3/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
-Build & Release	Build Debug APK	2026-01-23T08:31:58.5847928Z Daemon will be stopped at the end of the build 
-Build & Release	Build Debug APK	2026-01-23T08:31:58.9846319Z Configuration on demand is an incubating feature.
-Build & Release	Build Debug APK	2026-01-23T08:32:03.7863208Z Type-safe project accessors is an incubating feature.
-Build & Release	Build Debug APK	2026-01-23T08:32:06.8879253Z > Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:32:06.9853611Z > Task :buildSrc:generateExternalPluginSpecBuilders FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:07.0872569Z > Task :buildSrc:extractPrecompiledScriptPluginPlugins FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:07.1846376Z > Task :buildSrc:compilePluginsBlocks FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:07.5846512Z > Task :buildSrc:generatePrecompiledScriptPluginAccessors FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:07.5855589Z > Task :buildSrc:generateScriptPluginAdapters FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:07.9851583Z > Task :buildSrc:compileKotlin FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:07.9852277Z > Task :buildSrc:compileJava NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:32:07.9868713Z > Task :buildSrc:compileGroovy NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:32:07.9869538Z > Task :buildSrc:pluginDescriptors
-Build & Release	Build Debug APK	2026-01-23T08:32:07.9870335Z > Task :buildSrc:processResources
+Build & Release	Build Debug APK	2026-01-23T08:42:46.1392564Z   GRADLE_BUILD_ACTION_SETUP_COMPLETED: true
+Build & Release	Build Debug APK	2026-01-23T08:42:46.1392892Z   GRADLE_BUILD_ACTION_CACHE_RESTORED: true
+Build & Release	Build Debug APK	2026-01-23T08:42:46.1393379Z   DEVELOCITY_INJECTION_INIT_SCRIPT_NAME: gradle-actions.inject-develocity.init.gradle
+Build & Release	Build Debug APK	2026-01-23T08:42:46.1393924Z   DEVELOCITY_INJECTION_CUSTOM_VALUE: gradle-actions
+Build & Release	Build Debug APK	2026-01-23T08:42:46.1394757Z   GITHUB_DEPENDENCY_GRAPH_ENABLED: false
+Build & Release	Build Debug APK	2026-01-23T08:42:46.1395121Z ##[endgroup]
+Build & Release	Build Debug APK	2026-01-23T08:42:47.9737645Z To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14.3/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Build & Release	Build Debug APK	2026-01-23T08:42:49.4729398Z Daemon will be stopped at the end of the build 
+Build & Release	Build Debug APK	2026-01-23T08:42:49.8726871Z Configuration on demand is an incubating feature.
+Build & Release	Build Debug APK	2026-01-23T08:42:53.6725121Z Type-safe project accessors is an incubating feature.
+Build & Release	Build Debug APK	2026-01-23T08:42:56.7752199Z > Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:42:56.8747168Z > Task :buildSrc:generateExternalPluginSpecBuilders FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:42:56.9726448Z > Task :buildSrc:extractPrecompiledScriptPluginPlugins FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:42:57.1735020Z > Task :buildSrc:compilePluginsBlocks FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:42:57.4728371Z > Task :buildSrc:generatePrecompiledScriptPluginAccessors FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:42:57.4729756Z > Task :buildSrc:generateScriptPluginAdapters FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:42:57.9728595Z > Task :buildSrc:compileKotlin FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:42:57.9734458Z > Task :buildSrc:compileJava NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:42:57.9735322Z > Task :buildSrc:compileGroovy NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:42:57.9736937Z > Task :buildSrc:pluginDescriptors
+Build & Release	Build Debug APK	2026-01-23T08:42:58.0735137Z > Task :buildSrc:processResources
 --
-Build & Release	Build Debug APK	2026-01-23T08:32:19.3895357Z > Task :core:archive:packageDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:19.3896086Z > Task :core:common:preDebugBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:32:19.3896807Z > Task :core:common:generateDebugResValues FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:19.3897567Z > Task :core:common:generateDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:19.3898475Z > Task :core:common:packageDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:19.4846845Z > Task :app:preBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:32:19.4850797Z > Task :app:preDebugBuild UP-TO-DATE
-Build & Release	Build Debug APK	2026-01-23T08:32:19.4854461Z > Task :core-metadata:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:32:19.4863570Z > Task :data:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:32:19.4865464Z > Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:32:19.4867545Z > Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:32:19.4869863Z > Task :i18n:packageDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:19.4871855Z > Task :domain:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:32:19.4873769Z > Task :flagkit:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:32:19.4886610Z > Task :i18n-ank:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:32:19.4887228Z > Task :i18n:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:32:19.4888015Z > Task :i18n-sy:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:32:19.4888619Z > Task :i18n-kmk:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:32:19.4889268Z > Task :presentation-core:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:32:19.5865054Z > Task :presentation-widget:writeDebugAarMetadata
-Build & Release	Build Debug APK	2026-01-23T08:32:19.5870057Z > Task :source-api:writeDebugAarMetadata
+Build & Release	Build Debug APK	2026-01-23T08:43:11.0789217Z > Task :i18n-ank:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.0790051Z > Task :i18n:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.1734947Z > Task :i18n-ank:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.1736202Z > Task :flagkit:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.1737255Z > Task :i18n:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.1738279Z > Task :i18n-sy:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.1739144Z > Task :app:preBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.1739929Z > Task :app:preDebugBuild UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.1755449Z > Task :presentation-core:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.1756579Z > Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.1763289Z > Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:43:11.1769629Z > Task :i18n-kmk:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.1787825Z > Task :i18n-sy:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.1788961Z > Task :presentation-core:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.1790370Z > Task :i18n-kmk:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.1815800Z > Task :presentation-widget:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.1816680Z > Task :source-api:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.1817440Z > Task :source-local:extractDeepLinksDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.1818188Z > Task :source-local:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.1818915Z > Task :source-api:processDebugManifest FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.1819693Z > Task :presentation-widget:processDebugManifest FROM-CACHE
 --
-Build & Release	Build Debug APK	2026-01-23T08:32:19.8919511Z > Task :presentation-core:parseDebugLocalResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:19.9867883Z > Task :flagkit:parseDebugLocalResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:19.9873179Z > Task :source-api:compileDebugLibraryResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:19.9874444Z > Task :presentation-widget:compileDebugLibraryResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:19.9875673Z > Task :source-local:compileDebugLibraryResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:19.9882387Z > Task :presentation-widget:parseDebugLocalResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:19.9883742Z > Task :source-local:parseDebugLocalResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:19.9884837Z > Task :telemetry:compileDebugLibraryResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:19.9888814Z > Task :telemetry:parseDebugLocalResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:19.9907219Z > Task :telemetry:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:19.9908878Z > Task :core-metadata:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:32:19.9910007Z > Task :core:archive:parseDebugLocalResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:19.9911126Z > Task :source-api:kmpPartiallyResolvedDependenciesChecker
-Build & Release	Build Debug APK	2026-01-23T08:32:19.9912319Z > Task :source-api:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:32:19.9913216Z > Task :i18n:kmpPartiallyResolvedDependenciesChecker
-Build & Release	Build Debug APK	2026-01-23T08:32:19.9913992Z > Task :core:archive:compileDebugLibraryResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:19.9914819Z > Task :i18n:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:32:19.9915666Z > Task :i18n-sy:kmpPartiallyResolvedDependenciesChecker
-Build & Release	Build Debug APK	2026-01-23T08:32:19.9916506Z > Task :i18n-sy:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:32:20.2845621Z > Task :core:common:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:20.3853754Z > Task :i18n:compileDebugKotlinAndroid FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:20.4877921Z > Task :flagkit:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:20.6888834Z > Task :source-api:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:20.7852179Z > Task :i18n-sy:compileDebugKotlinAndroid FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:20.7854319Z > Task :presentation-core:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:20.7858712Z > Task :core-metadata:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:20.7859555Z > Task :core:common:compileDebugLibraryResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:20.8845210Z > Task :i18n:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:20.8851614Z > Task :i18n:compileDebugJavaWithJavac NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:32:20.8856351Z > Task :core:archive:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:20.8862603Z > Task :i18n-sy:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:20.8870276Z > Task :i18n-sy:compileDebugJavaWithJavac NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:32:20.8875089Z > Task :domain:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:20.8879825Z > Task :i18n:bundleLibCompileToJarDebug
-Build & Release	Build Debug APK	2026-01-23T08:32:20.8891483Z > Task :i18n-sy:bundleLibCompileToJarDebug
-Build & Release	Build Debug APK	2026-01-23T08:32:20.9847387Z > Task :data:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:20.9848539Z > Task :core:common:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:32:20.9849452Z > Task :app:dataBindingMergeDependencyArtifactsDebug
-Build & Release	Build Debug APK	2026-01-23T08:32:20.9868978Z > Task :app:generateDebugResValues FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.0869820Z > Task :source-local:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.0985300Z > Task :source-api:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.0986303Z > Task :app:generateDebugResources FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.0987152Z > Task :core-metadata:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.0988392Z > Task :data:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:32:21.1888903Z > Task :presentation-widget:generateDebugRFile FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.1890012Z > Task :domain:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:32:21.1891000Z > Task :i18n-ank:kmpPartiallyResolvedDependenciesChecker
-Build & Release	Build Debug APK	2026-01-23T08:32:21.1891936Z > Task :i18n-ank:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:32:21.1892840Z > Task :data:generateDebugDatabaseInterface FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.1893593Z > Task :domain:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.1894308Z > Task :data:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.1895178Z > Task :flagkit:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:32:21.1896056Z > Task :flagkit:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.1896858Z > Task :i18n-kmk:kmpPartiallyResolvedDependenciesChecker
-Build & Release	Build Debug APK	2026-01-23T08:32:21.2853572Z > Task :i18n-kmk:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:32:21.2861420Z > Task :i18n-ank:compileDebugKotlinAndroid FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.2866590Z > Task :i18n-ank:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.2872890Z > Task :i18n-ank:compileDebugJavaWithJavac NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.2876890Z > Task :i18n-ank:bundleLibCompileToJarDebug
-Build & Release	Build Debug APK	2026-01-23T08:32:21.2881203Z > Task :presentation-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:32:21.2885350Z > Task :core:common:compileDebugKotlin FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.2889407Z > Task :presentation-core:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.2893481Z > Task :presentation-widget:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:32:21.2895168Z > Task :core:common:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.2896147Z > Task :presentation-widget:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.3880708Z > Task :core:common:compileDebugJavaWithJavac NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.3881656Z > Task :source-local:kmpPartiallyResolvedDependenciesChecker
-Build & Release	Build Debug APK	2026-01-23T08:32:21.3882576Z > Task :source-local:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:32:21.3883522Z > Task :core:archive:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:32:21.3884421Z > Task :i18n-kmk:compileDebugKotlinAndroid FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.3885139Z > Task :core:archive:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.3885823Z > Task :i18n-kmk:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.3886507Z > Task :source-local:javaPreCompileDebug FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.3887323Z > Task :telemetry:checkKotlinGradlePluginConfigurationErrors SKIPPED
-Build & Release	Build Debug APK	2026-01-23T08:32:21.3888678Z > Task :i18n-kmk:compileDebugJavaWithJavac NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.3889379Z > Task :i18n-kmk:bundleLibCompileToJarDebug
-Build & Release	Build Debug APK	2026-01-23T08:32:21.3890006Z > Task :core:common:bundleLibCompileToJarDebug
-Build & Release	Build Debug APK	2026-01-23T08:32:21.4864245Z > Task :telemetry:compileDebugKotlin FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.5848112Z > Task :flagkit:compileDebugKotlin FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.5863013Z > Task :flagkit:compileDebugJavaWithJavac NO-SOURCE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.5868184Z > Task :core-metadata:mergeDebugShaders
-Build & Release	Build Debug APK	2026-01-23T08:32:21.5887981Z > Task :flagkit:bundleLibCompileToJarDebug
-Build & Release	Build Debug APK	2026-01-23T08:32:21.5896327Z > Task :source-api:compileDebugKotlinAndroid FROM-CACHE
-Build & Release	Build Debug APK	2026-01-23T08:32:21.5900619Z > Task :source-api:compileDebugJavaWithJavac NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.4743448Z > Task :presentation-widget:compileDebugLibraryResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.4744696Z > Task :presentation-core:compileDebugLibraryResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.4745835Z > Task :presentation-widget:parseDebugLocalResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.4763514Z > Task :source-api:compileDebugLibraryResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.4768419Z > Task :source-local:compileDebugLibraryResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.4770900Z > Task :source-local:parseDebugLocalResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.4772993Z > Task :presentation-core:parseDebugLocalResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.5729930Z > Task :telemetry:compileDebugLibraryResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.5732800Z > Task :core:archive:parseDebugLocalResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.5734043Z > Task :core:archive:compileDebugLibraryResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.5738820Z > Task :core-metadata:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:43:11.5740684Z > Task :source-api:kmpPartiallyResolvedDependenciesChecker
+Build & Release	Build Debug APK	2026-01-23T08:43:11.5741449Z > Task :telemetry:parseDebugLocalResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.5746381Z > Task :source-api:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:43:11.5747460Z > Task :i18n:kmpPartiallyResolvedDependenciesChecker
+Build & Release	Build Debug APK	2026-01-23T08:43:11.5748506Z > Task :i18n:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:43:11.5749625Z > Task :telemetry:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:11.5763622Z > Task :i18n-sy:kmpPartiallyResolvedDependenciesChecker
+Build & Release	Build Debug APK	2026-01-23T08:43:11.5764665Z > Task :i18n-sy:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:43:12.0742666Z > Task :i18n-sy:compileDebugKotlinAndroid FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.1736747Z > Task :i18n-sy:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.1738005Z > Task :i18n-sy:compileDebugJavaWithJavac NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.1739054Z > Task :core:common:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.1739927Z > Task :i18n-sy:bundleLibCompileToJarDebug
+Build & Release	Build Debug APK	2026-01-23T08:43:12.2728884Z > Task :i18n:compileDebugKotlinAndroid FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.2733728Z > Task :flagkit:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.3726675Z > Task :core:archive:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.3737191Z > Task :core:common:compileDebugLibraryResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.3738340Z > Task :source-api:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.3739096Z > Task :i18n:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.4725118Z > Task :app:dataBindingMergeDependencyArtifactsDebug
+Build & Release	Build Debug APK	2026-01-23T08:43:12.4732993Z > Task :app:generateDebugResValues FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.4738218Z > Task :core-metadata:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.4740253Z > Task :i18n:compileDebugJavaWithJavac NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.4742428Z > Task :i18n:bundleLibCompileToJarDebug
+Build & Release	Build Debug APK	2026-01-23T08:43:12.4744701Z > Task :core:common:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:43:12.4758070Z > Task :presentation-core:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.4759176Z > Task :domain:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.5748558Z > Task :app:generateDebugResources FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.5749718Z > Task :data:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.6723879Z > Task :source-local:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.6728479Z > Task :source-api:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.6732979Z > Task :core-metadata:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.6737615Z > Task :data:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:43:12.7735771Z > Task :presentation-widget:generateDebugRFile FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.7740319Z > Task :domain:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:43:12.7744749Z > Task :i18n-ank:kmpPartiallyResolvedDependenciesChecker
+Build & Release	Build Debug APK	2026-01-23T08:43:12.7749009Z > Task :i18n-ank:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:43:12.7753147Z > Task :data:generateDebugDatabaseInterface FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.7755109Z > Task :domain:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.7782449Z > Task :data:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.7786908Z > Task :flagkit:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:43:12.7791022Z > Task :flagkit:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.7796371Z > Task :i18n-kmk:kmpPartiallyResolvedDependenciesChecker
+Build & Release	Build Debug APK	2026-01-23T08:43:12.7798660Z > Task :i18n-kmk:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:43:12.9726262Z > Task :i18n-ank:compileDebugKotlinAndroid FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.9727063Z > Task :i18n-ank:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.9727753Z > Task :i18n-ank:compileDebugJavaWithJavac NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.9728416Z > Task :i18n-ank:bundleLibCompileToJarDebug
+Build & Release	Build Debug APK	2026-01-23T08:43:12.9729275Z > Task :presentation-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:43:12.9730574Z > Task :i18n-kmk:compileDebugKotlinAndroid FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.9731353Z > Task :i18n-kmk:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.9732074Z > Task :presentation-core:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.9732994Z > Task :presentation-widget:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:43:12.9733953Z > Task :presentation-widget:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.9735494Z > Task :i18n-kmk:compileDebugJavaWithJavac NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:43:12.9736272Z > Task :source-local:kmpPartiallyResolvedDependenciesChecker
+Build & Release	Build Debug APK	2026-01-23T08:43:12.9737187Z > Task :source-local:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:43:12.9738164Z > Task :core:archive:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:43:12.9738995Z > Task :core:archive:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:13.0725292Z > Task :source-local:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:13.0726241Z > Task :telemetry:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Build & Release	Build Debug APK	2026-01-23T08:43:13.0727106Z > Task :i18n-kmk:bundleLibCompileToJarDebug
+Build & Release	Build Debug APK	2026-01-23T08:43:13.1725422Z > Task :telemetry:compileDebugKotlin FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:13.1727971Z > Task :telemetry:javaPreCompileDebug FROM-CACHE
+Build & Release	Build Debug APK	2026-01-23T08:43:13.1730220Z > Task :telemetry:compileDebugJavaWithJavac NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:43:13.1732322Z > Task :telemetry:bundleLibCompileToJarDebug
+Build & Release	Build Debug APK	2026-01-23T08:43:13.2737871Z > Task :core-metadata:mergeDebugShaders
+Build & Release	Build Debug APK	2026-01-23T08:43:13.3725666Z > Task :core-metadata:compileDebugShaders NO-SOURCE
+Build & Release	Build Debug APK	2026-01-23T08:43:13.3729623Z > Task :data:mergeDebugShaders
+Build & Release	Build Debug APK	2026-01-23T08:43:13.3733288Z > Task :core-metadata:generateDebugAssets UP-TO-DATE
+Build & Release	Build Debug APK	2026-01-23T08:43:13.3737160Z > Task :data:compileDebugShaders NO-SOURCE
