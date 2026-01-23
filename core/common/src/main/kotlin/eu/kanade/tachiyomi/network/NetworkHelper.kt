@@ -5,10 +5,15 @@ import eu.kanade.tachiyomi.network.interceptor.CloudflareInterceptor
 import eu.kanade.tachiyomi.network.interceptor.IgnoreGzipInterceptor
 import eu.kanade.tachiyomi.network.interceptor.UncaughtExceptionInterceptor
 import eu.kanade.tachiyomi.network.interceptor.UserAgentInterceptor
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import logcat.LogPriority
 import okhttp3.Cache
 import okhttp3.Headers
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.Response
 import okhttp3.brotli.BrotliInterceptor
 import okhttp3.logging.HttpLoggingInterceptor
@@ -210,12 +215,12 @@ open /* SY <-- */ class NetworkHelper(
         val progressMap = mutableMapOf<Int, Long>()
         var totalDownloaded = 0L
 
-        kotlinx.coroutines.coroutineScope {
+        coroutineScope {
             (0 until threadCount).map { i ->
                 val start = i * chunkSize
                 val end = if (i == threadCount - 1) totalSize - 1 else (i + 1) * chunkSize - 1
 
-                kotlinx.coroutines.launch(kotlinx.coroutines.Dispatchers.IO) {
+                launch(Dispatchers.IO) {
                     var attempt = 0
                     var currentStart = start
                     while (attempt < MAX_RETRY && currentStart <= end) {
@@ -252,7 +257,7 @@ open /* SY <-- */ class NetworkHelper(
                         } catch (e: Exception) {
                             attempt++
                             if (attempt >= MAX_RETRY) throw e
-                            kotlinx.coroutines.delay(1000L * attempt)
+                            delay(1000L * attempt)
                         }
                     }
                 }
