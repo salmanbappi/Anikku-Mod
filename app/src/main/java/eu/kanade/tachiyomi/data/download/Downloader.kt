@@ -48,6 +48,9 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import logcat.LogPriority
+import java.io.File
+import java.io.IOException
+import java.io.InputStream
 import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.core.common.storage.extension
 import tachiyomi.core.common.util.lang.launchIO
