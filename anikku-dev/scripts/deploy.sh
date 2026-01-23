@@ -29,7 +29,7 @@ if [ "$CONCLUSION" == "success" ]; then
 else
   echo "❌ Build FAILED!"
   echo "🔍 Fetching failure logs..."
-  gh run view "$RUN_ID" --log | grep -C 10 "Error" > build_error.log
+  gh run view "$RUN_ID" --log | tail -n 1000 > build_error.log
   echo "Logs saved to build_error.log"
   exit 1
 fi
