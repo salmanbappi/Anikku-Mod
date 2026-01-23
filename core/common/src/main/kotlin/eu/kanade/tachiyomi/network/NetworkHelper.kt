@@ -17,6 +17,7 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.brotli.BrotliInterceptor
 import okhttp3.logging.HttpLoggingInterceptor
+import tachiyomi.core.common.util.system.logcat
 import java.io.File
 import java.io.IOException
 import java.io.RandomAccessFile
