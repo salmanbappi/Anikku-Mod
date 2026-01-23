@@ -42,8 +42,13 @@ jobs:
         run: |
           VERSION="${{ github.ref_name }}"
           VERSION=${VERSION//\//-}
-          # Find any apk in the debug folder and rename it
           find app/build/outputs/apk/debug/ -name "*.apk" -exec mv {} app/build/outputs/apk/debug/Anikku-Mod-$VERSION.apk \;
+
+      - name: Get Version
+        id: get_version
+        run: |
+          V_NAME=$(grep 'versionName = "' app/build.gradle.kts | cut -d'"' -f2)
+          echo "version=$V_NAME" >> $GITHUB_OUTPUT
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -53,9 +58,16 @@ jobs:
           retention-days: 5
 
       - name: Create Release
-        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: v${{ steps.get_version.outputs.version }}-b${{ github.run_number }}
+          name: Release v${{ steps.get_version.outputs.version }} (Build ${{ github.run_number }})
           files: app/build/outputs/apk/debug/*.apk
           draft: false
           prerelease: false
+          body: |
+            ### 🛠️ Continuous Build
+            - Branch: `${{ github.ref_name }}`
+            - Commit: `${{ github.sha }}`
+            - Version: `${{ steps.get_version.outputs.version }}`
+            - Build Number: `${{ github.run_number }}`
