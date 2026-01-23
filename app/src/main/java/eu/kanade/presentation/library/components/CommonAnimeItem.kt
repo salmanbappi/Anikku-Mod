@@ -297,12 +297,19 @@ private fun GridItemSelectable(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     Box(
         modifier = modifier
             .clip(MaterialTheme.shapes.small)
             .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongClick,
+                onClick = {
+                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                    onClick()
+                },
+                onLongClick = {
+                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                    onLongClick()
+                },
             )
             .selectedOutline(isSelected = isSelected, color = MaterialTheme.colorScheme.secondary)
             .padding(4.dp),
@@ -342,6 +349,7 @@ fun AnimeListItem(
     entries: Int = 0,
     containerHeight: Int = 0,
 ) {
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     Row(
         modifier = Modifier
             .selectedBackground(isSelected)
@@ -355,8 +363,14 @@ fun AnimeListItem(
                 },
             )
             .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongClick,
+                onClick = {
+                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                    onClick()
+                },
+                onLongClick = {
+                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                    onLongClick()
+                },
             )
             .padding(horizontal = 16.dp, vertical = 3.dp),
         verticalAlignment = Alignment.CenterVertically,

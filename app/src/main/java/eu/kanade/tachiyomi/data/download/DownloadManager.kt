@@ -258,6 +258,10 @@ class DownloadManager(
         }
     }
 
+    fun getDownloadedEpisodeDirs(anime: Anime): Set<String> {
+        return cache.getDownloadedEpisodeDirs(anime)
+    }
+
     fun cancelQueuedDownloads(downloads: List<Download>) {
         removeFromDownloadQueue(downloads.map { it.episode })
     }

@@ -36,7 +36,7 @@ class AppUpdateChecker(
             val result = getApplicationRelease.await(
                 GetApplicationRelease.Arguments(
                     isPreview = isPreviewBuildType || peekIntoPreview,
-                    isThirdParty = context.isInstalledFromFDroid(),
+                    isThirdParty = false,
                     commitCount = BuildConfig.COMMIT_COUNT.toInt(),
                     versionName = BuildConfig.VERSION_NAME,
                     repository = getGithubRepo(peekIntoPreview),
@@ -54,10 +54,6 @@ class AppUpdateChecker(
                         // KMK <--
                         AppUpdateNotifier(context).promptUpdate(result.release)
                     }
-
-                    is GetApplicationRelease.Result.ThirdPartyInstallation -> AppUpdateNotifier(
-                        context,
-                    ).promptFdroidUpdate()
 
                     else -> {}
                 }
@@ -86,7 +82,7 @@ class AppUpdateChecker(
             getApplicationRelease.awaitReleaseNotes(
                 GetApplicationRelease.Arguments(
                     isPreview = isPreviewBuildType || peekIntoPreview,
-                    isThirdParty = context.isInstalledFromFDroid(),
+                    isThirdParty = false,
                     commitCount = BuildConfig.COMMIT_COUNT.toInt(),
                     versionName = BuildConfig.VERSION_NAME,
                     repository = getGithubRepo(peekIntoPreview),

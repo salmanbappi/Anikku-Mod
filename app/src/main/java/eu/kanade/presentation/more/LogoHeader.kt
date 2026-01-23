@@ -1,5 +1,7 @@
 package eu.kanade.presentation.more
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -8,14 +10,22 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import eu.kanade.tachiyomi.BuildConfig
 import eu.kanade.tachiyomi.R
+import eu.kanade.tachiyomi.util.system.toast
 
 @Composable
 fun LogoHeader() {
+    val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -26,7 +36,15 @@ fun LogoHeader() {
             tint = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .padding(vertical = 56.dp)
-                .size(64.dp),
+                .size(64.dp)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        context.toast("Anikku Mod v${BuildConfig.VERSION_NAME}")
+                    },
+                ),
         )
 
         HorizontalDivider()
