@@ -17,9 +17,8 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.brotli.BrotliInterceptor
 import okhttp3.logging.HttpLoggingInterceptor
-import okio.IOException
-import tachiyomi.core.common.util.system.logcat
 import java.io.File
+import java.io.IOException
 import java.io.RandomAccessFile
 import java.util.concurrent.TimeUnit
 import kotlin.math.pow
