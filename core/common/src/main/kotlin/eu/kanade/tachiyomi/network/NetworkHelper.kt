@@ -8,6 +8,7 @@ import eu.kanade.tachiyomi.network.interceptor.UserAgentInterceptor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import okhttp3.Cache
 import okhttp3.Headers
@@ -20,6 +21,7 @@ import java.io.File
 import java.io.IOException
 import java.io.RandomAccessFile
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.coroutineContext
 import kotlin.math.pow
 import kotlin.random.Random
 
@@ -241,7 +243,7 @@ open /* SY <-- */ class NetworkHelper(
                                     var bytesRead: Int
                                     val bis = body.byteStream()
                                     while (bis.read(buffer).also { bytesRead = it } != -1) {
-                                        ensureActive()
+                                        coroutineContext.ensureActive()
                                         file.write(buffer, 0, bytesRead)
                                         currentStart += bytesRead
                                         synchronized(progressMap) {

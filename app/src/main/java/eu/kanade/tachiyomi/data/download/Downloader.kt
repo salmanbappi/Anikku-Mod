@@ -55,6 +55,7 @@ import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import logcat.LogPriority
+import logcat.logcat
 import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -62,7 +63,6 @@ import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.core.common.storage.extension
 import tachiyomi.core.common.util.lang.launchIO
 import tachiyomi.core.common.util.lang.withUIContext
-import tachiyomi.core.common.util.system.logcat
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.download.service.DownloadPreferences
 import tachiyomi.domain.episode.model.Episode
@@ -632,31 +632,34 @@ class Downloader(
         duration = inputDuration.toLong()
 
         return suspendCancellableCoroutine { continuation ->
-            val session = FFmpegSession.create(ffmpegOptions, { s ->
-                if (ReturnCode.isSuccess(s.returnCode)) {
-                    val file = tmpDir.findFile("$filename.tmp")?.apply {
-                        renameTo("$filename.mkv")
-                    }
-                    if (file != null) {
-                        continuation.resume(file)
+            val session = FFmpegKit.executeAsync(
+                ffmpegOptions,
+                { s ->
+                    if (ReturnCode.isSuccess(s.returnCode)) {
+                        val file = tmpDir.findFile("$filename.tmp")?.apply {
+                            renameTo("$filename.mkv")
+                        }
+                        if (file != null) {
+                            continuation.resume(file)
+                        } else {
+                            continuation.resumeWithException(Exception("Downloaded file not found"))
+                        }
                     } else {
-                        continuation.resumeWithException(Exception("Downloaded file not found"))
+                        s.failStackTrace?.let { trace ->
+                            logcat(LogPriority.ERROR) { trace }
+                        }
+                        if (continuation.isActive) {
+                            continuation.resumeWithException(Exception("Error in ffmpeg!"))
+                        }
                     }
-                } else {
-                    s.failStackTrace?.let { trace ->
-                        logcat(LogPriority.ERROR) { trace }
-                    }
-                    if (continuation.isActive) {
-                        continuation.resumeWithException(Exception("Error in ffmpeg!"))
-                    }
-                }
-            }, logCallback, statCallback)
+                },
+                logCallback,
+                statCallback,
+            )
 
             continuation.invokeOnCancellation {
                 session.cancel()
             }
-
-            FFmpegKit.executeAsync(session)
         }
     }
 
