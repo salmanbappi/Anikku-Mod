@@ -30,6 +30,7 @@ import eu.kanade.tachiyomi.ui.player.loader.HosterLoader
 import eu.kanade.tachiyomi.util.storage.DiskUtil
 import eu.kanade.tachiyomi.util.storage.toFFmpegString
 import eu.kanade.tachiyomi.util.system.copyToClipboard
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -51,7 +52,10 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import logcat.LogPriority
+import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import tachiyomi.core.common.i18n.stringResource
@@ -67,8 +71,6 @@ import tachiyomi.i18n.MR
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import uy.kohesive.injekt.injectLazy
-import kotlin.coroutines.cancellation.CancellationException
-import kotlin.coroutines.coroutineContext
 
 /**
  * This class is the one in charge of downloading episodes.
@@ -97,6 +99,8 @@ class Downloader(
     private val _queueState = MutableStateFlow<List<Download>>(emptyList())
     val queueState = _queueState.asStateFlow()
 
+    private val ffmpegSemaphore = Semaphore(2)
+
     /**
      * Notifier for the downloader state and progress.
      */
@@ -122,12 +126,6 @@ class Downloader(
      */
     val isRunning: Boolean
         get() = downloaderJob?.isActive ?: false
-
-    /**
-     * Whether FFmpeg is running.
-     */
-    @Volatile
-    var isFFmpegRunning: Boolean = false
 
     init {
         scope.launch {
@@ -486,7 +484,9 @@ class Downloader(
                     } else if (download.video!!.videoUrl.contains(".m3u8") ||
                         download.video!!.videoUrl.contains(".mpd")
                     ) {
-                        ffmpegDownload(download, tmpDir, filename)
+                        ffmpegSemaphore.withPermit {
+                            ffmpegDownload(download, tmpDir, filename)
+                        }
                     } else {
                         internalDownload(download, tmpDir, filename)
                     }
