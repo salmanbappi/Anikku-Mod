@@ -241,6 +241,7 @@ open /* SY <-- */ class NetworkHelper(
                                     var bytesRead: Int
                                     val bis = body.byteStream()
                                     while (bis.read(buffer).also { bytesRead = it } != -1) {
+                                        ensureActive()
                                         file.write(buffer, 0, bytesRead)
                                         currentStart += bytesRead
                                         synchronized(progressMap) {

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.FFmpegKitConfig
 import com.arthenica.ffmpegkit.FFmpegSession
 import com.arthenica.ffmpegkit.FFprobeSession
@@ -31,6 +32,7 @@ import eu.kanade.tachiyomi.util.storage.toFFmpegString
 import eu.kanade.tachiyomi.util.system.copyToClipboard
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
@@ -39,6 +41,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
@@ -46,8 +49,11 @@ import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.supervisorScope
 import logcat.LogPriority
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.core.common.storage.extension
 import tachiyomi.core.common.util.lang.launchIO
@@ -195,11 +201,14 @@ class Downloader(
     /**
      * Prepares the jobs to start downloading.
      */
+    @OptIn(FlowPreview::class)
     private fun launchDownloaderJob() {
         if (isRunning) return
 
         downloaderJob = scope.launch {
-            val activeDownloadsFlow = queueState.transformLatest { queue ->
+            val activeDownloadsFlow = queueState
+                .debounce(100)
+                .transformLatest { queue ->
                 while (true) {
                     val activeDownloads = queue.asSequence()
                         .filter {
@@ -256,7 +265,7 @@ class Downloader(
             }
         } catch (e: Throwable) {
             if (e is CancellationException) {
-                notifier.onError("Download cancelled")
+                // Silent cancellation
             } else {
                 notifier.onError(e.message)
                 logcat(LogPriority.ERROR, e)
@@ -268,7 +277,6 @@ class Downloader(
      * Destroys the downloader subscriptions.
      */
     private fun cancelDownloaderJob() {
-        isFFmpegRunning = false
         FFmpegKitConfig.getSessions().filter {
             it.isFFmpeg && (it.state == SessionState.CREATED || it.state == SessionState.RUNNING)
         }.forEach {
@@ -374,7 +382,8 @@ class Downloader(
             getOrDownloadVideoFile(download, tmpDir)
 
             ensureSuccessfulAnimeDownload(download, animeDir, tmpDir, episodeDirname)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            if (e is CancellationException) throw e
             download.status = Download.State.ERROR
             notifier.onError(e.message, download.episode.name, download.anime.title, download.anime.id)
         } finally {
@@ -440,10 +449,11 @@ class Downloader(
             download.progress = 100
             video.status = Video.State.READY
             progressJob?.cancel()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            progressJob?.cancel()
+            if (e is CancellationException) throw e
             video.status = Video.State.ERROR
             notifier.onError(e.message, download.episode.name, download.anime.title, download.anime.id)
-            progressJob?.cancel()
 
             logcat(LogPriority.ERROR, e)
 
@@ -480,7 +490,8 @@ class Downloader(
                     } else {
                         internalDownload(download, tmpDir, filename)
                     }
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
+                    if (e is CancellationException) throw e
                     notifier.onError(
                         e.message + ", retrying..",
                         download.episode.name,
@@ -573,14 +584,12 @@ class Downloader(
     }
 
     // ffmpeg is always on safe mode
-    private fun ffmpegDownload(
+    private suspend fun ffmpegDownload(
         download: Download,
         tmpDir: UniFile,
         filename: String,
     ): UniFile {
         val video = download.video!!
-
-        isFFmpegRunning = true
 
         // always delete tmp file
         tmpDir.findFile("$filename.tmp")?.delete()
@@ -619,27 +628,35 @@ class Downloader(
             }
         }
 
-        val session = FFmpegSession.create(ffmpegOptions, {}, logCallback, statCallback)
         val inputDuration = getDuration(ffprobeCommand(video.videoUrl, headerOptions)) ?: 0F
-
         duration = inputDuration.toLong()
 
-        if (!isFFmpegRunning) {
-            throw Exception("ffmpeg was cancelled")
-        }
-        FFmpegKitConfig.ffmpegExecute(session)
+        return suspendCancellableCoroutine { continuation ->
+            val session = FFmpegSession.create(ffmpegOptions, { s ->
+                if (ReturnCode.isSuccess(s.returnCode)) {
+                    val file = tmpDir.findFile("$filename.tmp")?.apply {
+                        renameTo("$filename.mkv")
+                    }
+                    if (file != null) {
+                        continuation.resume(file)
+                    } else {
+                        continuation.resumeWithException(Exception("Downloaded file not found"))
+                    }
+                } else {
+                    s.failStackTrace?.let { trace ->
+                        logcat(LogPriority.ERROR) { trace }
+                    }
+                    if (continuation.isActive) {
+                        continuation.resumeWithException(Exception("Error in ffmpeg!"))
+                    }
+                }
+            }, logCallback, statCallback)
 
-        return if (ReturnCode.isSuccess(session.returnCode)) {
-            val file = tmpDir.findFile("$filename.tmp")?.apply {
-                renameTo("$filename.mkv")
+            continuation.invokeOnCancellation {
+                session.cancel()
             }
 
-            file ?: throw Exception("Downloaded file not found")
-        } else {
-            session.failStackTrace?.let { trace ->
-                logcat(LogPriority.ERROR) { trace }
-            }
-            throw Exception("Error in ffmpeg!")
+            FFmpegKit.executeAsync(session)
         }
     }
 
