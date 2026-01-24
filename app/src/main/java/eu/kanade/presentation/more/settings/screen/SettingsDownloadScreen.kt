@@ -300,13 +300,13 @@ object SettingsDownloadScreen : SearchableSettings {
                     pref = downloadPreferences.concurrentDownloads(),
                     title = "Concurrent downloads",
                     subtitle = "Number of episodes to download at once",
-                    entries = (1..30).associateWith { it.toString() }.toImmutableMap(),
+                    entries = (1..100).associateWith { it.toString() }.toImmutableMap(),
                 ),
                 Preference.PreferenceItem.ListPreference(
                     pref = downloadPreferences.downloadThreads(),
                     title = "Download threads",
                     subtitle = "Number of connections per file (for supported sources)",
-                    entries = (1..16).associateWith { it.toString() }.toImmutableMap(),
+                    entries = (1..64).associateWith { it.toString() }.toImmutableMap(),
                 ),
             ),
         )
