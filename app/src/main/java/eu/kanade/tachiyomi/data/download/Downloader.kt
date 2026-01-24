@@ -921,8 +921,8 @@ class Downloader(
     companion object {
         const val TMP_DIR_SUFFIX = "_tmp"
         const val WARNING_NOTIF_TIMEOUT_MS = 30_000L
-    private const val DOWNLOADS_QUEUED_WARNING_THRESHOLD = 500
-    private const val EPISODES_PER_SOURCE_QUEUE_WARNING_THRESHOLD = 500
+        const val EPISODES_PER_SOURCE_QUEUE_WARNING_THRESHOLD = 500
+        private const val DOWNLOADS_QUEUED_WARNING_THRESHOLD = 500
     }
 }
 
