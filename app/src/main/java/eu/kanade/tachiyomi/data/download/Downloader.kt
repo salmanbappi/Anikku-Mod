@@ -205,9 +205,8 @@ class Downloader(
                         .filter {
                             it.status.value <= Download.State.DOWNLOADING.value
                         } // Ignore completed downloads, leave them in the queue
-                        .groupBy { it.source }
-                        .toList().take(preferences.concurrentDownloads().get()) // Concurrent download from user setting sources
-                        .map { (_, downloads) -> downloads.first() }
+                        .take(preferences.concurrentDownloads().get()) // Concurrent download from user setting
+                        .toList()
                     emit(activeDownloads)
 
                     if (activeDownloads.isEmpty()) break
@@ -922,8 +921,8 @@ class Downloader(
     companion object {
         const val TMP_DIR_SUFFIX = "_tmp"
         const val WARNING_NOTIF_TIMEOUT_MS = 30_000L
-        const val EPISODES_PER_SOURCE_QUEUE_WARNING_THRESHOLD = 10
-        private const val DOWNLOADS_QUEUED_WARNING_THRESHOLD = 20
+    private const val DOWNLOADS_QUEUED_WARNING_THRESHOLD = 500
+    private const val EPISODES_PER_SOURCE_QUEUE_WARNING_THRESHOLD = 500
     }
 }
 

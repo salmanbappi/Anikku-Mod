@@ -53,8 +53,8 @@ class DownloadPreferences(
     fun numberOfDownloads() = preferenceStore.getInt("download_slots", 1)
     fun downloadSpeedLimit() = preferenceStore.getInt("download_speed_limit", 0)
 
-    fun concurrentDownloads() = preferenceStore.getInt("concurrent_downloads", 5)
-    fun downloadThreads() = preferenceStore.getInt("download_threads", 1)
+    fun concurrentDownloads() = preferenceStore.getInt("concurrent_downloads", 10)
+    fun downloadThreads() = preferenceStore.getInt("download_threads", 4)
 
     fun downloadNewUnreadChaptersOnly() = preferenceStore.getBoolean("download_new_unread_episodes_only", false)
 
