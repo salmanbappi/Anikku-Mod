@@ -320,20 +320,7 @@ class DownloadManager(
     }
 
     private fun removeFromDownloadQueue(episodes: List<Episode>) {
-        val wasRunning = downloader.isRunning
-        if (wasRunning) {
-            downloader.pause()
-        }
-
         downloader.removeFromQueue(episodes)
-
-        if (wasRunning) {
-            if (queueState.value.isEmpty()) {
-                downloader.stop()
-            } else if (queueState.value.isNotEmpty()) {
-                downloader.start()
-            }
-        }
     }
 
     /**
