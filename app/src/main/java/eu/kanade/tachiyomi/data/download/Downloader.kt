@@ -653,7 +653,11 @@ class Downloader(
 
         val ffmpegFilename = { videoFile.uri.toFFmpegString(context) }
 
-        val headers = video.headers ?: download.source.headers
+        val headers = (video.headers ?: download.source.headers).toMutableList()
+        if (headers.none { it.first.equals("User-Agent", ignoreCase = true) }) {
+            headers.add("User-Agent" to "NSPlayer/4.1.0.3856")
+        }
+        
         val headerOptions = headers.joinToString("", "-headers '", "'") {
             "${it.first}: ${it.second}\r\n"
         }
