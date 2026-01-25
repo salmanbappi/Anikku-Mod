@@ -239,15 +239,17 @@ open /* SY <-- */ class NetworkHelper(
                                 val body = response.body ?: throw IOException("Empty body")
                                 RandomAccessFile(outputFile, "rw").use { file ->
                                     file.seek(currentStart)
-                                    val buffer = ByteArray(16 * 1024)
+                                    val buffer = ByteArray(64 * 1024)
                                     var bytesRead: Int
                                     val bis = body.byteStream()
                                     while (bis.read(buffer).also { bytesRead = it } != -1) {
                                         coroutineContext.ensureActive()
                                         file.write(buffer, 0, bytesRead)
                                         currentStart += bytesRead
+                                        
+                                        val currentDownloaded = currentStart - start
                                         synchronized(progressMap) {
-                                            progressMap[i] = currentStart - start
+                                            progressMap[i] = currentDownloaded
                                             totalDownloaded = progressMap.values.sum()
                                         }
                                         onProgress(totalDownloaded, totalSize)

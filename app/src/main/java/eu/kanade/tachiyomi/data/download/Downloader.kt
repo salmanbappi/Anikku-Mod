@@ -277,12 +277,6 @@ class Downloader(
      * Destroys the downloader subscriptions.
      */
     private fun cancelDownloaderJob() {
-        FFmpegKitConfig.getSessions().filter {
-            it.isFFmpeg && (it.state == SessionState.CREATED || it.state == SessionState.RUNNING)
-        }.forEach {
-            it.cancel()
-        }
-
         downloaderJob?.cancel()
         downloaderJob = null
     }
@@ -525,41 +519,70 @@ class Downloader(
         filename: String,
     ): UniFile {
         val video = download.video!!
-        tmpDir.findFile("$filename.tmp")?.delete()
-        val videoFile = tmpDir.createFile("$filename.tmp")!!
-
-        // Convert UniFile to java.io.File for NetworkHelper
-        val outputFile = java.io.File(context.cacheDir, "${filename}_temp_download")
+        val videoFile = tmpDir.findFile("$filename.tmp") ?: tmpDir.createFile("$filename.tmp")!!
         
-        try {
-            networkHelper.multiThreadedDownload(
-                url = video.videoUrl,
-                outputFile = outputFile,
-                headers = video.headers ?: download.source.headers,
-                threadCount = preferences.downloadThreads().get(),
-                onProgress = { downloaded, total ->
-                    if (total > 0) {
-                        download.progress = (100 * downloaded / total).toInt()
+        // Convert UniFile to java.io.File for RandomAccessFile
+        // Note: For scoped storage/SD cards, we might need a different approach, 
+        // but since we are in a 'tmp' directory created by UniFile, 
+        // we use the byteStream for writing to ensure compatibility with all storage types.
+        
+        val client = networkHelper.clientWithTimeOut(callTimeout = 0)
+        var attempt = 0
+        var success = false
+        
+        while (attempt < 5 && !success) {
+            try {
+                val downloadedBytes = videoFile.length()
+                val request = Request.Builder()
+                    .url(video.videoUrl)
+                    .headers(video.headers ?: download.source.headers)
+                    .addHeader("Range", "bytes=$downloadedBytes-")
+                    .build()
+
+                client.newCall(request).execute().use { response ->
+                    if (response.code != 206 && response.code != 200) {
+                        if (response.code == 416) { // Range not satisfiable
+                            videoFile.delete()
+                            throw IOException("Requested range not satisfiable, starting over")
+                        }
+                        throw IOException("Unexpected response code: ${response.code}")
                     }
-                }
-            )
 
-            // Copy from cache to UniFile
-            (outputFile.inputStream() as java.io.InputStream).use { input ->
-                videoFile.openOutputStream().use { output ->
-                    input.copyTo(output)
+                    val body = response.body ?: throw IOException("Empty body")
+                    val totalSize = (body.contentLength() + downloadedBytes)
+                    
+                    videoFile.openOutputStream(true).use { output ->
+                        body.byteStream().use { input ->
+                            val buffer = ByteArray(64 * 1024)
+                            var bytesRead: Int
+                            var currentDownloaded = downloadedBytes
+                            while (input.read(buffer).also { bytesRead = it } != -1) {
+                                coroutineContext.ensureActive()
+                                output.write(buffer, 0, bytesRead)
+                                currentDownloaded += bytesRead
+                                download.progress = if (totalSize > 0) {
+                                    (100 * currentDownloaded / totalSize).toInt()
+                                } else {
+                                    -1
+                                }
+                                notifier.onProgressChange(download)
+                            }
+                        }
+                    }
+                    success = true
                 }
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                attempt++
+                if (attempt >= 5) throw e
+                delay(2000L * attempt)
             }
-            outputFile.delete()
-
-            val file = tmpDir.findFile("$filename.tmp")?.apply {
-                renameTo("$filename.mkv")
-            }
-            return file ?: throw Exception("Downloaded file not found")
-        } catch (e: Exception) {
-            outputFile.delete()
-            throw e
         }
+
+        val file = tmpDir.findFile("$filename.tmp")?.apply {
+            renameTo("$filename.mkv")
+        }
+        return file ?: throw Exception("Downloaded file not found")
     }
 
     private suspend fun torrentDownload(
@@ -608,7 +631,8 @@ class Downloader(
         val ffprobeCommand = { file: String, ffprobeHeaders: String? ->
             FFmpegKitConfig.parseArguments(
                 "${ffprobeHeaders?.plus(" ") ?: ""}-v quiet -show_entries " +
-                    "format=duration -of default=noprint_wrappers=1:nokey=1 \"$file\"",
+                    "format=duration -of default=noprint_wrappers=1:nokey=1 " +
+                    "-analyzeduration 1000000 -probesize 1000000 -timeout 5000000 \"$file\"",
             )
         }
 
@@ -630,7 +654,8 @@ class Downloader(
             }
         }
 
-        val inputDuration = getDuration(ffprobeCommand(video.videoUrl, headerOptions)) ?: 0F
+        val useExternal = preferences.useExternalDownloader().get() == download.changeDownloader
+        val inputDuration = if (useExternal) 0F else getDuration(ffprobeCommand(video.videoUrl, headerOptions)) ?: 0F
         duration = inputDuration.toLong()
 
         return suspendCancellableCoroutine { continuation ->
@@ -701,7 +726,8 @@ class Downloader(
         }.joinToString(" ")
 
         val command = listOf(
-            "-reconnect 1 -reconnect_at_eof 1 -reconnect_streamed 1 -reconnect_delay_max 2",
+            "-reconnect 1 -reconnect_at_eof 1 -reconnect_streamed 1 -reconnect_delay_max 5 -timeout 5000000 -http_persistent 1",
+            "-max_reload_stats 512",
             videoInput, subtitleInputs, audioInputs,
             "-map 0:v", audioMaps, "-map 0:a?", subtitleMaps, "-map 0:s? -map 0:t?",
             "-f matroska -c:a copy -c:v copy -c:s copy",
@@ -752,7 +778,7 @@ class Downloader(
                 when {
                     // 1DM
                     pkgName.startsWith("idm.internet.download.manager") -> {
-                        val headers = (video.headers ?: source.headers).toMap()
+                        val headers = (video.headers ?: download.source.headers).toMap()
                         val bundle = Bundle()
                         for ((key, value) in headers) {
                             bundle.putString(key, value)
@@ -768,7 +794,20 @@ class Downloader(
 
                             putExtra("extra_filename", "$filename.mkv")
                             putExtra("extra_headers", bundle)
+                            // HiAnime and others require these for stable speeds/access
+                            headers["Referer"]?.let { putExtra("extra_referer", it) }
+                            headers["User-Agent"]?.let { putExtra("extra_user_agent", it) }
                         }
+                        
+                        // Mark as finished in Anikku to avoid background task conflicts
+                        download.status = Download.State.DOWNLOADED
+                        removeFromQueue(download)
+                        if (areAllDownloadsFinished()) {
+                            stop()
+                        }
+                        // Cleanup placeholder files
+                        file.delete()
+                        tmpDir.delete()
                     }
                     // ADM
                     pkgName.startsWith("com.dv.adm") -> {
