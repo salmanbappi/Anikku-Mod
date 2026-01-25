@@ -703,22 +703,45 @@ class Downloader(
             val session = FFmpegKit.executeAsync(
                 ffmpegOptions,
                 { s ->
-                    if (ReturnCode.isSuccess(s.returnCode)) {
-                        val file = tmpDir.findFile("$filename.tmp")?.apply {
-                            renameTo("$filename.mkv")
+                    val file = tmpDir.findFile("$filename.tmp")
+                    val downloadedDuration = (s.duration / 1000.0).toLong()
+                    val isSuccess = ReturnCode.isSuccess(s.returnCode)
+                    
+                    // Final Verification (The Anti-Trap)
+                    var corruptionError: String? = null
+                    
+                    if (file != null) {
+                        val fileSizeMB = file.length() / (1024 * 1024)
+                        val isMovie = download.anime.title.contains("Movie", ignoreCase = true) || 
+                                     download.episode.name.contains("Movie", ignoreCase = true)
+                        
+                        // Check 1: Duration verification
+                        if (duration > 60) {
+                            val tolerance = duration / 20
+                            if (downloadedDuration < (duration - tolerance)) {
+                                corruptionError = "Download truncated: Expected ${duration}s, got ${downloadedDuration}s"
+                            }
+                        } else if (isMovie && downloadedDuration < 3600) {
+                            // Fallback for movies where ffprobe failed
+                            corruptionError = "Movie truncated: Only ${downloadedDuration}s downloaded"
                         }
-                        if (file != null) {
-                            continuation.resume(file)
-                        } else {
-                            continuation.resumeWithException(Exception("Downloaded file not found"))
+                        
+                        // Check 2: Size verification
+                        val minSize = if (isMovie) 100 else 10
+                        if (fileSizeMB < minSize) {
+                            corruptionError = "File too small (${fileSizeMB}MB). Server dropped connection."
                         }
+                    } else if (isSuccess) {
+                        corruptionError = "Downloaded file not found"
+                    }
+
+                    if (isSuccess && corruptionError == null) {
+                        file?.renameTo("$filename.mkv")
+                        if (continuation.isActive) continuation.resume(file!!)
                     } else {
-                        s.failStackTrace?.let { trace ->
-                            logcat(LogPriority.ERROR) { trace }
-                        }
-                        if (continuation.isActive) {
-                            continuation.resumeWithException(Exception("Error in ffmpeg!"))
-                        }
+                        file?.delete()
+                        val finalError = corruptionError ?: "FFmpeg Error Code: ${s.returnCode}"
+                        if (continuation.isActive) continuation.resumeWithException(Exception(finalError))
                     }
                 },
                 logCallback,
@@ -769,7 +792,7 @@ class Downloader(
         val command = listOf(
             "-reconnect 1 -reconnect_at_eof 1 -reconnect_streamed 1 -reconnect_delay_max 10 -rw_timeout 10000000 -http_persistent 1",
             "-reconnect_on_network_error 1 -reconnect_on_http_error 1 -multiple_requests 1",
-            "-thread_queue_size 2048",
+            "-err_detect explode -thread_queue_size 2048",
             videoInput, subtitleInputs, audioInputs,
             "-map 0:v", audioMaps, "-map 0:a?", subtitleMaps, "-map 0:s? -map 0:t?",
             "-f matroska -c:a copy -c:v copy -c:s copy",
@@ -919,21 +942,7 @@ class Downloader(
         // Ensure that the episode folder has the full video
         val downloadedVideo = tmpDir.listFiles().orEmpty().filterNot { it.extension == ".tmp" }
 
-        if (downloadedVideo.size == 1) {
-            val file = downloadedVideo[0]
-            val fileSizeMB = file.length() / (1024 * 1024)
-            
-            // Basic sanity check: movies shouldn't be under 50MB, episodes under 10MB
-            // This is a common failure point for HLS where it thinks it's done but only got a tiny part
-            val isMovie = download.anime.title.contains("Movie", ignoreCase = true) || 
-                         download.episode.name.contains("Movie", ignoreCase = true)
-            val minSize = if (isMovie) 50 else 10
-            
-            if (fileSizeMB < minSize) {
-                file.delete()
-                throw Exception("Download incomplete (only ${fileSizeMB}MB). Server terminated connection early.")
-            }
-
+        download.status = if (downloadedVideo.size == 1) {
             // Only rename the directory if it's downloaded
             val filename = DiskUtil.buildValidFilename("${download.anime.title} - ${download.episode.name}")
             tmpDir.findFile("${filename}_tmp.mkv")?.delete()
@@ -942,7 +951,7 @@ class Downloader(
             cache.addEpisode(dirname, animeDir, download.anime)
 
             DiskUtil.createNoMediaFile(tmpDir, context)
-            download.status = Download.State.DOWNLOADED
+            Download.State.DOWNLOADED
         } else {
             throw Exception("Unable to finalize download")
         }
