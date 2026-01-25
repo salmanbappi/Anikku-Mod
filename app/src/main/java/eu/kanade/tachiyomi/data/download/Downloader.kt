@@ -717,23 +717,23 @@ class Downloader(
                     if (file != null) {
                         val fileSizeMB = file.length() / (1024 * 1024)
                         val isMovie = download.anime.title.contains("Movie", ignoreCase = true) || 
-                                     download.episode.name.contains("Movie", ignoreCase = true)
+                                     download.episode.name.contains("Movie", ignoreCase = true) ||
+                                     download.episode.name.contains("Full", ignoreCase = true)
                         
-                        // Check 1: Duration verification
+                        // Check 1: Duration verification (Crucial for HLS)
                         if (duration > 60) {
                             val tolerance = duration / 20
                             if (downloadedDuration < (duration - tolerance)) {
                                 corruptionError = "Download truncated: Expected ${duration}s, got ${downloadedDuration}s"
                             }
                         } else if (isMovie && downloadedDuration < 3600) {
-                            // Fallback for movies where ffprobe failed
                             corruptionError = "Movie truncated: Only ${downloadedDuration}s downloaded"
                         }
                         
                         // Check 2: Size verification
                         val minSize = if (isMovie) 100 else 10
                         if (fileSizeMB < minSize) {
-                            corruptionError = "File too small (${fileSizeMB}MB). Server dropped connection."
+                            corruptionError = "File too small (${fileSizeMB}MB). Link expired or connection trash."
                         }
                     } else if (isSuccess) {
                         corruptionError = "Downloaded file not found"
@@ -794,9 +794,9 @@ class Downloader(
         }.joinToString(" ")
 
         val command = listOf(
-            "-reconnect 1 -reconnect_at_eof 1 -reconnect_streamed 1 -reconnect_delay_max 10 -rw_timeout 10000000 -http_persistent 1",
+            "-reconnect 1 -reconnect_at_eof 1 -reconnect_streamed 1 -reconnect_delay_max 30 -rw_timeout 15000000 -http_persistent 1",
             "-reconnect_on_network_error 1 -reconnect_on_http_error 1 -multiple_requests 1",
-            "-err_detect explode -thread_queue_size 2048",
+            "-err_detect explode -hls_flags pipe_size -thread_queue_size 4096",
             videoInput, subtitleInputs, audioInputs,
             "-map 0:v", audioMaps, "-map 0:a?", subtitleMaps, "-map 0:s? -map 0:t?",
             "-f matroska -c:a copy -c:v copy -c:s copy",
