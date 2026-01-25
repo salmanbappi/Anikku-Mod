@@ -538,15 +538,19 @@ class Downloader(
         if (headers.none { it.first.equals("User-Agent", ignoreCase = true) }) {
             headers.add("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
         }
-        if (headers.none { it.first.equals("X-Requested-With", ignoreCase = true) }) {
-            headers.add("X-Requested-With" to "com.android.chrome")
-        }
         
-        // Origin/Referer Sync
-        val referer = headers.find { it.first.equals("referer", ignoreCase = true) }?.second
-        if (referer != null && headers.none { it.first.equals("origin", ignoreCase = true) }) {
-            val uri = Uri.parse(referer)
-            headers.add("Origin" to "${uri.scheme}://${uri.host}")
+        // Remove X-Requested-With if it causes issues, or set to browser
+        headers.removeAll { it.first.equals("X-Requested-With", ignoreCase = true) }
+        
+        // Dynamic Referer/Origin: Critical for mirrors like stormshade84.live
+        val videoUri = Uri.parse(video.videoUrl)
+        val hostOrigin = "${videoUri.scheme}://${videoUri.host}"
+        
+        if (headers.none { it.first.equals("Referer", ignoreCase = true) }) {
+            headers.add("Referer" to "$hostOrigin/")
+        }
+        if (headers.none { it.first.equals("Origin", ignoreCase = true) }) {
+            headers.add("Origin" to hostOrigin)
         }
 
         val headerBuilder = okhttp3.Headers.Builder()
