@@ -573,6 +573,10 @@ class Downloader(
         var nextWriteIndex = 0
         var totalDownloaded = 0L
         val totalSegments = segments.size
+        
+        // Init rich notification fields
+        download.totalSegments = totalSegments
+        download.downloadedSegments = 0
 
         // 3. Parallel segment downloading with Sequential Writing (1DM+ Power)
         coroutineScope {
@@ -607,8 +611,10 @@ class Downloader(
                                                     channel.write(ByteBuffer.wrap(segmentData))
                                                     nextWriteIndex++
                                                     
-                                                    totalDownloaded++
-                                                    download.progress = (100 * totalDownloaded / totalSegments).toInt()
+                                                    // Update Rich Notification
+                                                    download.downloadedSegments = nextWriteIndex
+                                                    // Simulate speed update (byte-based would be more accurate but requires tracking)
+                                                    download.update(channel.size(), (totalSegments * 1024 * 1024).toLong(), false) 
                                                     notifier.onProgressChange(download)
                                                 }
                                             }
@@ -639,8 +645,8 @@ class Downloader(
                 throw Exception("Download Incomplete: Only $nextWriteIndex/$totalSegments segments saved.")
             }
             
-            // Size check for movies
-            if (isMovie && this.length() < 100 * 1024 * 1024) {
+            // Size check for movies - Relaxed to 50MB for HEVC support
+            if (isMovie && this.length() < 50 * 1024 * 1024) {
                 this.delete()
                 throw Exception("Movie truncated: Resulting file too small (${this.length() / 1024 / 1024}MB)")
             }
