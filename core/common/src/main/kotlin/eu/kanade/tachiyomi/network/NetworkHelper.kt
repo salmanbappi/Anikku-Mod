@@ -11,6 +11,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import okhttp3.Cache
+import okhttp3.ConnectionPool
+import okhttp3.Dispatcher
 import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -52,6 +54,13 @@ open /* SY <-- */ class NetworkHelper(
         // KMK <--
     ): OkHttpClient = run {
         val builder = OkHttpClient.Builder()
+            .dispatcher(
+                Dispatcher().apply {
+                    maxRequests = 128
+                    maxRequestsPerHost = 16
+                },
+            )
+            .connectionPool(ConnectionPool(10, 2, TimeUnit.MINUTES))
             .cookieJar(cookieJar)
             // KMK -->
             .connectTimeout(connectTimeout, TimeUnit.SECONDS)
@@ -239,7 +248,7 @@ open /* SY <-- */ class NetworkHelper(
                                 val body = response.body ?: throw IOException("Empty body")
                                 RandomAccessFile(outputFile, "rw").use { file ->
                                     file.seek(currentStart)
-                                    val buffer = ByteArray(256 * 1024)
+                                    val buffer = ByteArray(512 * 1024)
                                     var bytesRead: Int
                                     val bis = body.byteStream()
                                     while (bis.read(buffer).also { bytesRead = it } != -1) {
