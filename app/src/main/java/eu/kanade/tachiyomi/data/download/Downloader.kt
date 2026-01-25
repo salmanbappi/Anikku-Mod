@@ -533,14 +533,27 @@ class Downloader(
         val video = download.video!!
         val client = networkHelper.client
         val headers = (video.headers ?: download.source.headers).toMutableList()
+        
+        // 1DM+ Secrets: Mimic a real browser environment
+        if (headers.none { it.first.equals("User-Agent", ignoreCase = true) }) {
+            headers.add("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+        }
         if (headers.none { it.first.equals("X-Requested-With", ignoreCase = true) }) {
             headers.add("X-Requested-With" to "com.android.chrome")
         }
+        
+        // Origin/Referer Sync
+        val referer = headers.find { it.first.equals("referer", ignoreCase = true) }?.second
+        if (referer != null && headers.none { it.first.equals("origin", ignoreCase = true) }) {
+            val uri = Uri.parse(referer)
+            headers.add("Origin" to "${uri.scheme}://${uri.host}")
+        }
+
         val headerBuilder = okhttp3.Headers.Builder()
         headers.forEach { headerBuilder.add(it.first, it.second) }
         val headerMap = headerBuilder.build()
 
-        // 1. Fetch Playlist
+        // 1. Fetch Playlist (Safe Handshake)
         val request = Request.Builder().url(video.videoUrl).headers(headerMap).build()
         val playlistContent = client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) throw IOException("Failed to fetch playlist: ${response.code}")
@@ -577,7 +590,10 @@ class Downloader(
                                     try {
                                         val segRequest = Request.Builder().url(segmentUrl).headers(headerMap).build()
                                         client.newCall(segRequest).execute().use { response ->
-                                            if (!response.isSuccessful) throw IOException("Segment failed: ${response.code}")
+                                            if (!response.isSuccessful) {
+                                                if (response.code == 403) throw IOException("Segment 403: Mirror Blocked FFmpeg")
+                                                throw IOException("Segment failed: ${response.code}")
+                                            }
                                             val data = response.body?.bytes() ?: throw IOException("Empty segment")
                                             
                                             synchronized(downloadedSegments) {
@@ -602,7 +618,7 @@ class Downloader(
                                         if (e is CancellationException) throw e
                                         attempt++
                                         if (attempt >= 5) throw e
-                                        delay(1000L * attempt)
+                                        delay(2000L * attempt)
                                     }
                                 }
                             }
@@ -612,7 +628,23 @@ class Downloader(
             }
         }
 
+        // 4. Duration Guardian Verification (Final Check)
         val file = tmpDir.findFile("$filename.tmp")?.apply {
+            val isMovie = download.anime.title.contains("Movie", ignoreCase = true) || 
+                         download.episode.name.contains("Movie", ignoreCase = true)
+            
+            // Check if we actually got most of the segments
+            if (nextWriteIndex < (totalSegments * 0.95)) {
+                this.delete()
+                throw Exception("Download Incomplete: Only $nextWriteIndex/$totalSegments segments saved.")
+            }
+            
+            // Size check for movies
+            if (isMovie && this.length() < 100 * 1024 * 1024) {
+                this.delete()
+                throw Exception("Movie truncated: Resulting file too small (${this.length() / 1024 / 1024}MB)")
+            }
+
             renameTo("$filename.mkv")
         }
         return file ?: throw Exception("Downloaded file not found")
