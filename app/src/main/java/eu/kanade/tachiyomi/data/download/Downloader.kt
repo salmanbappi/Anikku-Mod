@@ -655,7 +655,11 @@ class Downloader(
 
         val headers = (video.headers ?: download.source.headers).toMutableList()
         if (headers.none { it.first.equals("User-Agent", ignoreCase = true) }) {
-            headers.add("User-Agent" to "NSPlayer/4.1.0.3856")
+            // Use a standard browser UA for initial mirror handshake to avoid 403
+            headers.add("User-Agent" to "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+        }
+        if (headers.none { it.first.equals("X-Requested-With", ignoreCase = true) }) {
+            headers.add("X-Requested-With" to "com.android.chrome")
         }
         
         val headerOptions = headers.joinToString("", "-headers '", "'") {
@@ -794,9 +798,9 @@ class Downloader(
         }.joinToString(" ")
 
         val command = listOf(
-            "-reconnect 1 -reconnect_at_eof 1 -reconnect_streamed 1 -reconnect_delay_max 30 -rw_timeout 15000000 -http_persistent 1",
-            "-reconnect_on_network_error 1 -reconnect_on_http_error 1 -multiple_requests 1",
-            "-err_detect explode -hls_flags pipe_size -thread_queue_size 4096",
+            "-reconnect 1 -reconnect_at_eof 1 -reconnect_streamed 1 -reconnect_delay_max 30 -rw_timeout 15000000",
+            "-reconnect_on_network_error 1 -reconnect_on_http_error 1",
+            "-err_detect explode -thread_queue_size 4096",
             videoInput, subtitleInputs, audioInputs,
             "-map 0:v", audioMaps, "-map 0:a?", subtitleMaps, "-map 0:s? -map 0:t?",
             "-f matroska -c:a copy -c:v copy -c:s copy",
