@@ -541,8 +541,12 @@ class Downloader(
         if (totalSize <= 0) throw IOException("Invalid content length")
 
         // 2. Prepare file size
-        context.contentResolver.openFileDescriptor(videoFile.uri, "rw")?.use { pfd ->
-            android.system.Os.ftruncate(pfd.fileDescriptor, totalSize)
+        try {
+            context.contentResolver.openFileDescriptor(videoFile.uri, "rw")?.use { pfd ->
+                Os.ftruncate(pfd.fileDescriptor, totalSize)
+            }
+        } catch (e: Exception) {
+            logcat(LogPriority.ERROR, throwable = e) { "Failed to truncate file" }
         }
 
         val threadCount = preferences.downloadThreads().get()
@@ -572,7 +576,7 @@ class Downloader(
                                 }
 
                                 val body = response.body ?: throw IOException("Empty body")
-                                context.contentResolver.openFileDescriptor(videoFile.uri, "wa")?.use { pfd ->
+                                context.contentResolver.openFileDescriptor(videoFile.uri, "rw")?.use { pfd ->
                                     FileOutputStream(pfd.fileDescriptor).channel.use { channel ->
                                         channel.position(currentStart)
                                         val buffer = ByteArray(128 * 1024)
@@ -580,7 +584,7 @@ class Downloader(
                                         val bis = body.byteStream()
                                         while (bis.read(buffer).also { bytesRead = it } != -1) {
                                             coroutineContext.ensureActive()
-                                            val written = channel.write(java.nio.ByteBuffer.wrap(buffer, 0, bytesRead))
+                                            val written = channel.write(ByteBuffer.wrap(buffer, 0, bytesRead))
                                             currentStart += written
                                             
                                             val currentDownloaded = currentStart - start
