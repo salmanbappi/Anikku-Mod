@@ -16,7 +16,10 @@ import com.arthenica.ffmpegkit.SessionState
 import com.arthenica.ffmpegkit.StatisticsCallback
 import com.hippo.unifile.UniFile
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.io.InputStream
+import kotlinx.coroutines.ensureActive
 import eu.kanade.tachiyomi.animesource.model.Track
 import eu.kanade.tachiyomi.animesource.model.Video
 import eu.kanade.tachiyomi.data.download.model.Download
@@ -434,7 +437,7 @@ class Downloader(
                         val betterFileName = DiskUtil.buildValidFilename(
                             "${download.anime.title} - ${download.episode.name}",
                         )
-                        downloadVideoExternal(download.video!!, download.source, tmpDir, betterFileName)
+                        downloadVideoExternal(download, tmpDir, betterFileName)
                     }
                 }
             }
@@ -551,21 +554,23 @@ class Downloader(
                     val body = response.body ?: throw IOException("Empty body")
                     val totalSize = (body.contentLength() + downloadedBytes)
                     
-                    videoFile.openOutputStream(true).use { output ->
-                        body.byteStream().use { input ->
-                            val buffer = ByteArray(64 * 1024)
-                            var bytesRead: Int
-                            var currentDownloaded = downloadedBytes
-                            while (input.read(buffer).also { bytesRead = it } != -1) {
-                                coroutineContext.ensureActive()
-                                output.write(buffer, 0, bytesRead)
-                                currentDownloaded += bytesRead
-                                download.progress = if (totalSize > 0) {
-                                    (100 * currentDownloaded / totalSize).toInt()
-                                } else {
-                                    -1
+                    context.contentResolver.openFileDescriptor(videoFile.uri, "wa")?.use { pfd ->
+                        FileOutputStream(pfd.fileDescriptor).use { output ->
+                            body.byteStream().use { input ->
+                                val buffer = ByteArray(64 * 1024)
+                                var bytesRead: Int
+                                var currentDownloaded = downloadedBytes
+                                while (input.read(buffer).also { bytesRead = it } != -1) {
+                                    coroutineContext.ensureActive()
+                                    output.write(buffer, 0, bytesRead)
+                                    currentDownloaded += bytesRead
+                                    download.progress = if (totalSize > 0) {
+                                        (100 * currentDownloaded / totalSize).toInt()
+                                    } else {
+                                        -1
+                                    }
+                                    notifier.onProgressChange(download)
                                 }
-                                notifier.onProgressChange(download)
                             }
                         }
                     }
@@ -755,11 +760,12 @@ class Downloader(
      * @param filename the filename of the video.
      */
     private suspend fun downloadVideoExternal(
-        video: Video,
-        source: HttpSource,
+        download: Download,
         tmpDir: UniFile,
         filename: String,
     ): UniFile {
+        val video = download.video!!
+        val source = download.source
         try {
             val file = tmpDir.createFile("${filename}_tmp.mkv")!!
             withUIContext {
@@ -833,19 +839,15 @@ class Downloader(
                             )
                             putExtra("android.media.intent.extra.HTTP_HEADERS", bundle)
                         }
+                        // Mark as finished in Anikku to avoid background task conflicts
+                        download.status = Download.State.DOWNLOADED
+                        removeFromQueue(download)
+                        if (areAllDownloadsFinished()) {
+                            stop()
+                        }
+                        // Cleanup placeholder files
                         file.delete()
                         tmpDir.delete()
-                        queueState.value.find { anime -> anime.video == video }?.let { download ->
-                            download.status = Download.State.DOWNLOADED
-                            // Delete successful downloads from queue
-                            if (download.status == Download.State.DOWNLOADED) {
-                                // Remove downloaded episode from queue
-                                removeFromQueue(download)
-                            }
-                            if (areAllDownloadsFinished()) {
-                                stop()
-                            }
-                        }
                     }
                 }
             } else {
