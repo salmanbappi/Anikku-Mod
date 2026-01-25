@@ -109,12 +109,16 @@ class DownloadManager(
 
     fun startDownloadNow(episodeId: Long) {
         val existingDownload = getQueuedDownloadOrNull(episodeId)
-        // If not in queue try to start a new download
-        val toAdd = existingDownload ?: runBlocking { Download.fromEpisodeId(episodeId) } ?: return
-        queueState.value.toMutableList().apply {
-            existingDownload?.let { remove(it) }
-            add(0, toAdd)
-            reorderQueue(this)
+        if (existingDownload != null) {
+            val list = queueState.value.toMutableList()
+            list.remove(existingDownload)
+            list.add(0, existingDownload)
+            reorderQueue(list)
+        } else {
+            val newDownload = runBlocking { Download.fromEpisodeId(episodeId) } ?: return
+            val list = queueState.value.toMutableList()
+            list.add(0, newDownload)
+            reorderQueue(list)
         }
         startDownloads()
     }
