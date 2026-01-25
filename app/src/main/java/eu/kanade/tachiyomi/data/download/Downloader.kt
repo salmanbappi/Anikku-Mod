@@ -37,6 +37,7 @@ import eu.kanade.tachiyomi.ui.player.loader.HosterLoader
 import eu.kanade.tachiyomi.util.storage.DiskUtil
 import eu.kanade.tachiyomi.util.storage.toFFmpegString
 import eu.kanade.tachiyomi.util.system.copyToClipboard
+import okhttp3.Headers
 import okhttp3.Request
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -535,10 +536,12 @@ class Downloader(
         if (headers.none { it.first.equals("X-Requested-With", ignoreCase = true) }) {
             headers.add("X-Requested-With" to "com.android.chrome")
         }
-        val headerMap = headers.toMap()
+        val headerBuilder = okhttp3.Headers.Builder()
+        headers.forEach { headerBuilder.add(it.first, it.second) }
+        val headerMap = headerBuilder.build()
 
         // 1. Fetch Playlist
-        val request = Request.Builder().url(video.videoUrl).headers(okhttp3.Headers.of(headerMap)).build()
+        val request = Request.Builder().url(video.videoUrl).headers(headerMap).build()
         val playlistContent = client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) throw IOException("Failed to fetch playlist: ${response.code}")
             response.body?.string() ?: throw IOException("Empty playlist")
@@ -553,44 +556,50 @@ class Downloader(
         if (segments.isEmpty()) throw IOException("No segments found in playlist")
 
         val videoFile = tmpDir.findFile("$filename.tmp") ?: tmpDir.createFile("$filename.tmp")!!
-        val progressMap = mutableMapOf<Int, Long>()
+        val downloadedSegments = mutableMapOf<Int, ByteArray>()
+        var nextWriteIndex = 0
         var totalDownloaded = 0L
         val totalSegments = segments.size
 
-        // 3. Parallel segment downloading (High Performance)
+        // 3. Parallel segment downloading with Sequential Writing (1DM+ Power)
         coroutineScope {
             val concurrency = preferences.downloadThreads().get().coerceAtLeast(4)
             val semaphore = Semaphore(concurrency)
             
             context.contentResolver.openFileDescriptor(videoFile.uri, "rw")?.use { pfd ->
                 FileOutputStream(pfd.fileDescriptor).channel.use { channel ->
-                    segments.mapIndexed { index, segmentUrl ->
-                        async(Dispatchers.IO) {
+                    segments.forEachIndexed { index, segmentUrl ->
+                        launch(Dispatchers.IO) {
                             semaphore.withPermit {
                                 var attempt = 0
                                 var success = false
                                 while (attempt < 5 && !success) {
                                     try {
-                                        val segRequest = Request.Builder().url(segmentUrl).headers(okhttp3.Headers.of(headerMap)).build()
+                                        val segRequest = Request.Builder().url(segmentUrl).headers(headerMap).build()
                                         client.newCall(segRequest).execute().use { response ->
                                             if (!response.isSuccessful) throw IOException("Segment failed: ${response.code}")
                                             val data = response.body?.bytes() ?: throw IOException("Empty segment")
                                             
-                                            // Calculate position (approximation since segments vary slightly)
-                                            // In a real HLS merge, we append them in order.
-                                            // For simplicity and speed, we write sequentially in this loop.
-                                            synchronized(channel) {
-                                                channel.write(ByteBuffer.wrap(data))
+                                            synchronized(downloadedSegments) {
+                                                downloadedSegments[index] = data
                                             }
                                             
-                                            synchronized(progressMap) {
-                                                totalDownloaded++
-                                                download.progress = (100 * totalDownloaded / totalSegments).toInt()
+                                            // Sequential merge logic
+                                            synchronized(channel) {
+                                                while (downloadedSegments.containsKey(nextWriteIndex)) {
+                                                    val segmentData = downloadedSegments.remove(nextWriteIndex)!!
+                                                    channel.write(ByteBuffer.wrap(segmentData))
+                                                    nextWriteIndex++
+                                                    
+                                                    totalDownloaded++
+                                                    download.progress = (100 * totalDownloaded / totalSegments).toInt()
+                                                    notifier.onProgressChange(download)
+                                                }
                                             }
-                                            notifier.onProgressChange(download)
                                             success = true
                                         }
                                     } catch (e: Exception) {
+                                        if (e is CancellationException) throw e
                                         attempt++
                                         if (attempt >= 5) throw e
                                         delay(1000L * attempt)
@@ -598,7 +607,7 @@ class Downloader(
                                 }
                             }
                         }
-                    }.awaitAll()
+                    }
                 }
             }
         }
