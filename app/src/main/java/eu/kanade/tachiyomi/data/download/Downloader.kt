@@ -579,7 +579,7 @@ class Downloader(
                                 context.contentResolver.openFileDescriptor(videoFile.uri, "rw")?.use { pfd ->
                                     FileOutputStream(pfd.fileDescriptor).channel.use { channel ->
                                         channel.position(currentStart)
-                                        val buffer = ByteArray(256 * 1024)
+                                        val buffer = ByteArray(512 * 1024)
                                         var bytesRead: Int
                                         val bis = body.byteStream()
                                         while (bis.read(buffer).also { bytesRead = it } != -1) {
