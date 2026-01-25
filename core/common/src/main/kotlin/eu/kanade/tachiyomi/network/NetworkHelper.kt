@@ -239,7 +239,7 @@ open /* SY <-- */ class NetworkHelper(
                                 val body = response.body ?: throw IOException("Empty body")
                                 RandomAccessFile(outputFile, "rw").use { file ->
                                     file.seek(currentStart)
-                                    val buffer = ByteArray(128 * 1024)
+                                    val buffer = ByteArray(256 * 1024)
                                     var bytesRead: Int
                                     val bis = body.byteStream()
                                     while (bis.read(buffer).also { bytesRead = it } != -1) {
