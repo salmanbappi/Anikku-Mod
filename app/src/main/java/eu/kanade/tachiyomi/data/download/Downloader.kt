@@ -579,7 +579,7 @@ class Downloader(
                                 context.contentResolver.openFileDescriptor(videoFile.uri, "rw")?.use { pfd ->
                                     FileOutputStream(pfd.fileDescriptor).channel.use { channel ->
                                         channel.position(currentStart)
-                                        val buffer = ByteArray(128 * 1024)
+                                        val buffer = ByteArray(256 * 1024)
                                         var bytesRead: Int
                                         val bis = body.byteStream()
                                         while (bis.read(buffer).also { bytesRead = it } != -1) {
@@ -757,9 +757,9 @@ class Downloader(
         }.joinToString(" ")
 
         val command = listOf(
-            "-reconnect 1 -reconnect_at_eof 1 -reconnect_streamed 1 -reconnect_delay_max 5 -timeout 5000000 -http_persistent 1",
+            "-reconnect 1 -reconnect_at_eof 1 -reconnect_streamed 1 -reconnect_delay_max 10 -rw_timeout 10000000 -http_persistent 1",
             "-reconnect_on_network_error 1 -reconnect_on_http_error 1 -multiple_requests 1",
-            "-thread_queue_size 1024",
+            "-thread_queue_size 2048",
             videoInput, subtitleInputs, audioInputs,
             "-map 0:v", audioMaps, "-map 0:a?", subtitleMaps, "-map 0:s? -map 0:t?",
             "-f matroska -c:a copy -c:v copy -c:s copy",
