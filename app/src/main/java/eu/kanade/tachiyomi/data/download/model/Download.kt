@@ -43,6 +43,14 @@ data class Download(
             progressStateFlow.value = value
         }
 
+    // Rich Notification Fields
+    @Transient var speed: String = ""
+    @Transient var downloadedSegments: Int = 0
+    @Transient var totalSegments: Int = 0
+    
+    private var lastUpdateTime: Long = 0
+    private var lastBytesRead: Long = 0
+
     /**
      * Updates the status of the download
      *
@@ -56,6 +64,22 @@ data class Download(
         } else {
             -1
         }
+        
+        // Speed Calculation
+        val now = System.currentTimeMillis()
+        if (now - lastUpdateTime > 1000) {
+            val bytesDiff = bytesRead - lastBytesRead
+            val timeDiff = (now - lastUpdateTime) / 1000.0
+            val speedBytes = bytesDiff / timeDiff
+            speed = when {
+                speedBytes > 1024 * 1024 -> "%.1f MB/s".format(speedBytes / (1024 * 1024))
+                speedBytes > 1024 -> "%.1f KB/s".format(speedBytes / 1024)
+                else -> "${speedBytes.toLong()} B/s"
+            }
+            lastUpdateTime = now
+            lastBytesRead = bytesRead
+        }
+
         if (progress != newProgress) progress = newProgress
     }
 
