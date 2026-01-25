@@ -112,6 +112,13 @@ open class Video(
             field = value
         }
 
+    @Transient
+    @Volatile
+    var lastByteRead: Long = 0
+        set(value) {
+            field = value
+        }
+
     fun copy(
         videoUrl: String = this.videoUrl,
         videoTitle: String = this.videoTitle,
