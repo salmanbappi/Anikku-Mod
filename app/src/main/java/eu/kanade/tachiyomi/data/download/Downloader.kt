@@ -636,7 +636,10 @@ class Downloader(
                         }
                     }
                 }
+                // Force flush to disk to ensure size check is accurate
+                channel.force(true)
             }
+            pfd.fileDescriptor.sync()
         }
 
         // 4. Duration Guardian Verification (Final Check)
