@@ -74,10 +74,17 @@ class DownloadHolder(private val view: View, val adapter: DownloadAdapter) :
      * Updates the text field of the number of downloaded pages.
      */
     fun notifyDownloadedPages() {
+        val speed = download.speed
+        val segments = if (download.totalSegments > 0) " • ${download.downloadedSegments}/${download.totalSegments}" else ""
+        
         binding.downloadProgressText.text = if (download.progress == 0) {
             view.context.stringResource(MR.strings.update_check_notification_download_in_progress)
         } else {
-            view.context.stringResource(MR.strings.episode_download_progress, download.progress)
+            if (speed.isNotEmpty()) {
+                "${download.progress}% • $speed$segments"
+            } else {
+                view.context.stringResource(MR.strings.episode_download_progress, download.progress)
+            }
         }
     }
 
