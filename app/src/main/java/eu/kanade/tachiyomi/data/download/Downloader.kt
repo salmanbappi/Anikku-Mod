@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.system.Os
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.FFmpegKitConfig
 import com.arthenica.ffmpegkit.FFmpegSession
@@ -19,6 +20,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
+import java.nio.ByteBuffer
 import kotlinx.coroutines.ensureActive
 import eu.kanade.tachiyomi.animesource.model.Track
 import eu.kanade.tachiyomi.animesource.model.Video
@@ -42,6 +44,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -104,7 +107,7 @@ class Downloader(
     private val _queueState = MutableStateFlow<List<Download>>(emptyList())
     val queueState = _queueState.asStateFlow()
 
-    private val ffmpegSemaphore = Semaphore(4)
+    private val ffmpegSemaphore = Semaphore(10)
 
     /**
      * Notifier for the downloader state and progress.
@@ -524,63 +527,81 @@ class Downloader(
         val video = download.video!!
         val videoFile = tmpDir.findFile("$filename.tmp") ?: tmpDir.createFile("$filename.tmp")!!
         
-        // Convert UniFile to java.io.File for RandomAccessFile
-        // Note: For scoped storage/SD cards, we might need a different approach, 
-        // but since we are in a 'tmp' directory created by UniFile, 
-        // we use the byteStream for writing to ensure compatibility with all storage types.
-        
         val client = networkHelper.clientWithTimeOut(callTimeout = 0)
-        var attempt = 0
-        var success = false
+        val headers = video.headers ?: download.source.headers
         
-        while (attempt < 5 && !success) {
-            try {
-                val downloadedBytes = videoFile.length()
-                val request = Request.Builder()
-                    .url(video.videoUrl)
-                    .headers(video.headers ?: download.source.headers)
-                    .addHeader("Range", "bytes=$downloadedBytes-")
-                    .build()
+        // 1. Get total file size
+        val headRequest = Request.Builder().url(video.videoUrl).headers(headers).head().build()
+        val totalSize = client.newCall(headRequest).execute().use { response ->
+            if (!response.isSuccessful) throw IOException("Failed to get file size: ${response.code}")
+            response.header("Content-Length")?.toLong() ?: throw IOException("Content-Length missing")
+        }
 
-                client.newCall(request).execute().use { response ->
-                    if (response.code != 206 && response.code != 200) {
-                        if (response.code == 416) { // Range not satisfiable
-                            videoFile.delete()
-                            throw IOException("Requested range not satisfiable, starting over")
-                        }
-                        throw IOException("Unexpected response code: ${response.code}")
-                    }
+        if (totalSize <= 0) throw IOException("Invalid content length")
 
-                    val body = response.body ?: throw IOException("Empty body")
-                    val totalSize = (body.contentLength() + downloadedBytes)
-                    
-                    context.contentResolver.openFileDescriptor(videoFile.uri, "wa")?.use { pfd ->
-                        FileOutputStream(pfd.fileDescriptor).use { output ->
-                            body.byteStream().use { input ->
-                                val buffer = ByteArray(128 * 1024)
-                                var bytesRead: Int
-                                var currentDownloaded = downloadedBytes
-                                while (input.read(buffer).also { bytesRead = it } != -1) {
-                                    coroutineContext.ensureActive()
-                                    output.write(buffer, 0, bytesRead)
-                                    currentDownloaded += bytesRead
-                                    download.progress = if (totalSize > 0) {
-                                        (100 * currentDownloaded / totalSize).toInt()
-                                    } else {
-                                        -1
-                                    }
-                                    notifier.onProgressChange(download)
+        // 2. Prepare file size
+        context.contentResolver.openFileDescriptor(videoFile.uri, "rw")?.use { pfd ->
+            android.system.Os.ftruncate(pfd.fileDescriptor, totalSize)
+        }
+
+        val threadCount = preferences.downloadThreads().get()
+        val chunkSize = totalSize / threadCount
+        val progressMap = mutableMapOf<Int, Long>()
+        var totalDownloaded = 0L
+
+        coroutineScope {
+            (0 until threadCount).map { i ->
+                val start = i * chunkSize
+                val end = if (i == threadCount - 1) totalSize - 1 else (i + 1) * chunkSize - 1
+
+                launch(Dispatchers.IO) {
+                    var attempt = 0
+                    var currentStart = start
+                    while (attempt < 5 && currentStart <= end) {
+                        try {
+                            val request = Request.Builder()
+                                .url(video.videoUrl)
+                                .headers(headers)
+                                .addHeader("Range", "bytes=$currentStart-$end")
+                                .build()
+
+                            client.newCall(request).execute().use { response ->
+                                if (response.code != 206 && response.code != 200) {
+                                    throw IOException("Unexpected response code: ${response.code}")
                                 }
+
+                                val body = response.body ?: throw IOException("Empty body")
+                                context.contentResolver.openFileDescriptor(videoFile.uri, "wa")?.use { pfd ->
+                                    FileOutputStream(pfd.fileDescriptor).channel.use { channel ->
+                                        channel.position(currentStart)
+                                        val buffer = ByteArray(128 * 1024)
+                                        var bytesRead: Int
+                                        val bis = body.byteStream()
+                                        while (bis.read(buffer).also { bytesRead = it } != -1) {
+                                            coroutineContext.ensureActive()
+                                            val written = channel.write(java.nio.ByteBuffer.wrap(buffer, 0, bytesRead))
+                                            currentStart += written
+                                            
+                                            val currentDownloaded = currentStart - start
+                                            synchronized(progressMap) {
+                                                progressMap[i] = currentDownloaded
+                                                totalDownloaded = progressMap.values.sum()
+                                            }
+                                            download.progress = (100 * totalDownloaded / totalSize).toInt()
+                                            notifier.onProgressChange(download)
+                                        }
+                                    }
+                                }
+                                return@launch // Success
                             }
+                        } catch (e: Exception) {
+                            if (e is CancellationException) throw e
+                            attempt++
+                            if (attempt >= 5) throw e
+                            delay(2000L * attempt)
                         }
                     }
-                    success = true
                 }
-            } catch (e: Exception) {
-                if (e is CancellationException) throw e
-                attempt++
-                if (attempt >= 5) throw e
-                delay(2000L * attempt)
             }
         }
 
