@@ -657,8 +657,18 @@ class Downloader(
         val headerOptions = headers.joinToString("", "-headers '", "'") {
             "${it.first}: ${it.second}\r\n"
         }
+        val originHeader = headers.find { it.first.equals("origin", ignoreCase = true) }?.second
+            ?: headers.find { it.first.equals("referer", ignoreCase = true) }?.second?.let {
+                val uri = Uri.parse(it)
+                "${uri.scheme}://${uri.host}"
+            }
+        val extendedHeaderOptions = if (originHeader != null) {
+            headerOptions.replace("'", "${if (headerOptions.endsWith("\r\n'")) "" else "\r\n"}Origin: $originHeader\r\n'")
+        } else {
+            headerOptions
+        }
 
-        val ffmpegOptions = getFFmpegOptions(video, headerOptions, ffmpegFilename())
+        val ffmpegOptions = getFFmpegOptions(video, extendedHeaderOptions, ffmpegFilename())
         val ffprobeCommand = { file: String, ffprobeHeaders: String? ->
             FFmpegKitConfig.parseArguments(
                 "${ffprobeHeaders?.plus(" ") ?: ""}-v quiet -show_entries " +
@@ -909,7 +919,21 @@ class Downloader(
         // Ensure that the episode folder has the full video
         val downloadedVideo = tmpDir.listFiles().orEmpty().filterNot { it.extension == ".tmp" }
 
-        download.status = if (downloadedVideo.size == 1) {
+        if (downloadedVideo.size == 1) {
+            val file = downloadedVideo[0]
+            val fileSizeMB = file.length() / (1024 * 1024)
+            
+            // Basic sanity check: movies shouldn't be under 50MB, episodes under 10MB
+            // This is a common failure point for HLS where it thinks it's done but only got a tiny part
+            val isMovie = download.anime.title.contains("Movie", ignoreCase = true) || 
+                         download.episode.name.contains("Movie", ignoreCase = true)
+            val minSize = if (isMovie) 50 else 10
+            
+            if (fileSizeMB < minSize) {
+                file.delete()
+                throw Exception("Download incomplete (only ${fileSizeMB}MB). Server terminated connection early.")
+            }
+
             // Only rename the directory if it's downloaded
             val filename = DiskUtil.buildValidFilename("${download.anime.title} - ${download.episode.name}")
             tmpDir.findFile("${filename}_tmp.mkv")?.delete()
@@ -918,7 +942,7 @@ class Downloader(
             cache.addEpisode(dirname, animeDir, download.anime)
 
             DiskUtil.createNoMediaFile(tmpDir, context)
-            Download.State.DOWNLOADED
+            download.status = Download.State.DOWNLOADED
         } else {
             throw Exception("Unable to finalize download")
         }
