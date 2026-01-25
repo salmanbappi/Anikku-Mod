@@ -583,12 +583,12 @@ class Downloader(
         download.downloadedSegments = 0
 
         // 3. Parallel segment downloading with Sequential Writing (1DM+ Power)
-        coroutineScope {
-            val concurrency = preferences.downloadThreads().get().coerceAtLeast(4)
-            val semaphore = Semaphore(concurrency)
-            
-            context.contentResolver.openFileDescriptor(videoFile.uri, "rw")?.use { pfd ->
-                FileOutputStream(pfd.fileDescriptor).channel.use { channel ->
+        val concurrency = preferences.downloadThreads().get().coerceAtLeast(4)
+        val semaphore = Semaphore(concurrency)
+        
+        context.contentResolver.openFileDescriptor(videoFile.uri, "rw")?.use { pfd ->
+            FileOutputStream(pfd.fileDescriptor).channel.use { channel ->
+                coroutineScope {
                     segments.forEachIndexed { index, segmentUrl ->
                         launch(Dispatchers.IO) {
                             semaphore.withPermit {
@@ -615,9 +615,10 @@ class Downloader(
                                                     channel.write(ByteBuffer.wrap(segmentData))
                                                     nextWriteIndex++
                                                     
+                                                    totalDownloaded++
                                                     // Update Rich Notification
                                                     download.downloadedSegments = nextWriteIndex
-                                                    // Simulate speed update (byte-based would be more accurate but requires tracking)
+                                                    // Simulate speed update
                                                     download.update(channel.size(), (totalSegments * 1024 * 1024).toLong(), false) 
                                                     notifier.onProgressChange(download)
                                                 }
@@ -628,7 +629,7 @@ class Downloader(
                                         if (e is CancellationException) throw e
                                         attempt++
                                         if (attempt >= 5) throw e
-                                        delay(2000L * attempt)
+                                        delay(1000L * attempt)
                                     }
                                 }
                             }
