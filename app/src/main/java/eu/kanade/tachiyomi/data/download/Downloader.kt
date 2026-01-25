@@ -268,7 +268,7 @@ class Downloader(
                 // Silent cancellation
             } else {
                 notifier.onError(e.message)
-                logcat(LogPriority.ERROR, e)
+                logcat(LogPriority.ERROR, throwable = e) { "Download failed" }
             }
         }
     }
@@ -374,7 +374,7 @@ class Downloader(
 
                     download.video = fetchedVideo
                 } catch (e: Exception) {
-                    logcat(LogPriority.ERROR, e)
+                    logcat(LogPriority.ERROR, throwable = e) { "Failed to get best video" }
                     throw Exception(context.stringResource(MR.strings.video_list_empty_error))
                 }
             }
@@ -455,7 +455,7 @@ class Downloader(
             video.status = Video.State.ERROR
             notifier.onError(e.message, download.episode.name, download.anime.title, download.anime.id)
 
-            logcat(LogPriority.ERROR, e)
+            logcat(LogPriority.ERROR, throwable = e) { "Failed to download video file" }
 
             throw e
         }
@@ -562,7 +562,7 @@ class Downloader(
         }
     }
 
-    private fun torrentDownload(
+    private suspend fun torrentDownload(
         download: Download,
         tmpDir: UniFile,
         filename: String,
@@ -665,7 +665,7 @@ class Downloader(
         }
     }
 
-    private fun getFFmpegOptions(video: Video, headerOptions: String, ffmpegFilename: String): Array<String> {
+    private fun getFFmpegOptions(video: Video, headerOptions: String, ffmpegFilename: String): String {
         fun formatInputs(tracks: List<Track>) = tracks.joinToString(" ", postfix = " ") {
             buildList {
                 if (it.url.startsWith("http")) {
@@ -711,7 +711,7 @@ class Downloader(
             .filter(String::isNotBlank)
             .joinToString(" ")
 
-        return FFmpegKitConfig.parseArguments(command)
+        return command
     }
 
     private fun getDuration(ffprobeCommand: Array<String>): Float? {
