@@ -28,10 +28,22 @@ Integrated the famous **Anime4K neural networks** directly into the player using
 *   **Zero-Bug Reset:** Fixed the original bug where speed would reset to incorrect values after release.
 
 ### ⚙️ Pro Decoder Settings
-Found in **Settings -> Player -> Decoder**:
-*   **High Quality Scaling:** Enables `ewa_lanczossharp` for significantly cleaner edges.
-*   **Interpolation (Smooth Motion):** Synchronizes video frames with your screen's refresh rate for buttery smooth 60fps-like motion on 24fps anime.
-*   **Universal Filter Fix:** Forces `mediacodec-copy` automatically when filters are active, ensuring they work on **every video** regardless of format.
+Found in **Settings -> Player -> Decoder**. These settings unlock the full potential of `mpv-android` but require a capable device.
+
+#### 🏗️ High Quality Scaling (`ewa_lanczossharp`)
+*   **What it does:** Replaces the standard bilinear scaler with a Jinc-based scaler (Lanczos radius 3).
+*   **Visual Impact:** Significantly sharper edges and less "ringing" (halos) around characters.
+*   **⚠️ Performance Warning:** This scaler is mathematically intensive. On 1080p content, it can triple the GPU load. **Disable this immediately** if you notice stuttering or battery drain on mid-range devices.
+
+#### 🎞️ Interpolation (Smooth Motion)
+*   **What it does:** Decouples video framerate from display refresh rate.
+*   **The Problem:** Anime is usually 24fps. Phone screens are 60Hz, 90Hz, or 120Hz. 24 does not divide evenly into 60, causing "judder" (uneven motion).
+*   **The Solution:** This setting blends adjacent frames to smooth out camera pans and action scenes. It creates a "60fps look" for 24fps content.
+*   **⚠️ Performance Warning:** This requires the GPU to generate intermediate frames in real-time. It causes significant input lag (latency) and high battery usage. **Not recommended for low-end chips.**
+
+#### 🔧 Universal Filter Fix
+*   **Smart Copy Mode:** Forces `mediacodec-copy` automatically **only** when active filters (like Sharpen or Saturation) require it.
+*   **Battery Saver:** Automatically switches back to standard hardware decoding when filters are disabled.
 
 ### 📥 1DM+ Style Downloader
 *   **Parallel Power:** Increased concurrent episode limit to **30**.
