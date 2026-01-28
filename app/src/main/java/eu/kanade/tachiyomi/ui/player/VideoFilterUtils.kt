@@ -28,20 +28,12 @@ fun applyFilter(filter: VideoFilters, value: Int, prefs: DecoderPreferences) {
             // These require rebuilding the full VF chain
             MPVLib.setPropertyString("vf", buildVFChain(prefs))
         }
-        "deband-iterations" -> {
-            if (value == 0) {
-                MPVLib.setPropertyBoolean("deband", false)
-            } else {
-                MPVLib.setPropertyBoolean("deband", true)
-                MPVLib.setPropertyInt("deband-iterations", value)
-            }
-        }
-        "deband-grain" -> {
-            if (value > 0) MPVLib.setPropertyBoolean("deband", true)
-            MPVLib.setPropertyInt("deband-grain", value)
-        }
         else -> MPVLib.setPropertyInt(property, value)
     }
+}
+
+fun applyDebandSetting(setting: DebandSettings, value: Int) {
+    MPVLib.setPropertyInt(setting.mpvProperty, value)
 }
 
 fun buildVFChain(decoderPreferences: DecoderPreferences): String {
@@ -79,8 +71,12 @@ fun applyTheme(theme: VideoFilterTheme, prefs: DecoderPreferences) {
     prefs.hueFilter().set(theme.hue)
     prefs.sharpenFilter().set(theme.sharpen)
     prefs.blurFilter().set(0)
+    
+    // Reset deband
     prefs.debandFilter().set(0)
     prefs.grainFilter().set(0)
+    prefs.debandThreshold().set(32)
+    prefs.debandRange().set(16)
 
     // Apply direct properties
     MPVLib.setPropertyInt("brightness", theme.brightness)
@@ -92,8 +88,12 @@ fun applyTheme(theme: VideoFilterTheme, prefs: DecoderPreferences) {
     // Apply VF chain once
     MPVLib.setPropertyString("vf", buildVFChain(prefs))
     
-    // Reset deband
+    // Reset deband engine properties
     MPVLib.setPropertyBoolean("deband", false)
+    MPVLib.setPropertyInt("deband-iterations", 1)
+    MPVLib.setPropertyInt("deband-threshold", 32)
+    MPVLib.setPropertyInt("deband-range", 16)
+    MPVLib.setPropertyInt("deband-grain", 48)
 }
 
 fun applyAnime4K(prefs: DecoderPreferences, manager: Anime4KManager, isInit: Boolean = false) {
@@ -116,4 +116,3 @@ fun applyAnime4K(prefs: DecoderPreferences, manager: Anime4KManager, isInit: Boo
         MPVLib.setPropertyString("glsl-shaders", chain)
     }
 }
-

@@ -131,6 +131,43 @@ sealed class PlayerUpdates {
     data class ShowTextResource(val textResource: StringResource) : PlayerUpdates()
 }
 
+enum class DebandSettings(
+    val titleRes: StringResource,
+    val preference: (DecoderPreferences) -> Preference<Int>,
+    val mpvProperty: String,
+    val start: Int = 0,
+    val end: Int = 100,
+) {
+    ITERATIONS(
+        MR.strings.pref_debanding_title,
+        { it.debandFilter() },
+        "deband-iterations",
+        start = 1,
+        end = 4,
+    ),
+    THRESHOLD(
+        MR.strings.player_sheets_deband_threshold,
+        { it.debandThreshold() },
+        "deband-threshold",
+        start = 0,
+        end = 100,
+    ),
+    RANGE(
+        MR.strings.player_sheets_deband_range,
+        { it.debandRange() },
+        "deband-range",
+        start = 0,
+        end = 100,
+    ),
+    GRAIN(
+        MR.strings.player_sheets_filters_grain,
+        { it.grainFilter() },
+        "deband-grain",
+        start = 0,
+        end = 100,
+    ),
+}
+
 enum class VideoFilters(
     val titleRes: StringResource,
     val preference: (DecoderPreferences) -> Preference<Int>,
@@ -177,24 +214,11 @@ enum class VideoFilters(
         min = 0,
         max = 100,
     ),
-    DEBAND(
-        MR.strings.pref_debanding_title,
-        { it.debandFilter() },
-        "deband-iterations",
-        min = 0,
-        max = 4,
-    ),
-    GRAIN(
-        MR.strings.player_sheets_filters_grain,
-        { it.grainFilter() },
-        "deband-grain",
-        min = 0,
-        max = 100,
-    ),
 }
 
 enum class VideoFilterTheme(
     val titleRes: StringResource,
+    val description: String = "",
     val brightness: Int = 0,
     val contrast: Int = 0,
     val saturation: Int = 0,
@@ -202,15 +226,20 @@ enum class VideoFilterTheme(
     val hue: Int = 0,
     val sharpen: Int = 0,
 ) {
-    Default(MR.strings.player_sheets_filters_theme_default),
+    Default(
+        MR.strings.player_sheets_filters_theme_default,
+        description = "No filters applied.",
+    ),
     Anime(
         MR.strings.player_sheets_filters_theme_anime,
+        description = "Vivid colors and sharper edges, best for modern anime.",
         contrast = 5,
         saturation = 20,
         sharpen = 15,
     ),
     Cinema(
         MR.strings.player_sheets_filters_theme_cinema,
+        description = "Movie-like experience with higher contrast and lower saturation.",
         brightness = -5,
         contrast = 15,
         saturation = -10,
@@ -218,22 +247,26 @@ enum class VideoFilterTheme(
     ),
     Warm(
         MR.strings.player_sheets_filters_theme_warm,
+        description = "Warmer color temperature for a cozy feel.",
         hue = -5,
         saturation = 5,
     ),
     Cold(
         MR.strings.player_sheets_filters_theme_cold,
+        description = "Cooler color temperature with slightly reduced saturation.",
         hue = 5,
         saturation = -5,
     ),
     Night(
         MR.strings.player_sheets_filters_theme_night,
+        description = "Comfortable night viewing by reducing brightness and contrast.",
         brightness = -20,
         contrast = -10,
         gamma = -10,
     ),
     Grayscale(
         MR.strings.player_sheets_filters_theme_grayscale,
+        description = "Classic black and white mode.",
         saturation = -100,
     ),
 }

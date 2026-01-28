@@ -119,10 +119,11 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         MPVLib.setPropertyBoolean("pause", true)
         MPVLib.setOptionString("profile", "fast")
         
-        // Force auto-copy if filters are active for 'Universal' support
+        // Universal fix: force auto-copy if advanced features are active
         val filtersActive = decoderPreferences.sharpenFilter().get() > 0 || 
                            decoderPreferences.blurFilter().get() > 0 ||
-                           decoderPreferences.videoDebanding().get() == Debanding.CPU
+                           decoderPreferences.videoDebanding().get() != Debanding.None ||
+                           decoderPreferences.enableAnime4K().get()
         
         val hwdec = if (decoderPreferences.tryHWDecoding().get()) {
             if (filtersActive) "mediacodec-copy" else "auto"
@@ -131,7 +132,6 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         }
         MPVLib.setOptionString("hwdec", hwdec)
         
-        // Universal fix: always use display-resample for smoother filter updates
         MPVLib.setOptionString("video-sync", "display-resample")
 
         if (decoderPreferences.highQualityScaling().get()) {
@@ -142,12 +142,22 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
 
         if (decoderPreferences.smoothMotion().get()) {
             MPVLib.setOptionString("interpolation", "yes")
-            MPVLib.setOptionString("video-sync", "display-resample")
             MPVLib.setOptionString("tscale", "oversample")
         }
 
-        if (decoderPreferences.videoDebanding().get() == Debanding.GPU) {
-            MPVLib.setOptionString("deband", "yes")
+        // Initialize Debanding
+        when (val mode = decoderPreferences.videoDebanding().get()) {
+            Debanding.None -> MPVLib.setOptionString("deband", "no")
+            Debanding.CPU -> {
+                // Handled in buildVFChain via gradfun
+            }
+            Debanding.GPU -> {
+                MPVLib.setOptionString("deband", "yes")
+                MPVLib.setOptionString("deband-iterations", decoderPreferences.debandFilter().get().toString())
+                MPVLib.setOptionString("deband-threshold", decoderPreferences.debandThreshold().get().toString())
+                MPVLib.setOptionString("deband-range", decoderPreferences.debandRange().get().toString())
+                MPVLib.setOptionString("deband-grain", decoderPreferences.grainFilter().get().toString())
+            }
         }
 
         val vfChain = buildVFChain(decoderPreferences)
