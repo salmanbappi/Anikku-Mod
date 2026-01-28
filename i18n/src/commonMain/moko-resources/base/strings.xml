@@ -501,6 +501,9 @@
     <string name="player_sheets_filters_theme_cold">Cold</string>
     <string name="player_sheets_filters_theme_night">Night Mode</string>
     <string name="player_sheets_filters_theme_grayscale">Grayscale</string>
+    <string name="player_sheets_filters_theme_vibrant">Vibrant</string>
+    <string name="player_sheets_filters_theme_vintage">Vintage</string>
+    <string name="player_sheets_filters_theme_high_contrast">High Contrast</string>
     <string name="pref_anime4k_title">Anime4K Upscaling</string>
     <string name="pref_anime4k_mode">Mode</string>
     <string name="pref_anime4k_quality">Quality</string>

@@ -269,5 +269,25 @@ enum class VideoFilterTheme(
         description = "Classic black and white mode.",
         saturation = -100,
     ),
+    Vibrant(
+        MR.strings.player_sheets_filters_theme_vibrant,
+        description = "Boosts colors for a more lively image.",
+        contrast = 10,
+        saturation = 30,
+    ),
+    Vintage(
+        MR.strings.player_sheets_filters_theme_vintage,
+        description = "A nostalgic look with faded colors.",
+        contrast = 10,
+        saturation = -30,
+        gamma = -10,
+        hue = -5,
+    ),
+    HighContrast(
+        MR.strings.player_sheets_filters_theme_high_contrast,
+        description = "Sharper difference between light and dark areas.",
+        brightness = -10,
+        contrast = 30,
+    ),
 }
 
