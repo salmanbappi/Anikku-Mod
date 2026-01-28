@@ -20,24 +20,12 @@ package eu.kanade.tachiyomi.ui.player
 import eu.kanade.tachiyomi.ui.player.settings.DecoderPreferences
 import `is`.xyz.mpv.MPVLib
 
-fun applyFilter(filter: VideoFilters, value: Int) {
+fun applyFilter(filter: VideoFilters, value: Int, prefs: DecoderPreferences) {
     val property = filter.mpvProperty
     when (property) {
-        "vf_sharpen" -> {
-            val amount = value / 50f
-            if (amount == 0f) {
-                MPVLib.command(arrayOf("vf", "remove", "@sharpen"))
-            } else {
-                MPVLib.command(arrayOf("vf", "add", "@sharpen:lavfi=[unsharp=5:5:$amount:5:5:0]"))
-            }
-        }
-        "vf_blur" -> {
-            val amount = value / 10f
-            if (amount == 0f) {
-                MPVLib.command(arrayOf("vf", "remove", "@blur"))
-            } else {
-                MPVLib.command(arrayOf("vf", "add", "@blur:lavfi=[boxblur=$amount:1]"))
-            }
+        "vf_sharpen", "vf_blur" -> {
+            // These require rebuilding the full VF chain
+            MPVLib.setPropertyString("vf", buildVFChain(prefs))
         }
         "deband-iterations" -> {
             if (value == 0) {
@@ -70,53 +58,39 @@ fun buildVFChain(decoderPreferences: DecoderPreferences): String {
     val sharpen = decoderPreferences.sharpenFilter().get()
     if (sharpen > 0) {
         val amount = sharpen / 50f
-        vfList.add("@sharpen:lavfi=[unsharp=5:5:$amount:5:5:0]")
+        vfList.add("unsharp=5:5:$amount:5:5:0")
     }
 
     val blur = decoderPreferences.blurFilter().get()
     if (blur > 0) {
         val amount = blur / 10f
-        vfList.add("@blur:lavfi=[boxblur=$amount:1]")
+        vfList.add("boxblur=$amount:1")
     }
 
     return vfList.joinToString(",")
 }
 
 fun applyTheme(theme: VideoFilterTheme, prefs: DecoderPreferences) {
-    VideoFilters.BRIGHTNESS.let {
-        prefs.brightnessFilter().set(theme.brightness)
-        applyFilter(it, theme.brightness)
-    }
-    VideoFilters.CONTRAST.let {
-        prefs.contrastFilter().set(theme.contrast)
-        applyFilter(it, theme.contrast)
-    }
-    VideoFilters.SATURATION.let {
-        prefs.saturationFilter().set(theme.saturation)
-        applyFilter(it, theme.saturation)
-    }
-    VideoFilters.GAMMA.let {
-        prefs.gammaFilter().set(theme.gamma)
-        applyFilter(it, theme.gamma)
-    }
-    VideoFilters.HUE.let {
-        prefs.hueFilter().set(theme.hue)
-        applyFilter(it, theme.hue)
-    }
-    VideoFilters.SHARPEN.let {
-        prefs.sharpenFilter().set(theme.sharpen)
-        applyFilter(it, theme.sharpen)
-    }
-    VideoFilters.BLUR.let {
-        prefs.blurFilter().set(0)
-        applyFilter(it, 0)
-    }
-    VideoFilters.DEBAND.let {
-        prefs.debandFilter().set(0)
-        applyFilter(it, 0)
-    }
-    VideoFilters.GRAIN.let {
-        prefs.grainFilter().set(0)
-        applyFilter(it, 0)
-    }
+    prefs.brightnessFilter().set(theme.brightness)
+    prefs.contrastFilter().set(theme.contrast)
+    prefs.saturationFilter().set(theme.saturation)
+    prefs.gammaFilter().set(theme.gamma)
+    prefs.hueFilter().set(theme.hue)
+    prefs.sharpenFilter().set(theme.sharpen)
+    prefs.blurFilter().set(0)
+    prefs.debandFilter().set(0)
+    prefs.grainFilter().set(0)
+
+    // Apply direct properties
+    MPVLib.setPropertyInt("brightness", theme.brightness)
+    MPVLib.setPropertyInt("contrast", theme.contrast)
+    MPVLib.setPropertyInt("saturation", theme.saturation)
+    MPVLib.setPropertyInt("gamma", theme.gamma)
+    MPVLib.setPropertyInt("hue", theme.hue)
+    
+    // Apply VF chain once
+    MPVLib.setPropertyString("vf", buildVFChain(prefs))
+    
+    // Reset deband
+    MPVLib.setPropertyBoolean("deband", false)
 }

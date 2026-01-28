@@ -116,7 +116,21 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         setVo(if (decoderPreferences.gpuNext().get()) "gpu-next" else "gpu")
         MPVLib.setPropertyBoolean("pause", true)
         MPVLib.setOptionString("profile", "fast")
-        MPVLib.setOptionString("hwdec", if (decoderPreferences.tryHWDecoding().get()) "auto" else "no")
+        
+        // Force auto-copy if filters are active for 'Universal' support
+        val filtersActive = decoderPreferences.sharpenFilter().get() > 0 || 
+                           decoderPreferences.blurFilter().get() > 0 ||
+                           decoderPreferences.videoDebanding().get() == Debanding.CPU
+        
+        val hwdec = if (decoderPreferences.tryHWDecoding().get()) {
+            if (filtersActive) "mediacodec-copy" else "auto"
+        } else {
+            "no"
+        }
+        MPVLib.setOptionString("hwdec", hwdec)
+        
+        // Universal fix: always use display-resample for smoother filter updates
+        MPVLib.setOptionString("video-sync", "display-resample")
 
         if (decoderPreferences.highQualityScaling().get()) {
             MPVLib.setOptionString("scale", "ewa_lanczossharp")
