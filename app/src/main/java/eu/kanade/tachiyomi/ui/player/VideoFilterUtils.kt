@@ -44,14 +44,14 @@ fun applyFilter(filter: VideoFilters, value: Int) {
                 MPVLib.setPropertyBoolean("deband", false)
             } else {
                 MPVLib.setPropertyBoolean("deband", true)
-                MPVLib.setPropertyInt("deband-iterations", value.toLong())
+                MPVLib.setPropertyInt("deband-iterations", value)
             }
         }
         "deband-grain" -> {
             if (value > 0) MPVLib.setPropertyBoolean("deband", true)
-            MPVLib.setPropertyInt("deband-grain", value.toLong())
+            MPVLib.setPropertyInt("deband-grain", value)
         }
-        else -> MPVLib.setPropertyInt(property, value.toLong())
+        else -> MPVLib.setPropertyInt(property, value)
     }
 }
 

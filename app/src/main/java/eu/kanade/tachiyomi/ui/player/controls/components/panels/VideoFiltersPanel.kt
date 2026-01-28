@@ -46,6 +46,8 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import eu.kanade.presentation.player.components.SliderItem
 import eu.kanade.tachiyomi.ui.player.VideoFilterTheme
 import eu.kanade.tachiyomi.ui.player.VideoFilters
+import eu.kanade.tachiyomi.ui.player.applyFilter
+import eu.kanade.tachiyomi.ui.player.applyTheme
 import eu.kanade.tachiyomi.ui.player.controls.CARDS_MAX_WIDTH
 import eu.kanade.tachiyomi.ui.player.controls.components.ControlsButton
 import eu.kanade.tachiyomi.ui.player.controls.panelCardsColors
@@ -105,7 +107,7 @@ fun FiltersCard(
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.extraSmall),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
             ) {
                 TextButton(
                     onClick = {
