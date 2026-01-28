@@ -135,6 +135,8 @@ enum class VideoFilters(
     val titleRes: StringResource,
     val preference: (DecoderPreferences) -> Preference<Int>,
     val mpvProperty: String,
+    val min: Int = -100,
+    val max: Int = 100,
 ) {
     BRIGHTNESS(
         MR.strings.player_sheets_filters_brightness,
@@ -161,4 +163,78 @@ enum class VideoFilters(
         { it.hueFilter() },
         "hue",
     ),
+    SHARPEN(
+        MR.strings.player_sheets_filters_sharpen,
+        { it.sharpenFilter() },
+        "vf_sharpen",
+        min = 0,
+        max = 100,
+    ),
+    BLUR(
+        MR.strings.player_sheets_filters_blur,
+        { it.blurFilter() },
+        "vf_blur",
+        min = 0,
+        max = 100,
+    ),
+    DEBAND(
+        MR.strings.pref_debanding_title,
+        { it.debandFilter() },
+        "deband-iterations",
+        min = 0,
+        max = 4,
+    ),
+    GRAIN(
+        MR.strings.player_sheets_filters_grain,
+        { it.grainFilter() },
+        "deband-grain",
+        min = 0,
+        max = 100,
+    ),
 }
+
+enum class VideoFilterTheme(
+    val titleRes: StringResource,
+    val brightness: Int = 0,
+    val contrast: Int = 0,
+    val saturation: Int = 0,
+    val gamma: Int = 0,
+    val hue: Int = 0,
+    val sharpen: Int = 0,
+) {
+    Default(MR.strings.player_sheets_filters_theme_default),
+    Anime(
+        MR.strings.player_sheets_filters_theme_anime,
+        contrast = 5,
+        saturation = 20,
+        sharpen = 15,
+    ),
+    Cinema(
+        MR.strings.player_sheets_filters_theme_cinema,
+        brightness = -5,
+        contrast = 15,
+        saturation = -10,
+        gamma = -5,
+    ),
+    Warm(
+        MR.strings.player_sheets_filters_theme_warm,
+        hue = -5,
+        saturation = 5,
+    ),
+    Cold(
+        MR.strings.player_sheets_filters_theme_cold,
+        hue = 5,
+        saturation = -5,
+    ),
+    Night(
+        MR.strings.player_sheets_filters_theme_night,
+        brightness = -20,
+        contrast = -10,
+        gamma = -10,
+    ),
+    Grayscale(
+        MR.strings.player_sheets_filters_theme_grayscale,
+        saturation = -100,
+    ),
+}
+

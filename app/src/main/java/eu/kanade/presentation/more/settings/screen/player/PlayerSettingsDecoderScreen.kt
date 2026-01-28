@@ -27,6 +27,8 @@ object PlayerSettingsDecoderScreen : SearchableSettings {
         val useGpuNext = decoderPreferences.gpuNext()
         val debanding = decoderPreferences.videoDebanding()
         val yuv420p = decoderPreferences.useYUV420P()
+        val highQualityScaling = decoderPreferences.highQualityScaling()
+        val smoothMotion = decoderPreferences.smoothMotion()
 
         return listOf(
             Preference.PreferenceItem.SwitchPreference(
@@ -43,8 +45,17 @@ object PlayerSettingsDecoderScreen : SearchableSettings {
                 title = stringResource(MR.strings.pref_debanding_title),
                 entries = Debanding.entries.associateWith {
                     it.name
-                    // stringResource(it.)
                 }.toImmutableMap(),
+            ),
+            Preference.PreferenceItem.SwitchPreference(
+                pref = highQualityScaling,
+                title = stringResource(MR.strings.pref_high_quality_scaling),
+                subtitle = stringResource(MR.strings.pref_high_quality_scaling_summary),
+            ),
+            Preference.PreferenceItem.SwitchPreference(
+                pref = smoothMotion,
+                title = stringResource(MR.strings.pref_interpolation),
+                subtitle = stringResource(MR.strings.pref_interpolation_summary),
             ),
             Preference.PreferenceItem.SwitchPreference(
                 pref = yuv420p,

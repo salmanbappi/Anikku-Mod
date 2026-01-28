@@ -300,6 +300,10 @@
     <string name="pref_debanding_yuv420p">YUV420P</string>
     <string name="pref_use_yuv420p_title">Use YUV420P pixel format</string>
     <string name="pref_use_yuv420p_subtitle">May fix black screens on some video codecs, can also improve performance at the cost of quality</string>
+    <string name="pref_high_quality_scaling">High quality scaling</string>
+    <string name="pref_high_quality_scaling_summary">Uses better upscaling algorithms (may increase battery usage)</string>
+    <string name="pref_interpolation">Interpolation (Smooth Motion)</string>
+    <string name="pref_interpolation_summary">Makes motion look smoother (best for 24fps content)</string>
 
     <!-- Player settings - Subtitles -->
     <string name="pref_player_subtitle">Subtitles</string>
@@ -483,6 +487,17 @@
     <string name="player_sheets_filters_gamma">Gamma</string>
     <string name="player_sheets_filters_Saturation">Saturation</string>
     <string name="player_sheets_filters_hue">Hue</string>
+    <string name="player_sheets_filters_sharpen">Sharpness</string>
+    <string name="player_sheets_filters_blur">Blur</string>
+    <string name="player_sheets_filters_grain">Film Grain</string>
+    <string name="player_sheets_filters_themes">Presets</string>
+    <string name="player_sheets_filters_theme_default">Default</string>
+    <string name="player_sheets_filters_theme_anime">Vivid Anime</string>
+    <string name="player_sheets_filters_theme_cinema">Cinema</string>
+    <string name="player_sheets_filters_theme_warm">Warm</string>
+    <string name="player_sheets_filters_theme_cold">Cold</string>
+    <string name="player_sheets_filters_theme_night">Night Mode</string>
+    <string name="player_sheets_filters_theme_grayscale">Grayscale</string>
     <string name="player_sheets_filters_warning">Some filters may not work on your current video driver</string>
 
     <!-- Sheets - Audio tracks -->

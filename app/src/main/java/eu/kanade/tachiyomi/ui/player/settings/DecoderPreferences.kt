@@ -11,6 +11,8 @@ class DecoderPreferences(
     fun gpuNext() = preferenceStore.getBoolean("pref_gpu_next", false)
     fun videoDebanding() = preferenceStore.getEnum("pref_video_debanding", Debanding.None)
     fun useYUV420P() = preferenceStore.getBoolean("use_yuv420p", true)
+    fun highQualityScaling() = preferenceStore.getBoolean("pref_high_quality_scaling", false)
+    fun smoothMotion() = preferenceStore.getBoolean("pref_smooth_motion", false)
 
     // Non-preferences
 
@@ -19,4 +21,10 @@ class DecoderPreferences(
     fun contrastFilter() = preferenceStore.getInt("pref_player_filter_contrast")
     fun gammaFilter() = preferenceStore.getInt("pref_player_filter_gamma")
     fun hueFilter() = preferenceStore.getInt("pref_player_filter_hue")
+    fun sharpenFilter() = preferenceStore.getInt("pref_player_filter_sharpen")
+    fun blurFilter() = preferenceStore.getInt("pref_player_filter_blur")
+    fun debandFilter() = preferenceStore.getInt("pref_player_filter_deband")
+    fun grainFilter() = preferenceStore.getInt("pref_player_filter_grain")
+
+    fun videoFilterTheme() = preferenceStore.getInt("pref_video_filter_theme", 0)
 }
