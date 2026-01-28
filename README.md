@@ -16,10 +16,11 @@ The filtering system has been completely redesigned into a clean, expandable car
 *   **Consolidated Chain:** Filters are applied in a single pass to prevent screen flickering/blinking.
 
 ### 🧠 Anime4K Real-time Neural Upscaling
-Integrated the famous **Anime4K neural networks** directly into the player.
-*   **Upscale Low-Res Content:** Make 480p/720p look like crisp 4K in real-time.
-*   **Custom Modes:** Select between Mode A (Restore), Mode B (Soft), and Mode C (Denoise) with "Plus" versions for flagship devices.
-*   **Quality Levels:** Fast (S), Balanced (M), and High (L) to match your phone's GPU power.
+Integrated the famous **Anime4K neural networks** directly into the player using high-performance GLSL shaders.
+*   **Neural Upscaling:** Go beyond basic bicubic scaling. Use Convolutional Neural Networks (CNN) to reconstruct missing details.
+*   **Real-time Restoration:** Remove compression artifacts, ringing, and blurriness without losing the "hand-drawn" look.
+*   **Hardware Accelerated:** Runs entirely on your device's GPU for zero-lag playback (on supported hardware).
+*   **Dynamic Selection:** Choose between specialized modes (Restore, Upscale, Denoise) and quality profiles (Fast to Ultra).
 
 ### ⏩ Customizable Long Press Speed
 *   **Beyond 2x:** Go into the Playback Speed menu and set your preferred "Long press speed" (e.g., 3x, 4x, or even 0.5x).
@@ -53,11 +54,20 @@ Found in **Settings -> Player -> Decoder**:
 4.  The app will automatically match and highlight the preset if you move the sliders manually!
 
 ### 🧪 Understanding Anime4K Modes
-*   **Mode A (Restoration):** Best for high-quality anime (1080p). Makes edges "pop."
-*   **Mode B (Soft Fix):** Use this for blurry or older anime to regain focus.
-*   **Mode C (Dirty Fix):** Best for low-quality or "noisy" videos (DVD rips). It cleans up the "blocks" and grain.
-*   **The "+" versions:** Run the restoration twice. Only use these on **flagship devices** (Snapdragon 8 Gen 1+).
-*   **If it lags:** Lower the quality from **High** to **Balanced** or **Fast**.
+
+Anime4K isn't just one filter; it's a suite of shaders designed for different types of content:
+
+*   **Mode A (Optimized):** The default for most modern anime. It focuses on sharpening and upscaling. Best for 720p/1080p content that looks a bit soft.
+*   **Mode B (De-Blur):** Specifically tuned for content that has been upscaled poorly or looks "out of focus." It aggressively recovers line art.
+*   **Mode C (De-Noise):** The "heavy lifter" for low-quality videos (480p, old DVD rips, or heavily compressed streams). It uses a de-blocking pass before upscaling to prevent "ugly" blocks from becoming larger.
+*   **Mode A+B / B+C:** Combined chains for specific scenarios where you need both restoration and sharpening.
+*   **"Plus" Versions:** These modes run the neural pass multiple times for even crisper lines. **Warning:** These require significantly more GPU power.
+
+#### ⚡ Performance Guide
+*   **Fast (S):** Uses lightweight kernels. Perfect for mid-range phones or saving battery.
+*   **Balanced (M):** The recommended setting for most modern devices (Snapdragon 865+).
+*   **High (L):** Uses complex 64-128 channel networks. Best for flagship GPUs (Snapdragon 8 Gen 1/2/3).
+*   **Pro-Tip:** If you experience frame drops, lower the Quality (e.g., from L to M) before changing the Mode. Mode A is generally the lightest.
 
 ### 📳 Tactile Experience
 This mod adds **Haptic Feedback** across the app for a premium feel:
