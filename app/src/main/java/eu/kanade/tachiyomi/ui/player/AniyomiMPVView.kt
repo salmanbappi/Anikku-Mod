@@ -155,8 +155,8 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
             MPVLib.setOptionString("vf", vfChain)
         }
 
-        anime4KManager.initialize()
-        applyAnime4K(decoderPreferences, anime4KManager, isInit = true)
+        anime4kManager.initialize()
+        applyAnime4K(decoderPreferences, anime4kManager, isInit = true)
 
         MPVLib.setOptionString("msg-level", "all=" + if (networkPreferences.verboseLogging().get()) "v" else "warn")
 

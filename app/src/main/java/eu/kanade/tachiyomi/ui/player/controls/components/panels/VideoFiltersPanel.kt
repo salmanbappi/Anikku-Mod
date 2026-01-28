@@ -185,7 +185,7 @@ fun FiltersCard(
                 )
             }
             item {
-                val anime4KManager = remember { Injekt.get<Anime4KManager>() }
+                val anime4kManager = remember { Injekt.get<Anime4KManager>() }
                 val enableAnime4K by decoderPreferences.enableAnime4K().collectAsState()
                 val anime4kMode by decoderPreferences.anime4kMode().collectAsState()
                 val anime4kQuality by decoderPreferences.anime4kQuality().collectAsState()
@@ -211,7 +211,7 @@ fun FiltersCard(
                             checked = enableAnime4K,
                             onCheckedChange = {
                                 decoderPreferences.enableAnime4K().set(it)
-                                applyAnime4K(decoderPreferences, anime4KManager)
+                                applyAnime4K(decoderPreferences, anime4kManager)
                             }
                         )
                     }
@@ -230,7 +230,7 @@ fun FiltersCard(
                                     selected = anime4kMode == mode.name,
                                     onClick = {
                                         decoderPreferences.anime4kMode().set(mode.name)
-                                        applyAnime4K(decoderPreferences, anime4KManager)
+                                        applyAnime4K(decoderPreferences, anime4kManager)
                                     },
                                     label = { Text(mode.name.replace("_", "+")) },
                                 )
@@ -254,7 +254,7 @@ fun FiltersCard(
                                     selected = anime4kQuality == quality.name,
                                     onClick = {
                                         decoderPreferences.anime4kQuality().set(quality.name)
-                                        applyAnime4K(decoderPreferences, anime4KManager)
+                                        applyAnime4K(decoderPreferences, anime4kManager)
                                     },
                                     label = { Text(label) },
                                 )
