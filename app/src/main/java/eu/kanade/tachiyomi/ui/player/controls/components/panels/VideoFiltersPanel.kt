@@ -221,6 +221,53 @@ fun FiltersCard() {
         colors = panelCardsColors(),
     ) {
         Column {
+            val forceCopy by decoderPreferences.forceMediaCodecCopy().collectAsState()
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = MaterialTheme.padding.medium),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = stringResource(MR.strings.player_sheets_filters_force_copy),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Switch(
+                    checked = forceCopy,
+                    onCheckedChange = {
+                        decoderPreferences.forceMediaCodecCopy().set(it)
+                        if (it) {
+                            MPVLib.setPropertyString("hwdec", "mediacodec-copy")
+                        } else {
+                            // Revert to default behavior (let other logic decide or reset)
+                            // We don't necessarily reset here immediately unless we want to force disable
+                            // But for now let's just update the preference.
+                            // To actually revert, we might need to check if filters are active.
+                            // If user turns this OFF, we probably want to let auto-logic take over
+                            // or just set it to 'mediacodec' if no filters are active?
+                            // Let's safe-bet set it to mediacodec if it was forced.
+                            // But wait, auto-logic might want it ON.
+                            // Let's just set the pref and applyFilter/applyTheme will handle it next time they run?
+                            // No, we should probably trigger an update.
+                            
+                            // Let's trigger a re-check of the current state
+                            // Or just force it back to auto/mediacodec for now.
+                            // Ideally, we'd re-run applyFilter/applyTheme logic.
+                            // For simplicity, we just set the property if enabling. 
+                            // If disabling, we might leave it as is or let the user reset filters.
+                            // However, to be responsive:
+                            MPVLib.setPropertyString("hwdec", "mediacodec")
+                        }
+                        // Re-apply filters to ensure state is consistent
+                        VideoFilters.entries.forEach { filter ->
+                             applyFilter(filter, filter.preference(decoderPreferences).get(), decoderPreferences)
+                        }
+                    }
+                )
+            }
+
             TextButton(
                 onClick = {
                     VideoFilters.entries.forEach {
