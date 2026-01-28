@@ -23,10 +23,21 @@ import `is`.xyz.mpv.MPVLib
 
 fun applyFilter(filter: VideoFilters, value: Int, prefs: DecoderPreferences) {
     val property = filter.mpvProperty
+    
+    // Ensure hwdec is in copy mode if filters are being used
+    if (filter == VideoFilters.SHARPEN || filter == VideoFilters.BLUR) {
+        if (value > 0) {
+            MPVLib.setPropertyString("hwdec", "mediacodec-copy")
+        }
+    }
+
     when (property) {
         "vf_sharpen", "vf_blur" -> {
-            // These require rebuilding the full VF chain
             MPVLib.setPropertyString("vf", buildVFChain(prefs))
+        }
+        "saturation" -> {
+            // saturation -100 is grayscale in mpv
+            MPVLib.setPropertyInt("saturation", value)
         }
         else -> MPVLib.setPropertyInt(property, value)
     }
@@ -39,24 +50,28 @@ fun applyDebandSetting(setting: DebandSettings, value: Int) {
 fun buildVFChain(decoderPreferences: DecoderPreferences): String {
     val vfList = mutableListOf<String>()
 
-    if (decoderPreferences.useYUV420P().get()) {
-        vfList.add("format=yuv420p")
-    }
-
-    when (decoderPreferences.videoDebanding().get()) {
-        Debanding.CPU -> vfList.add("gradfun=radius=12")
-        else -> {}
-    }
-
+    // Only add format if we actually need filters, to reduce overhead
     val sharpen = decoderPreferences.sharpenFilter().get()
-    if (sharpen > 0) {
-        val amount = sharpen / 50f
-        vfList.add("unsharp=5:5:$amount:5:5:0")
+    val blur = decoderPreferences.blurFilter().get()
+    val deband = decoderPreferences.videoDebanding().get()
+
+    if (sharpen > 0 || blur > 0 || deband == Debanding.CPU) {
+        if (decoderPreferences.useYUV420P().get()) {
+            vfList.add("format=yuv420p")
+        }
     }
 
-    val blur = decoderPreferences.blurFilter().get()
+    if (deband == Debanding.CPU) {
+        vfList.add("gradfun=radius=12")
+    }
+
+    if (sharpen > 0) {
+        val amount = sharpen / 100f // Normalized to 0.0 - 1.0
+        vfList.add("unsharp=3:3:$amount:3:3:0")
+    }
+
     if (blur > 0) {
-        val amount = blur / 10f
+        val amount = blur / 20f
         vfList.add("boxblur=$amount:1")
     }
 
