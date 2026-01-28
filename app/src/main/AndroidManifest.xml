@@ -81,7 +81,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="anikku" />
+                <data android:scheme="anizen" />
                 <data android:host="add-repo" />
             </intent-filter>
 
@@ -208,7 +208,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="anikku" />
+                <data android:scheme="anizen" />
 
                 <data android:host="anilist-auth" />
                 <data android:host="bangumi-auth" />
