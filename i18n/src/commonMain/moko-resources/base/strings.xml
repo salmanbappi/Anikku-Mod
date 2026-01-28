@@ -491,6 +491,9 @@
     <string name="player_sheets_filters_blur">Blur</string>
     <string name="player_sheets_filters_grain">Film Grain</string>
     <string name="player_sheets_filters_themes">Presets</string>
+    <string name="player_sheets_deband_title">Deband</string>
+    <string name="player_sheets_deband_threshold">Threshold</string>
+    <string name="player_sheets_deband_range">Range</string>
     <string name="player_sheets_filters_theme_default">Default</string>
     <string name="player_sheets_filters_theme_anime">Vivid Anime</string>
     <string name="player_sheets_filters_theme_cinema">Cinema</string>

@@ -18,54 +18,74 @@
 package eu.kanade.tachiyomi.ui.player.controls.components.panels
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.animateColorAsState
+
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.clickable
+
+import androidx.compose.foundation.horizontalScroll
+
 import androidx.compose.foundation.layout.Arrangement
+
 import androidx.compose.foundation.layout.Column
+
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+
+import androidx.compose.foundation.layout.FlowRow
+
 import androidx.compose.foundation.layout.Row
+
+import androidx.compose.foundation.layout.Spacer
+
 import androidx.compose.foundation.layout.fillMaxSize
+
 import androidx.compose.foundation.layout.fillMaxWidth
+
 import androidx.compose.foundation.layout.padding
+
+import androidx.compose.foundation.layout.size
+
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.LazyColumn
+
 import androidx.compose.foundation.lazy.LazyRow
+
 import androidx.compose.foundation.lazy.items
+
+import androidx.compose.foundation.rememberScrollState
+
+import androidx.compose.foundation.verticalScroll
+
 import androidx.compose.material.icons.Icons
+
+import androidx.compose.material.icons.filled.AutoAwesome
+
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.outlined.Info
+
+import androidx.compose.material.icons.filled.Gradient
+
+import androidx.compose.material.icons.filled.Memory
+
+import androidx.compose.material.icons.filled.NotInterested
+
+import androidx.compose.material.icons.filled.Palette
+
+import androidx.compose.material.icons.filled.Tune
+
 import androidx.compose.material3.Card
+
 import androidx.compose.material3.Icon
+
+import androidx.compose.material3.IconButton
+
+import androidx.compose.material3.IconToggleButton
+
 import androidx.compose.material3.InputChip
+
 import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.material3.Switch
+
 import androidx.compose.material3.Text
+
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.constraintlayout.compose.ConstraintLayout
-import eu.kanade.presentation.player.components.SliderItem
-import eu.kanade.tachiyomi.ui.player.VideoFilterTheme
-import eu.kanade.tachiyomi.ui.player.VideoFilters
-import eu.kanade.tachiyomi.ui.player.applyAnime4K
-import eu.kanade.tachiyomi.ui.player.applyFilter
-import eu.kanade.tachiyomi.ui.player.applyTheme
-import eu.kanade.tachiyomi.ui.player.utils.Anime4KManager
-import eu.kanade.tachiyomi.ui.player.controls.CARDS_MAX_WIDTH
-import eu.kanade.tachiyomi.ui.player.controls.components.ControlsButton
-import eu.kanade.tachiyomi.ui.player.controls.panelCardsColors
-import eu.kanade.tachiyomi.ui.player.settings.DecoderPreferences
-import `is`.xyz.mpv.MPVLib
-import tachiyomi.core.common.preference.deleteAndGet
-import tachiyomi.i18n.MR
-import tachiyomi.presentation.core.components.material.padding
-import tachiyomi.presentation.core.i18n.stringResource
-import tachiyomi.presentation.core.util.collectAsState
-import uy.kohesive.injekt.Injekt
-import uy.kohesive.injekt.api.get
 
 @Composable
 fun VideoFiltersPanel(
@@ -77,100 +97,155 @@ fun VideoFiltersPanel(
             .fillMaxSize()
             .padding(MaterialTheme.padding.medium),
     ) {
-        val filtersCard = createRef()
+        val settingsCard = createRef()
 
-        FiltersCard(
-            Modifier.constrainAs(filtersCard) {
-                linkTo(parent.top, parent.bottom, bias = 0.8f)
-                end.linkTo(parent.end)
-            },
-            onClose = onDismissRequest,
-        )
+        Card(
+            modifier = Modifier
+                .constrainAs(settingsCard) {
+                    top.linkTo(parent.top)
+                    end.linkTo(parent.end)
+                }
+                .widthIn(max = CARDS_MAX_WIDTH),
+            colors = panelCardsColors(),
+            shape = MaterialTheme.shapes.large,
+        ) {
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(MaterialTheme.padding.medium),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.medium),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        text = stringResource(MR.strings.player_sheets_filters_title),
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                    Spacer(Modifier.weight(1f))
+                    IconButton(onClick = onDismissRequest) {
+                        Icon(Icons.Default.Close, null, modifier = Modifier.size(32.dp))
+                    }
+                }
+
+                FilterPresetsCard()
+                FiltersCard()
+                DebandCard()
+                Anime4KCard()
+            }
+        }
+    }
+}
+
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.material.icons.filled.AutoAwesome
+
+@Composable
+fun FilterPresetsCard() {
+    val decoderPreferences = remember { Injekt.get<DecoderPreferences>() }
+    var isExpanded by remember { mutableStateOf(false) }
+
+    // Collect current values for matching
+    val brightness by decoderPreferences.brightnessFilter().collectAsState()
+    val contrast by decoderPreferences.contrastFilter().collectAsState()
+    val saturation by decoderPreferences.saturationFilter().collectAsState()
+    val gamma by decoderPreferences.gammaFilter().collectAsState()
+    val hue by decoderPreferences.hueFilter().collectAsState()
+    val sharpen by decoderPreferences.sharpenFilter().collectAsState()
+
+    val currentPreset = VideoFilterTheme.entries.find { preset ->
+        preset.brightness == brightness &&
+        preset.contrast == contrast &&
+        preset.saturation == saturation &&
+        preset.gamma == gamma &&
+        preset.hue == hue &&
+        preset.sharpen == sharpen
+    }
+
+    ExpandableCard(
+        isExpanded = isExpanded,
+        onExpand = { isExpanded = it },
+        title = {
+            Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.medium)) {
+                Icon(Icons.Default.AutoAwesome, null)
+                Text(stringResource(MR.strings.player_sheets_filters_themes))
+            }
+        },
+        colors = panelCardsColors(),
+    ) {
+        Column(
+            modifier = Modifier.padding(MaterialTheme.padding.medium),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small)
+        ) {
+            @OptIn(ExperimentalLayoutApi::class)
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                VideoFilterTheme.entries.forEach { theme ->
+                    InputChip(
+                        selected = currentPreset == theme,
+                        onClick = {
+                            decoderPreferences.videoFilterTheme().set(theme.ordinal)
+                            applyTheme(theme, decoderPreferences)
+                        },
+                        label = { Text(stringResource(theme.titleRes)) },
+                    )
+                }
+            }
+            
+            currentPreset?.let {
+                if (it.description.isNotEmpty()) {
+                    Text(
+                        text = it.description,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
+        }
     }
 }
 
 @Composable
-fun FiltersCard(
-    modifier: Modifier = Modifier,
-    onClose: () -> Unit,
-) {
+fun FiltersCard() {
     val decoderPreferences = remember { Injekt.get<DecoderPreferences>() }
-    Card(
+    var isExpanded by remember { mutableStateOf(true) }
+
+    ExpandableCard(
+        isExpanded = isExpanded,
+        onExpand = { isExpanded = it },
+        title = {
+            Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.medium)) {
+                Icon(Icons.Default.Tune, null)
+                Text(stringResource(MR.strings.player_sheets_filters_title))
+            }
+        },
         colors = panelCardsColors(),
-        modifier = modifier
-            .widthIn(max = CARDS_MAX_WIDTH),
     ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(start = MaterialTheme.padding.medium),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Text(
-                stringResource(MR.strings.player_sheets_filters_title),
-                style = MaterialTheme.typography.headlineMedium,
-            )
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
-            ) {
-                TextButton(
-                    onClick = {
-                        VideoFilters.entries.forEach {
-                            it.preference(decoderPreferences).delete()
-                        }
-                        decoderPreferences.videoFilterTheme().delete()
-                        decoderPreferences.enableAnime4K().delete()
-                        decoderPreferences.anime4kMode().delete()
-                        decoderPreferences.anime4kQuality().delete()
-                        
-                        MPVLib.setPropertyString("vf", "")
-                        MPVLib.setPropertyString("glsl-shaders", "")
-                        MPVLib.setPropertyBoolean("deband", false)
-                        MPVLib.setPropertyInt("brightness", 0)
-                        MPVLib.setPropertyInt("contrast", 0)
-                        MPVLib.setPropertyInt("saturation", 0)
-                        MPVLib.setPropertyInt("gamma", 0)
-                        MPVLib.setPropertyInt("hue", 0)
-                    },
-                ) {
-                    Text(text = stringResource(MR.strings.action_reset))
-                }
-                ControlsButton(Icons.Default.Close, onClose)
-            }
-        }
-        LazyColumn {
-            item {
-                Column(
-                    modifier = Modifier.padding(horizontal = MaterialTheme.padding.medium),
-                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
-                ) {
-                    Text(
-                        text = stringResource(MR.strings.player_sheets_filters_themes),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                    val selectedTheme by decoderPreferences.videoFilterTheme().collectAsState()
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        items(VideoFilterTheme.entries) { theme ->
-                            InputChip(
-                                selected = selectedTheme == theme.ordinal,
-                                onClick = {
-                                    decoderPreferences.videoFilterTheme().set(theme.ordinal)
-                                    applyTheme(theme, decoderPreferences)
-                                },
-                                label = { Text(stringResource(theme.titleRes)) },
-                                modifier = Modifier.animateContentSize()
-                            )
-                        }
+        Column {
+            TextButton(
+                onClick = {
+                    VideoFilters.entries.forEach {
+                        it.preference(decoderPreferences).delete()
                     }
-                }
+                    MPVLib.setPropertyString("vf", "")
+                    MPVLib.setPropertyInt("brightness", 0)
+                    MPVLib.setPropertyInt("contrast", 0)
+                    MPVLib.setPropertyInt("saturation", 0)
+                    MPVLib.setPropertyInt("gamma", 0)
+                    MPVLib.setPropertyInt("hue", 0)
+                },
+            ) {
+                Text(text = stringResource(MR.strings.action_reset))
             }
-            items(VideoFilters.entries) { filter ->
+
+            VideoFilters.entries.forEach { filter ->
                 val value by filter.preference(decoderPreferences).collectAsState()
                 SliderItem(
                     label = stringResource(filter.titleRes),
@@ -184,100 +259,186 @@ fun FiltersCard(
                     min = filter.min.toFloat(),
                 )
             }
-            item {
-                val anime4kManager = remember { Injekt.get<Anime4KManager>() }
-                val enableAnime4K by decoderPreferences.enableAnime4K().collectAsState()
-                val anime4kMode by decoderPreferences.anime4kMode().collectAsState()
-                val anime4kQuality by decoderPreferences.anime4kQuality().collectAsState()
+        }
+    }
+}
 
-                Column(
-                    modifier = Modifier
-                        .padding(MaterialTheme.padding.medium)
-                        .fillMaxWidth()
-                        .animateContentSize(),
-                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = stringResource(MR.strings.pref_anime4k_title),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                        Switch(
-                            checked = enableAnime4K,
-                            onCheckedChange = {
-                                decoderPreferences.enableAnime4K().set(it)
-                                applyAnime4K(decoderPreferences, anime4kManager)
-                            }
-                        )
-                    }
+@Composable
+fun DebandCard() {
+    val decoderPreferences = remember { Injekt.get<DecoderPreferences>() }
+    val debandMode by decoderPreferences.videoDebanding().collectAsState()
+    var isExpanded by remember { mutableStateOf(false) }
 
-                    if (enableAnime4K) {
-                        Text(
-                            text = stringResource(MR.strings.pref_anime4k_mode),
-                            style = MaterialTheme.typography.labelMedium,
-                        )
-                        LazyRow(
-                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
-                        ) {
-                            items(Anime4KManager.Mode.entries) { mode ->
-                                if (mode == Anime4KManager.Mode.OFF) return@items
-                                InputChip(
-                                    selected = anime4kMode == mode.name,
-                                    onClick = {
-                                        decoderPreferences.anime4kMode().set(mode.name)
-                                        applyAnime4K(decoderPreferences, anime4kManager)
-                                    },
-                                    label = { Text(mode.name.replace("_", "+")) },
-                                )
-                            }
-                        }
-
-                        Text(
-                            text = stringResource(MR.strings.pref_anime4k_quality),
-                            style = MaterialTheme.typography.labelMedium,
-                        )
-                        LazyRow(
-                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
-                        ) {
-                            items(Anime4KManager.Quality.entries) { quality ->
-                                val label = when (quality) {
-                                    Anime4KManager.Quality.FAST -> stringResource(MR.strings.anime4k_quality_fast)
-                                    Anime4KManager.Quality.BALANCED -> stringResource(MR.strings.anime4k_quality_balanced)
-                                    Anime4KManager.Quality.HIGH -> stringResource(MR.strings.anime4k_quality_high)
+    ExpandableCard(
+        isExpanded = isExpanded,
+        onExpand = { isExpanded = it },
+        title = {
+            Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.medium)) {
+                Icon(Icons.Default.Gradient, null)
+                Text(stringResource(MR.strings.player_sheets_deband_title))
+            }
+        },
+        colors = panelCardsColors(),
+    ) {
+        Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
+                    .padding(horizontal = MaterialTheme.padding.medium),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Debanding.entries.forEach { mode ->
+                    IconToggleButton(
+                        checked = debandMode == mode,
+                        onCheckedChange = {
+                            decoderPreferences.videoDebanding().set(mode)
+                            when (mode) {
+                                Debanding.None -> {
+                                    MPVLib.setPropertyBoolean("deband", false)
+                                    MPVLib.command(arrayOf("vf", "remove", "@deband"))
                                 }
-                                InputChip(
-                                    selected = anime4kQuality == quality.name,
-                                    onClick = {
-                                        decoderPreferences.anime4kQuality().set(quality.name)
-                                        applyAnime4K(decoderPreferences, anime4kManager)
-                                    },
-                                    label = { Text(label) },
-                                )
+                                Debanding.CPU -> {
+                                    MPVLib.setPropertyBoolean("deband", false)
+                                    MPVLib.command(arrayOf("vf", "add", "@deband:gradfun=radius=12"))
+                                }
+                                Debanding.GPU -> {
+                                    MPVLib.setPropertyBoolean("deband", true)
+                                    MPVLib.command(arrayOf("vf", "remove", "@deband"))
+                                }
                             }
                         }
+                    ) {
+                        val icon = when (mode) {
+                            Debanding.None -> Icons.Default.NotInterested
+                            Debanding.CPU -> Icons.Default.Memory
+                            Debanding.GPU -> Icons.Default.Gradient
+                        }
+                        Icon(icon, null)
                     }
+                }
+                Text(text = debandMode.name)
+                
+                Spacer(Modifier.weight(1f))
+                
+                TextButton(onClick = {
+                    decoderPreferences.videoDebanding().delete()
+                    DebandSettings.entries.forEach { it.preference(decoderPreferences).delete() }
+                    MPVLib.setPropertyBoolean("deband", false)
+                    MPVLib.command(arrayOf("vf", "remove", "@deband"))
+                }) {
+                    Text(stringResource(MR.strings.action_reset))
                 }
             }
-            item {
-                if (decoderPreferences.gpuNext().get()) return@item
-                Column(
-                    modifier = Modifier
-                        .padding(MaterialTheme.padding.medium)
-                        .fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.medium),
-                    horizontalAlignment = Alignment.Start,
-                ) {
-                    Icon(Icons.Outlined.Info, null)
-                    Text(stringResource(MR.strings.player_sheets_filters_warning))
-                }
+
+            DebandSettings.entries.forEach { setting ->
+                val value by setting.preference(decoderPreferences).collectAsState()
+                SliderItem(
+                    label = stringResource(setting.titleRes),
+                    value = value.toFloat(),
+                    valueText = value.toString(),
+                    onChange = {
+                        setting.preference(decoderPreferences).set(it.toInt())
+                        applyDebandSetting(setting, it.toInt())
+                    },
+                    max = setting.end.toFloat(),
+                    min = setting.start.toFloat(),
+                )
             }
         }
     }
 }
 
+@Composable
+fun Anime4KCard() {
+    val decoderPreferences = remember { Injekt.get<DecoderPreferences>() }
+    val anime4kManager = remember { Injekt.get<Anime4KManager>() }
+    val enableAnime4K by decoderPreferences.enableAnime4K().collectAsState()
+    var isExpanded by remember { mutableStateOf(false) }
 
+    ExpandableCard(
+        isExpanded = isExpanded,
+        onExpand = { isExpanded = it },
+        title = {
+            Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.medium)) {
+                Icon(Icons.Default.Memory, null)
+                Text(stringResource(MR.strings.pref_anime4k_title))
+            }
+        },
+        colors = panelCardsColors(),
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(MaterialTheme.padding.medium)
+                .animateContentSize(),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(MR.strings.pref_anime4k_title),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Switch(
+                    checked = enableAnime4K,
+                    onCheckedChange = {
+                        decoderPreferences.enableAnime4K().set(it)
+                        applyAnime4K(decoderPreferences, anime4kManager)
+                    }
+                )
+            }
+
+            if (enableAnime4K) {
+                val anime4kMode by decoderPreferences.anime4kMode().collectAsState()
+                val anime4kQuality by decoderPreferences.anime4kQuality().collectAsState()
+
+                Text(
+                    text = stringResource(MR.strings.pref_anime4k_mode),
+                    style = MaterialTheme.typography.labelMedium,
+                )
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
+                ) {
+                    items(Anime4KManager.Mode.entries) { mode ->
+                        if (mode == Anime4KManager.Mode.OFF) return@items
+                        InputChip(
+                            selected = anime4kMode == mode.name,
+                            onClick = {
+                                decoderPreferences.anime4kMode().set(mode.name)
+                                applyAnime4K(decoderPreferences, anime4kManager)
+                            },
+                            label = { Text(mode.name.replace("_", "+")) },
+                        )
+                    }
+                }
+
+                Text(
+                    text = stringResource(MR.strings.pref_anime4k_quality),
+                    style = MaterialTheme.typography.labelMedium,
+                )
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
+                ) {
+                    items(Anime4KManager.Quality.entries) { quality ->
+                        val label = when (quality) {
+                            Anime4KManager.Quality.FAST -> stringResource(MR.strings.anime4k_quality_fast)
+                            Anime4KManager.Quality.BALANCED -> stringResource(MR.strings.anime4k_quality_balanced)
+                            Anime4KManager.Quality.HIGH -> stringResource(MR.strings.anime4k_quality_high)
+                        }
+                        InputChip(
+                            selected = anime4kQuality == quality.name,
+                            onClick = {
+                                decoderPreferences.anime4kQuality().set(quality.name)
+                                applyAnime4K(decoderPreferences, anime4kManager)
+                            },
+                            label = { Text(label) },
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
