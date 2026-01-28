@@ -25,10 +25,8 @@ fun applyFilter(filter: VideoFilters, value: Int, prefs: DecoderPreferences) {
     val property = filter.mpvProperty
     
     // Ensure hwdec is in copy mode if filters are being used
-    if (filter == VideoFilters.SHARPEN || filter == VideoFilters.BLUR) {
-        if (value > 0) {
-            MPVLib.setPropertyString("hwdec", "mediacodec-copy")
-        }
+    if (value != 0) {
+        MPVLib.setPropertyString("hwdec", "mediacodec-copy")
     }
 
     when (property) {
