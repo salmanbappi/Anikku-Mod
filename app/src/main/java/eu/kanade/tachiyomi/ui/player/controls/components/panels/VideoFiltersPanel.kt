@@ -18,74 +18,70 @@
 package eu.kanade.tachiyomi.ui.player.controls.components.panels
 
 import androidx.compose.animation.animateContentSize
-
 import androidx.compose.animation.core.animateFloatAsState
-
 import androidx.compose.foundation.horizontalScroll
-
 import androidx.compose.foundation.layout.Arrangement
-
 import androidx.compose.foundation.layout.Column
-
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-
 import androidx.compose.foundation.layout.FlowRow
-
 import androidx.compose.foundation.layout.Row
-
 import androidx.compose.foundation.layout.Spacer
-
 import androidx.compose.foundation.layout.fillMaxSize
-
 import androidx.compose.foundation.layout.fillMaxWidth
-
 import androidx.compose.foundation.layout.padding
-
 import androidx.compose.foundation.layout.size
-
 import androidx.compose.foundation.layout.widthIn
-
 import androidx.compose.foundation.lazy.LazyRow
-
 import androidx.compose.foundation.lazy.items
-
 import androidx.compose.foundation.rememberScrollState
-
 import androidx.compose.foundation.verticalScroll
-
 import androidx.compose.material.icons.Icons
-
 import androidx.compose.material.icons.filled.AutoAwesome
-
 import androidx.compose.material.icons.filled.Close
-
 import androidx.compose.material.icons.filled.Gradient
-
 import androidx.compose.material.icons.filled.Memory
-
 import androidx.compose.material.icons.filled.NotInterested
-
 import androidx.compose.material.icons.filled.Palette
-
 import androidx.compose.material.icons.filled.Tune
-
 import androidx.compose.material3.Card
-
 import androidx.compose.material3.Icon
-
 import androidx.compose.material3.IconButton
-
 import androidx.compose.material3.IconToggleButton
-
 import androidx.compose.material3.InputChip
-
 import androidx.compose.material3.MaterialTheme
-
 import androidx.compose.material3.Switch
-
 import androidx.compose.material3.Text
-
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
+import eu.kanade.presentation.player.components.ExpandableCard
+import eu.kanade.presentation.player.components.SliderItem
+import eu.kanade.tachiyomi.ui.player.DebandSettings
+import eu.kanade.tachiyomi.ui.player.Debanding
+import eu.kanade.tachiyomi.ui.player.VideoFilterTheme
+import eu.kanade.tachiyomi.ui.player.VideoFilters
+import eu.kanade.tachiyomi.ui.player.applyAnime4K
+import eu.kanade.tachiyomi.ui.player.applyDebandSetting
+import eu.kanade.tachiyomi.ui.player.applyFilter
+import eu.kanade.tachiyomi.ui.player.applyTheme
+import eu.kanade.tachiyomi.ui.player.utils.Anime4KManager
+import eu.kanade.tachiyomi.ui.player.controls.CARDS_MAX_WIDTH
+import eu.kanade.tachiyomi.ui.player.controls.panelCardsColors
+import eu.kanade.tachiyomi.ui.player.settings.DecoderPreferences
+import `is`.xyz.mpv.MPVLib
+import tachiyomi.i18n.MR
+import tachiyomi.presentation.core.components.material.padding
+import tachiyomi.presentation.core.i18n.stringResource
+import tachiyomi.presentation.core.util.collectAsState
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
 
 @Composable
 fun VideoFiltersPanel(
@@ -139,10 +135,7 @@ fun VideoFiltersPanel(
     }
 }
 
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.material.icons.filled.AutoAwesome
-
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun FilterPresetsCard() {
     val decoderPreferences = remember { Injekt.get<DecoderPreferences>() }
@@ -180,7 +173,6 @@ fun FilterPresetsCard() {
             modifier = Modifier.padding(MaterialTheme.padding.medium),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small)
         ) {
-            @OptIn(ExperimentalLayoutApi::class)
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
@@ -289,8 +281,9 @@ fun DebandCard() {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Debanding.entries.forEach { mode ->
+                    val isSelected = debandMode == mode
                     IconToggleButton(
-                        checked = debandMode == mode,
+                        checked = isSelected,
                         onCheckedChange = {
                             decoderPreferences.videoDebanding().set(mode)
                             when (mode) {
