@@ -1,12 +1,12 @@
-# 🌌 Anikku Mod
+# 🌌 AniZen
 
-Anikku Mod is a high-performance, feature-rich modified version of Anikku. This mod focuses on providing a professional-grade viewing experience with advanced video processing tools, optimized downloading, and tactile feedback.
+AniZen is a high-performance, feature-rich modified version of AniZen. This mod focuses on providing a professional-grade viewing experience with advanced video processing tools, optimized downloading, and tactile feedback.
 
 ---
 
 ## 💎 Exclusive Mod Improvements
 
-Compared to the original Anikku, this mod introduces massive upgrades to the player, trackers, and downloading system.
+Compared to the original AniZen, this mod introduces massive upgrades to the player, trackers, and downloading system.
 
 ### 🎨 Ultimate Video Filter Suite (mpvEx Style)
 The filtering system has been completely redesigned into a clean, expandable card-based UI.
@@ -68,10 +68,10 @@ This mod adds **Haptic Feedback** across the app for a premium feel:
 
 ## 📥 Downloads
 
-Latest releases are available on the [Releases Page](https://github.com/salmanbappi/Anikku-Mod/releases).
+Latest releases are available on the [Releases Page](https://github.com/salmanbappi/AniZen-Mod/releases).
 
 ### Development Builds
-For the absolute latest bleeding-edge updates (debug builds), check the [Actions Tab](https://github.com/salmanbappi/Anikku-Mod/actions) and download the APK from the latest successful run.
+For the absolute latest bleeding-edge updates (debug builds), check the [Actions Tab](https://github.com/salmanbappi/AniZen-Mod/actions) and download the APK from the latest successful run.
 
 ---
 
@@ -90,7 +90,7 @@ git push && git push --tags
 ```
 
 ## 🤝 Credits
--   **Original Anikku:** [komikku-app/anikku](https://github.com/komikku-app/anikku)
+-   **Original AniZen:** [komikku-app/anikku](https://github.com/komikku-app/anikku)
 -   **Base Project:** [Aniyomi](https://github.com/aniyomiorg/aniyomi)
 -   **Filter Inspiration:** [mpvEx](https://github.com/marlboro-advance/mpvEx)
 -   **Shaders:** [Anime4K](https://github.com/bloc97/Anime4K)

@@ -25,9 +25,9 @@
   <string name="channel_new_episodes">Actualizări episod</string>
   <string name="pref_category_connections">Conexiuni</string>
   <string name="pref_connections_summary">Discord, mai multe de făcut.</string>
-  <string name="connections_info">Servicii speciale care sunt unice pentru Anikku și îmbunătățesc modul în care utilizați aplicația</string>
+  <string name="connections_info">Servicii speciale care sunt unice pentru AniZen și îmbunătățesc modul în care utilizați aplicația</string>
   <string name="connections_discord">Discord</string>
-  <string name="connections_discord_info">Acest serviciu Discord funcționează prin conectarea simbolurilor. Folosiți pe propriul risc. Token-ul dvs. este stocat local și Anikku nu îl partajează nicăieri altundeva</string>
+  <string name="connections_discord_info">Acest serviciu Discord funcționează prin conectarea simbolurilor. Folosiți pe propriul risc. Token-ul dvs. este stocat local și AniZen nu îl partajează nicăieri altundeva</string>
   <string name="show_chapters_titles_title">Arată titlurile episoadelor</string>
   <string name="show_chapters_titles_subtitle">Arată titlul episodului pe care îl urmăriți</string>
   <string name="discord_accounts">Conturi Discord</string>

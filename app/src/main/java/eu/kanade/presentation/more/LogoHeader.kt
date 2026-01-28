@@ -42,7 +42,7 @@ fun LogoHeader() {
                     indication = null,
                     onClick = {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        context.toast("Anikku Mod v${BuildConfig.VERSION_NAME}")
+                        context.toast("AniZen v${BuildConfig.VERSION_NAME}")
                     },
                 ),
         )

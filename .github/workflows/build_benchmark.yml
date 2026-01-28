@@ -94,11 +94,11 @@ jobs:
         id: get_sha
         run: |
           set -e
-          mv app/build/outputs/apk/${{ needs.prepare-build.outputs.ARTIFACTS_PREFIX }}-universal-benchmark-signed.apk Anikku-${{ needs.prepare-build.outputs.TAG_NAME }}.apk
-          mv app/build/outputs/apk/${{ needs.prepare-build.outputs.ARTIFACTS_PREFIX }}-arm64-v8a-benchmark-signed.apk Anikku-arm64-v8a-${{ needs.prepare-build.outputs.TAG_NAME }}.apk
-          mv app/build/outputs/apk/${{ needs.prepare-build.outputs.ARTIFACTS_PREFIX }}-armeabi-v7a-benchmark-signed.apk Anikku-armeabi-v7a-${{ needs.prepare-build.outputs.TAG_NAME }}.apk
-          mv app/build/outputs/apk/${{ needs.prepare-build.outputs.ARTIFACTS_PREFIX }}-x86-benchmark-signed.apk Anikku-x86-${{ needs.prepare-build.outputs.TAG_NAME }}.apk
-          mv app/build/outputs/apk/${{ needs.prepare-build.outputs.ARTIFACTS_PREFIX }}-x86_64-benchmark-signed.apk Anikku-x86_64-${{ needs.prepare-build.outputs.TAG_NAME }}.apk
+          mv app/build/outputs/apk/${{ needs.prepare-build.outputs.ARTIFACTS_PREFIX }}-universal-benchmark-signed.apk AniZen-${{ needs.prepare-build.outputs.TAG_NAME }}.apk
+          mv app/build/outputs/apk/${{ needs.prepare-build.outputs.ARTIFACTS_PREFIX }}-arm64-v8a-benchmark-signed.apk AniZen-arm64-v8a-${{ needs.prepare-build.outputs.TAG_NAME }}.apk
+          mv app/build/outputs/apk/${{ needs.prepare-build.outputs.ARTIFACTS_PREFIX }}-armeabi-v7a-benchmark-signed.apk AniZen-armeabi-v7a-${{ needs.prepare-build.outputs.TAG_NAME }}.apk
+          mv app/build/outputs/apk/${{ needs.prepare-build.outputs.ARTIFACTS_PREFIX }}-x86-benchmark-signed.apk AniZen-x86-${{ needs.prepare-build.outputs.TAG_NAME }}.apk
+          mv app/build/outputs/apk/${{ needs.prepare-build.outputs.ARTIFACTS_PREFIX }}-x86_64-benchmark-signed.apk AniZen-x86_64-${{ needs.prepare-build.outputs.TAG_NAME }}.apk
 
       - name: Upload artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
