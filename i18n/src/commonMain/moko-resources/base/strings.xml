@@ -498,6 +498,12 @@
     <string name="player_sheets_filters_theme_cold">Cold</string>
     <string name="player_sheets_filters_theme_night">Night Mode</string>
     <string name="player_sheets_filters_theme_grayscale">Grayscale</string>
+    <string name="pref_anime4k_title">Anime4K Upscaling</string>
+    <string name="pref_anime4k_mode">Mode</string>
+    <string name="pref_anime4k_quality">Quality</string>
+    <string name="anime4k_quality_fast">Fast</string>
+    <string name="anime4k_quality_balanced">Balanced</string>
+    <string name="anime4k_quality_high">High</string>
     <string name="player_sheets_filters_warning">Some filters may not work on your current video driver</string>
 
     <!-- Sheets - Audio tracks -->

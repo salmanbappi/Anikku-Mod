@@ -14,6 +14,10 @@ class DecoderPreferences(
     fun highQualityScaling() = preferenceStore.getBoolean("pref_high_quality_scaling", false)
     fun smoothMotion() = preferenceStore.getBoolean("pref_smooth_motion", false)
 
+    fun enableAnime4K() = preferenceStore.getBoolean("pref_enable_anime4k", false)
+    fun anime4kMode() = preferenceStore.getString("pref_anime4k_mode", "OFF")
+    fun anime4kQuality() = preferenceStore.getString("pref_anime4k_quality", "BALANCED")
+
     // Non-preferences
 
     fun brightnessFilter() = preferenceStore.getInt("pref_player_filter_brightness")

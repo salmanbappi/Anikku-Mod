@@ -47,6 +47,7 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
     private val audioPreferences: AudioPreferences by injectLazy()
     private val advancedPreferences: AdvancedPlayerPreferences by injectLazy()
     private val networkPreferences: NetworkPreferences by injectLazy()
+    private val anime4KManager: Anime4KManager by injectLazy()
 
     var isExiting = false
 
@@ -152,6 +153,9 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         if (vfChain.isNotEmpty()) {
             MPVLib.setOptionString("vf", vfChain)
         }
+
+        anime4KManager.initialize()
+        applyAnime4K(decoderPreferences, anime4KManager, isInit = true)
 
         MPVLib.setOptionString("msg-level", "all=" + if (networkPreferences.verboseLogging().get()) "v" else "warn")
 
