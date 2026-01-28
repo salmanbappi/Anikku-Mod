@@ -133,6 +133,15 @@ fun PlaybackSpeedSheet(
                 }
             }
             val pitchCorrection by audioPreferences.enablePitchCorrection().collectAsState()
+            val longPressSpeed by preferences.playerSpeedLongPress().collectAsState()
+            SliderItem(
+                label = "Long press speed",
+                value = longPressSpeed,
+                valueText = stringResource(MR.strings.player_speed, longPressSpeed),
+                onChange = { preferences.playerSpeedLongPress().set(it) },
+                max = 6f,
+                min = 0.01f,
+            )
             SwitchPreference(
                 value = pitchCorrection,
                 onValueChange = {

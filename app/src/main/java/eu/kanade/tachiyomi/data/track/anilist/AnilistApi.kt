@@ -317,6 +317,7 @@ class AnilistApi(val client: OkHttpClient, interceptor: AnilistInterceptor) {
         fun authUrl(): Uri = "${BASE_URL}oauth/authorize".toUri().buildUpon()
             .appendQueryParameter("client_id", CLIENT_ID)
             .appendQueryParameter("response_type", "token")
+            .appendQueryParameter("redirect_uri", "anikku://anilist-auth")
             .build()
     }
 }

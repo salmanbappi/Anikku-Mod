@@ -17,7 +17,7 @@ class TrackLoginActivity : BaseOAuthLoginActivity() {
     }
 
     private fun handleAnilist(data: Uri) {
-        val regex = "(?:access_token=)(.*?)(?:&)".toRegex()
+        val regex = "(?:access_token=)(.*?)(?:&|$)".toRegex()
         val matchResult = regex.find(data.fragment.toString())
         if (matchResult?.groups?.get(1) != null) {
             lifecycleScope.launchIO {

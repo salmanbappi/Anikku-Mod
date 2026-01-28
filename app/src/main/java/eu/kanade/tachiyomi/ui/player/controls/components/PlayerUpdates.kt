@@ -25,12 +25,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import eu.kanade.tachiyomi.ui.player.settings.PlayerPreferences
+import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.padding
+import tachiyomi.presentation.core.i18n.stringResource
+import tachiyomi.presentation.core.util.collectAsState
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
 
 @Composable
 fun PlayerUpdate(
@@ -61,12 +69,14 @@ fun TextPlayerUpdate(
 fun DoubleSpeedPlayerUpdate(
     modifier: Modifier = Modifier,
 ) {
+    val preferences = remember { Injekt.get<PlayerPreferences>() }
+    val speed by preferences.playerSpeedLongPress().collectAsState()
     PlayerUpdate(modifier) {
         androidx.compose.foundation.layout.Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(4.dp)
         ) {
-            Text(text = "2x Speed")
+            Text(text = stringResource(MR.strings.player_speed, speed))
         }
     }
 }
