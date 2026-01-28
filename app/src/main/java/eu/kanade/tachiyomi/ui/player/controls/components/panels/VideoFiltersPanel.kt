@@ -17,6 +17,9 @@
 
 package eu.kanade.tachiyomi.ui.player.controls.components.panels
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -112,9 +115,16 @@ fun FiltersCard(
                 TextButton(
                     onClick = {
                         VideoFilters.entries.forEach {
-                            applyFilter(it, it.preference(decoderPreferences).deleteAndGet())
+                            it.preference(decoderPreferences).delete()
                         }
                         decoderPreferences.videoFilterTheme().delete()
+                        MPVLib.setPropertyString("vf", "")
+                        MPVLib.setPropertyBoolean("deband", false)
+                        MPVLib.setPropertyInt("brightness", 0)
+                        MPVLib.setPropertyInt("contrast", 0)
+                        MPVLib.setPropertyInt("saturation", 0)
+                        MPVLib.setPropertyInt("gamma", 0)
+                        MPVLib.setPropertyInt("hue", 0)
                     },
                 ) {
                     Text(text = stringResource(MR.strings.action_reset))
@@ -146,6 +156,7 @@ fun FiltersCard(
                                     applyTheme(theme, decoderPreferences)
                                 },
                                 label = { Text(stringResource(theme.titleRes)) },
+                                modifier = Modifier.animateContentSize()
                             )
                         }
                     }
@@ -153,13 +164,14 @@ fun FiltersCard(
             }
             items(VideoFilters.entries) { filter ->
                 val value by filter.preference(decoderPreferences).collectAsState()
+                val animatedValue by animateFloatAsState(value.toFloat(), label = "filter_slider")
                 SliderItem(
                     label = stringResource(filter.titleRes),
                     value = value.toFloat(),
                     valueText = value.toString(),
                     onChange = {
                         filter.preference(decoderPreferences).set(it.toInt())
-                        applyFilter(filter, it.toInt())
+                        applyFilter(filter, it.toInt(), decoderPreferences)
                     },
                     max = filter.max.toFloat(),
                     min = filter.min.toFloat(),
