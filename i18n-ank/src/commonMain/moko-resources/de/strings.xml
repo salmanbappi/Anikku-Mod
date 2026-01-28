@@ -25,9 +25,9 @@
     <string name="channel_new_episodes">Episoden-Updates</string>
     <string name="pref_category_connections">Verbindungen</string>
     <string name="pref_connections_summary">Discord, mehr wird noch kommen..</string>
-    <string name="connections_info">Spezielle Dienste, die einzigartig für Anikku sind und die Art und Weise verbessern, wie Sie die App verwenden</string>
+    <string name="connections_info">Spezielle Dienste, die einzigartig für AniZen sind und die Art und Weise verbessern, wie Sie die App verwenden</string>
     <string name="connections_discord">Discord</string>
-    <string name="connections_discord_info">Dieser Discord-Service funktioniert durch Tokenprotokollierung. Verwende auf eigene Gefahr. Dein Token wird lokal gespeichert und Anikku teilt es nirgendwo sonst</string>
+    <string name="connections_discord_info">Dieser Discord-Service funktioniert durch Tokenprotokollierung. Verwende auf eigene Gefahr. Dein Token wird lokal gespeichert und AniZen teilt es nirgendwo sonst</string>
     <string name="show_chapters_titles_title">Titel der Folgen anzeigen</string>
     <string name="show_chapters_titles_subtitle">Zeige den Titel der Episode, die du ansiehst</string>
     <string name="discord_accounts">Discord-Konten</string>

@@ -2,7 +2,7 @@ Looking to report an issue/bug or make a feature request? Please refer to the [R
 
 ---
 
-Thanks for your interest in contributing to Anikku!
+Thanks for your interest in contributing to AniZen!
 
 
 # Code contributions

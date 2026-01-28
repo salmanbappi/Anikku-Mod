@@ -77,7 +77,7 @@ internal fun Project.configureCompose(commonExtension: CommonExtension<*, *, *, 
     }
 
     extensions.configure<ComposeCompilerGradlePluginExtension> {
-        featureFlags.set(setOf(ComposeFeatureFlag.OptimizeNonSkippingGroups))
+        featureFlags.set(setOf(ComposeFeatureFlag.OptimizeNonSkippingGroups, ComposeFeatureFlag.StrongSkipping))
 
         val enableMetrics = project.providers.gradleProperty("enableComposeCompilerMetrics").orNull.toBoolean()
         val enableReports = project.providers.gradleProperty("enableComposeCompilerReports").orNull.toBoolean()

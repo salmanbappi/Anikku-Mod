@@ -25,9 +25,9 @@
   <string name="channel_new_episodes">Episode opdateringer</string>
   <string name="pref_category_connections">Forbindelser</string>
   <string name="pref_connections_summary">Discord, mere at komme.</string>
-  <string name="connections_info">Særlige tjenester, der er unikke for Anikku og forbedre den måde, du bruger appen</string>
+  <string name="connections_info">Særlige tjenester, der er unikke for AniZen og forbedre den måde, du bruger appen</string>
   <string name="connections_discord">Uenighed</string>
-  <string name="connections_discord_info">Denne Discord Service virker gennem token logning. Bruges på egen risiko. Dit token gemmes lokalt, og Anikku deler det ikke andre steder</string>
+  <string name="connections_discord_info">Denne Discord Service virker gennem token logning. Bruges på egen risiko. Dit token gemmes lokalt, og AniZen deler det ikke andre steder</string>
   <string name="show_chapters_titles_title">Vis Episode- Titler</string>
   <string name="show_chapters_titles_subtitle">Vis titlen på den episode du ser</string>
   <string name="discord_accounts">Discord Konti</string>

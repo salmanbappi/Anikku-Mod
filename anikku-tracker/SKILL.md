@@ -1,9 +1,9 @@
 ---
 name: anikku-tracker
-description: Manages the development plan and progress for the Anikku project. Use when the user asks about status, next steps, or updates the plan.
+description: Manages the development plan and progress for the AniZen project. Use when the user asks about status, next steps, or updates the plan.
 ---
 
-# Anikku Project Tracker
+# AniZen Project Tracker
 
 ## Instructions
 1.  **Read Plan First**: Before starting any major task, read `PLAN.md` in the project root to understand the current objectives and context.

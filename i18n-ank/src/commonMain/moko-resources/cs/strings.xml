@@ -25,9 +25,9 @@
   <string name="channel_new_episodes">Aktualizace epizody</string>
   <string name="pref_category_connections">Kontakty</string>
   <string name="pref_connections_summary">Discord, více k nám.</string>
-  <string name="connections_info">Speciální služby, které jsou unikátní pro Anikku a vylepšují způsob, jakým používáte aplikaci</string>
+  <string name="connections_info">Speciální služby, které jsou unikátní pro AniZen a vylepšují způsob, jakým používáte aplikaci</string>
   <string name="connections_discord">Discord</string>
-  <string name="connections_discord_info">Tato Discord služba funguje pomocí logování tokenů. Používejte na vlastní riziko. Váš token je uložen lokálně a Anikku jej nesdílejí nikde jinde</string>
+  <string name="connections_discord_info">Tato Discord služba funguje pomocí logování tokenů. Používejte na vlastní riziko. Váš token je uložen lokálně a AniZen jej nesdílejí nikde jinde</string>
   <string name="show_chapters_titles_title">Zobrazit názvy epizod</string>
   <string name="show_chapters_titles_subtitle">Zobrazit název epizody, kterou sledujete</string>
   <string name="discord_accounts">Discord účty</string>

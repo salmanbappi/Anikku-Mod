@@ -44,7 +44,7 @@ jobs:
           VERSION=${VERSION//\//-}
           cd app/build/outputs/apk/release/
           for f in *.apk; do
-            mv "$f" "Anikku-Mod-Release-$VERSION-$f"
+            mv "$f" "AniZen-Mod-Release-$VERSION-$f"
           done
 
       - name: Get Version
@@ -62,7 +62,7 @@ jobs:
           draft: false
           prerelease: false
           body: |
-            ## 🚀 Anikku Mod - Official Public Release
+            ## 🚀 AniZen Mod - Official Public Release
             
             This is an optimized, multi-threaded release build.
             

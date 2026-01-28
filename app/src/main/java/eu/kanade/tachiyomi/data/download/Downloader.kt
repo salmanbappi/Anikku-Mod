@@ -1021,7 +1021,7 @@ class Downloader(
                             headers["User-Agent"]?.let { putExtra("extra_user_agent", it) }
                         }
                         
-                        // Mark as finished in Anikku to avoid background task conflicts
+                        // Mark as finished in AniZen to avoid background task conflicts
                         download.status = Download.State.DOWNLOADED
                         removeFromQueue(download)
                         if (areAllDownloadsFinished()) {
@@ -1055,7 +1055,7 @@ class Downloader(
                             )
                             putExtra("android.media.intent.extra.HTTP_HEADERS", bundle)
                         }
-                        // Mark as finished in Anikku to avoid background task conflicts
+                        // Mark as finished in AniZen to avoid background task conflicts
                         download.status = Download.State.DOWNLOADED
                         removeFromQueue(download)
                         if (areAllDownloadsFinished()) {

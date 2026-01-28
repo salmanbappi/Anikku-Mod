@@ -16,7 +16,7 @@ async def download_segment(client, url, index, semaphore, progress_data):
     async with semaphore:
         for attempt in range(5):
             try:
-                # Mimic Anikku Headers
+                # Mimic AniZen Headers
                 parsed_uri = urlparse(url)
                 origin = f"{parsed_uri.scheme}://{parsed_uri.netloc}"
                 headers = {

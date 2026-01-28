@@ -1,4 +1,4 @@
-# Anikku Project Plan
+# AniZen Project Plan
 
 ## Current Objectives
 - [x] **Project Tracking & CI/CD**
@@ -29,6 +29,6 @@
     - [x] Enhanced R8/Proguard optimizations for Release builds
 
 ## Context
-- Project: Anikku Mod
+- Project: AniZen
 - Platform: Android (Kotlin/Compose)
 - Focus: Performance, Tactile Feedback, Speed.

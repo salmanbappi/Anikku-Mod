@@ -3,7 +3,7 @@ name: anikku-dev
 description: Automates git deployment and build monitoring. Use when the user wants to push changes, deploy updates, or check if the build passed.
 ---
 
-# Anikku Dev Ops
+# AniZen Dev Ops
 
 ## Instructions
 
