@@ -66,8 +66,8 @@ fun buildVFChain(decoderPreferences: DecoderPreferences): String {
     }
 
     if (sharpen > 0) {
-        val amount = sharpen / 100f // Normalized to 0.0 - 1.0
-        vfList.add("unsharp=3:3:$amount:3:3:0")
+        val amount = (sharpen / 100f) * 1.5f // Scaled for 5x5 matrix
+        vfList.add("unsharp=5:5:$amount:5:5:0")
     }
 
     if (blur > 0) {
