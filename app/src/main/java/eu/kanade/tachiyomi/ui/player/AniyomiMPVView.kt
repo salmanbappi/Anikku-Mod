@@ -116,15 +116,28 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         MPVLib.setPropertyBoolean("pause", true)
         MPVLib.setOptionString("profile", "fast")
         MPVLib.setOptionString("hwdec", if (decoderPreferences.tryHWDecoding().get()) "auto" else "no")
-        when (decoderPreferences.videoDebanding().get()) {
-            Debanding.None -> {}
-            Debanding.CPU -> MPVLib.setOptionString("vf", "gradfun=radius=12")
-            Debanding.GPU -> MPVLib.setOptionString("deband", "yes")
+
+        if (decoderPreferences.highQualityScaling().get()) {
+            MPVLib.setOptionString("scale", "ewa_lanczossharp")
+            MPVLib.setOptionString("cscale", "mitchell")
+            MPVLib.setOptionString("dscale", "mitchell")
         }
 
-        if (decoderPreferences.useYUV420P().get()) {
-            MPVLib.setOptionString("vf", "format=yuv420p")
+        if (decoderPreferences.smoothMotion().get()) {
+            MPVLib.setOptionString("interpolation", "yes")
+            MPVLib.setOptionString("video-sync", "display-resample")
+            MPVLib.setOptionString("tscale", "oversample")
         }
+
+        if (decoderPreferences.videoDebanding().get() == Debanding.GPU) {
+            MPVLib.setOptionString("deband", "yes")
+        }
+
+        val vfChain = buildVFChain(decoderPreferences)
+        if (vfChain.isNotEmpty()) {
+            MPVLib.setOptionString("vf", vfChain)
+        }
+
         MPVLib.setOptionString("msg-level", "all=" + if (networkPreferences.verboseLogging().get()) "v" else "warn")
 
         MPVLib.setPropertyBoolean("keep-open", true)
@@ -143,7 +156,9 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         MPVLib.setOptionString("screenshot-directory", screenshotDir.path)
 
         VideoFilters.entries.forEach {
-            MPVLib.setOptionString(it.mpvProperty, it.preference(decoderPreferences).get().toString())
+            if (!it.mpvProperty.startsWith("vf_")) {
+                MPVLib.setOptionString(it.mpvProperty, it.preference(decoderPreferences).get().toString())
+            }
         }
 
         MPVLib.setOptionString("speed", playerPreferences.playerSpeed().get().toString())

@@ -17,6 +17,7 @@
 
 package eu.kanade.tachiyomi.ui.player.controls.components.panels
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,12 +26,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
+import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -41,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.constraintlayout.compose.ConstraintLayout
 import eu.kanade.presentation.player.components.SliderItem
+import eu.kanade.tachiyomi.ui.player.VideoFilterTheme
 import eu.kanade.tachiyomi.ui.player.VideoFilters
 import eu.kanade.tachiyomi.ui.player.controls.CARDS_MAX_WIDTH
 import eu.kanade.tachiyomi.ui.player.controls.components.ControlsButton
@@ -101,13 +105,14 @@ fun FiltersCard(
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.extraSmall),
             ) {
                 TextButton(
                     onClick = {
                         VideoFilters.entries.forEach {
-                            MPVLib.setPropertyInt(it.mpvProperty, it.preference(decoderPreferences).deleteAndGet())
+                            applyFilter(it, it.preference(decoderPreferences).deleteAndGet())
                         }
+                        decoderPreferences.videoFilterTheme().delete()
                     },
                 ) {
                     Text(text = stringResource(MR.strings.action_reset))
@@ -116,18 +121,46 @@ fun FiltersCard(
             }
         }
         LazyColumn {
+            item {
+                Column(
+                    modifier = Modifier.padding(horizontal = MaterialTheme.padding.medium),
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
+                ) {
+                    Text(
+                        text = stringResource(MR.strings.player_sheets_filters_themes),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    val selectedTheme by decoderPreferences.videoFilterTheme().collectAsState()
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        items(VideoFilterTheme.entries) { theme ->
+                            InputChip(
+                                selected = selectedTheme == theme.ordinal,
+                                onClick = {
+                                    decoderPreferences.videoFilterTheme().set(theme.ordinal)
+                                    applyTheme(theme, decoderPreferences)
+                                },
+                                label = { Text(stringResource(theme.titleRes)) },
+                            )
+                        }
+                    }
+                }
+            }
             items(VideoFilters.entries) { filter ->
                 val value by filter.preference(decoderPreferences).collectAsState()
                 SliderItem(
                     label = stringResource(filter.titleRes),
-                    value = value,
+                    value = value.toFloat(),
                     valueText = value.toString(),
                     onChange = {
-                        filter.preference(decoderPreferences).set(it)
-                        MPVLib.setPropertyInt(filter.mpvProperty, it)
+                        filter.preference(decoderPreferences).set(it.toInt())
+                        applyFilter(filter, it.toInt())
                     },
-                    max = 100,
-                    min = -100,
+                    max = filter.max.toFloat(),
+                    min = filter.min.toFloat(),
                 )
             }
             item {
@@ -146,3 +179,5 @@ fun FiltersCard(
         }
     }
 }
+
+
