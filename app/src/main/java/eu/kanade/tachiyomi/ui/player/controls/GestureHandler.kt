@@ -119,7 +119,6 @@ fun GestureHandler(
             .fillMaxSize()
             .windowInsetsPadding(WindowInsets.safeGestures)
             .pointerInput(Unit) {
-                val originalSpeed = viewModel.playbackSpeed.value
                 detectTapGestures(
                     onTap = {
                         if (controlsShown) viewModel.hideControls() else viewModel.showControls()
@@ -139,6 +138,7 @@ fun GestureHandler(
                         }
                     },
                     onPress = {
+                        val originalSpeed = viewModel.playbackSpeed.value
                         if (panelShown != Panels.None && !allowGesturesInPanels) {
                             viewModel.panelShown.update { Panels.None }
                         }
@@ -172,7 +172,8 @@ fun GestureHandler(
                         if (!isLongPressing) {
                             haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                             isLongPressing = true
-                            MPVLib.setPropertyDouble("speed", 2.0)
+                            val longPressSpeed = playerPreferences.playerSpeedLongPress().get()
+                            MPVLib.setPropertyDouble("speed", longPressSpeed.toDouble())
                             viewModel.playerUpdate.update { PlayerUpdates.DoubleSpeed }
                         }
                     },
