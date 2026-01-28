@@ -47,7 +47,7 @@ class MyAnimeList(id: Long) :
     private val json: Json by injectLazy()
 
     private val interceptor by lazy { MyAnimeListInterceptor(this) }
-    private val api by lazy { MyAnimeListApi(id, client, interceptor, trackPreferences.myAnimeListClientId().get()) }
+    private val api by lazy { MyAnimeListApi(id, client, interceptor) }
 
     override val supportsReadingDates: Boolean = true
 
