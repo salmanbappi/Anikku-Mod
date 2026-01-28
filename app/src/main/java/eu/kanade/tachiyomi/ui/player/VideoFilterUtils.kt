@@ -91,6 +91,11 @@ fun applyTheme(theme: VideoFilterTheme, prefs: DecoderPreferences) {
     prefs.debandThreshold().set(32)
     prefs.debandRange().set(16)
 
+    // Ensure hwdec is in copy mode if filters are being used
+    if (theme.brightness != 0 || theme.contrast != 0 || theme.saturation != 0 || theme.gamma != 0 || theme.hue != 0) {
+        MPVLib.setPropertyString("hwdec", "mediacodec-copy")
+    }
+
     // Apply direct properties
     MPVLib.setPropertyInt("brightness", theme.brightness)
     MPVLib.setPropertyInt("contrast", theme.contrast)
