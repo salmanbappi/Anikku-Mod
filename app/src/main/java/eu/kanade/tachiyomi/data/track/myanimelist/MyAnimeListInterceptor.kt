@@ -52,7 +52,12 @@ class MyAnimeListInterceptor(private val myanimelist: MyAnimeList) : Interceptor
         oauth?.takeUnless { it.isExpired() }?.let { return@synchronized it }
 
         val response = try {
-            chain.proceed(MyAnimeListApi.refreshTokenRequest(oauth!!))
+            chain.proceed(
+                MyAnimeListApi.refreshTokenRequest(
+                    oauth!!,
+                    myanimelist.trackPreferences.myAnimeListClientId().get(),
+                ),
+            )
         } catch (_: Throwable) {
             throw MALTokenRefreshFailed()
         }
