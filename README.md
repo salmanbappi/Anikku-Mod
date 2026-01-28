@@ -6,85 +6,33 @@ AniZen is a high-performance, feature-rich modified version of AniZen. This mod 
 
 ## 💎 Exclusive Mod Improvements
 
-Compared to the original AniZen, this mod introduces massive upgrades to the player, trackers, and downloading system.
-
-### 🎨 Ultimate Video Filter Suite (mpvEx Style)
-The filtering system has been completely redesigned into a clean, expandable card-based UI.
-*   **Filter Presets (Themes):** Instantly apply optimized looks like **Vivid Anime**, **Cinema**, **Night Mode**, **Warm/Cold**, and **Grayscale**.
-*   **Advanced Controls:** Granular sliders for **Sharpness**, **Blur**, and **Film Grain**.
-*   **Pro-Level Debanding:** Detailed control over Iterations, Threshold, and Range to eliminate color artifacts in anime gradients.
-*   **Consolidated Chain:** Filters are applied in a single pass to prevent screen flickering/blinking.
-
 ### 🧠 Anime4K Real-time Neural Upscaling
-Integrated the famous **Anime4K neural networks** directly into the player using high-performance GLSL shaders.
-*   **Neural Upscaling:** Go beyond basic bicubic scaling. Use Convolutional Neural Networks (CNN) to reconstruct missing details.
-*   **Real-time Restoration:** Remove compression artifacts, ringing, and blurriness without losing the "hand-drawn" look.
-*   **Hardware Accelerated:** Runs entirely on your device's GPU for zero-lag playback (on supported hardware).
-*   **Dynamic Selection:** Choose between specialized modes (Restore, Upscale, Denoise) and quality profiles (Fast to Ultra).
+Integrated the famous **Anime4K neural networks** directly into the player. Upscale 720p to 4K clarity in real-time.
+*   👉 **[Read the Anime4K Guide](docs/ANIME4K_GUIDE.md)** for details on Modes (A, B, C) and Performance profiles.
 
-### ⏩ Customizable Long Press Speed
-*   **Beyond 2x:** Go into the Playback Speed menu and set your preferred "Long press speed" (e.g., 3x, 4x, or even 0.5x).
-*   **Visual Feedback:** The on-screen indicator dynamically updates to show your configured speed.
-*   **Zero-Bug Reset:** Fixed the original bug where speed would reset to incorrect values after release.
+### ⚙️ Pro Player Engine
+Unlocked advanced `mpv` features for audiophiles and videophiles.
+*   **High Quality Scaling:** `ewa_lanczossharp` for pristine edges.
+*   **Interpolation:** Smooth 60fps motion for 24fps anime.
+*   **Universal Filter Fix:** Smart auto-switching for filter compatibility.
+*   👉 **[Read the Pro Player Guide](docs/PRO_PLAYER_GUIDE.md)** for deep dives on these settings and performance warnings.
 
-### ⚙️ Pro Decoder Settings
-Found in **Settings -> Player -> Decoder**. These settings unlock the full potential of `mpv-android` but require a capable device.
-
-#### 🏗️ High Quality Scaling (`ewa_lanczossharp`)
-*   **What it does:** Replaces the standard bilinear scaler with a Jinc-based scaler (Lanczos radius 3).
-*   **Visual Impact:** Significantly sharper edges and less "ringing" (halos) around characters.
-*   **⚠️ Performance Warning:** This scaler is mathematically intensive. On 1080p content, it can triple the GPU load. **Disable this immediately** if you notice stuttering or battery drain on mid-range devices.
-
-#### 🎞️ Interpolation (Smooth Motion)
-*   **What it does:** Decouples video framerate from display refresh rate.
-*   **The Problem:** Anime is usually 24fps. Phone screens are 60Hz, 90Hz, or 120Hz. 24 does not divide evenly into 60, causing "judder" (uneven motion).
-*   **The Solution:** This setting blends adjacent frames to smooth out camera pans and action scenes. It creates a "60fps look" for 24fps content.
-*   **⚠️ Performance Warning:** This requires the GPU to generate intermediate frames in real-time. It causes significant input lag (latency) and high battery usage. **Not recommended for low-end chips.**
-
-#### 🔧 Universal Filter Fix
-*   **Smart Copy Mode:** Forces `mediacodec-copy` automatically **only** when active filters (like Sharpen or Saturation) require it.
-*   **Battery Saver:** Automatically switches back to standard hardware decoding when filters are disabled.
+### 🎨 Ultimate Video Filter Suite
+*   **Presets:** Vivid Anime, Cinema, Vintage, and more.
+*   **Granular Control:** Adjust Sharpen, Blur, Grain, and Debanding.
+*   **Clean UI:** Expandable, card-based interface.
 
 ### 📥 1DM+ Style Downloader
 *   **Parallel Power:** Increased concurrent episode limit to **30**.
-*   **Multi-threaded Chunking:** Optimized downloader for direct files, significantly increasing speeds on stable connections.
-*   **Internal Downloader UI:** Dedicated settings to toggle and configure the internal download engine.
+*   **Multi-threaded Chunking:** Optimized for maximum speed.
 
 ### 🔗 Enhanced Tracker Stability
-*   **MAL Fix:** Updated to the official Client ID for 100% compatibility.
-*   **AniList Robustness:** Improved token parsing to prevent login failures on specific redirect URLs.
-*   **Redirect Logic:** Optimized deep-link capturing for all trackers.
+*   **Official Compatibility:** Uses official Aniyomi Client IDs for MyAnimeList and AniList.
+*   **Seamless Login:** Supports `tachiyomi://` redirects for a "just works" experience.
 
----
-
-## 🔧 How to Use & Pro-Tips
-
-### 🎭 Using Video Filters & Presets
-1.  Open the **Video Filters** panel in the player.
-2.  Tap on **Presets** to see the new layout.
-3.  Choose a theme (e.g., **Vivid Anime**). You will see the description explaining what it does.
-4.  The app will automatically match and highlight the preset if you move the sliders manually!
-
-### 🧪 Understanding Anime4K Modes
-
-Anime4K isn't just one filter; it's a suite of shaders designed for different types of content:
-
-*   **Mode A (Optimized):** The default for most modern anime. It focuses on sharpening and upscaling. Best for 720p/1080p content that looks a bit soft.
-*   **Mode B (De-Blur):** Specifically tuned for content that has been upscaled poorly or looks "out of focus." It aggressively recovers line art.
-*   **Mode C (De-Noise):** The "heavy lifter" for low-quality videos (480p, old DVD rips, or heavily compressed streams). It uses a de-blocking pass before upscaling to prevent "ugly" blocks from becoming larger.
-*   **Mode A+B / B+C:** Combined chains for specific scenarios where you need both restoration and sharpening.
-*   **"Plus" Versions:** These modes run the neural pass multiple times for even crisper lines. **Warning:** These require significantly more GPU power.
-
-#### ⚡ Performance Guide
-*   **Fast (S):** Uses lightweight kernels. Perfect for mid-range phones or saving battery.
-*   **Balanced (M):** The recommended setting for most modern devices (Snapdragon 865+).
-*   **High (L):** Uses complex 64-128 channel networks. Best for flagship GPUs (Snapdragon 8 Gen 1/2/3).
-*   **Pro-Tip:** If you experience frame drops, lower the Quality (e.g., from L to M) before changing the Mode. Mode A is generally the lightest.
-
-### 📳 Tactile Experience
-This mod adds **Haptic Feedback** across the app for a premium feel:
-*   Nav bar clicks, toggle switches, and library item interactions.
-*   Logo header and playback control triggers.
+### ⏩ Customizable Long Press Speed
+*   Set any speed (e.g., 3x, 0.5x) for the long-press action.
+*   Visual feedback and bug-free resetting.
 
 ---
 
