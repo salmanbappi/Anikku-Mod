@@ -38,6 +38,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -49,8 +50,10 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import eu.kanade.presentation.player.components.SliderItem
 import eu.kanade.tachiyomi.ui.player.VideoFilterTheme
 import eu.kanade.tachiyomi.ui.player.VideoFilters
+import eu.kanade.tachiyomi.ui.player.applyAnime4K
 import eu.kanade.tachiyomi.ui.player.applyFilter
 import eu.kanade.tachiyomi.ui.player.applyTheme
+import eu.kanade.tachiyomi.ui.player.utils.Anime4KManager
 import eu.kanade.tachiyomi.ui.player.controls.CARDS_MAX_WIDTH
 import eu.kanade.tachiyomi.ui.player.controls.components.ControlsButton
 import eu.kanade.tachiyomi.ui.player.controls.panelCardsColors
@@ -118,7 +121,12 @@ fun FiltersCard(
                             it.preference(decoderPreferences).delete()
                         }
                         decoderPreferences.videoFilterTheme().delete()
+                        decoderPreferences.enableAnime4K().delete()
+                        decoderPreferences.anime4kMode().delete()
+                        decoderPreferences.anime4kQuality().delete()
+                        
                         MPVLib.setPropertyString("vf", "")
+                        MPVLib.setPropertyString("glsl-shaders", "")
                         MPVLib.setPropertyBoolean("deband", false)
                         MPVLib.setPropertyInt("brightness", 0)
                         MPVLib.setPropertyInt("contrast", 0)
@@ -164,7 +172,6 @@ fun FiltersCard(
             }
             items(VideoFilters.entries) { filter ->
                 val value by filter.preference(decoderPreferences).collectAsState()
-                val animatedValue by animateFloatAsState(value.toFloat(), label = "filter_slider")
                 SliderItem(
                     label = stringResource(filter.titleRes),
                     value = value.toFloat(),
@@ -176,6 +183,85 @@ fun FiltersCard(
                     max = filter.max.toFloat(),
                     min = filter.min.toFloat(),
                 )
+            }
+            item {
+                val anime4KManager = remember { Injekt.get<Anime4KManager>() }
+                val enableAnime4K by decoderPreferences.enableAnime4K().collectAsState()
+                val anime4kMode by decoderPreferences.anime4kMode().collectAsState()
+                val anime4kQuality by decoderPreferences.anime4kQuality().collectAsState()
+
+                Column(
+                    modifier = Modifier
+                        .padding(MaterialTheme.padding.medium)
+                        .fillMaxWidth()
+                        .animateContentSize(),
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = stringResource(MR.strings.pref_anime4k_title),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                        Switch(
+                            checked = enableAnime4K,
+                            onCheckedChange = {
+                                decoderPreferences.enableAnime4K().set(it)
+                                applyAnime4K(decoderPreferences, anime4KManager)
+                            }
+                        )
+                    }
+
+                    if (enableAnime4K) {
+                        Text(
+                            text = stringResource(MR.strings.pref_anime4k_mode),
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
+                        ) {
+                            items(Anime4KManager.Mode.entries) { mode ->
+                                if (mode == Anime4KManager.Mode.OFF) return@items
+                                InputChip(
+                                    selected = anime4kMode == mode.name,
+                                    onClick = {
+                                        decoderPreferences.anime4kMode().set(mode.name)
+                                        applyAnime4K(decoderPreferences, anime4KManager)
+                                    },
+                                    label = { Text(mode.name.replace("_", "+")) },
+                                )
+                            }
+                        }
+
+                        Text(
+                            text = stringResource(MR.strings.pref_anime4k_quality),
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
+                        ) {
+                            items(Anime4KManager.Quality.entries) { quality ->
+                                val label = when (quality) {
+                                    Anime4KManager.Quality.FAST -> stringResource(MR.strings.anime4k_quality_fast)
+                                    Anime4KManager.Quality.BALANCED -> stringResource(MR.strings.anime4k_quality_balanced)
+                                    Anime4KManager.Quality.HIGH -> stringResource(MR.strings.anime4k_quality_high)
+                                }
+                                InputChip(
+                                    selected = anime4kQuality == quality.name,
+                                    onClick = {
+                                        decoderPreferences.anime4kQuality().set(quality.name)
+                                        applyAnime4K(decoderPreferences, anime4KManager)
+                                    },
+                                    label = { Text(label) },
+                                )
+                            }
+                        }
+                    }
+                }
             }
             item {
                 if (decoderPreferences.gpuNext().get()) return@item

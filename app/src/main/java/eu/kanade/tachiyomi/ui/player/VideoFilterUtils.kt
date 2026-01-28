@@ -18,6 +18,7 @@
 package eu.kanade.tachiyomi.ui.player
 
 import eu.kanade.tachiyomi.ui.player.settings.DecoderPreferences
+import eu.kanade.tachiyomi.ui.player.utils.Anime4KManager
 import `is`.xyz.mpv.MPVLib
 
 fun applyFilter(filter: VideoFilters, value: Int, prefs: DecoderPreferences) {
@@ -94,3 +95,25 @@ fun applyTheme(theme: VideoFilterTheme, prefs: DecoderPreferences) {
     // Reset deband
     MPVLib.setPropertyBoolean("deband", false)
 }
+
+fun applyAnime4K(prefs: DecoderPreferences, manager: Anime4KManager, isInit: Boolean = false) {
+    val enabled = prefs.enableAnime4K().get()
+    val mode = try {
+        Anime4KManager.Mode.valueOf(prefs.anime4kMode().get())
+    } catch (e: Exception) {
+        Anime4KManager.Mode.OFF
+    }
+    val quality = try {
+        Anime4KManager.Quality.valueOf(prefs.anime4kQuality().get())
+    } catch (e: Exception) {
+        Anime4KManager.Quality.BALANCED
+    }
+
+    val chain = if (enabled) manager.getShaderChain(mode, quality) else ""
+    if (isInit) {
+        MPVLib.setOptionString("glsl-shaders", chain)
+    } else {
+        MPVLib.setPropertyString("glsl-shaders", chain)
+    }
+}
+
