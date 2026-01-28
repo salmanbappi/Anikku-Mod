@@ -75,53 +75,24 @@ fun buildVFChain(decoderPreferences: DecoderPreferences): String {
 }
 
 fun checkAndSetCopyMode(prefs: DecoderPreferences) {
-    val anyFilterActive = 
-        prefs.brightnessFilter().get() != 0 ||
-        prefs.contrastFilter().get() != 0 ||
+    // Only trigger copy mode for filters that strictly require it on most devices
+    // Brightness, Contrast, and Gamma often work with standard HW decoding
+    val requiresCopyMode = 
         prefs.saturationFilter().get() != 0 ||
-        prefs.gammaFilter().get() != 0 ||
         prefs.hueFilter().get() != 0 ||
         prefs.sharpenFilter().get() != 0 ||
         prefs.blurFilter().get() != 0
 
-    // Automatically enable copy mode if filters are active
-    if (anyFilterActive) {
+    // Automatically enable copy mode if necessary filters are active
+    if (requiresCopyMode) {
         if (!prefs.forceMediaCodecCopy().get()) {
             prefs.forceMediaCodecCopy().set(true)
         }
         MPVLib.setPropertyString("hwdec", "mediacodec-copy")
     } else {
-        // If no filters are active, respect the manual force switch
-        // If the user manually turned it ON, keep it ON.
-        // But the user asked: "if I don't use that filter... it should turn off"
-        // This implies if they reset filters, they want it OFF (unless they manually forced it *without* filters?)
-        // Let's assume: If filters become 0, we turn it OFF.
-        // User can still manually turn it ON via switch (which sets the pref).
-        // But wait, if we set it to false here, we overwrite the manual switch if it was ON.
-        
-        // Scenario: User turns on Switch (Force=True). Filters are 0.
-        // checkAndSetCopyMode runs (maybe triggered by something else).
-        // It sees filters=0. Should it turn Force=False?
-        // If so, the switch automatically turns off immediately after user turns it on? NO.
-        
-        // We only want to auto-manage if the user *changed* a filter.
-        // But this function is called inside applyFilter.
-        // If user drags slider to 0, this function runs.
-        // We should probably allow Manual ON even if filters are 0.
-        
-        // But the user request: "if I don't use that filter... it should turn off"
-        // This implies they want the "Auto" behavior to dominate.
-        
-        // Let's try this:
-        // We update the PREFERENCE to match the filter state.
-        // This makes the switch "follow" the filters.
-        
+        // If no mandatory filters are active, turn off copy mode to save performance
+        // This respects the user's wish to only use it when "needed"
         if (prefs.forceMediaCodecCopy().get()) {
-             // It's currently ON.
-             // If filters are 0, should we turn it OFF?
-             // Only if we assume the user didn't want it ON for other reasons.
-             // Given the complaint "why isn't it showing... if I don't use... it should turn off",
-             // it seems they treat the switch as an indicator.
              prefs.forceMediaCodecCopy().set(false)
              MPVLib.setPropertyString("hwdec", "mediacodec")
         }

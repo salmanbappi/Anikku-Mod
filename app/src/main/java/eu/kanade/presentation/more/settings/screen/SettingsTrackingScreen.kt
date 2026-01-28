@@ -148,23 +148,33 @@ object SettingsTrackingScreen : SearchableSettings {
             Preference.PreferenceGroup(
                 title = stringResource(MR.strings.services),
                 preferenceItems = persistentListOf(
+                    Preference.PreferenceItem.EditTextPreference(
+                        pref = trackPreferences.myAnimeListClientId(),
+                        title = "MyAnimeList Client ID",
+                        subtitle = "Leave default or enter custom ID (requires restart)",
+                    ),
                     Preference.PreferenceItem.TrackerPreference(
                         title = trackerManager.myAnimeList.name,
                         tracker = trackerManager.myAnimeList,
                         login = {
                             context.openInBrowser(
-                                MyAnimeListApi.authUrl(),
+                                MyAnimeListApi.authUrl(trackPreferences.myAnimeListClientId().get()),
                                 forceDefaultBrowser = true,
                             )
                         },
                         logout = { dialog = LogoutDialog(trackerManager.myAnimeList) },
+                    ),
+                    Preference.PreferenceItem.EditTextPreference(
+                        pref = trackPreferences.anilistClientId(),
+                        title = "AniList Client ID",
+                        subtitle = "Leave default or enter custom ID (requires restart)",
                     ),
                     Preference.PreferenceItem.TrackerPreference(
                         title = trackerManager.aniList.name,
                         tracker = trackerManager.aniList,
                         login = {
                             context.openInBrowser(
-                                AnilistApi.authUrl(),
+                                AnilistApi.authUrl(trackPreferences.anilistClientId().get()),
                                 forceDefaultBrowser = true,
                             )
                         },

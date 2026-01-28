@@ -35,6 +35,7 @@ class MyAnimeListApi(
     private val trackId: Long,
     private val client: OkHttpClient,
     interceptor: MyAnimeListInterceptor,
+    private val clientId: String,
 ) {
 
     private val json: Json by injectLazy()
@@ -44,7 +45,7 @@ class MyAnimeListApi(
     suspend fun getAccessToken(authCode: String): MALOAuth {
         return withIOContext {
             val formBody: RequestBody = FormBody.Builder()
-                .add("client_id", CLIENT_ID)
+                .add("client_id", clientId)
                 .add("code", authCode)
                 .add("code_verifier", codeVerifier)
                 .add("grant_type", "authorization_code")
@@ -242,8 +243,6 @@ class MyAnimeListApi(
     }
 
     companion object {
-        private const val CLIENT_ID = "18e5087eaeef557833a075a4d30d2afe"
-
         private const val BASE_OAUTH_URL = "https://myanimelist.net/v1/oauth2"
         private const val BASE_API_URL = "https://api.myanimelist.net/v2"
 
@@ -251,8 +250,8 @@ class MyAnimeListApi(
 
         private var codeVerifier: String = ""
 
-        fun authUrl(): Uri = "$BASE_OAUTH_URL/authorize".toUri().buildUpon()
-            .appendQueryParameter("client_id", CLIENT_ID)
+        fun authUrl(clientId: String): Uri = "$BASE_OAUTH_URL/authorize".toUri().buildUpon()
+            .appendQueryParameter("client_id", clientId)
             .appendQueryParameter("code_challenge", getPkceChallengeCode())
             .appendQueryParameter("response_type", "code")
             .build()
@@ -262,9 +261,9 @@ class MyAnimeListApi(
             .appendPath("my_list_status")
             .build()
 
-        fun refreshTokenRequest(oauth: MALOAuth): Request {
+        fun refreshTokenRequest(oauth: MALOAuth, clientId: String): Request {
             val formBody: RequestBody = FormBody.Builder()
-                .add("client_id", CLIENT_ID)
+                .add("client_id", clientId)
                 .add("refresh_token", oauth.refreshToken)
                 .add("grant_type", "refresh_token")
                 .build()
