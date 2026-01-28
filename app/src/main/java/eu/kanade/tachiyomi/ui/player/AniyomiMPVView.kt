@@ -31,6 +31,7 @@ import eu.kanade.tachiyomi.ui.player.settings.DecoderPreferences
 import eu.kanade.tachiyomi.ui.player.settings.PlayerPreferences
 import eu.kanade.tachiyomi.ui.player.settings.SubtitlePreferences
 import eu.kanade.tachiyomi.ui.player.buildVFChain
+import eu.kanade.tachiyomi.ui.player.utils.Anime4KManager
 import `is`.xyz.mpv.BaseMPVView
 import `is`.xyz.mpv.KeyMapping
 import `is`.xyz.mpv.MPVLib
@@ -47,7 +48,7 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
     private val audioPreferences: AudioPreferences by injectLazy()
     private val advancedPreferences: AdvancedPlayerPreferences by injectLazy()
     private val networkPreferences: NetworkPreferences by injectLazy()
-    private val anime4KManager: Anime4KManager by injectLazy()
+    private val anime4kManager: Anime4KManager by injectLazy()
 
     var isExiting = false
 
