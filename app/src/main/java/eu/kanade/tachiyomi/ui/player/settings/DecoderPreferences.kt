@@ -17,6 +17,7 @@ class DecoderPreferences(
     fun enableAnime4K() = preferenceStore.getBoolean("pref_enable_anime4k", false)
     fun anime4kMode() = preferenceStore.getString("pref_anime4k_mode", "OFF")
     fun anime4kQuality() = preferenceStore.getString("pref_anime4k_quality", "BALANCED")
+    fun forceMediaCodecCopy() = preferenceStore.getBoolean("pref_force_mediacodec_copy", false)
 
     // Non-preferences
 

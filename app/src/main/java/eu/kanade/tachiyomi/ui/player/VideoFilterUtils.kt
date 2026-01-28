@@ -24,8 +24,8 @@ import `is`.xyz.mpv.MPVLib
 fun applyFilter(filter: VideoFilters, value: Int, prefs: DecoderPreferences) {
     val property = filter.mpvProperty
     
-    // Ensure hwdec is in copy mode if filters are being used
-    if (value != 0) {
+    // Ensure hwdec is in copy mode if filters are being used or forced
+    if (prefs.forceMediaCodecCopy().get() || value != 0) {
         MPVLib.setPropertyString("hwdec", "mediacodec-copy")
     }
 
@@ -91,8 +91,8 @@ fun applyTheme(theme: VideoFilterTheme, prefs: DecoderPreferences) {
     prefs.debandThreshold().set(32)
     prefs.debandRange().set(16)
 
-    // Ensure hwdec is in copy mode if filters are being used
-    if (theme.brightness != 0 || theme.contrast != 0 || theme.saturation != 0 || theme.gamma != 0 || theme.hue != 0) {
+    // Ensure hwdec is in copy mode if filters are being used or forced
+    if (prefs.forceMediaCodecCopy().get() || theme.brightness != 0 || theme.contrast != 0 || theme.saturation != 0 || theme.gamma != 0 || theme.hue != 0) {
         MPVLib.setPropertyString("hwdec", "mediacodec-copy")
     }
 
