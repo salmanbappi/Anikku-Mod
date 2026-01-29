@@ -135,6 +135,15 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         
         MPVLib.setOptionString("video-sync", "display-resample")
 
+        // Force detect refresh rate
+        val refreshRate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            context.display?.refreshRate ?: 60f
+        } else {
+            60f
+        }
+        MPVLib.setOptionString("display-fps", refreshRate.toString())
+        MPVLib.setOptionString("override-display-fps", refreshRate.toString())
+
         if (decoderPreferences.highQualityScaling().get()) {
             MPVLib.setOptionString("scale", "ewa_lanczossharp")
             MPVLib.setOptionString("cscale", "mitchell")
