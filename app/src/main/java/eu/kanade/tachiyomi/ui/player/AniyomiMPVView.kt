@@ -115,10 +115,11 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
     var aid: Int by TrackDelegate("aid")
 
     override fun initOptions(vo: String) {
-        val gpuNext = decoderPreferences.gpuNext().get() || decoderPreferences.smoothMotion().get()
+        val smoothMotionEnabled = decoderPreferences.smoothMotion().get()
+        val gpuNext = decoderPreferences.gpuNext().get() || smoothMotionEnabled
         setVo(if (gpuNext) "gpu-next" else "gpu")
         
-        // Optimization: Use Vulkan for better mediacodec-copy performance
+        // Vulkan is significantly faster for mediacodec-copy + interpolation
         MPVLib.setOptionString("gpu-api", "vulkan")
         
         MPVLib.setPropertyBoolean("pause", true)
@@ -302,10 +303,15 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         "tscale" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
         "video-params/w" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
         "video-params/h" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
+        "dwidth" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
+        "dheight" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
         "video-out-params/w" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
         "video-out-params/h" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
         "video-codec" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
         "video-bitrate" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
+        "video-params/pixelformat" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
+        "video-params/colorlevels" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
+        "video-params/primaries" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
         "vo-passes" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
         "interpolation" to MPVLib.mpvFormat.MPV_FORMAT_FLAG,
         "vo-delayed-frame-count" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
