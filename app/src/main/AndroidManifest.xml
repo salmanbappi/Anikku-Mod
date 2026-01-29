@@ -202,15 +202,27 @@
             android:name=".ui.setting.track.TrackLoginActivity"
             android:exported="true"
             android:label="@string/track_activity_name">
+            <!-- Priority filter for official tachiyomi scheme -->
             <intent-filter android:priority="999">
                 <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
 
+                <data android:scheme="tachiyomi" />
+                <data android:host="anilist-auth" />
+                <data android:host="bangumi-auth" />
+                <data android:host="myanimelist-auth" />
+                <data android:host="shikimori-auth" />
+                <data android:host="simkl-auth"/>
+            </intent-filter>
+
+            <!-- Secondary filter for anizen scheme -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data android:scheme="anizen" />
-                <data android:scheme="tachiyomi" />
-
                 <data android:host="anilist-auth" />
                 <data android:host="bangumi-auth" />
                 <data android:host="myanimelist-auth" />
