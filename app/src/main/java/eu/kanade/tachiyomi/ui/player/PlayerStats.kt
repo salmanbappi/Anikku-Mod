@@ -25,6 +25,7 @@ object PlayerStats {
     
     val videoSync = MutableStateFlow("")
     val tscale = MutableStateFlow("")
+    val gpuApi = MutableStateFlow("")
     val isInterpolating = MutableStateFlow(false)
     val voPasses = MutableStateFlow(0L)
     

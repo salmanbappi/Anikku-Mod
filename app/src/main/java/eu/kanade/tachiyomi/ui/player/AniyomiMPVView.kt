@@ -115,22 +115,18 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
     var aid: Int by TrackDelegate("aid")
 
     override fun initOptions(vo: String) {
-        val smoothMotionEnabled = decoderPreferences.smoothMotion().get()
-        val gpuNext = decoderPreferences.gpuNext().get() || smoothMotionEnabled
-        setVo(if (gpuNext) "gpu-next" else "gpu")
-        
-        // Vulkan is significantly faster for mediacodec-copy + interpolation
-        MPVLib.setOptionString("gpu-api", "vulkan")
+        setVo(if (decoderPreferences.gpuNext().get()) "gpu-next" else "gpu")
         
         MPVLib.setPropertyBoolean("pause", true)
         MPVLib.setOptionString("profile", "fast")
         
         // Universal fix: force auto-copy if advanced features are active
+        val smoothMotionEnabled = decoderPreferences.smoothMotion().get()
         val filtersActive = decoderPreferences.sharpenFilter().get() > 0 || 
                            decoderPreferences.blurFilter().get() > 0 ||
                            decoderPreferences.videoDebanding().get() != Debanding.None ||
                            decoderPreferences.enableAnime4K().get() ||
-                           decoderPreferences.smoothMotion().get()
+                           smoothMotionEnabled
         
         val hwdec = if (decoderPreferences.tryHWDecoding().get()) {
             if (filtersActive) "mediacodec-copy" else "auto"
@@ -139,9 +135,7 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         }
         MPVLib.setOptionString("hwdec", hwdec)
         
-        // Optimized Sync: display-resample with audio desync protection
         MPVLib.setOptionString("video-sync", "display-resample")
-        MPVLib.setOptionString("video-sync-max-video-change", "5")
 
         // Force detect refresh rate
         val refreshRate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -158,11 +152,9 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
             MPVLib.setOptionString("dscale", "mitchell")
         }
 
-        if (decoderPreferences.smoothMotion().get()) {
+        if (smoothMotionEnabled) {
             MPVLib.setPropertyBoolean("interpolation", true)
-            // Smart temporal scaler selection
             MPVLib.setPropertyString("tscale", "oversample")
-            MPVLib.setOptionString("tscale-blur", "0.0")
         }
 
         // Initialize Debanding
@@ -301,6 +293,7 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         "estimated-display-fps" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
         "video-sync" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
         "tscale" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
+        "gpu-api" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
         "video-params/w" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
         "video-params/h" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
         "dwidth" to MPVLib.mpvFormat.MPV_FORMAT_INT64,

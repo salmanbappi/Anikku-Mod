@@ -1,6 +1,5 @@
 package exh.log
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -37,6 +36,7 @@ fun InterpolationStatsOverlay() {
     val isInterpolating by PlayerStats.isInterpolating.collectAsState(false)
     val videoSync by PlayerStats.videoSync.collectAsState("")
     val tscale by PlayerStats.tscale.collectAsState("")
+    val gpuApi by PlayerStats.gpuApi.collectAsState("")
     val delayedFrames by PlayerStats.delayedFrames.collectAsState(0L)
     val mistime by PlayerStats.mistime.collectAsState(0.0)
     val voPasses by PlayerStats.voPasses.collectAsState(0L)
@@ -70,11 +70,10 @@ fun InterpolationStatsOverlay() {
         lineHeight = 16.sp,
     )
 
-    // Solid background to prevent "smooching" (overlap) with Page 1
+    // Completely transparent background
     Column(
         Modifier
             .fillMaxSize()
-            .background(Color(0xEE000000))
             .padding(24.dp)
     ) {
         Text(
@@ -114,7 +113,7 @@ fun InterpolationStatsOverlay() {
         Text(text = "[ Performance ]", style = baseStyle.copy(color = Color.Yellow))
         StatLine("Mistime", "${(mistime * 1000).toInt()} ms", baseStyle.copy(color = if (mistime > 0.02) Color.Yellow else Color.Unspecified))
         StatLine("Dropped", "$delayedFrames frames", baseStyle.copy(color = if (delayedFrames > 0) Color.Red else Color.Unspecified))
-        StatLine("API", "Vulkan", baseStyle.copy(color = Color.Cyan))
+        StatLine("API", gpuApi.ifEmpty { "n/a" }, baseStyle.copy(color = Color.Cyan))
 
         Spacer(Modifier.height(12.dp))
 
