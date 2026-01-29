@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.kanade.tachiyomi.ui.player.PlayerStats
+import `is`.xyz.mpv.MPVLib
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
@@ -76,7 +77,7 @@ fun InterpolationStatsOverlay(isPageSix: Boolean = false) {
             
             // System info
             Text(text = "--------------------------", style = baseStyle)
-            val hwdec = `is`.xyz.mpv.MPVLib.getPropertyString("hwdec-current") ?: "no"
+            val hwdec = MPVLib.getPropertyString("hwdec-current") ?: "no"
             StatLine("HW Decoder", hwdec, baseStyle)
         }
     }

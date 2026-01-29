@@ -74,10 +74,12 @@ import eu.kanade.tachiyomi.ui.player.controls.components.SeekbarWithTimers
 import eu.kanade.tachiyomi.ui.player.controls.components.TextPlayerUpdate
 import eu.kanade.tachiyomi.ui.player.controls.components.VolumeSlider
 import eu.kanade.tachiyomi.ui.player.controls.components.sheets.toFixed
+import eu.kanade.tachiyomi.ui.player.settings.AdvancedPlayerPreferences
 import eu.kanade.tachiyomi.ui.player.settings.AudioPreferences
 import eu.kanade.tachiyomi.ui.player.settings.GesturePreferences
 import eu.kanade.tachiyomi.ui.player.settings.PlayerPreferences
 import eu.kanade.tachiyomi.ui.player.settings.SubtitlePreferences
+import exh.log.InterpolationStatsOverlay
 import `is`.xyz.mpv.MPVLib
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
@@ -650,7 +652,7 @@ fun PlayerControls(
     val advancedPlayerPreferences = remember { Injekt.get<AdvancedPlayerPreferences>() }
     val statsPage by advancedPlayerPreferences.playerStatisticsPage().collectAsState()
     if (statsPage == 6) {
-        exh.log.InterpolationStatsOverlay(isPageSix = true)
+        InterpolationStatsOverlay(isPageSix = true)
     }
 
     if (showCastSheet) {
