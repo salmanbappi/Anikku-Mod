@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 object PlayerStats {
     val estimatedVfFps = MutableStateFlow(0.0)
     val videoParamsFps = MutableStateFlow(0.0)
+    val videoOutParamsFps = MutableStateFlow(0.0)
     val containerFps = MutableStateFlow(0.0)
     val displayFps = MutableStateFlow(0.0)
     val estimatedDisplayFps = MutableStateFlow(0.0)
@@ -33,11 +34,14 @@ object PlayerStats {
     fun reset() {
         estimatedVfFps.value = 0.0
         videoParamsFps.value = 0.0
+        videoOutParamsFps.value = 0.0
         containerFps.value = 0.0
         displayFps.value = 0.0
         estimatedDisplayFps.value = 0.0
         videoW.value = 0L
         videoH.value = 0L
+        dwidth.value = 0L
+        dheight.value = 0L
         videoOutW.value = 0L
         videoOutH.value = 0L
         videoCodec.value = ""
