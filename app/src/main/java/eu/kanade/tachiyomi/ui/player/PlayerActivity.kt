@@ -788,6 +788,7 @@ class PlayerActivity : BaseActivity() {
             "speed" -> viewModel.playbackSpeed.update { value.toFloat() }
             "estimated-vf-fps" -> PlayerStats.estimatedVfFps.value = value
             "video-params/fps" -> PlayerStats.videoParamsFps.value = value
+            "fps" -> if (PlayerStats.videoParamsFps.value == 0.0) PlayerStats.videoParamsFps.value = value
             "video-out-params/fps" -> PlayerStats.videoOutParamsFps.value = value
             "container-fps" -> PlayerStats.containerFps.value = value
             "display-fps" -> PlayerStats.displayFps.value = value

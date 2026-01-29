@@ -206,7 +206,7 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
 
     override fun postInitOptions() {
         advancedPreferences.playerStatisticsPage().get().let {
-            if (it != 0) {
+            if (it in 1..5) {
                 MPVLib.command(arrayOf("script-binding", "stats/display-stats-toggle"))
                 MPVLib.command(arrayOf("script-binding", "stats/display-page-$it"))
             }
@@ -271,19 +271,12 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         "video-params/aspect" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
         "estimated-vf-fps" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
         "video-params/fps" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
+        "fps" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
         "video-out-params/fps" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
         "container-fps" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
         "display-fps" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
         "estimated-display-fps" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
         "video-sync" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "video-params/w" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
-        "video-params/h" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
-        "video-params/pixelformat" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "video-params/colorlevels" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "video-params/primaries" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "video-codec" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "video-bitrate" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
-        "interpolation" to MPVLib.mpvFormat.MPV_FORMAT_FLAG,
 
         "hwdec-current" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
         "hwdec" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
