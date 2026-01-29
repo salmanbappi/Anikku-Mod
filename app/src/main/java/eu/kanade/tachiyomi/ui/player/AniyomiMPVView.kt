@@ -226,7 +226,7 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
             if (statsActive) {
                 MPVLib.observeProperty(name, format)
             } else {
-                MPVLib.unobserveProperty(name)
+                // MPVLib.unobserveProperty(name)
             }
         }
     }

@@ -1,2 +1,0 @@
-Starting a Gradle Daemon, 4 busy Daemons could not be reused, use --status for details
-Configuration on demand is an incubating feature.
