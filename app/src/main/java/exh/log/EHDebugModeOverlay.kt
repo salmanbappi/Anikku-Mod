@@ -26,9 +26,9 @@ import java.util.Locale
 fun InterpolationStatsOverlay() {
     val vfFps by PlayerStats.estimatedVfFps.collectAsState(0.0)
     val sourceFps by PlayerStats.videoParamsFps.collectAsState(0.0)
-    val outFps by PlayerStats.videoOutParamsFps.collectAsState(0.0)
+    val containerFps by PlayerStats.containerFps.collectAsState(0.0)
     val displayFps by PlayerStats.displayFps.collectAsState(0.0)
-    val actualFps by PlayerStats.estimatedDisplayFps.collectAsState(0.0)
+    val estimatedDisplayFps by PlayerStats.estimatedDisplayFps.collectAsState(0.0)
     
     val isInterpolating by PlayerStats.isInterpolating.collectAsState(false)
     val videoSync by PlayerStats.videoSync.collectAsState("")
@@ -74,7 +74,7 @@ fun InterpolationStatsOverlay() {
             Spacer(Modifier.height(8.dp))
         }
 
-        // Status
+        // Status logic
         val statusText = when {
             isInterpolating && !isHardwareBlocking -> "Active (Working)"
             isInterpolating && isHardwareBlocking -> "Active (But blocked by HW)"
@@ -85,10 +85,13 @@ fun InterpolationStatsOverlay() {
         
         Spacer(Modifier.height(12.dp))
 
-        // FPS Details
-        StatLine("Source Rate", "${format.format(sourceFps)} fps", baseStyle)
+        // FPS Details with fallbacks
+        val finalSourceFps = if (sourceFps > 0) sourceFps else containerFps
+        val finalActualFps = if (estimatedDisplayFps > 0) estimatedDisplayFps else vfFps
+        
+        StatLine("Source Rate", "${format.format(finalSourceFps)} fps", baseStyle)
         StatLine("Filter Output", "${format.format(vfFps)} fps", baseStyle)
-        StatLine("Actual Display", "${format.format(actualFps)} fps", baseStyle)
+        StatLine("Actual Display", "${format.format(finalActualFps)} fps", baseStyle)
         StatLine("Refresh Rate", "${format.format(displayFps)} Hz", baseStyle)
         
         Spacer(Modifier.height(12.dp))
