@@ -13,6 +13,7 @@ class DecoderPreferences(
     fun useYUV420P() = preferenceStore.getBoolean("use_yuv420p", true)
     fun highQualityScaling() = preferenceStore.getBoolean("pref_high_quality_scaling", false)
     fun smoothMotion() = preferenceStore.getBoolean("pref_smooth_motion", false)
+    fun interpolationMode() = preferenceStore.getEnum("pref_interpolation_mode", InterpolationMode.Oversample)
 
     fun enableAnime4K() = preferenceStore.getBoolean("pref_enable_anime4k", false)
     fun anime4kMode() = preferenceStore.getString("pref_anime4k_mode", "OFF")
@@ -34,4 +35,11 @@ class DecoderPreferences(
     fun debandRange() = preferenceStore.getInt("pref_player_filter_deband_range")
 
     fun videoFilterTheme() = preferenceStore.getInt("pref_video_filter_theme", 0)
+}
+
+enum class InterpolationMode(val title: String, val value: String) {
+    Linear("Fast (Low Power)", "linear"),
+    Oversample("Balanced (Anime)", "oversample"),
+    Mitchell("Smooth (Cinematic)", "mitchell"),
+    CatmullRom("High Quality (Sharp)", "catmull_rom")
 }
