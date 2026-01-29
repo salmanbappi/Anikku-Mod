@@ -10,6 +10,9 @@ object PlayerStats {
     val videoH = MutableStateFlow(0L)
     val videoCodec = MutableStateFlow("")
     val videoBitrate = MutableStateFlow(0L)
+    val videoPixFmt = MutableStateFlow("")
+    val videoLevels = MutableStateFlow("")
+    val videoPrimaries = MutableStateFlow("")
 
     fun reset() {
         estimatedVfFps.value = 0.0
@@ -19,5 +22,8 @@ object PlayerStats {
         videoH.value = 0L
         videoCodec.value = ""
         videoBitrate.value = 0L
+        videoPixFmt.value = ""
+        videoLevels.value = ""
+        videoPrimaries.value = ""
     }
 }

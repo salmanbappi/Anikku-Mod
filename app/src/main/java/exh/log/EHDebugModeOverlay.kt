@@ -1,7 +1,8 @@
 package exh.log
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -14,7 +15,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.kanade.tachiyomi.ui.player.PlayerStats
@@ -24,7 +24,7 @@ import java.text.DecimalFormatSymbols
 import java.util.Locale
 
 @Composable
-fun InterpolationStatsOverlay(isPageSix: Boolean = false) {
+fun InterpolationStatsOverlay() {
     val videoFps by PlayerStats.estimatedVfFps.collectAsState(0.0)
     val sourceFps by PlayerStats.videoParamsFps.collectAsState(0.0)
     val isInterpolating by PlayerStats.isInterpolating.collectAsState(false)
@@ -32,8 +32,9 @@ fun InterpolationStatsOverlay(isPageSix: Boolean = false) {
     val videoH by PlayerStats.videoH.collectAsState(0L)
     val codec by PlayerStats.videoCodec.collectAsState("")
     val bitrate by PlayerStats.videoBitrate.collectAsState(0L)
-
-    if (videoFps <= 0.0 && !isPageSix) return
+    val pixFmt by PlayerStats.videoPixFmt.collectAsState("")
+    val levels by PlayerStats.videoLevels.collectAsState("")
+    val primaries by PlayerStats.videoPrimaries.collectAsState("")
 
     val format = remember {
         DecimalFormat(
@@ -42,44 +43,51 @@ fun InterpolationStatsOverlay(isPageSix: Boolean = false) {
         )
     }
 
-    val shadow = Shadow(color = Color.Black, blurRadius = 4f)
-    val baseStyle = MaterialTheme.typography.bodySmall.copy(
+    val shadow = Shadow(color = Color.Black, offset = androidx.compose.ui.geometry.Offset(2f, 2f), blurRadius = 2f)
+    val baseStyle = TextStyle(
         fontFamily = FontFamily.Monospace,
-        fontSize = 12.sp,
+        fontSize = 13.sp,
         color = Color.White,
         shadow = shadow,
-        lineHeight = 16.sp,
+        lineHeight = 18.sp,
     )
 
-    if (isPageSix) {
-        Column(
-            Modifier
-                .padding(16.dp)
-                .background(Color(0x99000000))
-                .padding(8.dp),
-        ) {
-            Text(text = "DEBUG STATISTICS (PAGE 6)", style = baseStyle.copy(fontWeight = FontWeight.Bold, color = Color.Yellow))
-            Text(text = "--------------------------", style = baseStyle)
-            
-            StatLine("Interpolation", if (isInterpolating) "Active" else "Inactive", baseStyle)
-            StatLine("Display FPS", format.format(videoFps), baseStyle)
-            StatLine("Source FPS", format.format(sourceFps), baseStyle)
-            
-            if (videoW > 0) {
-                StatLine("Resolution", "${videoW}x${videoH}", baseStyle)
-            }
-            if (codec.isNotEmpty()) {
-                StatLine("Codec", codec, baseStyle)
-            }
-            if (bitrate > 0) {
-                StatLine("Bitrate", "${bitrate / 1000} kbps", baseStyle)
-            }
-            
-            // System info
-            Text(text = "--------------------------", style = baseStyle)
-            val hwdec = MPVLib.getPropertyString("hwdec-current") ?: "no"
-            StatLine("HW Decoder", hwdec, baseStyle)
+    Column(
+        Modifier.padding(16.dp)
+    ) {
+        // Heading
+        Text(text = "Interpolation Details", style = baseStyle.copy(color = Color(0xFF33BBFF)))
+        Spacer(Modifier.height(8.dp))
+
+        // Motion Section
+        StatLine("Status", if (isInterpolating) "Active" else "Inactive", baseStyle)
+        StatLine("Output Rate", "${format.format(videoFps)} fps", baseStyle)
+        StatLine("Source Rate", "${format.format(sourceFps)} fps", baseStyle)
+        
+        Spacer(Modifier.height(12.dp))
+
+        // Video Section
+        if (videoW > 0) {
+            StatLine("Resolution", "${videoW}x${videoH}", baseStyle)
         }
+        if (codec.isNotEmpty()) {
+            StatLine("Video Codec", codec, baseStyle)
+        }
+        if (bitrate > 0) {
+            StatLine("Bitrate", "${bitrate / 1000} kbps", baseStyle)
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        // Hardware Section
+        if (pixFmt.isNotEmpty()) {
+            StatLine("Format", pixFmt, baseStyle)
+        }
+        StatLine("Levels", levels.ifEmpty { "n/a" }, baseStyle)
+        StatLine("Primaries", primaries.ifEmpty { "n/a" }, baseStyle)
+        
+        val hwdec = MPVLib.getPropertyString("hwdec-current") ?: "no"
+        StatLine("HW Decoder", hwdec, baseStyle)
     }
 }
 
