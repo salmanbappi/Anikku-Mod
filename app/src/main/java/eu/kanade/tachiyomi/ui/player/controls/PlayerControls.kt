@@ -645,6 +645,8 @@ fun PlayerControls(
         BrightnessOverlay(
             brightness = currentBrightness,
         )
+
+        exh.log.DebugModeOverlay()
     }
 
     if (showCastSheet) {
