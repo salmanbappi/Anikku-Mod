@@ -115,17 +115,13 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
     var aid: Int by TrackDelegate("aid")
 
     override fun initOptions(vo: String) {
-        val smoothMotionEnabled = decoderPreferences.smoothMotion().get()
-        val gpuNext = decoderPreferences.gpuNext().get() || smoothMotionEnabled
-        setVo(if (gpuNext) "gpu-next" else "gpu")
-        
-        // Vulkan is mandatory for zero-lag mediacodec-copy + interpolation
-        MPVLib.setOptionString("gpu-api", "vulkan")
+        setVo(if (decoderPreferences.gpuNext().get()) "gpu-next" else "gpu")
         
         MPVLib.setPropertyBoolean("pause", true)
         MPVLib.setOptionString("profile", "fast")
         
         // Universal fix: force auto-copy if advanced features are active
+        val smoothMotionEnabled = decoderPreferences.smoothMotion().get()
         val filtersActive = decoderPreferences.sharpenFilter().get() > 0 || 
                            decoderPreferences.blurFilter().get() > 0 ||
                            decoderPreferences.videoDebanding().get() != Debanding.None ||
@@ -139,9 +135,7 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         }
         MPVLib.setOptionString("hwdec", hwdec)
         
-        // High-performance Sync: display-resample with 5% drift allowance to prevent lag
         MPVLib.setOptionString("video-sync", "display-resample")
-        MPVLib.setOptionString("video-sync-max-video-change", "5")
 
         // Force detect refresh rate
         val refreshRate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -161,9 +155,6 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         if (smoothMotionEnabled) {
             MPVLib.setPropertyBoolean("interpolation", true)
             MPVLib.setPropertyString("tscale", "oversample")
-            // Disable heavy blurring to save GPU cycles
-            MPVLib.setOptionString("tscale-blur", "0.0")
-            MPVLib.setOptionString("tscale-clamp", "0.0")
         }
 
         // Initialize Debanding
@@ -198,15 +189,10 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         MPVLib.setOptionString("tls-ca-file", "${context.filesDir.path}/cacert.pem")
 
         // Limit demuxer cache since the defaults are too high for mobile devices
-        val cacheMegs = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) 128 else 64
+        val cacheMegs = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) 64 else 32
         MPVLib.setOptionString("demuxer-max-bytes", "${cacheMegs * 1024 * 1024}")
         MPVLib.setOptionString("demuxer-max-back-bytes", "${cacheMegs * 1024 * 1024}")
-        
-        // Advanced Buffering for Interpolation stability
-        MPVLib.setOptionString("vd-queue-enable", "yes")
-        MPVLib.setOptionString("vd-queue-max-bytes", "100MiB")
-        MPVLib.setOptionString("gpu-context", "android")
-        
+        //
         val screenshotDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
         screenshotDir.mkdirs()
         MPVLib.setOptionString("screenshot-directory", screenshotDir.path)
