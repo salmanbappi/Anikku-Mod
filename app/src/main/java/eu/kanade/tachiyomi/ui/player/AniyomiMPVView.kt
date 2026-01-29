@@ -220,20 +220,6 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
 
     override fun observeProperties() {
         for ((name, format) in observedProps) MPVLib.observeProperty(name, format)
-        updateStatsObservation()
-    }
-
-    fun updateStatsObservation() {
-        val statsActive = advancedPreferences.playerStatisticsPage().get() == 6
-        for ((name, format) in technicalProps) {
-            if (statsActive) {
-                MPVLib.observeProperty(name, format)
-            } else {
-                // FIXME: MPVLib.unobserveProperty(name) is missing in the current library version.
-                // Disabling stats will not stop background property updates, which may cause minor lag.
-                // MPVLib.unobserveProperty(name)
-            }
-        }
     }
 
     override fun postInitOptions() {
@@ -302,39 +288,13 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         "sid" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
         "secondary-sid" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
         "aid" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
+        "speed" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
+        "video-params/aspect" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
         "pause" to MPVLib.mpvFormat.MPV_FORMAT_FLAG,
         "paused-for-cache" to MPVLib.mpvFormat.MPV_FORMAT_FLAG,
         "seeking" to MPVLib.mpvFormat.MPV_FORMAT_FLAG,
         "eof-reached" to MPVLib.mpvFormat.MPV_FORMAT_FLAG,
         "hwdec-current" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-    )
-
-    private val technicalProps = mapOf(
-        "speed" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
-        "estimated-vf-fps" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
-        "video-params/fps" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
-        "video-out-params/fps" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
-        "fps" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
-        "container-fps" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
-        "display-fps" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
-        "estimated-display-fps" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
-        "video-sync" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "tscale" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "video-params/w" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
-        "video-params/h" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
-        "dwidth" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
-        "dheight" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
-        "video-out-params/w" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
-        "video-out-params/h" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
-        "video-codec" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "video-bitrate" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
-        "video-params/pixelformat" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "video-params/colorlevels" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "video-params/primaries" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "vo-passes" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
-        "interpolation" to MPVLib.mpvFormat.MPV_FORMAT_FLAG,
-        "vo-delayed-frame-count" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
-        "mistime" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
     )
 
     private fun setupAudioOptions() {
