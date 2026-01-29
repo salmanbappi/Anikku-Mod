@@ -217,6 +217,18 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
 
     override fun observeProperties() {
         for ((name, format) in observedProps) MPVLib.observeProperty(name, format)
+        updateStatsObservation()
+    }
+
+    fun updateStatsObservation() {
+        val statsActive = advancedPreferences.playerStatisticsPage().get() == 6
+        for ((name, format) in technicalProps) {
+            if (statsActive) {
+                MPVLib.observeProperty(name, format)
+            } else {
+                MPVLib.unobserveProperty(name)
+            }
+        }
     }
 
     override fun postInitOptions() {
@@ -285,9 +297,15 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         "sid" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
         "secondary-sid" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
         "aid" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
+        "pause" to MPVLib.mpvFormat.MPV_FORMAT_FLAG,
+        "paused-for-cache" to MPVLib.mpvFormat.MPV_FORMAT_FLAG,
+        "seeking" to MPVLib.mpvFormat.MPV_FORMAT_FLAG,
+        "eof-reached" to MPVLib.mpvFormat.MPV_FORMAT_FLAG,
+        "hwdec-current" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
+    )
 
+    private val technicalProps = mapOf(
         "speed" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
-        "video-params/aspect" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
         "estimated-vf-fps" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
         "video-params/fps" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
         "video-out-params/fps" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
@@ -312,31 +330,6 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         "interpolation" to MPVLib.mpvFormat.MPV_FORMAT_FLAG,
         "vo-delayed-frame-count" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
         "mistime" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
-
-        "hwdec-current" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "hwdec" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-
-        "pause" to MPVLib.mpvFormat.MPV_FORMAT_FLAG,
-        "paused-for-cache" to MPVLib.mpvFormat.MPV_FORMAT_FLAG,
-        "seeking" to MPVLib.mpvFormat.MPV_FORMAT_FLAG,
-        "eof-reached" to MPVLib.mpvFormat.MPV_FORMAT_FLAG,
-
-        "user-data/aniyomi/show_text" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "user-data/aniyomi/toggle_ui" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "user-data/aniyomi/show_panel" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "user-data/aniyomi/software_keyboard" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "user-data/aniyomi/set_button_title" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "user-data/aniyomi/reset_button_title" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "user-data/aniyomi/toggle_button" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "user-data/aniyomi/switch_episode" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "user-data/aniyomi/pause" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "user-data/aniyomi/seek_by" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "user-data/aniyomi/seek_to" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "user-data/aniyomi/seek_by_with_text" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "user-data/aniyomi/seek_to_with_text" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-        "user-data/aniyomi/launch_int_picker" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-
-        "user-data/current-anime/intro-length" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
     )
 
     private fun setupAudioOptions() {
