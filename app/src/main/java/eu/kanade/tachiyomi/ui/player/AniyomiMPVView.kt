@@ -153,9 +153,9 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         }
 
         if (smoothMotionEnabled) {
-            MPVLib.setPropertyBoolean("interpolation", true)
+            MPVLib.setOptionString("interpolation", "yes")
             val mode = decoderPreferences.interpolationMode().get()
-            MPVLib.setPropertyString("tscale", mode.value)
+            MPVLib.setOptionString("tscale", mode.value)
         }
 
         // Initialize Debanding
