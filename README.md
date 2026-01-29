@@ -1,41 +1,70 @@
-# 🌌 AniZen
+# 🌌 AniZen (Pro Mod)
 
-AniZen is a high-performance, feature-rich modified version of Anikku. This mod focuses on providing a professional-grade viewing experience with advanced video processing tools, optimized downloading, and tactile feedback.
+**AniZen** is a high-performance, ultra-refined modification of Anikku. While the official app provides a baseline, AniZen transforms it into a professional-grade media center with a focus on **Extreme Performance**, **Audiophile-grade Video**, and **Premium Tactile Feedback**.
 
 ---
 
-## 💎 Exclusive Mod Improvements
+## ⚡ Why AniZen? (Comparison with Official)
 
-### 🧠 Anime4K Real-time Neural Upscaling
-Integrated the famous **Anime4K neural networks** directly into the player. Upscale 720p to 4K clarity in real-time.
-*   👉 **[Read the Anime4K Guide](docs/ANIME4K_GUIDE.md)** for details on Modes (A, B, C) and Performance profiles.
+| Feature | Official Anikku | **AniZen Pro Mod** |
+| :--- | :--- | :--- |
+| **Video Engine** | Standard MPV | **Optimized "Zero-Lag" Engine** |
+| **Upscaling** | Basic Bilinear | **Anime4K Real-time Neural Networks** |
+| **Sync Logic** | Heavy `display-resample` | **Performance-first `audio` sync** |
+| **Startup Speed** | Slow (Font copying lag) | **Instant-open (Smart Caching)** |
+| **Downloader** | Standard Single-thread | **1DM+ Style (30 Threads + Chunking)** |
+| **UI Interaction** | Static / No feedback | **Full Haptic Integration (Premium feel)** |
+| **Stability** | Standard | **Universal Filter Compatibility Fix** |
 
-### ⚙️ Pro Player Engine (Optimized)
-Unlocked advanced `mpv` features for audiophiles and videophiles.
-*   **Zero-Lag Video Sync:** Switched to `audio` sync by default to eliminate stuttering and skipping lag.
-*   **High Quality Scaling:** `ewa_lanczossharp` for pristine edges.
-*   **Interpolation:** Smooth 60fps motion for 24fps anime (Automatic `display-resample` switching).
-*   **Universal Filter Fix:** Smart auto-switching for filter compatibility.
-*   **Low-Overhead Stats:** High-frequency technical stats (FPS, mistime) use polling to eliminate background CPU usage.
-*   👉 **[Read the Pro Player Guide](docs/PRO_PLAYER_GUIDE.md)** for deep dives on these settings and performance warnings.
+---
 
-### 🚀 Performance & UX
-*   **Smart Font Caching:** Optimized startup by preventing redundant font copying—opening the player is now near-instant.
-*   **Premium Haptics:** Tactile feedback integrated into seek bars, volume/brightness sliders, settings toggles, and library items.
-*   **1DM+ Style Downloader:** Increased concurrent episode limit to **30** with multi-threaded chunking.
+## 💎 Exclusive Pro Features
 
-### 🎨 Ultimate Video Filter Suite
-*   **Presets:** Vivid Anime, Cinema, Vintage, and more.
-*   **Granular Control:** Adjust Sharpen, Blur, Grain, and Debanding via a clean, card-based UI.
+### 🧠 Anime4K Neural Upscaling
+Experience your library in true 4K. Integrated **Anime4K neural networks** allow real-time upscaling of 720p/1080p content to 4K with stunning clarity.
+*   👉 **[Read the Anime4K Guide](docs/ANIME4K_GUIDE.md)** for Mode & Performance details.
+
+### ⚙️ The "Zero-Lag" Engine
+We’ve rewritten the internal MPV configuration to eliminate mobile-specific bottlenecks:
+*   **Audio-First Sync:** Default sync logic swapped to eliminate the "leg" (stutter) found in official builds.
+*   **Intelligent HWDEC:** Automatic `mediacodec-copy` switching only when required by filters, preserving battery and performance.
+*   **Low-Overhead Monitoring:** Technical stats (FPS/Mistime) now use an efficient polling system instead of background-draining push events.
+*   **High Quality Scaling:** Edge-shaping via `ewa_lanczossharp` for the sharpest anime lines.
+*   👉 **[Read the Pro Player Guide](docs/PRO_PLAYER_GUIDE.md)** for technical deep dives.
+
+### 📥 1DM+ Style Downloader
+Engineered for speed. We've increased the concurrent episode limit to **30** and implemented multi-threaded chunking to saturate your bandwidth.
+
+### 🖐️ Premium Tactile Experience
+AniZen feels "alive." We’ve integrated subtle, professional-grade haptic feedback into:
+*   Volume and Brightness sliders.
+*   Seek bar scrubbing.
+*   Settings toggles and Switches.
+*   Library and Search item interactions.
+*   Navigation and Header branding.
+
+### 🎨 Ultimate Filter Suite
+A granular, card-based UI allows you to adjust **Sharpen, Blur, Grain, and Debanding** on the fly, with high-performance presets like *Vivid Anime* and *Cinema*.
 
 ---
 
 ## 📥 Downloads
 
-Latest releases are available on the [Releases Page](https://github.com/salmanbappi/Anikku-Mod/releases).
+[**Download Latest Releases**](https://github.com/salmanbappi/Anikku-Mod/releases)
 
-### Development Builds
-For the absolute latest updates, check the [Actions Tab](https://github.com/salmanbappi/Anikku-Mod/actions) and download the APK from the latest successful run.
+For experimental updates, check the [**Actions Tab**](https://github.com/salmanbappi/Anikku-Mod/actions) for the latest successful build.
+
+---
+
+## 🛠️ Development
+
+### Building Locally
+```bash
+./gradlew assembleRelease
+```
+
+### Side-by-Side Install
+AniZen uses the unique package ID `app.anizen`, allowing you to keep the official Anikku installed while using the Pro version.
 
 ---
 
