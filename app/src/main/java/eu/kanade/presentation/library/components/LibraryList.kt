@@ -27,6 +27,8 @@ internal fun LibraryList(
     searchQuery: String?,
     onGlobalSearchClicked: () -> Unit,
 ) {
+    val selectedIds = remember(selection) { selection.map { it.id }.toSet() }
+
     FastScrollLazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = contentPadding + PaddingValues(vertical = 8.dp),
@@ -47,7 +49,7 @@ internal fun LibraryList(
         ) { libraryItem ->
             val anime = libraryItem.libraryAnime.anime
             AnimeListItem(
-                isSelected = selection.fastAny { it.id == libraryItem.libraryAnime.id },
+                isSelected = libraryItem.libraryAnime.id in selectedIds,
                 title = anime.title,
                 coverData = AnimeCover(
                     animeId = anime.id,

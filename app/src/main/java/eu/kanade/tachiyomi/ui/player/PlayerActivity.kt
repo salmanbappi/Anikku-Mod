@@ -1302,7 +1302,7 @@ class PlayerActivity : BaseActivity() {
 
         // aniSkip stuff
         viewModel.waitingSkipIntro = playerPreferences.waitingTimeIntroSkip().get()
-        runBlocking {
+        lifecycleScope.launchIO {
             if (
                 viewModel.introSkipEnabled &&
                 playerPreferences.aniSkipEnabled().get() &&

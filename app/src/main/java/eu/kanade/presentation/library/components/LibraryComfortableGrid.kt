@@ -22,6 +22,8 @@ internal fun LibraryComfortableGrid(
     searchQuery: String?,
     onGlobalSearchClicked: () -> Unit,
 ) {
+    val selectedIds = remember(selection) { selection.map { it.id }.toSet() }
+
     LazyLibraryGrid(
         modifier = Modifier.fillMaxSize(),
         columns = columns,
@@ -35,7 +37,7 @@ internal fun LibraryComfortableGrid(
         ) { libraryItem ->
             val anime = libraryItem.libraryAnime.anime
             AnimeComfortableGridItem(
-                isSelected = selection.fastAny { it.id == libraryItem.libraryAnime.id },
+                isSelected = libraryItem.libraryAnime.id in selectedIds,
                 title = anime.title,
                 coverData = AnimeCover(
                     animeId = anime.id,
