@@ -78,17 +78,6 @@ fun InterpolationStatsOverlay(isPageSix: Boolean = false) {
             val hwdec = eu.kanade.tachiyomi.ui.player.MPVLib.getPropertyString("hwdec-current") ?: "no"
             StatLine("HW Decoder", hwdec, baseStyle)
         }
-    } else {
-        // Original Page 1 overlay
-        Column(
-            Modifier
-                .padding(12.dp)
-                .padding(top = 180.dp),
-        ) {
-            Text(text = "Interpolation: ${if (isInterpolating) "Active" else "Inactive"}", style = baseStyle)
-            Text(text = "Display FPS: ${format.format(videoFps)}", style = baseStyle)
-            Text(text = "Source FPS: ${format.format(sourceFps)}", style = baseStyle)
-        }
     }
 }
 
