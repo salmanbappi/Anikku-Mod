@@ -68,12 +68,16 @@ fun InterpolationStatsOverlay() {
         Text(text = "SMOOTH MOTION DEBUG (PAGE 6)", style = baseStyle.copy(color = Color(0xFF33BBFF)))
         Spacer(Modifier.height(8.dp))
 
-        // Status logic
+        // Pipeline Logic
+        val hwdec = MPVLib.getPropertyString("hwdec-current") ?: "no"
         val isDirect = hwdec == "mediacodec"
+        // Improved detection: Check if output frames > 1 OR if display FPS is significantly higher than source
+        val isWorking = isInterpolating && !isDirect && (voPasses > 1 || actualFps > (vfFps + 5))
+        
         val statusText = when {
-            isInterpolating && !isDirect && voPasses > 1 -> "ACTIVE"
+            isWorking -> "ACTIVE"
             isDirect -> "BYPASSED (Direct HWDEC)"
-            isInterpolating && voPasses <= 1 -> "STALLED"
+            isInterpolating && !isWorking -> "WAITING (Preparing frames)"
             else -> "OFF"
         }
         StatLine("Status", statusText, baseStyle.copy(color = if (isDirect) Color.Red else if (statusText == "ACTIVE") Color.Green else Color.Unspecified))
