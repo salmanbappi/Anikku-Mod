@@ -254,6 +254,7 @@ class MyAnimeListApi(
         fun authUrl(): Uri = "$BASE_OAUTH_URL/dialog/authorization".toUri().buildUpon()
             .appendQueryParameter("client_id", CLIENT_ID)
             .appendQueryParameter("code_challenge", getPkceChallengeCode())
+            .appendQueryParameter("code_challenge_method", "plain")
             .appendQueryParameter("response_type", "code")
             .build()
 
