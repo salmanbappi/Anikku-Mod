@@ -115,13 +115,17 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
     var aid: Int by TrackDelegate("aid")
 
     override fun initOptions(vo: String) {
-        setVo(if (decoderPreferences.gpuNext().get()) "gpu-next" else "gpu")
+        val smoothMotionEnabled = decoderPreferences.smoothMotion().get()
+        val gpuNext = decoderPreferences.gpuNext().get() || smoothMotionEnabled
+        setVo(if (gpuNext) "gpu-next" else "gpu")
+        
+        // Vulkan is mandatory for zero-lag mediacodec-copy + interpolation
+        MPVLib.setOptionString("gpu-api", "vulkan")
         
         MPVLib.setPropertyBoolean("pause", true)
         MPVLib.setOptionString("profile", "fast")
         
         // Universal fix: force auto-copy if advanced features are active
-        val smoothMotionEnabled = decoderPreferences.smoothMotion().get()
         val filtersActive = decoderPreferences.sharpenFilter().get() > 0 || 
                            decoderPreferences.blurFilter().get() > 0 ||
                            decoderPreferences.videoDebanding().get() != Debanding.None ||
@@ -135,7 +139,9 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         }
         MPVLib.setOptionString("hwdec", hwdec)
         
+        // High-performance Sync: display-resample with 5% drift allowance to prevent lag
         MPVLib.setOptionString("video-sync", "display-resample")
+        MPVLib.setOptionString("video-sync-max-video-change", "5")
 
         // Force detect refresh rate
         val refreshRate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -154,8 +160,8 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
 
         if (smoothMotionEnabled) {
             MPVLib.setPropertyBoolean("interpolation", true)
-            // Smart temporal scaler selection
             MPVLib.setPropertyString("tscale", "oversample")
+            // Disable heavy blurring to save GPU cycles
             MPVLib.setOptionString("tscale-blur", "0.0")
             MPVLib.setOptionString("tscale-clamp", "0.0")
         }
