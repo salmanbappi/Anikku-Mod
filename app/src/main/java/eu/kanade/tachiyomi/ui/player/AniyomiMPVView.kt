@@ -151,8 +151,8 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         }
 
         if (decoderPreferences.smoothMotion().get()) {
-            MPVLib.setOptionString("interpolation", "yes")
-            MPVLib.setOptionString("tscale", "oversample")
+            MPVLib.setPropertyBoolean("interpolation", true)
+            MPVLib.setPropertyString("tscale", "oversample")
         }
 
         // Initialize Debanding
@@ -286,6 +286,8 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         "display-fps" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
         "estimated-display-fps" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
         "video-sync" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
+        "tscale" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
+        "interpolation" to MPVLib.mpvFormat.MPV_FORMAT_FLAG,
 
         "hwdec-current" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
         "hwdec" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
