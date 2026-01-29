@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.RememberObserver
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.remember
@@ -62,16 +63,33 @@ fun DebugModeOverlay() {
 @Composable
 private fun FpsDebugModeOverlay() {
     val fps by remember { FpsState(FpsState.DEFAULT_INTERVAL) }
+    val videoFps by eu.kanade.tachiyomi.ui.player.PlayerStats.estimatedDisplayFps.collectAsState(0.0)
+    val sourceFps by eu.kanade.tachiyomi.ui.player.PlayerStats.videoParamsFps.collectAsState(0.0)
+    val isInterpolating by eu.kanade.tachiyomi.ui.player.PlayerStats.isInterpolating.collectAsState(false)
+    
     val format = remember {
         DecimalFormat(
-            "'fps:' 0.0",
+            "0.0",
             DecimalFormatSymbols.getInstance(Locale.ENGLISH),
         )
     }
 
     Text(
-        text = remember(fps) {
-            format.format(fps)
+        text = remember(fps, videoFps, sourceFps, isInterpolating) {
+            buildString {
+                append("UI: ")
+                append(format.format(fps))
+                if (videoFps > 0) {
+                    append(" | Video: ")
+                    append(format.format(videoFps))
+                    if (sourceFps > 0) {
+                        append(" (Src: ")
+                        append(format.format(sourceFps))
+                        append(")")
+                    }
+                    if (isInterpolating) append(" [Interp]")
+                }
+            }
         },
         color = Color.White,
         fontSize = 12.sp,

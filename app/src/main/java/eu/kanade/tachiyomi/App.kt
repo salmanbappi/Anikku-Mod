@@ -105,6 +105,13 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
         super<Application>.onCreate()
         patchInjekt()
 
+        Injekt.importModule(PreferenceModule(this))
+        Injekt.importModule(AppModule(this))
+        Injekt.importModule(DomainModule())
+        Injekt.importModule(SYPreferenceModule(this))
+        Injekt.importModule(SYDomainModule())
+        Injekt.importModule(KMKDomainModule())
+
         // Startup Optimization: Initialize non-critical components on background thread
         ProcessLifecycleOwner.get().lifecycleScope.launch(Dispatchers.IO) {
             setupExhLogging()
@@ -142,13 +149,6 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
             val process = getProcessName()
             if (packageName != process) WebView.setDataDirectorySuffix(process)
         }
-
-        Injekt.importModule(PreferenceModule(this))
-        Injekt.importModule(AppModule(this))
-        Injekt.importModule(DomainModule())
-        Injekt.importModule(SYPreferenceModule(this))
-        Injekt.importModule(SYDomainModule())
-        Injekt.importModule(KMKDomainModule())
 
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
 
