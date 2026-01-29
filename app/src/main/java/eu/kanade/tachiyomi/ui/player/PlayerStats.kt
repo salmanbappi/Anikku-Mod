@@ -22,6 +22,7 @@ object PlayerStats {
     val videoPixFmt = MutableStateFlow("")
     val videoLevels = MutableStateFlow("")
     val videoPrimaries = MutableStateFlow("")
+    val hwdec = MutableStateFlow("")
     
     val videoSync = MutableStateFlow("")
     val tscale = MutableStateFlow("")
