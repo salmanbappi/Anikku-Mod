@@ -77,8 +77,10 @@ fun InterpolationStatsOverlay() {
 
         Spacer(Modifier.height(12.dp))
 
-        // FPS Details
-        StatLine("Source Rate", "${format.format(sourceFps)} fps", baseStyle)
+        // FPS Details with fallbacks
+        val finalSourceFps = if (sourceFps > 0) sourceFps else containerFps
+        
+        StatLine("Source Rate", "${format.format(finalSourceFps)} fps", baseStyle)
         StatLine("Filter Output", "${format.format(vfFps)} fps", baseStyle)
         StatLine("Actual Display", "${format.format(actualFps)} fps", baseStyle)
         StatLine("Refresh Rate", "${format.format(displayFps)} Hz", baseStyle)
