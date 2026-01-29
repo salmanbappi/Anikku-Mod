@@ -81,7 +81,8 @@ fun checkAndSetCopyMode(prefs: DecoderPreferences) {
         prefs.saturationFilter().get() != 0 ||
         prefs.hueFilter().get() != 0 ||
         prefs.sharpenFilter().get() != 0 ||
-        prefs.blurFilter().get() != 0
+        prefs.blurFilter().get() != 0 ||
+        prefs.smoothMotion().get()
 
     // Automatically enable copy mode if necessary filters are active
     if (requiresCopyMode) {
