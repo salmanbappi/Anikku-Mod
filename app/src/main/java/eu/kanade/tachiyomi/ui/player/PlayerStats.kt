@@ -12,6 +12,8 @@ object PlayerStats {
     val estimatedDisplayFps = MutableStateFlow(0.0)
     val videoSync = MutableStateFlow("")
     val tscale = MutableStateFlow("")
+    val delayedFrames = MutableStateFlow(0L)
+    val mistime = MutableStateFlow(0.0)
     val videoW = MutableStateFlow(0L)
     val videoH = MutableStateFlow(0L)
     val videoCodec = MutableStateFlow("")

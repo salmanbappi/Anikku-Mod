@@ -696,6 +696,7 @@ class PlayerActivity : BaseActivity() {
             "video-params/w" -> PlayerStats.videoW.value = value
             "video-params/h" -> PlayerStats.videoH.value = value
             "video-bitrate" -> PlayerStats.videoBitrate.value = value
+            "vo-delayed-frame-count" -> PlayerStats.delayedFrames.value = value
             "time-pos" -> {
                 viewModel.updatePlayBackPos(value.toFloat())
                 viewModel.setChapter(value.toFloat())
@@ -794,6 +795,7 @@ class PlayerActivity : BaseActivity() {
             "container-fps" -> PlayerStats.containerFps.value = value
             "display-fps" -> PlayerStats.displayFps.value = value
             "estimated-display-fps" -> PlayerStats.estimatedDisplayFps.value = value
+            "mistime" -> PlayerStats.mistime.value = value
             "video-params/aspect" -> if (isPipSupportedAndEnabled) createPipParams()
         }
     }
