@@ -763,8 +763,13 @@ class PlayerActivity : BaseActivity() {
 
     internal fun onObserverEvent(property: String, value: String) {
         if (player.isExiting) return
-        when (property.substringBeforeLast("/")) {
+        when (property) {
             "video-codec" -> PlayerStats.videoCodec.value = value
+            "video-params/pixelformat" -> PlayerStats.videoPixFmt.value = value
+            "video-params/colorlevels" -> PlayerStats.videoLevels.value = value
+            "video-params/primaries" -> PlayerStats.videoPrimaries.value = value
+        }
+        when (property.substringBeforeLast("/")) {
             "aid" -> trackId(value)?.let { viewModel.updateAudio(it) }
             "sid" -> trackId(value)?.let { viewModel.updateSubtitle(it, viewModel.selectedSubtitles.value.second) }
             "secondary-sid" -> trackId(value)?.let {
