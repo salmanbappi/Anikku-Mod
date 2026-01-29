@@ -538,13 +538,25 @@ class PlayerActivity : BaseActivity() {
     }
 
     private fun copyFontsDirectory() {
-        // TODO: I think this is a bad hack.
-        //  We need to find a way to let MPV directly access our fonts directory.
+        // Optimized font copying: checks if file exists and size matches to avoid startup lag
+        // TODO: Ideally we should let MPV directly access the directory, but SAF makes it hard.
         CoroutineScope(Dispatchers.IO).launchIO {
-            storageManager.getFontsDirectory()?.listFiles()?.forEach { font ->
-                val outFile = UniFile.fromFile(applicationContext.filesDir)?.createFile(font.name)
-                outFile?.let {
-                    font.openInputStream().copyTo(it.openOutputStream())
+            val fontsDir = storageManager.getFontsDirectory()
+            if (fontsDir != null) {
+                val destDir = applicationContext.filesDir
+                fontsDir.listFiles()?.forEach { font ->
+                    val destFile = java.io.File(destDir, font.name)
+                    if (!destFile.exists() || destFile.length() != font.length()) {
+                        try {
+                            font.openInputStream().use { input ->
+                                destFile.outputStream().use { output ->
+                                    input.copyTo(output)
+                                }
+                            }
+                        } catch (e: Exception) {
+                            logcat(LogPriority.ERROR, e) { "Failed to copy font: ${font.name}" }
+                        }
+                    }
                 }
             }
             MPVLib.setPropertyString(

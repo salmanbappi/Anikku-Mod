@@ -226,6 +226,8 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
             if (statsActive) {
                 MPVLib.observeProperty(name, format)
             } else {
+                // FIXME: MPVLib.unobserveProperty(name) is missing in the current library version.
+                // Disabling stats will not stop background property updates, which may cause minor lag.
                 // MPVLib.unobserveProperty(name)
             }
         }

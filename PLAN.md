@@ -27,6 +27,8 @@
     - [x] Optimized episode list loading with batch download status checking
     - [x] Parallel global search (default 5 threads)
     - [x] Enhanced R8/Proguard optimizations for Release builds
+    - [x] Smart Font Caching (Startup optimization)
+    - [ ] Optimize Compose LazyGrid keys (Reduce recomposition)
 
 ## Context
 - Project: AniZen
