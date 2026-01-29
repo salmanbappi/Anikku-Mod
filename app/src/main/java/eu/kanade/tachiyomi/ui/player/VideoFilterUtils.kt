@@ -46,10 +46,16 @@ fun applyDebandSetting(setting: DebandSettings, value: Int) {
 fun buildVFChain(decoderPreferences: DecoderPreferences): String {
     val vfList = mutableListOf<String>()
 
-    // Only add filters we actually need, to reduce overhead
+    // Only add format if we actually need filters, to reduce overhead
     val sharpen = decoderPreferences.sharpenFilter().get()
     val blur = decoderPreferences.blurFilter().get()
     val deband = decoderPreferences.videoDebanding().get()
+
+    if (sharpen > 0 || blur > 0 || deband == Debanding.CPU) {
+        if (decoderPreferences.useYUV420P().get()) {
+            vfList.add("format=yuv420p")
+        }
+    }
 
     if (deband == Debanding.CPU) {
         vfList.add("gradfun=radius=12")

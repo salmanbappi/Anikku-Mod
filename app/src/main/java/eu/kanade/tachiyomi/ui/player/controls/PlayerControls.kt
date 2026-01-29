@@ -647,6 +647,12 @@ fun PlayerControls(
         BrightnessOverlay(
             brightness = currentBrightness,
         )
+
+        val advancedPlayerPreferences = remember { Injekt.get<AdvancedPlayerPreferences>() }
+        val statsPage by advancedPlayerPreferences.playerStatisticsPage().collectAsState()
+        if (statsPage == 6) {
+            InterpolationStatsOverlay()
+        }
     }
 
     if (showCastSheet) {
