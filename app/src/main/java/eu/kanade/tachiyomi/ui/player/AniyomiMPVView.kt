@@ -123,7 +123,8 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         val filtersActive = decoderPreferences.sharpenFilter().get() > 0 || 
                            decoderPreferences.blurFilter().get() > 0 ||
                            decoderPreferences.videoDebanding().get() != Debanding.None ||
-                           decoderPreferences.enableAnime4K().get()
+                           decoderPreferences.enableAnime4K().get() ||
+                           decoderPreferences.smoothMotion().get()
         
         val hwdec = if (decoderPreferences.tryHWDecoding().get()) {
             if (filtersActive) "mediacodec-copy" else "auto"
