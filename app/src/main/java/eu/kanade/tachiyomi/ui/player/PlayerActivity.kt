@@ -499,10 +499,14 @@ class PlayerActivity : BaseActivity() {
         }
 
         // Copy over the bridge file
-        val luaFile = scriptsDir()?.createFile("aniyomi.lua")
-        val luaBridge = assets.open("aniyomi.lua")
-        luaFile?.openOutputStream()?.bufferedWriter()?.use { scriptLua ->
-            luaBridge.bufferedReader().use { scriptLua.write(it.readText()) }
+        assets.list("")?.forEach { fileName ->
+            if (fileName.endsWith(".lua")) {
+                val luaFile = scriptsDir()?.createFile(fileName)
+                val luaAsset = assets.open(fileName)
+                luaFile?.openOutputStream()?.bufferedWriter()?.use { scriptLua ->
+                    luaAsset.bufferedReader().use { scriptLua.write(it.readText()) }
+                }
+            }
         }
     }
 

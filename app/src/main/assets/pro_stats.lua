@@ -2,7 +2,7 @@
 -- Provides professional, high-performance OSD statistics with zero JNI overhead
 
 local utils = require 'mp.utils'
-local ass_header = "{\an7\fs12\shad2\bord0\face(monospace)}"
+local ass_header = [[{\an7\fs12\shad2\bord0\face(monospace)}]]
 local active = false
 
 function get_stats()
@@ -17,8 +17,8 @@ function get_stats()
     local is_direct = (hwdec == "mediacodec")
     local is_working = interp and not is_direct and vo_passes > 1
     
-    stats.pipeline = is_working and "{\1c&H00FF00&}ACTIVE (Interpolating)" or 
-                     (is_direct and "{\1c&H0000FF&}BYPASSED (Direct HWDEC)" or "OFF")
+    stats.pipeline = is_working and [[{\1c&H00FF00&}ACTIVE (Interpolating)]] or 
+                     (is_direct and [[{\1c&H0000FF&}BYPASSED (Direct HWDEC)]] or "OFF")
     stats.sync = sync
     stats.scaler = mp.get_property("tscale") or "none"
     
@@ -51,27 +51,27 @@ function draw_stats()
     local s = get_stats()
     local o = ass_header
     
-    o = o .. "{\b1\c&H33BBFF&}PRO PLAYER STATISTICS (PAGE 6){\b0\c&HFFFFFF&}\N"
-    o = o .. "--------------------------------------\N\N"
+    o = o .. [[{\b1\c&H33BBFF&}PRO PLAYER STATISTICS (PAGE 6){\b0\c&HFFFFFF&}\N]]
+    o = o .. "--------------------------------------\\N\\N"
     
-    o = o .. "{\c&H00FFFF&}[ Motion Pipeline ]{\c&HFFFFFF&}\N"
-    o = o .. "Status         : " .. s.pipeline .. "{\c&HFFFFFF&}\N"
-    o = o .. "Algorithm      : " .. s.scaler .. "\N"
-    o = o .. "Sync Mode      : " .. s.sync .. "\N\N"
+    o = o .. [[{\c&H00FFFF&}[ Motion Pipeline ]{\c&HFFFFFF&}\N]]
+    o = o .. "Status         : " .. s.pipeline .. [[{\c&HFFFFFF&}\N]]
+    o = o .. "Algorithm      : " .. s.scaler .. "\\N"
+    o = o .. "Sync Mode      : " .. s.sync .. "\\N\\N"
     
-    o = o .. "{\c&H00FFFF&}[ Frame Rates ]{\c&HFFFFFF&}\N"
-    o = o .. "Source Rate    : " .. s.source .. "\N"
-    o = o .. "Render Rate    : " .. s.display .. "\N"
-    o = o .. "Display Hz     : " .. s.hz .. "\N\N"
+    o = o .. [[{\c&H00FFFF&}[ Frame Rates ]{\c&HFFFFFF&}\N]]
+    o = o .. "Source Rate    : " .. s.source .. "\\N"
+    o = o .. "Render Rate    : " .. s.display .. "\\N"
+    o = o .. "Display Hz     : " .. s.hz .. "\\N\\N"
     
-    o = o .. "{\c&H00FFFF&}[ Performance ]{\c&HFFFFFF&}\N"
-    o = o .. "Mistime        : " .. s.mistime .. "\N"
-    o = o .. "Dropped        : " .. s.dropped .. "\N"
-    o = o .. "Graphics API   : " .. s.api .. "\N\N"
+    o = o .. [[{\c&H00FFFF&}[ Performance ]{\c&HFFFFFF&}\N]]
+    o = o .. "Mistime        : " .. s.mistime .. "\\N"
+    o = o .. "Dropped        : " .. s.dropped .. "\\N"
+    o = o .. "Graphics API   : " .. s.api .. "\\N\\N"
     
-    o = o .. "{\c&H00FFFF&}[ Video Details ]{\c&HFFFFFF&}\N"
-    o = o .. "Resolution     : " .. s.res .. "\N"
-    o = o .. "Decoder        : " .. s.decoder .. "\N"
+    o = o .. [[{\c&H00FFFF&}[ Video Details ]{\c&HFFFFFF&}\N]]
+    o = o .. "Resolution     : " .. s.res .. "\\N"
+    o = o .. "Decoder        : " .. s.decoder .. "\\N"
     
     mp.set_osd_ass(0, 0, o)
 end
