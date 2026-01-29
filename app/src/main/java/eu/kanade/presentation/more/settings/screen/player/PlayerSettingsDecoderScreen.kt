@@ -29,6 +29,7 @@ object PlayerSettingsDecoderScreen : SearchableSettings {
         val yuv420p = decoderPreferences.useYUV420P()
         val highQualityScaling = decoderPreferences.highQualityScaling()
         val smoothMotion = decoderPreferences.smoothMotion()
+        val interpolationMode = decoderPreferences.interpolationMode()
 
         return listOf(
             Preference.PreferenceItem.SwitchPreference(
@@ -56,6 +57,15 @@ object PlayerSettingsDecoderScreen : SearchableSettings {
                 pref = smoothMotion,
                 title = stringResource(MR.strings.pref_interpolation),
                 subtitle = stringResource(MR.strings.pref_interpolation_summary),
+            ),
+            Preference.PreferenceItem.ListPreference(
+                pref = interpolationMode,
+                title = "Smooth Motion Mode",
+                subtitle = "Select the algorithm used for smoothness",
+                entries = eu.kanade.tachiyomi.ui.player.settings.InterpolationMode.entries.associateWith {
+                    it.title
+                }.toImmutableMap(),
+                enabled = smoothMotion.get()
             ),
             Preference.PreferenceItem.SwitchPreference(
                 pref = yuv420p,
