@@ -194,23 +194,32 @@ fun MoreSheet(
                         onClick = {
                             val isInternalPage = page in 1..5
                             val wasInternalPage = statisticsPage in 1..5
+                            val isPageSix = page == 6
+                            val wasPageSix = statisticsPage == 6
                             
-                            if (page == 6) {
-                                // If switching TO page 6, hide internal stats if they were visible
+                            if (isPageSix) {
+                                // If switching TO page 6, hide internal stats and show native Page 6
                                 if (wasInternalPage) {
                                     MPVLib.command(arrayOf("script-binding", "stats/display-stats-toggle"))
                                 }
-                            } else if (isInternalPage) {
-                                // If switching TO an internal page (1-5)
-                                if (statisticsPage == 0 || statisticsPage == 6) {
-                                    // If nothing was showing or Page 6 was showing, turn internal stats ON
-                                    MPVLib.command(arrayOf("script-binding", "stats/display-stats-toggle"))
+                                MPVLib.command(arrayOf("script-message", "display-page-6"))
+                            } else {
+                                // If switching away FROM Page 6
+                                if (wasPageSix) {
+                                    MPVLib.command(arrayOf("script-message", "hide-page-6"))
                                 }
-                                MPVLib.command(arrayOf("script-binding", "stats/display-page-$page"))
-                            } else if (page == 0) {
-                                // If turning stats OFF
-                                if (wasInternalPage) {
-                                    MPVLib.command(arrayOf("script-binding", "stats/display-stats-toggle"))
+                                
+                                if (isInternalPage) {
+                                    // If switching TO an internal page (1-5)
+                                    if (statisticsPage == 0 || wasPageSix) {
+                                        MPVLib.command(arrayOf("script-binding", "stats/display-stats-toggle"))
+                                    }
+                                    MPVLib.command(arrayOf("script-binding", "stats/display-page-$page"))
+                                } else if (page == 0) {
+                                    // If turning stats OFF
+                                    if (wasInternalPage) {
+                                        MPVLib.command(arrayOf("script-binding", "stats/display-stats-toggle"))
+                                    }
                                 }
                             }
                             advancedPreferences.playerStatisticsPage().set(page)
