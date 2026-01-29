@@ -135,7 +135,8 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         }
         MPVLib.setOptionString("hwdec", hwdec)
         
-        MPVLib.setOptionString("video-sync", "display-resample")
+        // Use audio sync by default for better performance on Android
+        MPVLib.setOptionString("video-sync", "audio")
 
         // Force detect refresh rate
         val refreshRate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -153,6 +154,8 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         }
 
         if (smoothMotionEnabled) {
+            // Interpolation requires display-resample
+            MPVLib.setOptionString("video-sync", "display-resample")
             MPVLib.setOptionString("interpolation", "yes")
             val mode = decoderPreferences.interpolationMode().get()
             MPVLib.setOptionString("tscale", mode.value)
