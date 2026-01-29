@@ -646,7 +646,11 @@ fun PlayerControls(
             brightness = currentBrightness,
         )
 
-        exh.log.DebugModeOverlay()
+        val advancedPlayerPreferences = remember { Injekt.get<eu.kanade.tachiyomi.ui.player.settings.AdvancedPlayerPreferences>() }
+        val statsPage by advancedPlayerPreferences.playerStatisticsPage().collectAsState()
+        if (statsPage == 1) {
+            exh.log.DebugModeOverlay()
+        }
     }
 
     if (showCastSheet) {
