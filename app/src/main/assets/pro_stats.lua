@@ -1,53 +1,52 @@
--- Native Page 6 Statistics Script for Anikku
--- Provides professional, high-performance OSD statistics with zero JNI overhead
+-- Native Pro Page 6 Statistics Script for Anikku
+-- Remodeled for peak accuracy and zero-lag performance
 
-local utils = require 'mp.utils'
 local ass_header = [[{\an7\fs12\shad2\bord0\face(monospace)}]]
 local active = false
 
 function get_stats()
-    local stats = {}
+    local s = {}
     
-    -- Motion Pipeline
+    -- Sync & Pipeline
+    local hwdec = mp.get_property("hwdec-current", "no")
+    local passes = mp.get_property_number("vo-passes", 0)
     local interp = mp.get_property_native("interpolation")
-    local hwdec = mp.get_property("hwdec-current")
-    local vo_passes = mp.get_property_number("vo-passes", 0)
-    local sync = mp.get_property("video-sync")
-    
     local is_direct = (hwdec == "mediacodec")
-    local is_working = interp and not is_direct and vo_passes > 1
+    local is_working = interp and not is_direct and passes > 1
     
-    stats.pipeline = is_working and [[{\1c&H00FF00&}ACTIVE (Interpolating)]] or 
-                     (is_direct and [[{\1c&H0000FF&}BYPASSED (Direct HWDEC)]] or "OFF")
-    stats.sync = sync
-    stats.scaler = mp.get_property("tscale") or "none"
+    s.status = is_working and [[{\1c&H00FF00&}ACTIVE (Interpolating)]] or 
+               (is_direct and [[{\1c&H0000FF&}BYPASSED (Direct HWDEC)]] or [[{\1c&HAAAAAA&}OFF]])
+    s.passes = passes
+    s.sync = mp.get_property("video-sync", "n/a")
+    s.api = mp.get_property("gpu-api", "n/a"):upper()
     
     -- Frame Rates
-    local fps = mp.get_property_number("container-fps", 0)
-    if fps == 0 then fps = mp.get_property_number("video-params/fps", 0) end
+    local source = mp.get_property_number("container-fps", 0)
+    if source == 0 then source = mp.get_property_number("video-params/fps", 0) end
+    s.source = string.format("%.2f fps", source)
+    s.display = string.format("%.2f fps", mp.get_property_number("estimated-display-fps", 0))
+    s.hz = string.format("%.2f Hz", mp.get_property_number("display-fps", 0))
     
-    stats.source = string.format("%.2f fps", fps)
-    stats.render = string.format("%.2f fps", mp.get_property_number("estimated-vf-fps", 0))
-    stats.display = string.format("%.2f fps", mp.get_property_number("estimated-display-fps", 0))
-    stats.hz = string.format("%.2f Hz", mp.get_property_number("display-fps", 0))
+    -- Timing
+    s.mistime = string.format("%d ms", (mp.get_property_number("mistime", 0) * 1000))
+    s.dropped = string.format("%d frames", mp.get_property_number("vo-delayed-frame-count", 0))
     
-    -- Performance
-    stats.mistime = string.format("%d ms", (mp.get_property_number("mistime", 0) * 1000))
-    stats.dropped = string.format("%d frames", mp.get_property_number("vo-delayed-frame-count", 0))
-    stats.api = mp.get_property("gpu-api") or "n/a"
+    -- Video Size (3-layer fallback for 0x0 fix)
+    local w = mp.get_property_number("video-out-params/w", 0)
+    if w == 0 then w = mp.get_property_number("video-params/w", 0) end
+    if w == 0 then w = mp.get_property_number("dwidth", 0) end
     
-    -- Video Details
-    local w = mp.get_property_number("dwidth", 0)
-    local h = mp.get_property_number("dheight", 0)
-    stats.res = string.format("%dx%d", w, h)
-    stats.decoder = hwdec
+    local h = mp.get_property_number("video-out-params/h", 0)
+    if h == 0 then h = mp.get_property_number("video-params/h", 0) end
+    if h == 0 then h = mp.get_property_number("dheight", 0) end
+    s.res = string.format("%dx%d", w, h)
+    s.decoder = hwdec
     
-    return stats
+    return s
 end
 
-function draw_stats()
+function draw()
     if not active then return end
-    
     local s = get_stats()
     local o = ass_header
     
@@ -55,8 +54,8 @@ function draw_stats()
     o = o .. "--------------------------------------\\N\\N"
     
     o = o .. [[{\c&H00FFFF&}[ Motion Pipeline ]{\c&HFFFFFF&}\N]]
-    o = o .. "Status         : " .. s.pipeline .. [[{\c&HFFFFFF&}\N]]
-    o = o .. "Algorithm      : " .. s.scaler .. "\\N"
+    o = o .. "Status         : " .. s.status .. [[{\c&HFFFFFF&}\N]]
+    o = o .. "Heartbeat      : " .. s.passes .. " passes\\N"
     o = o .. "Sync Mode      : " .. s.sync .. "\\N\\N"
     
     o = o .. [[{\c&H00FFFF&}[ Frame Rates ]{\c&HFFFFFF&}\N]]
@@ -65,7 +64,7 @@ function draw_stats()
     o = o .. "Display Hz     : " .. s.hz .. "\\N\\N"
     
     o = o .. [[{\c&H00FFFF&}[ Performance ]{\c&HFFFFFF&}\N]]
-    o = o .. "Mistime        : " .. s.mistime .. "\\N"
+    o = o .. "Timing Delay   : " .. s.mistime .. "\\N"
     o = o .. "Dropped        : " .. s.dropped .. "\\N"
     o = o .. "Graphics API   : " .. s.api .. "\\N\\N"
     
@@ -78,12 +77,11 @@ end
 
 mp.register_script_message("display-page-6", function()
     active = true
-    mp.add_periodic_timer(0.5, draw_stats)
-    draw_stats()
+    mp.add_periodic_timer(0.5, draw)
+    draw()
 end)
 
 mp.register_script_message("hide-page-6", function()
     active = false
     mp.set_osd_ass(0, 0, "")
 end)
-
