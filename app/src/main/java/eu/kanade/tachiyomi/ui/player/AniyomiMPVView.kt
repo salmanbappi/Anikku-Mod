@@ -115,7 +115,12 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
     var aid: Int by TrackDelegate("aid")
 
     override fun initOptions(vo: String) {
-        setVo(if (decoderPreferences.gpuNext().get()) "gpu-next" else "gpu")
+        val gpuNext = decoderPreferences.gpuNext().get() || decoderPreferences.smoothMotion().get()
+        setVo(if (gpuNext) "gpu-next" else "gpu")
+        
+        // Optimization: Use Vulkan for better mediacodec-copy performance
+        MPVLib.setOptionString("gpu-api", "vulkan")
+        
         MPVLib.setPropertyBoolean("pause", true)
         MPVLib.setOptionString("profile", "fast")
         
@@ -133,7 +138,9 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         }
         MPVLib.setOptionString("hwdec", hwdec)
         
+        // Optimized Sync: display-resample with audio desync protection
         MPVLib.setOptionString("video-sync", "display-resample")
+        MPVLib.setOptionString("video-sync-max-video-change", "5")
 
         // Force detect refresh rate
         val refreshRate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -152,7 +159,9 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
 
         if (decoderPreferences.smoothMotion().get()) {
             MPVLib.setPropertyBoolean("interpolation", true)
+            // Smart temporal scaler selection
             MPVLib.setPropertyString("tscale", "oversample")
+            MPVLib.setOptionString("tscale-blur", "0.0")
         }
 
         // Initialize Debanding
@@ -292,6 +301,8 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         "video-sync" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
         "tscale" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
         "interpolation" to MPVLib.mpvFormat.MPV_FORMAT_FLAG,
+        "vo-delayed-frame-count" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
+        "mistime" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
 
         "hwdec-current" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
         "hwdec" to MPVLib.mpvFormat.MPV_FORMAT_STRING,

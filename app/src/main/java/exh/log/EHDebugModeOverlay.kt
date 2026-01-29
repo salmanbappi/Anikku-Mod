@@ -1,6 +1,7 @@
 package exh.log
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -32,11 +33,12 @@ fun InterpolationStatsOverlay() {
     val isInterpolating by PlayerStats.isInterpolating.collectAsState(false)
     val videoSync by PlayerStats.videoSync.collectAsState("")
     val tscale by PlayerStats.tscale.collectAsState("")
-    val hwdec = MPVLib.getPropertyString("hwdec-current") ?: "no"
+    val delayedFrames by PlayerStats.delayedFrames.collectAsState(0L)
+    val mistime by PlayerStats.mistime.collectAsState(0.0)
     
+    val hwdec = MPVLib.getPropertyString("hwdec-current") ?: "no"
     val videoW by PlayerStats.videoW.collectAsState(0L)
     val videoH by PlayerStats.videoH.collectAsState(0L)
-    val bitrate by PlayerStats.videoBitrate.collectAsState(0L)
 
     val format = remember {
         DecimalFormat(
@@ -57,41 +59,41 @@ fun InterpolationStatsOverlay() {
     Column(
         Modifier.padding(16.dp)
     ) {
-        Text(text = "SMOOTH MOTION DEBUG (PAGE 6)", style = baseStyle.copy(color = Color(0xFF33BBFF)))
+        Text(text = "INTERPOLATION PIPELINE (PAGE 6)", style = baseStyle.copy(color = Color(0xFF33BBFF)))
         Spacer(Modifier.height(8.dp))
 
-        // Status logic
-        val isHardwareBlocking = hwdec == "mediacodec"
+        // Pipeline Status
+        val isDirect = hwdec == "mediacodec"
         val statusText = when {
-            isInterpolating && !isHardwareBlocking -> "Active (Working)"
-            isInterpolating && isHardwareBlocking -> "Active (But blocked by HW)"
-            else -> "Inactive"
+            isInterpolating && !isDirect -> "ACTIVE (Vulkan + Copy)"
+            isDirect -> "BYPASSED (Direct HWDEC)"
+            else -> "OFF"
         }
-        StatLine("Status", statusText, baseStyle)
+        StatLine("Pipeline", statusText, baseStyle.copy(color = if (isDirect) Color.Red else Color.Unspecified))
         StatLine("Sync Mode", videoSync, baseStyle)
-        StatLine("Scaler", tscale.ifEmpty { "none" }, baseStyle)
-        
-        if (isHardwareBlocking) {
-            Text(text = "! HW Decoder blocking engine", style = baseStyle.copy(color = Color.Red, fontSize = 11.sp))
-        }
-
-        Spacer(Modifier.height(12.dp))
-
-        // FPS Details with fallbacks
-        val finalSourceFps = if (sourceFps > 0) sourceFps else containerFps
-        
-        StatLine("Source Rate", "${format.format(finalSourceFps)} fps", baseStyle)
-        StatLine("Filter Output", "${format.format(vfFps)} fps", baseStyle)
-        StatLine("Actual Display", "${format.format(actualFps)} fps", baseStyle)
-        StatLine("Refresh Rate", "${format.format(displayFps)} Hz", baseStyle)
+        StatLine("Algorithm", tscale.ifEmpty { "none" }, baseStyle)
         
         Spacer(Modifier.height(12.dp))
 
-        // Video Details
-        if (videoW > 0) {
-            StatLine("Resolution", "${videoW}x${videoH}", baseStyle)
+        // Performance Metrics
+        StatLine("Display Rate", "${format.format(actualFps)} fps", baseStyle.copy(color = if (actualFps >= 58) Color.Green else Color.Unspecified))
+        StatLine("Source Rate", "${format.format(sourceFps)} fps", baseStyle)
+        StatLine("Buffer Speed", "${format.format(vfFps)} fps", baseStyle)
+        
+        Spacer(Modifier.height(8.dp))
+        
+        // Sync & Lag Section
+        StatLine("Mistime", "${(mistime * 1000).toInt()} ms", baseStyle.copy(color = if (mistime > 0.05) Color.Yellow else Color.Unspecified))
+        StatLine("Dropped", "$delayedFrames frames", baseStyle.copy(color = if (delayedFrames > 0) Color.Red else Color.Unspecified))
+
+        Spacer(Modifier.height(12.dp))
+
+        // Hardware details
+        Row {
+            StatLine("Res", "${videoW}x${videoH}", baseStyle)
+            Text(" | ", style = baseStyle)
+            StatLine("HW", hwdec, baseStyle)
         }
-        StatLine("HW Decoder", hwdec, baseStyle)
     }
 }
 
