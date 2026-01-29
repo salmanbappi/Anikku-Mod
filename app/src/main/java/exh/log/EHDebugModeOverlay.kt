@@ -24,19 +24,19 @@ import java.util.Locale
 
 @Composable
 fun InterpolationStatsOverlay() {
-    val videoFps by PlayerStats.estimatedVfFps.collectAsState(0.0)
+    val vfFps by PlayerStats.estimatedVfFps.collectAsState(0.0)
     val sourceFps by PlayerStats.videoParamsFps.collectAsState(0.0)
-    val containerFps by PlayerStats.containerFps.collectAsState(0.0)
+    val outFps by PlayerStats.videoOutParamsFps.collectAsState(0.0)
+    val displayFps by PlayerStats.displayFps.collectAsState(0.0)
+    val actualFps by PlayerStats.estimatedDisplayFps.collectAsState(0.0)
+    
     val isInterpolating by PlayerStats.isInterpolating.collectAsState(false)
     val videoSync by PlayerStats.videoSync.collectAsState("")
+    val hwdec = MPVLib.getPropertyString("hwdec-current") ?: "no"
     
     val videoW by PlayerStats.videoW.collectAsState(0L)
     val videoH by PlayerStats.videoH.collectAsState(0L)
-    val codec by PlayerStats.videoCodec.collectAsState("")
     val bitrate by PlayerStats.videoBitrate.collectAsState(0L)
-    val pixFmt by PlayerStats.videoPixFmt.collectAsState("")
-    val levels by PlayerStats.videoLevels.collectAsState("")
-    val primaries by PlayerStats.videoPrimaries.collectAsState("")
 
     val format = remember {
         DecimalFormat(
@@ -57,45 +57,49 @@ fun InterpolationStatsOverlay() {
     Column(
         Modifier.padding(16.dp)
     ) {
-        // Heading
-        Text(text = "INTERPOLATION DEBUG (PAGE 6)", style = baseStyle.copy(color = Color(0xFF33BBFF)))
+        Text(text = "SMOOTH MOTION DEBUG (PAGE 6)", style = baseStyle.copy(color = Color(0xFF33BBFF)))
         Spacer(Modifier.height(8.dp))
 
-        // Motion Section
-        val finalSourceFps = if (sourceFps > 0) sourceFps else containerFps
+        // Hardware Warning
+        val isHardwareBlocking = hwdec == "mediacodec"
+        if (isHardwareBlocking) {
+            Text(
+                text = "WARNING: HW Decoder is blocking Interpolation!",
+                style = baseStyle.copy(color = Color.Red)
+            )
+            Text(
+                text = "Current: $hwdec (Must be copy or no)",
+                style = baseStyle.copy(color = Color.Red, fontSize = 11.sp)
+            )
+            Spacer(Modifier.height(8.dp))
+        }
+
+        // Status
         val statusText = when {
-            isInterpolating -> "Active"
-            videoSync != "display-resample" -> "Inactive (Wrong Sync: $videoSync)"
+            isInterpolating && !isHardwareBlocking -> "Active (Working)"
+            isInterpolating && isHardwareBlocking -> "Active (But blocked by HW)"
             else -> "Inactive"
         }
-        
         StatLine("Status", statusText, baseStyle)
-        StatLine("Display FPS", "${format.format(videoFps)} fps", baseStyle)
-        StatLine("Source FPS", "${format.format(finalSourceFps)} fps", baseStyle)
+        StatLine("Sync Mode", videoSync, baseStyle)
         
         Spacer(Modifier.height(12.dp))
 
-        // Video Section
+        // FPS Details
+        StatLine("Source Rate", "${format.format(sourceFps)} fps", baseStyle)
+        StatLine("Filter Output", "${format.format(vfFps)} fps", baseStyle)
+        StatLine("Actual Display", "${format.format(actualFps)} fps", baseStyle)
+        StatLine("Refresh Rate", "${format.format(displayFps)} Hz", baseStyle)
+        
+        Spacer(Modifier.height(12.dp))
+
+        // Video Details
         if (videoW > 0) {
             StatLine("Resolution", "${videoW}x${videoH}", baseStyle)
-        }
-        if (codec.isNotEmpty()) {
-            StatLine("Video Codec", codec, baseStyle)
         }
         if (bitrate > 0) {
             StatLine("Bitrate", "${bitrate / 1000} kbps", baseStyle)
         }
-
-        Spacer(Modifier.height(12.dp))
-
-        // Hardware Section
-        if (pixFmt.isNotEmpty()) {
-            StatLine("Format", pixFmt, baseStyle)
-        }
-        StatLine("Levels", levels.ifEmpty { "n/a" }, baseStyle)
-        StatLine("Primaries", primaries.ifEmpty { "n/a" }, baseStyle)
-        
-        val hwdec = MPVLib.getPropertyString("hwdec-current") ?: "no"
         StatLine("HW Decoder", hwdec, baseStyle)
     }
 }
