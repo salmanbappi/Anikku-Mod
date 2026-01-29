@@ -764,6 +764,7 @@ class PlayerActivity : BaseActivity() {
     internal fun onObserverEvent(property: String, value: String) {
         if (player.isExiting) return
         when (property) {
+            "video-sync" -> PlayerStats.videoSync.value = value
             "video-codec" -> PlayerStats.videoCodec.value = value
             "video-params/pixelformat" -> PlayerStats.videoPixFmt.value = value
             "video-params/colorlevels" -> PlayerStats.videoLevels.value = value
@@ -787,6 +788,7 @@ class PlayerActivity : BaseActivity() {
             "speed" -> viewModel.playbackSpeed.update { value.toFloat() }
             "estimated-vf-fps" -> PlayerStats.estimatedVfFps.value = value
             "video-params/fps" -> PlayerStats.videoParamsFps.value = value
+            "container-fps" -> PlayerStats.containerFps.value = value
             "video-params/aspect" -> if (isPipSupportedAndEnabled) createPipParams()
         }
     }

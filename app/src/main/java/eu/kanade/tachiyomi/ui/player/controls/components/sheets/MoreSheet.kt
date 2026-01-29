@@ -192,11 +192,26 @@ fun MoreSheet(
                             )
                         },
                         onClick = {
-                            if ((page == 0) xor (statisticsPage == 0)) {
-                                MPVLib.command(arrayOf("script-binding", "stats/display-stats-toggle"))
-                            }
-                            if (page != 0) {
+                            val isInternalPage = page in 1..5
+                            val wasInternalPage = statisticsPage in 1..5
+                            
+                            if (page == 6) {
+                                // If switching TO page 6, hide internal stats if they were visible
+                                if (wasInternalPage) {
+                                    MPVLib.command(arrayOf("script-binding", "stats/display-stats-toggle"))
+                                }
+                            } else if (isInternalPage) {
+                                // If switching TO an internal page (1-5)
+                                if (statisticsPage == 0 || statisticsPage == 6) {
+                                    // If nothing was showing or Page 6 was showing, turn internal stats ON
+                                    MPVLib.command(arrayOf("script-binding", "stats/display-stats-toggle"))
+                                }
                                 MPVLib.command(arrayOf("script-binding", "stats/display-page-$page"))
+                            } else if (page == 0) {
+                                // If turning stats OFF
+                                if (wasInternalPage) {
+                                    MPVLib.command(arrayOf("script-binding", "stats/display-stats-toggle"))
+                                }
                             }
                             advancedPreferences.playerStatisticsPage().set(page)
                         },
