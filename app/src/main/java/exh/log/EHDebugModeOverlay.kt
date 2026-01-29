@@ -71,8 +71,8 @@ fun InterpolationStatsOverlay() {
         // Pipeline Logic
         val hwdec = MPVLib.getPropertyString("hwdec-current") ?: "no"
         val isDirect = hwdec == "mediacodec"
-        // Improved detection: Check if output frames > 1 OR if display FPS is significantly higher than source
-        val isWorking = isInterpolating && !isDirect && (voPasses > 1 || actualFps > (vfFps + 5))
+        // Improved detection: Check if output frames > 1 OR display FPS is high OR algorithm is active
+        val isWorking = isInterpolating && !isDirect && (voPasses > 1 || actualFps > (vfFps + 5) || (tscale.isNotEmpty() && tscale != "none"))
         
         val statusText = when {
             isWorking -> "ACTIVE"
