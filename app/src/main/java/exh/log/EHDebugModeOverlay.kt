@@ -21,7 +21,7 @@ import java.util.Locale
 
 @Composable
 fun InterpolationStatsOverlay() {
-    val videoFps by PlayerStats.estimatedDisplayFps.collectAsState(0.0)
+    val videoFps by PlayerStats.estimatedVfFps.collectAsState(0.0)
     val sourceFps by PlayerStats.videoParamsFps.collectAsState(0.0)
     val isInterpolating by PlayerStats.isInterpolating.collectAsState(false)
 
