@@ -693,6 +693,9 @@ class PlayerActivity : BaseActivity() {
     internal fun onObserverEvent(property: String, value: Long) {
         if (player.isExiting) return
         when (property) {
+            "video-params/w" -> PlayerStats.videoW.value = value
+            "video-params/h" -> PlayerStats.videoH.value = value
+            "video-bitrate" -> PlayerStats.videoBitrate.value = value
             "time-pos" -> {
                 viewModel.updatePlayBackPos(value.toFloat())
                 viewModel.setChapter(value.toFloat())
@@ -761,6 +764,7 @@ class PlayerActivity : BaseActivity() {
     internal fun onObserverEvent(property: String, value: String) {
         if (player.isExiting) return
         when (property.substringBeforeLast("/")) {
+            "video-codec" -> PlayerStats.videoCodec.value = value
             "aid" -> trackId(value)?.let { viewModel.updateAudio(it) }
             "sid" -> trackId(value)?.let { viewModel.updateSubtitle(it, viewModel.selectedSubtitles.value.second) }
             "secondary-sid" -> trackId(value)?.let {

@@ -175,7 +175,7 @@ fun MoreSheet(
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
             ) {
-                items(6) { page ->
+                items(7) { page ->
                     FilterChip(
                         label = {
                             Text(
