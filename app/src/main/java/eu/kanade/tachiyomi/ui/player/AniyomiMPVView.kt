@@ -218,6 +218,10 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
             if (it in 1..5) {
                 MPVLib.command(arrayOf("script-binding", "stats/display-stats-toggle"))
                 MPVLib.command(arrayOf("script-binding", "stats/display-page-$it"))
+            } else if (it == 6 || it == 0) {
+                // Explicitly ensure internal stats are OFF for Page 6 or Off mode
+                // We use a dummy command to ensure the toggle state is predictable
+                MPVLib.setPropertyString("user-data/stats/display-page", "0")
             }
         }
     }
