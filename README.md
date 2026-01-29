@@ -17,6 +17,7 @@ Unlocked advanced `mpv` features for audiophiles and videophiles.
 *   **Interpolation:** Smooth 60fps motion for 24fps anime (Automatic `display-resample` switching).
 *   **Universal Filter Fix:** Smart auto-switching for filter compatibility.
 *   **Low-Overhead Stats:** High-frequency technical stats (FPS, mistime) use polling to eliminate background CPU usage.
+*   👉 **[Read the Pro Player Guide](docs/PRO_PLAYER_GUIDE.md)** for deep dives on these settings and performance warnings.
 
 ### 🚀 Performance & UX
 *   **Smart Font Caching:** Optimized startup by preventing redundant font copying—opening the player is now near-instant.
