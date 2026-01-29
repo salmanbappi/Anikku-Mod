@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -27,7 +26,10 @@ import java.util.Locale
 fun InterpolationStatsOverlay() {
     val videoFps by PlayerStats.estimatedVfFps.collectAsState(0.0)
     val sourceFps by PlayerStats.videoParamsFps.collectAsState(0.0)
+    val containerFps by PlayerStats.containerFps.collectAsState(0.0)
     val isInterpolating by PlayerStats.isInterpolating.collectAsState(false)
+    val videoSync by PlayerStats.videoSync.collectAsState("")
+    
     val videoW by PlayerStats.videoW.collectAsState(0L)
     val videoH by PlayerStats.videoH.collectAsState(0L)
     val codec by PlayerStats.videoCodec.collectAsState("")
@@ -56,13 +58,20 @@ fun InterpolationStatsOverlay() {
         Modifier.padding(16.dp)
     ) {
         // Heading
-        Text(text = "Interpolation Details", style = baseStyle.copy(color = Color(0xFF33BBFF)))
+        Text(text = "INTERPOLATION DEBUG (PAGE 6)", style = baseStyle.copy(color = Color(0xFF33BBFF)))
         Spacer(Modifier.height(8.dp))
 
         // Motion Section
-        StatLine("Status", if (isInterpolating) "Active" else "Inactive", baseStyle)
-        StatLine("Output Rate", "${format.format(videoFps)} fps", baseStyle)
-        StatLine("Source Rate", "${format.format(sourceFps)} fps", baseStyle)
+        val finalSourceFps = if (sourceFps > 0) sourceFps else containerFps
+        val statusText = when {
+            isInterpolating -> "Active"
+            videoSync != "display-resample" -> "Inactive (Wrong Sync: $videoSync)"
+            else -> "Inactive"
+        }
+        
+        StatLine("Status", statusText, baseStyle)
+        StatLine("Display FPS", "${format.format(videoFps)} fps", baseStyle)
+        StatLine("Source FPS", "${format.format(finalSourceFps)} fps", baseStyle)
         
         Spacer(Modifier.height(12.dp))
 

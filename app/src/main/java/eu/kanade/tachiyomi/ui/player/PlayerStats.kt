@@ -6,6 +6,8 @@ object PlayerStats {
     val estimatedVfFps = MutableStateFlow(0.0)
     val isInterpolating = MutableStateFlow(false)
     val videoParamsFps = MutableStateFlow(0.0)
+    val containerFps = MutableStateFlow(0.0)
+    val videoSync = MutableStateFlow("")
     val videoW = MutableStateFlow(0L)
     val videoH = MutableStateFlow(0L)
     val videoCodec = MutableStateFlow("")
