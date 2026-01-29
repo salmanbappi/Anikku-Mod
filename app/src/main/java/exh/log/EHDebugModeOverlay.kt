@@ -26,12 +26,12 @@ import java.util.Locale
 fun InterpolationStatsOverlay() {
     val vfFps by PlayerStats.estimatedVfFps.collectAsState(0.0)
     val sourceFps by PlayerStats.videoParamsFps.collectAsState(0.0)
-    val containerFps by PlayerStats.containerFps.collectAsState(0.0)
     val displayFps by PlayerStats.displayFps.collectAsState(0.0)
-    val estimatedDisplayFps by PlayerStats.estimatedDisplayFps.collectAsState(0.0)
+    val actualFps by PlayerStats.estimatedDisplayFps.collectAsState(0.0)
     
     val isInterpolating by PlayerStats.isInterpolating.collectAsState(false)
     val videoSync by PlayerStats.videoSync.collectAsState("")
+    val tscale by PlayerStats.tscale.collectAsState("")
     val hwdec = MPVLib.getPropertyString("hwdec-current") ?: "no"
     
     val videoW by PlayerStats.videoW.collectAsState(0L)
@@ -60,21 +60,8 @@ fun InterpolationStatsOverlay() {
         Text(text = "SMOOTH MOTION DEBUG (PAGE 6)", style = baseStyle.copy(color = Color(0xFF33BBFF)))
         Spacer(Modifier.height(8.dp))
 
-        // Hardware Warning
-        val isHardwareBlocking = hwdec == "mediacodec"
-        if (isHardwareBlocking) {
-            Text(
-                text = "WARNING: HW Decoder is blocking Interpolation!",
-                style = baseStyle.copy(color = Color.Red)
-            )
-            Text(
-                text = "Current: $hwdec (Must be copy or no)",
-                style = baseStyle.copy(color = Color.Red, fontSize = 11.sp)
-            )
-            Spacer(Modifier.height(8.dp))
-        }
-
         // Status logic
+        val isHardwareBlocking = hwdec == "mediacodec"
         val statusText = when {
             isInterpolating && !isHardwareBlocking -> "Active (Working)"
             isInterpolating && isHardwareBlocking -> "Active (But blocked by HW)"
@@ -82,16 +69,18 @@ fun InterpolationStatsOverlay() {
         }
         StatLine("Status", statusText, baseStyle)
         StatLine("Sync Mode", videoSync, baseStyle)
+        StatLine("Scaler", tscale.ifEmpty { "none" }, baseStyle)
         
+        if (isHardwareBlocking) {
+            Text(text = "! HW Decoder blocking engine", style = baseStyle.copy(color = Color.Red, fontSize = 11.sp))
+        }
+
         Spacer(Modifier.height(12.dp))
 
-        // FPS Details with fallbacks
-        val finalSourceFps = if (sourceFps > 0) sourceFps else containerFps
-        val finalActualFps = if (estimatedDisplayFps > 0) estimatedDisplayFps else vfFps
-        
-        StatLine("Source Rate", "${format.format(finalSourceFps)} fps", baseStyle)
+        // FPS Details
+        StatLine("Source Rate", "${format.format(sourceFps)} fps", baseStyle)
         StatLine("Filter Output", "${format.format(vfFps)} fps", baseStyle)
-        StatLine("Actual Display", "${format.format(finalActualFps)} fps", baseStyle)
+        StatLine("Actual Display", "${format.format(actualFps)} fps", baseStyle)
         StatLine("Refresh Rate", "${format.format(displayFps)} Hz", baseStyle)
         
         Spacer(Modifier.height(12.dp))
@@ -99,9 +88,6 @@ fun InterpolationStatsOverlay() {
         // Video Details
         if (videoW > 0) {
             StatLine("Resolution", "${videoW}x${videoH}", baseStyle)
-        }
-        if (bitrate > 0) {
-            StatLine("Bitrate", "${bitrate / 1000} kbps", baseStyle)
         }
         StatLine("HW Decoder", hwdec, baseStyle)
     }

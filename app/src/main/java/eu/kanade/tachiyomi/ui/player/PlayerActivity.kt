@@ -765,6 +765,7 @@ class PlayerActivity : BaseActivity() {
         if (player.isExiting) return
         when (property) {
             "video-sync" -> PlayerStats.videoSync.value = value
+            "tscale" -> PlayerStats.tscale.value = value
             "video-codec" -> PlayerStats.videoCodec.value = value
             "video-params/pixelformat" -> PlayerStats.videoPixFmt.value = value
             "video-params/colorlevels" -> PlayerStats.videoLevels.value = value
