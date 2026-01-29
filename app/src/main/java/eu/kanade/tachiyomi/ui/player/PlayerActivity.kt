@@ -780,6 +780,7 @@ class PlayerActivity : BaseActivity() {
             "video-params/pixelformat" -> PlayerStats.videoPixFmt.value = value
             "video-params/colorlevels" -> PlayerStats.videoLevels.value = value
             "video-params/primaries" -> PlayerStats.videoPrimaries.value = value
+            "hwdec-current" -> PlayerStats.hwdec.value = value
         }
         when (property.substringBeforeLast("/")) {
             "aid" -> trackId(value)?.let { viewModel.updateAudio(it) }

@@ -18,7 +18,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.kanade.tachiyomi.ui.player.PlayerStats
-import `is`.xyz.mpv.MPVLib
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
@@ -38,7 +37,7 @@ fun InterpolationStatsOverlay() {
     val mistime by PlayerStats.mistime.collectAsState(0.0)
     val voPasses by PlayerStats.voPasses.collectAsState(0L)
     
-    val hwdec = MPVLib.getPropertyString("hwdec-current") ?: "no"
+    val hwdec by PlayerStats.hwdec.collectAsState("")
     val videoW by PlayerStats.videoW.collectAsState(0L)
     val videoH by PlayerStats.videoH.collectAsState(0L)
     val videoOutW by PlayerStats.videoOutW.collectAsState(0L)
@@ -69,7 +68,6 @@ fun InterpolationStatsOverlay() {
         Spacer(Modifier.height(8.dp))
 
         // Pipeline Logic
-        val hwdec = MPVLib.getPropertyString("hwdec-current") ?: "no"
         val isDirect = hwdec == "mediacodec"
         // Improved detection: Check if output frames > 1 OR display FPS is high OR algorithm is active
         val isWorking = isInterpolating && !isDirect && (voPasses > 1 || actualFps > (vfFps + 5) || (tscale.isNotEmpty() && tscale != "none"))
@@ -107,7 +105,7 @@ fun InterpolationStatsOverlay() {
         Row {
             StatLine("Res", "${finalW}x${finalH}", baseStyle)
             Text(" | ", style = baseStyle)
-            StatLine("HW", hwdec, baseStyle)
+            StatLine("HW", hwdec.ifEmpty { "no" }, baseStyle)
         }
     }
 }
