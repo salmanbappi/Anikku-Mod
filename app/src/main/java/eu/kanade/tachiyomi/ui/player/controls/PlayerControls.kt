@@ -649,8 +649,8 @@ fun PlayerControls(
 
     val advancedPlayerPreferences = remember { Injekt.get<eu.kanade.tachiyomi.ui.player.settings.AdvancedPlayerPreferences>() }
     val statsPage by advancedPlayerPreferences.playerStatisticsPage().collectAsState()
-    if (statsPage == 1) {
-        exh.log.InterpolationStatsOverlay()
+    if (statsPage == 1 || statsPage == 6) {
+        exh.log.InterpolationStatsOverlay(isPageSix = statsPage == 6)
     }
 
     if (showCastSheet) {

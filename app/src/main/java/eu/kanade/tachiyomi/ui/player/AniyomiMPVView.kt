@@ -271,6 +271,10 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         "video-params/aspect" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
         "estimated-vf-fps" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
         "video-params/fps" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
+        "video-params/w" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
+        "video-params/h" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
+        "video-codec" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
+        "video-bitrate" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
         "interpolation" to MPVLib.mpvFormat.MPV_FORMAT_FLAG,
 
         "hwdec-current" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
