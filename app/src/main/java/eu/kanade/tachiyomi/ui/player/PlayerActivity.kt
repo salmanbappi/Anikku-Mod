@@ -693,15 +693,6 @@ class PlayerActivity : BaseActivity() {
     internal fun onObserverEvent(property: String, value: Long) {
         if (player.isExiting) return
         when (property) {
-            "video-params/w" -> PlayerStats.videoW.value = value
-            "video-params/h" -> PlayerStats.videoH.value = value
-            "dwidth" -> PlayerStats.dwidth.value = value
-            "dheight" -> PlayerStats.dheight.value = value
-            "video-out-params/w" -> PlayerStats.videoOutW.value = value
-            "video-out-params/h" -> PlayerStats.videoOutH.value = value
-            "video-bitrate" -> PlayerStats.videoBitrate.value = value
-            "vo-delayed-frame-count" -> PlayerStats.delayedFrames.value = value
-            "vo-passes" -> PlayerStats.voPasses.value = value
             "time-pos" -> {
                 viewModel.updatePlayBackPos(value.toFloat())
                 viewModel.setChapter(value.toFloat())
@@ -729,7 +720,6 @@ class PlayerActivity : BaseActivity() {
     internal fun onObserverEvent(property: String, value: Boolean) {
         if (player.isExiting) return
         when (property) {
-            "interpolation" -> PlayerStats.isInterpolating.value = value
             "pause" -> {
                 if (value && player.paused == true) {
                     viewModel.pause()
@@ -769,15 +759,6 @@ class PlayerActivity : BaseActivity() {
 
     internal fun onObserverEvent(property: String, value: String) {
         if (player.isExiting) return
-        when (property) {
-            "video-sync" -> PlayerStats.videoSync.value = value
-            "tscale" -> PlayerStats.tscale.value = value
-            "gpu-api" -> PlayerStats.gpuApi.value = value
-            "video-codec" -> PlayerStats.videoCodec.value = value
-            "video-params/pixelformat" -> PlayerStats.videoPixFmt.value = value
-            "video-params/colorlevels" -> PlayerStats.videoLevels.value = value
-            "video-params/primaries" -> PlayerStats.videoPrimaries.value = value
-        }
         when (property.substringBeforeLast("/")) {
             "aid" -> trackId(value)?.let { viewModel.updateAudio(it) }
             "sid" -> trackId(value)?.let { viewModel.updateSubtitle(it, viewModel.selectedSubtitles.value.second) }
@@ -794,14 +775,6 @@ class PlayerActivity : BaseActivity() {
         if (player.isExiting) return
         when (property) {
             "speed" -> viewModel.playbackSpeed.update { value.toFloat() }
-            "estimated-vf-fps" -> PlayerStats.estimatedVfFps.value = value
-            "video-params/fps" -> PlayerStats.videoParamsFps.value = value
-            "fps" -> if (PlayerStats.videoParamsFps.value == 0.0) PlayerStats.videoParamsFps.value = value
-            "video-out-params/fps" -> PlayerStats.videoOutParamsFps.value = value
-            "container-fps" -> PlayerStats.containerFps.value = value
-            "display-fps" -> PlayerStats.displayFps.value = value
-            "estimated-display-fps" -> PlayerStats.estimatedDisplayFps.value = value
-            "mistime" -> PlayerStats.mistime.value = value
             "video-params/aspect" -> if (isPipSupportedAndEnabled) createPipParams()
         }
     }

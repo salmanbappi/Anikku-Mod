@@ -649,12 +649,6 @@ fun PlayerControls(
         )
     }
 
-    val advancedPlayerPreferences = remember { Injekt.get<AdvancedPlayerPreferences>() }
-    val statsPage by advancedPlayerPreferences.playerStatisticsPage().collectAsState()
-    if (statsPage == 6) {
-        InterpolationStatsOverlay()
-    }
-
     if (showCastSheet) {
         CastSheet(
             castManager = castManager,
