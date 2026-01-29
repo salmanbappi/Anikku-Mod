@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -75,14 +76,14 @@ fun InterpolationStatsOverlay(isPageSix: Boolean = false) {
             
             // System info
             Text(text = "--------------------------", style = baseStyle)
-            val hwdec = eu.kanade.tachiyomi.ui.player.MPVLib.getPropertyString("hwdec-current") ?: "no"
+            val hwdec = `is`.xyz.mpv.MPVLib.getPropertyString("hwdec-current") ?: "no"
             StatLine("HW Decoder", hwdec, baseStyle)
         }
     }
 }
 
 @Composable
-private fun StatLine(label: String, value: String, style: androidx.compose.ui.text.TextStyle) {
+private fun StatLine(label: String, value: String, style: TextStyle) {
     Text(
         text = String.format(Locale.ENGLISH, "%-15s: %s", label, value),
         style = style,
