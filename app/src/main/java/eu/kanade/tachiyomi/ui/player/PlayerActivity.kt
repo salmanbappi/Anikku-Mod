@@ -788,7 +788,10 @@ class PlayerActivity : BaseActivity() {
             "speed" -> viewModel.playbackSpeed.update { value.toFloat() }
             "estimated-vf-fps" -> PlayerStats.estimatedVfFps.value = value
             "video-params/fps" -> PlayerStats.videoParamsFps.value = value
+            "video-out-params/fps" -> PlayerStats.videoOutParamsFps.value = value
             "container-fps" -> PlayerStats.containerFps.value = value
+            "display-fps" -> PlayerStats.displayFps.value = value
+            "estimated-display-fps" -> PlayerStats.estimatedDisplayFps.value = value
             "video-params/aspect" -> if (isPipSupportedAndEnabled) createPipParams()
         }
     }
