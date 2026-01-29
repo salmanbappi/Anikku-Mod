@@ -233,7 +233,7 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
             if (networkPreferences.verboseLogging().get()) logger(DebugLogger())
 
             fetcherCoroutineContext(Dispatchers.IO.limitedParallelism(8))
-            decoderCoroutineContext(Dispatchers.IO.limitedParallelism(4)) // Increased for smoother scrolling
+            decoderCoroutineContext(Dispatchers.IO.limitedParallelism(8)) // Maximize CPU usage for smooth scrolling
         }
             .build()
     }

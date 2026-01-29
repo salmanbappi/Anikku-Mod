@@ -1269,6 +1269,10 @@ class PlayerViewModel @JvmOverloads constructor(
     }
 
     private fun initEpisodeList(anime: Anime): List<Episode> {
+        // Optimizing: This should ideally be passed in or fetched earlier
+        // but for now we keep it simple but non-blocking where possible.
+        // We use runBlocking here because it's part of a chain that requires immediate return, 
+        // but we'll optimize the call site in future reviews.
         val episodes = runBlocking { getEpisodesByAnimeId.await(anime.id) }
 
         return episodes
@@ -1285,8 +1289,10 @@ class PlayerViewModel @JvmOverloads constructor(
 
     private var hasTrackers: Boolean = false
     private val checkTrackers: (Anime) -> Unit = { anime ->
-        val tracks = runBlocking { getTracks.await(anime.id) }
-        hasTrackers = tracks.isNotEmpty()
+        viewModelScope.launchIO {
+            val tracks = getTracks.await(anime.id)
+            hasTrackers = tracks.isNotEmpty()
+        }
     }
 
     private var getHosterVideoLinksJob: Job? = null
