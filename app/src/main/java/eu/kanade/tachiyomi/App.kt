@@ -304,7 +304,7 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
 
         val printers = mutableListOf<Printer>(AndroidPrinter())
 
-        val logFolder = Injekt.get<StorageManager>().getLogsDirectory()
+        val logFolder = runCatching { Injekt.get<StorageManager>().getLogsDirectory() }.getOrNull()
 
         if (logFolder != null) {
             val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
