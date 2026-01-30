@@ -131,6 +131,7 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         MPVLib.setOptionString("hwdec", hwdec)
         MPVLib.setOptionString("hwdec-codecs", "all")
         
+        val smoothMotionEnabled = decoderPreferences.smoothMotion().get()
         // Use audio sync by default for better performance on Android
         MPVLib.setOptionString("video-sync", "audio")
 
