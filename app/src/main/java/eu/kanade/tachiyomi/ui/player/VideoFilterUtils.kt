@@ -70,26 +70,34 @@ fun applyDebandSetting(setting: DebandSettings, value: Int) {
 
 fun buildVFChain(decoderPreferences: DecoderPreferences): String {
     val vfList = mutableListOf<String>()
+    val lavfiList = mutableListOf<String>()
 
     val sharpen = decoderPreferences.sharpenFilter().get()
     val blur = decoderPreferences.blurFilter().get()
     val deband = decoderPreferences.videoDebanding().get()
 
+    // If any filter requires CPU processing, we MUST ensure a stable pixel format
+    // to prevent green tint/alignment issues on the right side of the screen.
+    if (deband == Debanding.CPU || sharpen > 0 || blur > 0) {
+        vfList.add("format=yuv420p")
+    }
+
     if (deband == Debanding.CPU) {
-        // Use a more modern deband filter for CPU if available, falling back to gradfun
-        // lavfi's deband is better than gradfun
-        vfList.add("lavfi=[deband=1:1:64:16]")
+        lavfiList.add("deband=1:1:64:16")
     }
 
     if (sharpen > 0) {
         val amount = (sharpen / 100f) * 1.5f
-        vfList.add("lavfi=[unsharp=5:5:$amount:5:5:0]")
+        lavfiList.add("unsharp=5:5:$amount:5:5:0")
     }
 
     if (blur > 0) {
-        // Use boxblur via lavfi for better compatibility and to avoid mpv's internal format issues
         val luma = blur / 10f
-        vfList.add("lavfi=[boxblur=$luma:1]")
+        lavfiList.add("boxblur=$luma:1")
+    }
+
+    if (lavfiList.isNotEmpty()) {
+        vfList.add("lavfi=[${lavfiList.joinToString(",")}]")
     }
 
     return vfList.joinToString(",")
