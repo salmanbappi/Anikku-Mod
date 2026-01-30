@@ -114,13 +114,49 @@ fun checkAndSetCopyMode(prefs: DecoderPreferences) {
     }
 }
 
+fun applyTheme(theme: VideoFilterTheme, prefs: DecoderPreferences) {
+    prefs.brightnessFilter().set(theme.brightness)
+    prefs.contrastFilter().set(theme.contrast)
+    prefs.saturationFilter().set(theme.saturation)
+    prefs.gammaFilter().set(theme.gamma)
+    prefs.hueFilter().set(theme.hue)
+    prefs.sharpenFilter().set(theme.sharpen)
+    prefs.blurFilter().set(0)
+    
+    // Reset deband
+    prefs.debandFilter().set(0)
+    prefs.grainFilter().set(0)
+    prefs.debandThreshold().set(32)
+    prefs.debandRange().set(16)
+
+    // Update copy mode based on new theme values
+    checkAndSetCopyMode(prefs)
+
+    // Apply direct properties
+    MPVLib.setPropertyInt("brightness", theme.brightness)
+    MPVLib.setPropertyInt("contrast", theme.contrast)
+    MPVLib.setPropertyInt("saturation", theme.saturation)
+    MPVLib.setPropertyInt("gamma", theme.gamma)
+    MPVLib.setPropertyInt("hue", theme.hue)
+    
+    // Apply VF chain once
+    MPVLib.setPropertyString("vf", buildVFChain(prefs))
+    
+    // Reset deband engine properties
+    MPVLib.setPropertyBoolean("deband", false)
+    MPVLib.setPropertyInt("deband-iterations", 1)
+    MPVLib.setPropertyInt("deband-threshold", 32)
+    MPVLib.setPropertyInt("deband-range", 16)
+    MPVLib.setPropertyInt("deband-grain", 48)
+}
+
 fun applyAnime4K(prefs: DecoderPreferences, manager: Anime4KManager, isInit: Boolean = false) {
     val enabled = prefs.enableAnime4K().get()
     
     // DEFENSIVE: Anime4K is incompatible with gpu-next in current builds
     val gpuNext = prefs.gpuNext().get()
     if (enabled && gpuNext) {
-        logcat(LogPriority.WARN) { "Anime4K is incompatible with gpu-next. Skipping." }
+        logcat("Anime4K", LogPriority.WARN) { "Anime4K is incompatible with gpu-next. Skipping." }
         if (!isInit) MPVLib.setPropertyString("glsl-shaders", "")
         return
     }
@@ -140,7 +176,7 @@ fun applyAnime4K(prefs: DecoderPreferences, manager: Anime4KManager, isInit: Boo
     manager.initialize()
 
     val chain = if (enabled) manager.getShaderChain(mode, quality) else ""
-    logcat(LogPriority.DEBUG) { "Applying Anime4K chain (enabled=$enabled): $chain" }
+    logcat("Anime4K", LogPriority.DEBUG) { "Applying Anime4K chain (enabled=$enabled): $chain" }
     
     if (chain.isNotEmpty()) {
         // Optimized settings for GLSL shaders found in mpvEx
