@@ -116,6 +116,15 @@ fun checkAndSetCopyMode(prefs: DecoderPreferences) {
 
 fun applyAnime4K(prefs: DecoderPreferences, manager: Anime4KManager, isInit: Boolean = false) {
     val enabled = prefs.enableAnime4K().get()
+    
+    // DEFENSIVE: Anime4K is incompatible with gpu-next in current builds
+    val gpuNext = prefs.gpuNext().get()
+    if (enabled && gpuNext) {
+        logcat(LogPriority.WARN) { "Anime4K is incompatible with gpu-next. Skipping." }
+        if (!isInit) MPVLib.setPropertyString("glsl-shaders", "")
+        return
+    }
+
     val mode = try {
         Anime4KManager.Mode.valueOf(prefs.anime4kMode().get())
     } catch (e: Exception) {
@@ -132,9 +141,22 @@ fun applyAnime4K(prefs: DecoderPreferences, manager: Anime4KManager, isInit: Boo
 
     val chain = if (enabled) manager.getShaderChain(mode, quality) else ""
     logcat(LogPriority.DEBUG) { "Applying Anime4K chain (enabled=$enabled): $chain" }
-    if (isInit) {
-        MPVLib.setOptionString("glsl-shaders", chain)
+    
+    if (chain.isNotEmpty()) {
+        // Optimized settings for GLSL shaders found in mpvEx
+        if (isInit) {
+            MPVLib.setOptionString("opengl-pbo", "yes")
+            MPVLib.setOptionString("vd-lavc-dr", "yes")
+            MPVLib.setOptionString("opengl-early-flush", "no")
+            MPVLib.setOptionString("glsl-shaders", chain)
+        } else {
+            MPVLib.setPropertyString("glsl-shaders", chain)
+        }
     } else {
-        MPVLib.setPropertyString("glsl-shaders", chain)
+        if (isInit) {
+            MPVLib.setOptionString("glsl-shaders", "")
+        } else {
+            MPVLib.setPropertyString("glsl-shaders", "")
+        }
     }
 }
