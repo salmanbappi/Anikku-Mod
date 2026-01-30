@@ -68,6 +68,7 @@ import eu.kanade.tachiyomi.ui.player.Debanding
 import eu.kanade.tachiyomi.ui.player.VideoFilterTheme
 import eu.kanade.tachiyomi.ui.player.VideoFilters
 import eu.kanade.tachiyomi.ui.player.applyAnime4K
+import eu.kanade.tachiyomi.ui.player.applyDebandMode
 import eu.kanade.tachiyomi.ui.player.applyDebandSetting
 import eu.kanade.tachiyomi.ui.player.applyFilter
 import eu.kanade.tachiyomi.ui.player.applyTheme
@@ -333,20 +334,7 @@ fun DebandCard() {
                         checked = isSelected,
                         onCheckedChange = {
                             decoderPreferences.videoDebanding().set(mode)
-                            when (mode) {
-                                Debanding.None -> {
-                                    MPVLib.setPropertyBoolean("deband", false)
-                                    MPVLib.command(arrayOf("vf", "remove", "@deband"))
-                                }
-                                Debanding.CPU -> {
-                                    MPVLib.setPropertyBoolean("deband", false)
-                                    MPVLib.command(arrayOf("vf", "add", "@deband:gradfun=radius=12"))
-                                }
-                                Debanding.GPU -> {
-                                    MPVLib.setPropertyBoolean("deband", true)
-                                    MPVLib.command(arrayOf("vf", "remove", "@deband"))
-                                }
-                            }
+                            applyDebandMode(mode, decoderPreferences)
                         }
                     ) {
                         val icon = when (mode) {
@@ -364,8 +352,7 @@ fun DebandCard() {
                 TextButton(onClick = {
                     decoderPreferences.videoDebanding().delete()
                     DebandSettings.entries.forEach { it.preference(decoderPreferences).delete() }
-                    MPVLib.setPropertyBoolean("deband", false)
-                    MPVLib.command(arrayOf("vf", "remove", "@deband"))
+                    applyDebandMode(Debanding.None, decoderPreferences)
                 }) {
                     Text(stringResource(MR.strings.action_reset))
                 }
