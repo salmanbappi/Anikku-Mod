@@ -25,6 +25,7 @@ This mod unlocks the full potential of `mpv-android`. While the official version
 
 *   **What is it?** Replaces standard bilinear scaling with a **Jinc-based scaler**.
 *   **Why use it?** Standard scaling makes diagonals look "jagged." This preserves sharpness and removes jaggies from anime lines.
+*   **⚠️ Compatibility:** Do **NOT** use `gpu-next` with Anime4K. AniZen will automatically switch you to the standard `gpu` renderer when Anime4K is enabled to prevent crashes.
 *   **⚠️ The Cost:** Triple the GPU load compared to standard playback. Disable if your device gets hot.
 
 ---
