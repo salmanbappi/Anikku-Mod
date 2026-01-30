@@ -78,7 +78,8 @@ fun buildVFChain(decoderPreferences: DecoderPreferences): String {
 
     // If any filter requires CPU processing, we MUST ensure a stable pixel format
     // to prevent green tint/alignment issues on the right side of the screen.
-    if (deband == Debanding.CPU || sharpen > 0 || blur > 0) {
+    // This now respects the user's preference setting.
+    if (decoderPreferences.useYUV420P().get() && (deband == Debanding.CPU || sharpen > 0 || blur > 0)) {
         vfList.add("format=yuv420p")
     }
 
