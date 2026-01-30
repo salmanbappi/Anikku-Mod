@@ -115,25 +115,21 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
     var aid: Int by TrackDelegate("aid")
 
     override fun initOptions(vo: String) {
-        setVo(if (decoderPreferences.gpuNext().get()) "gpu-next" else "gpu")
+        val useAnime4K = decoderPreferences.enableAnime4K().get()
+        // Anime4K is incompatible with gpu-next
+        setVo(if (decoderPreferences.gpuNext().get() && !useAnime4K) "gpu-next" else "gpu")
         
         MPVLib.setPropertyBoolean("pause", true)
         MPVLib.setOptionString("profile", "fast")
         
-        // Universal fix: force auto-copy if advanced features are active
-        val smoothMotionEnabled = decoderPreferences.smoothMotion().get()
-        val filtersActive = decoderPreferences.sharpenFilter().get() > 0 || 
-                           decoderPreferences.blurFilter().get() > 0 ||
-                           decoderPreferences.videoDebanding().get() != Debanding.None ||
-                           decoderPreferences.enableAnime4K().get() ||
-                           smoothMotionEnabled
-        
+        // Use optimized hwdec string from mpvEx for better fallback
         val hwdec = if (decoderPreferences.tryHWDecoding().get()) {
-            if (filtersActive) "mediacodec-copy" else "auto"
+            "mediacodec,mediacodec-copy,no"
         } else {
             "no"
         }
         MPVLib.setOptionString("hwdec", hwdec)
+        MPVLib.setOptionString("hwdec-codecs", "all")
         
         // Use audio sync by default for better performance on Android
         MPVLib.setOptionString("video-sync", "audio")
