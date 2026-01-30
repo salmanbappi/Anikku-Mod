@@ -83,12 +83,13 @@ fun buildVFChain(decoderPreferences: DecoderPreferences): String {
 
     if (sharpen > 0) {
         val amount = (sharpen / 100f) * 1.5f
-        vfList.add("unsharp=5:5:$amount:5:5:0")
+        vfList.add("lavfi=[unsharp=5:5:$amount:5:5:0]")
     }
 
     if (blur > 0) {
-        val size = (blur / 10f).toInt().coerceAtLeast(1)
-        vfList.add("avgblur=size=$size")
+        // Use boxblur via lavfi for better compatibility and to avoid mpv's internal format issues
+        val luma = blur / 10f
+        vfList.add("lavfi=[boxblur=$luma:1]")
     }
 
     return vfList.joinToString(",")
