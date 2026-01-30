@@ -79,8 +79,9 @@ enum class Decoder(val title: String, val value: String) {
     HWPlus("HW+", "mediacodec"),
 }
 
-fun getDecoderFromValue(value: String): Decoder {
-    return Decoder.entries.first { it.value == value }
+fun getDecoderFromValue(value: String?): Decoder {
+    if (value == null) return Decoder.Auto
+    return Decoder.entries.firstOrNull { it.value == value } ?: Decoder.Auto
 }
 
 enum class Debanding {
