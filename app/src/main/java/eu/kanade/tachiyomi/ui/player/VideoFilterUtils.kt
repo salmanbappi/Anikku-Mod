@@ -64,7 +64,6 @@ fun applyDebandSetting(setting: DebandSettings, value: Int) {
 }
 
 fun buildVFChain(decoderPreferences: DecoderPreferences): String {
-    val vfList = mutableListOf<String>()
     val lavfiList = mutableListOf<String>()
 
     val sharpen = decoderPreferences.sharpenFilter().get()
@@ -72,9 +71,9 @@ fun buildVFChain(decoderPreferences: DecoderPreferences): String {
     val deband = decoderPreferences.videoDebanding().get()
 
     // If any filter requires CPU processing, we MUST ensure a stable pixel format
-    // to prevent green tint/alignment issues on the right side of the screen.
+    // inside the lavfi context to prevent green tint/alignment issues.
     if (deband == Debanding.CPU || sharpen > 0 || blur > 0) {
-        vfList.add("format=yuv420p")
+        lavfiList.add("format=yuv420p")
     }
 
     if (deband == Debanding.CPU) {
@@ -88,14 +87,15 @@ fun buildVFChain(decoderPreferences: DecoderPreferences): String {
 
     if (blur > 0) {
         val luma = blur / 10f
-        lavfiList.add("boxblur=$luma:1")
+        // Blur both luma and chroma planes to prevent green artifacts
+        lavfiList.add("boxblur=$luma:1:$luma:1")
     }
 
-    if (lavfiList.isNotEmpty()) {
-        vfList.add("lavfi=[${lavfiList.joinToString(",")}]")
+    return if (lavfiList.isNotEmpty()) {
+        "lavfi=[${lavfiList.joinToString(",")}]"
+    } else {
+        ""
     }
-
-    return vfList.joinToString(",")
 }
 
 fun checkAndSetCopyMode(prefs: DecoderPreferences) {
