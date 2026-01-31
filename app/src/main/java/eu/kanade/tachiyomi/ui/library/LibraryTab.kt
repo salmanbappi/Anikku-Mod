@@ -78,7 +78,6 @@ data object LibraryTab : Tab {
     override val options: TabOptions
         @Composable
         get() {
-            val title = MR.strings.label_anime_library
             val isSelected = LocalTabNavigator.current.current.key == key
             val image = AnimatedImageVector.animatedVectorResource(
                 R.drawable.anim_animelibrary_leave,
@@ -254,17 +253,18 @@ data object LibraryTab : Tab {
                             )
                         },
                         getNumberOfAnimeForCategory = { state.getAnimeCountForCategory(it) },
-                        getDisplayMode = { screenModel.getDisplayMode() },
+                        getDisplayMode = { _ -> screenModel.getDisplayMode() },
                         getColumnsForOrientation = {
                             screenModel.getColumnsPreferenceForCurrentOrientation(
                                 it,
                             )
                         },
                         // SY -->
-                        showLanguageIcon = screenModel.libraryPreferences.languageIconBadge().collectAsState().value,
-                        showSourceIcon = screenModel.libraryPreferences.sourceIconBadge().collectAsState().value,
+                        showLanguageIcon = state.showLanguageIcon,
+                        showSourceIcon = state.showSourceIcon,
                         // SY <--
-                    ) { state.getAnimelibItemsByPage(it) }
+                        getAnimeLibraryForPage = { state.getAnimelibItemsByPage(it) },
+                    )
                 }
             }
         }

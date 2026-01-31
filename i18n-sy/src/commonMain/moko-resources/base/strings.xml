@@ -747,6 +747,6 @@
     <string name="pref_skip_seen_episodes">Skip seen episodes</string>
     <string name="pref_skip_filtered_episodes">Skip filtered episodes</string>
     <string name="pref_skip_dupe_episodes">Skip duplicate episodes</string>
-    <string name="action_screen_shot">Screenshot</string>
     <string name="pref_allow_gestures_in_panels">Allow gestures in panels</string>
+    <string name="action_screen_shot">Screenshot</string>
 </resources>

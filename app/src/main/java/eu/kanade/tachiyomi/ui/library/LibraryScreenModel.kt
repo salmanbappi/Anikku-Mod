@@ -161,13 +161,21 @@ class LibraryScreenModel(
             libraryPreferences.categoryTabs().changes(),
             libraryPreferences.categoryNumberOfItems().changes(),
             libraryPreferences.showContinueWatchingButton().changes(),
-        ) { a, b, c -> arrayOf(a, b, c) }
-            .onEach { (showCategoryTabs, showAnimeCount, showAnimeContinueButton) ->
+            // SY -->
+            libraryPreferences.languageIconBadge().changes(),
+            libraryPreferences.sourceIconBadge().changes(),
+            // SY <--
+        ) { a, b, c, d, e -> arrayOf(a, b, c, d, e) }
+            .onEach { (showCategoryTabs, showAnimeCount, showAnimeContinueButton, showLanguageIcon, showSourceIcon) ->
                 mutableState.update { state ->
                     state.copy(
-                        showCategoryTabs = showCategoryTabs,
-                        showAnimeCount = showAnimeCount,
-                        showAnimeContinueButton = showAnimeContinueButton,
+                        showCategoryTabs = showCategoryTabs as Boolean,
+                        showAnimeCount = showAnimeCount as Boolean,
+                        showAnimeContinueButton = showAnimeContinueButton as Boolean,
+                        // SY -->
+                        showLanguageIcon = showLanguageIcon as Boolean,
+                        showSourceIcon = showSourceIcon as Boolean,
+                        // SY <--
                     )
                 }
             }
@@ -959,6 +967,7 @@ class LibraryScreenModel(
             }
         }.toSortedMap(compareBy { it.order })
     }
+    // SY <--
 
     @Immutable
     private data class ItemPreferences(
@@ -992,6 +1001,8 @@ class LibraryScreenModel(
         val dialog: Dialog? = null,
         // SY -->
         val groupType: Int = LibraryGroup.BY_DEFAULT,
+        val showLanguageIcon: Boolean = false,
+        val showSourceIcon: Boolean = false,
         // SY <--
     ) {
         private val libraryCount by lazy {
