@@ -327,7 +327,11 @@
     <string name="restoring_backup_canceled">Anulowano przywracanie</string>
     <string name="restore_in_progress">Kopia zapasowa jest w trakcie przywracania</string>
     <string name="backup_in_progress">Kopia zapasowa jest już w trakcie tworzenia</string>
+<<<<<<< HEAD
     <string name="restore_duration">%1$02d min, %2$02d s</string>
+=======
+    <string name="restore_duration">%02d min, %02d s</string>
+>>>>>>> official/master
     <string name="pref_webtoon_side_padding">Marginesy boczne</string>
     <string name="gray_background">Szary</string>
     <string name="ext_updates_pending">Dostępne aktualizacje</string>
@@ -783,7 +787,11 @@
     <string name="action_edit_anime_categories">Edytuj kategorie anime</string>
     <string name="action_sort_unseen_count">Liczba nie obejrzanych</string>
     <string name="action_filter_unseen">Nie obejrzane</string>
+<<<<<<< HEAD
     <string name="player_aniskip_dontskip_toast">Pomiń za %2$d sekund</string>
+=======
+    <string name="player_aniskip_dontskip_toast">Pomiń za %d sekund</string>
+>>>>>>> official/master
     <string name="also_set_episode_settings_for_library">zastosuj również do wszystkie anime w mojej bibliotece</string>
     <string name="video_fit_screen">Dopasuj do ekranu</string>
     <string name="wsrv">wsrv.nl</string>

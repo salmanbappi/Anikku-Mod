@@ -8,10 +8,17 @@ import uy.kohesive.injekt.api.get
 
 data class LibraryItem(
     val libraryAnime: LibraryAnime,
+<<<<<<< HEAD
     val downloadCount: Long = -1,
     val unseenCount: Long = -1,
     val isLocal: Boolean = false,
     val sourceLanguage: String = "",
+=======
+    var downloadCount: Long = -1,
+    var unseenCount: Long = -1,
+    var isLocal: Boolean = false,
+    var sourceLanguage: String = "",
+>>>>>>> official/master
     private val sourceManager: SourceManager = Injekt.get(),
 ) {
     /**

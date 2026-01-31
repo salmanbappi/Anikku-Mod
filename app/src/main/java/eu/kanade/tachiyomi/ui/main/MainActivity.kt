@@ -146,6 +146,7 @@ class MainActivity : BaseActivity() {
 
         super.onCreate(savedInstanceState)
 
+<<<<<<< HEAD
         // Startup Optimization: Run migration check in background
         lifecycleScope.launch {
             Migrator.await()
@@ -154,6 +155,9 @@ class MainActivity : BaseActivity() {
                 ready = true
             }
         }
+=======
+        val didMigration = Migrator.awaitAndRelease()
+>>>>>>> official/master
 
         // Do not let the launcher create a new activity http://stackoverflow.com/questions/16283079
         if (!isTaskRoot) {

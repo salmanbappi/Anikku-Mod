@@ -13,45 +13,29 @@ plugins {
     id("com.github.ben-manes.versions")
 }
 
-if (Config.includeTelemetry && file("google-services.json").exists()) {
+if (Config.includeTelemetry) {
     pluginManager.apply {
         apply(libs.plugins.google.services.get().pluginId)
         apply(libs.plugins.firebase.crashlytics.get().pluginId)
     }
 }
 
-    shortcutHelper.setFilePath("./shortcuts.xml")
+shortcutHelper.setFilePath("./shortcuts.xml")
 
+android {
+    namespace = "eu.kanade.tachiyomi"
 
-
-    android {
-
-        namespace = "eu.kanade.tachiyomi"
-
-
-
-        signingConfigs {
-
-            create("release") {
-
-                storeFile = file("anikku-mod.jks")
-
-                storePassword = "salman2005"
-
-                keyAlias = "anikku"
-
-                keyPassword = "salman2005"
-
-            }
-
+    signingConfigs {
+        create("release") {
+            storeFile = file("anikku-mod.jks")
+            storePassword = "salman2005"
+            keyAlias = "anikku"
+            keyPassword = "salman2005"
         }
+    }
 
-
-
-        defaultConfig {
-
-
-        applicationId = "app.anizen" // Changed ID so it doesn't conflict with the original app
+    defaultConfig {
+        applicationId = "app.anizen"
 
         versionCode = 7
         versionName = "0.1.7-MOD"
@@ -229,10 +213,10 @@ dependencies {
     // KMK -->
     implementation(projects.i18nKmk)
     implementation(projects.i18nAnk)
-    // KMK <--
+    // KMK <-
     // SY -->
     implementation(projects.i18nSy)
-    // SY <--
+    // SY <-
     implementation(projects.core.archive)
     implementation(projects.core.common)
     implementation(projects.coreMetadata)
@@ -264,7 +248,7 @@ dependencies {
     implementation(libs.bundles.sqlite)
     // SY -->
     implementation(sylibs.sqlcipher)
-    // SY <--
+    // SY <-
 
     implementation(kotlinx.reflect)
     implementation(kotlinx.immutables)
@@ -346,7 +330,7 @@ dependencies {
     implementation(libs.haze)
     implementation(compose.colorpicker)
     implementation(projects.flagkit)
-    // KMK <--
+    // KMK <-
 
     // Logging
     implementation(libs.timber)

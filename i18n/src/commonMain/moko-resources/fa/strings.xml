@@ -329,7 +329,11 @@
     <string name="creating_backup">درحال ایجاد نسخه پشتیبان</string>
     <string name="backup_choice">چه چیزی را می خواهید پشتیبان گیری کنید ؟</string>
     <string name="backup_in_progress">پشتیبان گیری هنوز در حال انجام است</string>
+<<<<<<< HEAD
     <string name="restore_duration">%1$02d دقیقه, %2$02d ثانیه</string>
+=======
+    <string name="restore_duration">%02d دقیقه, %02d ثانیه</string>
+>>>>>>> official/master
     <string name="restore_completed">بازیابی کامل شد</string>
     <string name="backup_restore_missing_sources">منابع ناموجود:</string>
     <string name="invalid_backup_file_missing_manga">فایل پشتیبان حاوی هیچ ورودی کتابخانه نیست.</string>
@@ -710,7 +714,11 @@
     <string name="pref_waiting_time_aniskip_5">5 ثانیه</string>
     <string name="pref_waiting_time_aniskip_8">8 ثانیه</string>
     <string name="pref_waiting_time_aniskip_10">10 ثانیه</string>
+<<<<<<< HEAD
     <string name="player_aniskip_dontskip_toast">گذر در %2$d ثانیه</string>
+=======
+    <string name="player_aniskip_dontskip_toast">گذر در %d ثانیه</string>
+>>>>>>> official/master
     <string name="player_aniskip_skip">%s گذشت شد</string>
     <string name="notification_episodes_single">قسمت %1$s</string>
     <string name="notification_episodes_multiple">قسمت‌های %1$s</string>

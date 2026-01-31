@@ -34,7 +34,11 @@
     <string name="latest">Azkenak</string>
     <string name="no_more_results">Ez dago emaitza gehiagorik</string>
     <string name="creating_backup">Babeskopia sortzen</string>
+<<<<<<< HEAD
     <string name="restore_duration">%1$02d min, %2$02d seg</string>
+=======
+    <string name="restore_duration">%02d min, %02d seg</string>
+>>>>>>> official/master
     <string name="add_tracking">Gehitu jarraipena</string>
     <string name="cache_delete_error">Errore bat gertatu da cachea garbitzean</string>
     <string name="backup_created">Babeskopia sortu da</string>

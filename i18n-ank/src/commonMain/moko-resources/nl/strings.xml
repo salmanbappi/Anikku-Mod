@@ -25,9 +25,15 @@
   <string name="channel_new_episodes">Aflevering updates</string>
   <string name="pref_category_connections">Verbindingen</string>
   <string name="pref_connections_summary">Discord, meer te komen..</string>
+<<<<<<< HEAD
   <string name="connections_info">Speciale diensten die uniek zijn voor AniZen en verbeteren van de manier waarop u de app gebruikt</string>
   <string name="connections_discord">Onenigheid</string>
   <string name="connections_discord_info">Deze Discord Service werkt met token loggen. Gebruik op eigen risico. Je token wordt lokaal opgeslagen en AniZen deelt het nergens anders</string>
+=======
+  <string name="connections_info">Speciale diensten die uniek zijn voor Anikku en verbeteren van de manier waarop u de app gebruikt</string>
+  <string name="connections_discord">Onenigheid</string>
+  <string name="connections_discord_info">Deze Discord Service werkt met token loggen. Gebruik op eigen risico. Je token wordt lokaal opgeslagen en Anikku deelt het nergens anders</string>
+>>>>>>> official/master
   <string name="show_chapters_titles_title">Toon afleveringen titels</string>
   <string name="show_chapters_titles_subtitle">Toon de titel van de aflevering die je bekijkt</string>
   <string name="discord_accounts">Discord accounts</string>

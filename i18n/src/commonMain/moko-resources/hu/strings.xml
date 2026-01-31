@@ -432,7 +432,11 @@
     <string name="information_cloudflare_bypass_failure">Nem sikerült megkerülni a Cloudflare-t</string>
     <string name="pref_landscape_zoom">Automatikusan nagyítsa a széles képeket</string>
     <string name="restore_completed">Helyreállítás befejeződött</string>
+<<<<<<< HEAD
     <string name="restore_duration">%1$02d perc, %2$02d másodperc</string>
+=======
+    <string name="restore_duration">%02d perc, %02d másodperc</string>
+>>>>>>> official/master
     <string name="backup_restore_content_full">Adatok visszaállítása a biztonsági mentésből.
 \n
 \nEzek után telepíteni kell a hiányzó bővítményeket és be kell jelentkezni a tracking szolgáltatásokba, hogy újra használhassa őket.</string>

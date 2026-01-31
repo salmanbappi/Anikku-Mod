@@ -79,9 +79,14 @@ enum class Decoder(val title: String, val value: String) {
     HWPlus("HW+", "mediacodec"),
 }
 
+<<<<<<< HEAD
 fun getDecoderFromValue(value: String?): Decoder {
     if (value == null) return Decoder.Auto
     return Decoder.entries.firstOrNull { it.value == value } ?: Decoder.Auto
+=======
+fun getDecoderFromValue(value: String): Decoder {
+    return Decoder.entries.first { it.value == value }
+>>>>>>> official/master
 }
 
 enum class Debanding {
@@ -132,6 +137,7 @@ sealed class PlayerUpdates {
     data class ShowTextResource(val textResource: StringResource) : PlayerUpdates()
 }
 
+<<<<<<< HEAD
 enum class DebandSettings(
     val titleRes: StringResource,
     val preference: (DecoderPreferences) -> Preference<Int>,
@@ -169,12 +175,17 @@ enum class DebandSettings(
     ),
 }
 
+=======
+>>>>>>> official/master
 enum class VideoFilters(
     val titleRes: StringResource,
     val preference: (DecoderPreferences) -> Preference<Int>,
     val mpvProperty: String,
+<<<<<<< HEAD
     val min: Int = -100,
     val max: Int = 100,
+=======
+>>>>>>> official/master
 ) {
     BRIGHTNESS(
         MR.strings.player_sheets_filters_brightness,
@@ -201,6 +212,7 @@ enum class VideoFilters(
         { it.hueFilter() },
         "hue",
     ),
+<<<<<<< HEAD
     SHARPEN(
         MR.strings.player_sheets_filters_sharpen,
         { it.sharpenFilter() },
@@ -292,3 +304,6 @@ enum class VideoFilterTheme(
     ),
 }
 
+=======
+}
+>>>>>>> official/master

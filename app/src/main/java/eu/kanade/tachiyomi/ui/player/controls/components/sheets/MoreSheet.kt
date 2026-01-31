@@ -175,7 +175,11 @@ fun MoreSheet(
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
             ) {
+<<<<<<< HEAD
                 items(7) { page ->
+=======
+                items(6) { page ->
+>>>>>>> official/master
                     FilterChip(
                         label = {
                             Text(
@@ -192,6 +196,7 @@ fun MoreSheet(
                             )
                         },
                         onClick = {
+<<<<<<< HEAD
                             val isInternalPage = page in 1..5
                             val wasInternalPage = statisticsPage in 1..5
                             val isPageSix = page == 6
@@ -221,6 +226,13 @@ fun MoreSheet(
                                         MPVLib.command(arrayOf("script-binding", "stats/display-stats-toggle"))
                                     }
                                 }
+=======
+                            if ((page == 0) xor (statisticsPage == 0)) {
+                                MPVLib.command(arrayOf("script-binding", "stats/display-stats-toggle"))
+                            }
+                            if (page != 0) {
+                                MPVLib.command(arrayOf("script-binding", "stats/display-page-$page"))
+>>>>>>> official/master
                             }
                             advancedPreferences.playerStatisticsPage().set(page)
                         },

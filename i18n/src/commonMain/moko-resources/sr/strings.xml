@@ -312,7 +312,11 @@
     <string name="restore_in_progress">Враћање је већ у току</string>
     <string name="creating_backup_error">Прављење резервне копије није успело</string>
     <string name="backup_in_progress">Прављење резервне копије је већ у току</string>
+<<<<<<< HEAD
     <string name="restore_duration">%1$02d мин, %2$02d сек</string>
+=======
+    <string name="restore_duration">%02d мин, %02d сек</string>
+>>>>>>> official/master
     <string name="pref_webtoon_side_padding">Растојање од ивице</string>
     <string name="pref_category_reading">Читање</string>
     <string name="pref_always_show_chapter_transition">Увек прикажи транзицију поглавља</string>
@@ -972,7 +976,11 @@
     <string name="action_change_intro_length">Промени дужину увода</string>
     <string name="pref_invalidate_download_cache_summary">Присили апликацију да поново провери преузета поглавља и епизоде</string>
     <string name="notification_episodes_single">Епизода %1$s</string>
+<<<<<<< HEAD
     <string name="player_aniskip_dontskip_toast">Прескочи %1$s у %2$d секунди</string>
+=======
+    <string name="player_aniskip_dontskip_toast">Прескочи %s у %d секунди</string>
+>>>>>>> official/master
     <string name="notification_episodes_single_and_more">Епизода %1$s и још %2$d</string>
     <string name="notification_episodes_multiple">Епизоде %1$s</string>
     <string name="copied_video_link_to_clipboard">Линк за квалитет видеа копиран у клипборд</string>
@@ -1218,7 +1226,11 @@
     <string name="player_sheets_sub_override_ass">Препиши ASS/SSA титлове</string>
     <string name="player_sheets_filters_gamma">Гама</string>
     <string name="player_sheets_add_ext_audio">Додајте спољне аудио траке</string>
+<<<<<<< HEAD
     <string name="player_sheets_decoder_formatted">%1$s (%2$s)</string>
+=======
+    <string name="player_sheets_decoder_formatted">%s (%s)</string>
+>>>>>>> official/master
     <string name="player_sheets_stats_page_chip">Страница %d</string>
     <string name="player_sheets_custom_buttons_title">Прилагођена дугмад</string>
     <string name="timer_picker_enter_timer">Унесите трајање</string>

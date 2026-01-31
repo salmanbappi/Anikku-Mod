@@ -50,7 +50,11 @@ class MyAnimeListApi(
                 .add("grant_type", "authorization_code")
                 .build()
             with(json) {
+<<<<<<< HEAD
                 client.newCall(POST("https://myanimelist.net/v1/oauth2/token", body = formBody))
+=======
+                client.newCall(POST("$BASE_OAUTH_URL/token", body = formBody))
+>>>>>>> official/master
                     .awaitSuccess()
                     .parseAs()
             }
@@ -244,17 +248,27 @@ class MyAnimeListApi(
     companion object {
         private const val CLIENT_ID = "18e5087eaeef557833a075a4d30d2afe"
 
+<<<<<<< HEAD
         private const val BASE_OAUTH_URL = "https://myanimelist.net"
+=======
+        private const val BASE_OAUTH_URL = "https://myanimelist.net/v1/oauth2"
+>>>>>>> official/master
         private const val BASE_API_URL = "https://api.myanimelist.net/v2"
 
         private const val LIST_PAGINATION_AMOUNT = 250
 
         private var codeVerifier: String = ""
 
+<<<<<<< HEAD
         fun authUrl(): Uri = "$BASE_OAUTH_URL/dialog/authorization".toUri().buildUpon()
             .appendQueryParameter("client_id", CLIENT_ID)
             .appendQueryParameter("code_challenge", getPkceChallengeCode())
             .appendQueryParameter("code_challenge_method", "plain")
+=======
+        fun authUrl(): Uri = "$BASE_OAUTH_URL/authorize".toUri().buildUpon()
+            .appendQueryParameter("client_id", CLIENT_ID)
+            .appendQueryParameter("code_challenge", getPkceChallengeCode())
+>>>>>>> official/master
             .appendQueryParameter("response_type", "code")
             .build()
 
@@ -270,11 +284,21 @@ class MyAnimeListApi(
                 .add("grant_type", "refresh_token")
                 .build()
 
+<<<<<<< HEAD
+=======
+            // Add the Authorization header manually as this particular
+            // request is called by the interceptor itself so it doesn't reach
+            // the part where the token is added automatically.
+>>>>>>> official/master
             val headers = Headers.Builder()
                 .add("Authorization", "Bearer ${oauth.accessToken}")
                 .build()
 
+<<<<<<< HEAD
             return POST("https://myanimelist.net/v1/oauth2/token", body = formBody, headers = headers)
+=======
+            return POST("$BASE_OAUTH_URL/token", body = formBody, headers = headers)
+>>>>>>> official/master
         }
 
         private fun getPkceChallengeCode(): String {
@@ -282,4 +306,8 @@ class MyAnimeListApi(
             return codeVerifier
         }
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> official/master

@@ -343,7 +343,11 @@
     <string name="licenses">Licences à code source ouvert</string>
     <string name="last_used_source">Dernière utilisée</string>
     <string name="check_for_updates">Rechercher des mises à jour</string>
+<<<<<<< HEAD
     <string name="restore_duration">%1$02d min, %2$02d s</string>
+=======
+    <string name="restore_duration">%02d min, %02d s</string>
+>>>>>>> official/master
     <string name="local_source_help_guide">Guide des sources locales</string>
     <string name="downloaded_only_summary">Filtrer toutes les entrées dans la bibliothèque</string>
     <string name="gray_background">Gris</string>
@@ -887,7 +891,11 @@
     <string name="pref_waiting_time_aniskip_9">9 secondes</string>
     <string name="pref_waiting_time_aniskip_10">10 secondes</string>
     <string name="player_aniskip_dontskip">Ne pas passer</string>
+<<<<<<< HEAD
     <string name="player_aniskip_dontskip_toast">Passer dans %2$d secondes</string>
+=======
+    <string name="player_aniskip_dontskip_toast">Passer dans %d secondes</string>
+>>>>>>> official/master
     <string name="player_aniskip_skip">%s passer</string>
     <string name="pref_pip_on_exit">Passer automatiquement en mode PiP en quittant le lecteur</string>
     <string name="pref_library_manga_columns">Nombre de mangas par lignes</string>

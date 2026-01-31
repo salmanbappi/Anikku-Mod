@@ -99,7 +99,10 @@ object SettingsDownloadScreen : SearchableSettings {
                 downloadPreferences = downloadPreferences,
                 allAnimeCategories = allAnimeCategories.toImmutableList(),
             ),
+<<<<<<< HEAD
             getInternalDownloaderGroup(downloadPreferences = downloadPreferences),
+=======
+>>>>>>> official/master
             getDownloadAheadGroup(downloadPreferences = downloadPreferences),
             getExternalDownloaderGroup(
                 downloadPreferences = downloadPreferences,
@@ -290,6 +293,7 @@ object SettingsDownloadScreen : SearchableSettings {
     }
 
     @Composable
+<<<<<<< HEAD
     private fun getInternalDownloaderGroup(
         downloadPreferences: DownloadPreferences,
     ): Preference.PreferenceGroup {
@@ -313,6 +317,8 @@ object SettingsDownloadScreen : SearchableSettings {
     }
 
     @Composable
+=======
+>>>>>>> official/master
     private fun DownloadLimitDialog(
         initialValue: Int,
         onDismissRequest: () -> Unit,

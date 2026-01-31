@@ -280,7 +280,11 @@
     <string name="last_used_source">Χρησιμοποιήθηκε τελευταία</string>
     <string name="add_tracking">Προσθήκη tracking</string>
     <string name="pinned_sources">Καρφιτσωμένα</string>
+<<<<<<< HEAD
     <string name="restore_duration">%1$02d λεπτά, %2$02d δευτερόλεπτα</string>
+=======
+    <string name="restore_duration">%02d λεπτά, %02d δευτερόλεπτα</string>
+>>>>>>> official/master
     <string name="action_select_inverse">Επιλογή αντίστροφου</string>
     <string name="channel_ext_updates">Ενημερώσεις επεκτάσεων</string>
     <string name="channel_new_chapters">Ενημερώσεις κεφαλαίων</string>

@@ -5,6 +5,7 @@ import eu.kanade.tachiyomi.network.interceptor.CloudflareInterceptor
 import eu.kanade.tachiyomi.network.interceptor.IgnoreGzipInterceptor
 import eu.kanade.tachiyomi.network.interceptor.UncaughtExceptionInterceptor
 import eu.kanade.tachiyomi.network.interceptor.UserAgentInterceptor
+<<<<<<< HEAD
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -24,6 +25,20 @@ import java.io.IOException
 import java.io.RandomAccessFile
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.coroutineContext
+=======
+import logcat.LogPriority
+import okhttp3.Cache
+import okhttp3.Headers
+import okhttp3.OkHttpClient
+import okhttp3.Response
+import okhttp3.brotli.BrotliInterceptor
+import okhttp3.logging.HttpLoggingInterceptor
+import okio.IOException
+import tachiyomi.core.common.util.system.logcat
+import java.io.File
+import java.io.RandomAccessFile
+import java.util.concurrent.TimeUnit
+>>>>>>> official/master
 import kotlin.math.pow
 import kotlin.random.Random
 
@@ -54,6 +69,7 @@ open /* SY <-- */ class NetworkHelper(
         // KMK <--
     ): OkHttpClient = run {
         val builder = OkHttpClient.Builder()
+<<<<<<< HEAD
             .dispatcher(
                 Dispatcher().apply {
                     maxRequests = 128
@@ -61,6 +77,8 @@ open /* SY <-- */ class NetworkHelper(
                 },
             )
             .connectionPool(ConnectionPool(10, 2, TimeUnit.MINUTES))
+=======
+>>>>>>> official/master
             .cookieJar(cookieJar)
             // KMK -->
             .connectTimeout(connectTimeout, TimeUnit.SECONDS)
@@ -143,7 +161,11 @@ open /* SY <-- */ class NetworkHelper(
                         }
                     } else {
                         attempt++
+<<<<<<< HEAD
                         android.util.Log.e("NetworkHelper", "Unexpected response code: ${response.code}. Retrying...")
+=======
+                        logcat(LogPriority.ERROR) { "Unexpected response code: ${response.code}. Retrying..." }
+>>>>>>> official/master
                         if (response.code == 416) {
                             // 416: Range Not Satisfiable
                             outputFile.delete()
@@ -153,7 +175,11 @@ open /* SY <-- */ class NetworkHelper(
                 }
                 if (failed) exponentialBackoff(attempt - 1)
             } catch (e: IOException) {
+<<<<<<< HEAD
                 android.util.Log.e("NetworkHelper", "Download interrupted: ${e.message}. Retrying...")
+=======
+                logcat(LogPriority.ERROR) { "Download interrupted: ${e.message}. Retrying..." }
+>>>>>>> official/master
                 // Wait or handle as needed before retrying
                 attempt++
                 exponentialBackoff(attempt - 1)
@@ -189,6 +215,7 @@ open /* SY <-- */ class NetworkHelper(
     private fun calculateExponentialBackoff(attempt: Int, baseDelay: Long = 1000L, maxDelay: Long = 32000L): Long {
         // Calculate the exponential delay
         val delay = baseDelay * 2.0.pow(attempt).toLong()
+<<<<<<< HEAD
         android.util.Log.e("NetworkHelper", "Exponential backoff delay: $delay ms")
         // Apply jitter by adding a random value to avoid synchronized retries in distributed systems
         return (delay + Random.nextLong(0, 1000)).coerceAtMost(maxDelay)
@@ -276,6 +303,12 @@ open /* SY <-- */ class NetworkHelper(
             }
         }
     }
+=======
+        logcat(LogPriority.ERROR) { "Exponential backoff delay: $delay ms" }
+        // Apply jitter by adding a random value to avoid synchronized retries in distributed systems
+        return (delay + Random.nextLong(0, 1000)).coerceAtMost(maxDelay)
+    }
+>>>>>>> official/master
     // KMK <--
 
     /**

@@ -25,9 +25,15 @@
     <string name="channel_new_episodes">Обновления эпизодов</string>
     <string name="pref_category_connections">Соединения</string>
     <string name="pref_connections_summary">Discord, вскоре будет доступно больше..</string>
+<<<<<<< HEAD
     <string name="connections_info">Специальные сервисы, которые уникальны для AniZen и улучшают взаимодействие с приложением</string>
     <string name="connections_discord">Discord</string>
     <string name="connections_discord_info">Эта служба Discord работает через логирование токенов. Используйте на свой страх и риск. Ваш токен хранится локально, и AniZen не делится им больше нигде</string>
+=======
+    <string name="connections_info">Специальные сервисы, которые уникальны для Anikku и улучшают взаимодействие с приложением</string>
+    <string name="connections_discord">Discord</string>
+    <string name="connections_discord_info">Эта служба Discord работает через логирование токенов. Используйте на свой страх и риск. Ваш токен хранится локально, и Anikku не делится им больше нигде</string>
+>>>>>>> official/master
     <string name="show_chapters_titles_title">Показывать названия эпизодов</string>
     <string name="show_chapters_titles_subtitle">Показывать название текущего эпизода</string>
     <string name="discord_accounts">Аккаунты Discord</string>
@@ -230,7 +236,11 @@
     <string name="download_merged_anime_entry">Включить загрузку новых эпизодов</string>
     <string name="download_merged_anime_entry_desc">Переключение этого включит или выключит загрузку эпизодов для этого объединенного тайтла</string>
     <string name="discord_download_button_anime">Смотрите в %s</string>
+<<<<<<< HEAD
     <string name="discord_app_description_anime">AniZen - приложение для просмотра аниме</string>
+=======
+    <string name="discord_app_description_anime">Anikku - приложение для просмотра аниме</string>
+>>>>>>> official/master
     <string name="show_episodes_titles_title">Показывать названия эпизодов</string>
     <string name="show_episodes_titles_subtitle">Показывает название текущего эпизода</string>
     <string name="pref_discord_show_progress_summary_episode">Показывать прогресс текущего эпизода</string>
