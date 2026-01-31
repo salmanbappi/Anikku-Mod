@@ -33,6 +33,8 @@ CREATE TABLE animes(
 
 CREATE INDEX library_favorite_index ON animes(favorite) WHERE favorite = 1;
 CREATE INDEX animes_url_index ON animes(url);
+CREATE INDEX animes_source_index ON animes(source);
+CREATE INDEX animes_last_update_index ON animes(last_update);
 
 CREATE TRIGGER update_last_favorite_at_animes
 AFTER UPDATE OF favorite ON animes

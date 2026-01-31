@@ -146,6 +146,14 @@ class LibraryPreferences(
 
     fun newShowUpdatesCount() = preferenceStore.getBoolean("library_show_updates_count", true)
 
+    // SY -->
+    fun showUnseenBadge() = preferenceStore.getBoolean("library_show_unseen_count", false)
+
+    fun filterCategoriesDetails() = preferenceStore.getBoolean("pref_library_filter_categories_details", false)
+
+    fun showEmptyCategories() = preferenceStore.getBoolean("pref_show_empty_categories_search", false)
+    // SY <--
+
     fun newMangaUpdatesCount() = preferenceStore.getInt("library_unread_updates_count", 0)
     fun newUpdatesCount() = preferenceStore.getInt(Preference.appStateKey("library_unseen_updates_count"), 0)
 

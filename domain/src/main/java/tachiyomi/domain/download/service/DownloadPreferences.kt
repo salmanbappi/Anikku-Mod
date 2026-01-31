@@ -60,5 +60,7 @@ class DownloadPreferences(
 
     // KMK -->
     fun downloadCacheRenewInterval() = preferenceStore.getInt("download_cache_renew_interval", 1)
+
+    fun createFolderPerAnime() = preferenceStore.getBoolean("pref_create_folder_per_anime", false)
     // KMK <--
 }

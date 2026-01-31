@@ -47,6 +47,7 @@ import eu.kanade.tachiyomi.network.PREF_DOH_NJALLA
 import eu.kanade.tachiyomi.network.PREF_DOH_QUAD101
 import eu.kanade.tachiyomi.network.PREF_DOH_QUAD9
 import eu.kanade.tachiyomi.network.PREF_DOH_SHECAN
+import eu.kanade.tachiyomi.network.PREF_DOH_LIBREDNS
 import eu.kanade.tachiyomi.ui.more.OnboardingScreen
 import eu.kanade.tachiyomi.util.CrashLogUtil
 import eu.kanade.tachiyomi.util.system.isShizukuInstalled
@@ -62,6 +63,7 @@ import logcat.LogPriority
 import okhttp3.Headers
 import tachiyomi.core.common.util.system.logcat
 import tachiyomi.i18n.MR
+import tachiyomi.i18n.sy.SYMR
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt
@@ -126,6 +128,7 @@ object SettingsAdvancedScreen : SearchableSettings {
             getExtensionsGroup(basePreferences = basePreferences),
             // SY -->
             getDataSaverGroup(),
+            getFlareSolverrGroup(networkPreferences = networkPreferences),
             // SY <--
         )
     }
@@ -445,6 +448,25 @@ object SettingsAdvancedScreen : SearchableSettings {
                     pref = sourcePreferences.dataSaverColorBW(),
                     title = stringResource(MR.strings.data_saver_color_bw),
                     enabled = dataSaver == DataSaver.BANDWIDTH_HERO,
+                ),
+            ),
+        )
+    }
+
+    @Composable
+    private fun getFlareSolverrGroup(networkPreferences: NetworkPreferences): Preference.PreferenceGroup {
+        return Preference.PreferenceGroup(
+            title = stringResource(SYMR.strings.pref_enable_flare_solverr),
+            preferenceItems = persistentListOf(
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = networkPreferences.enableFlareSolverr(),
+                    title = stringResource(SYMR.strings.pref_enable_flare_solverr),
+                    subtitle = stringResource(SYMR.strings.pref_enable_flare_solverr_summary),
+                ),
+                Preference.PreferenceItem.EditTextPreference(
+                    pref = networkPreferences.flareSolverrUrl(),
+                    title = stringResource(SYMR.strings.pref_flare_solverr_url),
+                    subtitle = stringResource(SYMR.strings.pref_flare_solverr_url_summary),
                 ),
             ),
         )

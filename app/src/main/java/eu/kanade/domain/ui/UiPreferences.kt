@@ -7,6 +7,7 @@ import eu.kanade.domain.ui.model.TabletUiMode
 import eu.kanade.domain.ui.model.ThemeMode
 import eu.kanade.tachiyomi.util.system.DeviceUtil
 import eu.kanade.tachiyomi.util.system.isDynamicColorAvailable
+import tachiyomi.core.common.preference.Preference
 import tachiyomi.core.common.preference.PreferenceStore
 import tachiyomi.core.common.preference.getEnum
 import java.time.format.DateTimeFormatter
@@ -52,6 +53,14 @@ class UiPreferences(
     fun panoramaCover() = preferenceStore.getBoolean("pref_panorama_cover", false)
 
     fun topAlignCover() = preferenceStore.getBoolean("pref_top_align_cover", false)
+
+    fun smoothScroll() = preferenceStore.getBoolean("pref_smooth_scroll", false)
+
+    fun hideHistoryButton() = preferenceStore.getBoolean("pref_hide_history_button", false)
+
+    fun hideUpdatesButton() = preferenceStore.getBoolean("pref_hide_updates_button", false)
+
+    fun appIcon() = preferenceStore.getInt("pref_app_icon", 0)
     // SY <--
 
     companion object {

@@ -117,6 +117,16 @@ object SettingsLibraryScreen : SearchableSettings {
                     pref = libraryPreferences.showHiddenCategories(),
                     title = stringResource(MR.strings.pref_category_hide_hidden),
                 ),
+                // SY -->
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = libraryPreferences.filterCategoriesDetails(),
+                    title = stringResource(SYMR.strings.pref_library_filter_categories_details),
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = libraryPreferences.showEmptyCategories(),
+                    title = stringResource(SYMR.strings.pref_show_empty_categories_search),
+                ),
+                // SY <--
             ),
         )
     }
@@ -240,6 +250,13 @@ object SettingsLibraryScreen : SearchableSettings {
                     pref = libraryPreferences.newShowUpdatesCount(),
                     title = stringResource(MR.strings.pref_library_update_show_tab_badge),
                 ),
+                // SY -->
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = libraryPreferences.showUnseenBadge(),
+                    title = stringResource(SYMR.strings.pref_library_update_show_tab_badge_unseen),
+                    enabled = libraryPreferences.newShowUpdatesCount().collectAsState().value,
+                ),
+                // SY <--
             ),
         )
     }

@@ -36,6 +36,7 @@ import kotlinx.collections.immutable.toPersistentMap
 import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.i18n.MR
 import tachiyomi.i18n.ank.AMR
+import tachiyomi.i18n.sy.SYMR
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt
@@ -75,6 +76,10 @@ object PlayerSettingsPlayerScreen : SearchableSettings {
                 title = stringResource(MR.strings.pref_preserve_watching_position),
             ),
             getCastGroup(playerPreferences = playerPreferences),
+            // SY -->
+            getAutomationGroup(playerPreferences = playerPreferences),
+            getScreenshotGroup(playerPreferences = playerPreferences),
+            // SY <-
             Preference.PreferenceItem.ListPreference(
                 pref = playerPreferences.defaultPlayerOrientationType(),
                 title = stringResource(MR.strings.pref_category_player_orientation),
@@ -96,6 +101,46 @@ object PlayerSettingsPlayerScreen : SearchableSettings {
         )
     }
 
+    // SY -->
+    @Composable
+    private fun getAutomationGroup(playerPreferences: PlayerPreferences): Preference.PreferenceGroup {
+        return Preference.PreferenceGroup(
+            title = stringResource(SYMR.strings.watched_list_default), // Using watched_list_default as placeholder for Playback Automation
+            preferenceItems = persistentListOf(
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = playerPreferences.skipSeenEpisodes(),
+                    title = stringResource(SYMR.strings.pref_skip_seen_episodes),
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = playerPreferences.skipFilteredEpisodes(),
+                    title = stringResource(SYMR.strings.pref_skip_filtered_episodes),
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = playerPreferences.skipDuplicateEpisodes(),
+                    title = stringResource(SYMR.strings.pref_skip_dupe_episodes),
+                ),
+            ),
+        )
+    }
+
+    @Composable
+    private fun getScreenshotGroup(playerPreferences: PlayerPreferences): Preference.PreferenceGroup {
+        return Preference.PreferenceGroup(
+            title = stringResource(MR.strings.action_screen_shot),
+            preferenceItems = persistentListOf(
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = playerPreferences.screenshotSeparateFolders(),
+                    title = "Save screenshots into separate folders",
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = playerPreferences.screenshotFoldersByTitle(),
+                    title = "Creates folders according to entries' title",
+                ),
+            ),
+        )
+    }
+    // SY <-
+
     @Composable
     private fun getControlsGroup(playerPreferences: PlayerPreferences): Preference.PreferenceGroup {
         val allowGestures = playerPreferences.allowGestures()
@@ -109,7 +154,7 @@ object PlayerSettingsPlayerScreen : SearchableSettings {
             preferenceItems = persistentListOf(
                 Preference.PreferenceItem.SwitchPreference(
                     pref = allowGestures,
-                    title = stringResource(MR.strings.pref_controls_allow_gestures_in_panels),
+                    title = stringResource(MR.strings.pref_allow_gestures_in_panels),
                 ),
                 Preference.PreferenceItem.SwitchPreference(
                     pref = showLoading,

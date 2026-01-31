@@ -14,6 +14,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableMap
 import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.i18n.MR
+import tachiyomi.i18n.sy.SYMR
 import tachiyomi.presentation.core.i18n.pluralStringResource
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.collectAsState
@@ -81,6 +82,31 @@ object SettingsSecurityScreen : SearchableSettings {
                     .toImmutableMap(),
             ),
             Preference.PreferenceItem.InfoPreference(stringResource(MR.strings.secure_screen_summary)),
+
+            // SY -->
+            Preference.PreferenceGroup(
+                title = stringResource(SYMR.strings.pref_security),
+                preferenceItems = persistentListOf(
+                    Preference.PreferenceItem.SwitchPreference(
+                        pref = securityPreferences.encryptDatabase(),
+                        title = stringResource(SYMR.strings.encrypt_database),
+                        subtitle = stringResource(SYMR.strings.encrypt_database_subtitle),
+                    ),
+                    Preference.PreferenceItem.ListPreference(
+                        pref = securityPreferences.encryptionType(),
+                        title = stringResource(SYMR.strings.encryption_type),
+                        entries = SecurityPreferences.EncryptionType.entries
+                            .associateWith { stringResource(it.titleRes) }
+                            .toImmutableMap(),
+                    ),
+                    Preference.PreferenceItem.SwitchPreference(
+                        pref = securityPreferences.passwordProtectDownloads(),
+                        title = stringResource(SYMR.strings.password_protect_downloads),
+                        subtitle = stringResource(SYMR.strings.password_protect_downloads_summary),
+                    ),
+                ),
+            ),
+            // SY <--
         )
     }
 }

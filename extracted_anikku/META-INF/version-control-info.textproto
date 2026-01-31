@@ -1,5 +1,0 @@
-repositories {
-  system: GIT
-  local_root_path: "$PROJECT_DIR"
-  revision: "881da663a371a6937d7053f13890d5fdd6dfe3a0"
-}

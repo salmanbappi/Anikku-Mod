@@ -67,13 +67,13 @@ class SourcePreferences(
 
     // SY -->
 
-    // fun enableSourceBlacklist() = preferenceStore.getBoolean("eh_enable_source_blacklist", true)
+    fun enableSourceBlacklist() = preferenceStore.getBoolean("eh_enable_source_blacklist", false)
 
-    // fun sourcesTabCategories() = preferenceStore.getStringSet("sources_tab_categories", mutableSetOf())
+    fun sourcesTabCategories() = preferenceStore.getStringSet("sources_tab_categories", mutableSetOf())
 
-    // fun sourcesTabCategoriesFilter() = preferenceStore.getBoolean("sources_tab_categories_filter", false)
+    fun sourcesTabCategoriesFilter() = preferenceStore.getBoolean("sources_tab_categories_filter", false)
 
-    // fun sourcesTabSourcesInCategories() = preferenceStore.getStringSet("sources_tab_source_categories", mutableSetOf())
+    fun sourcesTabSourcesInCategories() = preferenceStore.getStringSet("sources_tab_source_categories", mutableSetOf())
 
     fun dataSaver() = preferenceStore.getEnum("data_saver", DataSaver.NONE)
 
@@ -96,11 +96,19 @@ class SourcePreferences(
 
     fun dataSaverDownloader() = preferenceStore.getBoolean("data_saver_downloader", true)
 
+    fun hideFeed() = preferenceStore.getBoolean("hide_feed", false)
+
+    fun feedPosition() = preferenceStore.getInt("feed_position", 1) // 0: First, 1: Second, etc.
+
+    fun sourceNavigation() = preferenceStore.getBoolean("pref_source_navigation", true)
+
+    fun sourceFiltering() = preferenceStore.getBoolean("pref_source_source_filtering", true)
+    // SY <--
+
     enum class DataSaver {
         NONE,
         BANDWIDTH_HERO,
         WSRV_NL,
         RESMUSH_IT,
     }
-    // SY <--
 }

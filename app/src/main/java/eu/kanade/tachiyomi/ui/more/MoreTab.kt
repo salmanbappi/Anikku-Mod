@@ -85,7 +85,7 @@ data object MoreTab : Tab {
             onClickSettings = { navigator.push(SettingsScreen()) },
             onClickAbout = { navigator.push(SettingsScreen(SettingsScreen.Destination.About)) },
             onClickLibraryUpdateErrors = {
-                // Logic for opening library update errors screen
+                navigator.push(eu.kanade.tachiyomi.ui.library.errors.LibraryUpdateErrorsScreen())
             },
         )
 
