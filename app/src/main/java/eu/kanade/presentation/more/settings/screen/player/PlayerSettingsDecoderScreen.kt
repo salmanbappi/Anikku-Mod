@@ -2,7 +2,10 @@ package eu.kanade.presentation.more.settings.screen.player
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
+<<<<<<< HEAD
 import androidx.compose.runtime.getValue
+=======
+>>>>>>> official/master
 import androidx.compose.runtime.remember
 import eu.kanade.presentation.more.settings.Preference
 import eu.kanade.presentation.more.settings.screen.SearchableSettings
@@ -11,7 +14,10 @@ import eu.kanade.tachiyomi.ui.player.settings.DecoderPreferences
 import kotlinx.collections.immutable.toImmutableMap
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.i18n.stringResource
+<<<<<<< HEAD
 import tachiyomi.presentation.core.util.collectAsState
+=======
+>>>>>>> official/master
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
@@ -29,10 +35,13 @@ object PlayerSettingsDecoderScreen : SearchableSettings {
         val useGpuNext = decoderPreferences.gpuNext()
         val debanding = decoderPreferences.videoDebanding()
         val yuv420p = decoderPreferences.useYUV420P()
+<<<<<<< HEAD
         val highQualityScaling = decoderPreferences.highQualityScaling()
         val smoothMotion = decoderPreferences.smoothMotion()
         val smoothMotionValue by smoothMotion.collectAsState()
         val interpolationMode = decoderPreferences.interpolationMode()
+=======
+>>>>>>> official/master
 
         return listOf(
             Preference.PreferenceItem.SwitchPreference(
@@ -49,6 +58,7 @@ object PlayerSettingsDecoderScreen : SearchableSettings {
                 title = stringResource(MR.strings.pref_debanding_title),
                 entries = Debanding.entries.associateWith {
                     it.name
+<<<<<<< HEAD
                 }.toImmutableMap(),
             ),
             Preference.PreferenceItem.SwitchPreference(
@@ -71,6 +81,12 @@ object PlayerSettingsDecoderScreen : SearchableSettings {
                 enabled = smoothMotionValue,
             ),
             Preference.PreferenceItem.SwitchPreference(
+=======
+                    // stringResource(it.)
+                }.toImmutableMap(),
+            ),
+            Preference.PreferenceItem.SwitchPreference(
+>>>>>>> official/master
                 pref = yuv420p,
                 title = stringResource(MR.strings.pref_use_yuv420p_title),
                 subtitle = stringResource(MR.strings.pref_use_yuv420p_subtitle),

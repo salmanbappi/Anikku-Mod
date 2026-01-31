@@ -220,6 +220,7 @@ class DownloadCache(
     }
 
     /**
+<<<<<<< HEAD
      * Returns a set of episode directory names for a specific anime.
      *
      * @param anime the anime to check.
@@ -239,6 +240,8 @@ class DownloadCache(
     }
 
     /**
+=======
+>>>>>>> official/master
      * Adds an episode that has just been download to this cache.
      *
      * @param episodeDirName the downloaded episode's directory name.

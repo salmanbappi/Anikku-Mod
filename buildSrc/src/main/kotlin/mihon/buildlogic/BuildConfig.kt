@@ -10,8 +10,15 @@ interface BuildConfig {
 }
 
 val Project.Config: BuildConfig get() = object : BuildConfig {
+<<<<<<< HEAD
     override val includeTelemetry: Boolean = project.findProperty("include-telemetry")?.toString()?.toBoolean() == true
     override val enableUpdater: Boolean = project.findProperty("enable-updater")?.toString()?.toBoolean() == true
     override val enableCodeShrink: Boolean = project.findProperty("disable-code-shrink")?.toString()?.toBoolean() != true
     override val includeDependencyInfo: Boolean = project.findProperty("include-dependency-info")?.toString()?.toBoolean() == true
+=======
+    override val includeTelemetry: Boolean = project.hasProperty("include-telemetry")
+    override val enableUpdater: Boolean = project.hasProperty("enable-updater")
+    override val enableCodeShrink: Boolean = !project.hasProperty("disable-code-shrink")
+    override val includeDependencyInfo: Boolean = project.hasProperty("include-dependency-info")
+>>>>>>> official/master
 }

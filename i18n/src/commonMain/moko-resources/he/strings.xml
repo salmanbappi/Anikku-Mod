@@ -453,7 +453,11 @@
     <string name="reading">קריאה</string>
     <string name="login">התחברות</string>
     <string name="pinned_sources">נעוץ</string>
+<<<<<<< HEAD
     <string name="restore_duration">%1$02d דקות, %2$02d שניות</string>
+=======
+    <string name="restore_duration">%02d דקות, %02d שניות</string>
+>>>>>>> official/master
     <string name="restoring_backup_canceled">השחזור בוטל</string>
     <string name="backup_info">רצוי לשמור עותקים נוספים של גיבויים במקומות אחרים בנוסף.</string>
     <string name="database_clean">אין מה לנקות</string>
@@ -844,7 +848,11 @@
     <string name="extension_settings">הגדרות הרחבה</string>
     <string name="pref_backup_flags">אפשרויות גיבוי</string>
     <string name="pref_waiting_time_aniskip_8">8 שניות</string>
+<<<<<<< HEAD
     <string name="player_aniskip_dontskip_toast">דלג בעוד %2$d שניות</string>
+=======
+    <string name="player_aniskip_dontskip_toast">דלג בעוד %d שניות</string>
+>>>>>>> official/master
     <string name="notification_episodes_single_and_more">פרק %1$s ועוד %2$d</string>
     <string name="no_next_episode">הפרק הבא לא נמצא!</string>
     <string name="label_history">מאנגה</string>

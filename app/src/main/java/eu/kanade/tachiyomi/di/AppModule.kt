@@ -21,7 +21,10 @@ import eu.kanade.tachiyomi.network.JavaScriptEngine
 import eu.kanade.tachiyomi.network.NetworkHelper
 import eu.kanade.tachiyomi.source.AndroidSourceManager
 import eu.kanade.tachiyomi.ui.player.ExternalIntents
+<<<<<<< HEAD
 import eu.kanade.tachiyomi.ui.player.utils.Anime4KManager
+=======
+>>>>>>> official/master
 import eu.kanade.tachiyomi.util.system.isDebugBuildType
 import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
 import kotlinx.serialization.json.Json
@@ -148,8 +151,11 @@ class AppModule(val app: Application) : InjektModule {
 
         addSingletonFactory { ExternalIntents() }
 
+<<<<<<< HEAD
         addSingletonFactory { Anime4KManager(app) }
 
+=======
+>>>>>>> official/master
         // AM (CONNECTIONS) -->
         addSingletonFactory { ConnectionsManager() }
         // <-- AM (CONNECTIONS)

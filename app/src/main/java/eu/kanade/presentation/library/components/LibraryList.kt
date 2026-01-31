@@ -5,7 +5,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+<<<<<<< HEAD
 import androidx.compose.runtime.remember
+=======
+>>>>>>> official/master
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastAny
@@ -28,8 +31,11 @@ internal fun LibraryList(
     searchQuery: String?,
     onGlobalSearchClicked: () -> Unit,
 ) {
+<<<<<<< HEAD
     val selectedIds = remember(selection) { selection.map { it.id }.toSet() }
 
+=======
+>>>>>>> official/master
     FastScrollLazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = contentPadding + PaddingValues(vertical = 8.dp),
@@ -50,7 +56,11 @@ internal fun LibraryList(
         ) { libraryItem ->
             val anime = libraryItem.libraryAnime.anime
             AnimeListItem(
+<<<<<<< HEAD
                 isSelected = libraryItem.libraryAnime.id in selectedIds,
+=======
+                isSelected = selection.fastAny { it.id == libraryItem.libraryAnime.id },
+>>>>>>> official/master
                 title = anime.title,
                 coverData = AnimeCover(
                     animeId = anime.id,

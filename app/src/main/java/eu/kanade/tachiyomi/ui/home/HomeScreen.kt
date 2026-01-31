@@ -251,11 +251,17 @@ object HomeScreen : Screen() {
         val navigator = LocalNavigator.currentOrThrow
         val scope = rememberCoroutineScope()
         val selected = tabNavigator.current::class == tab::class
+<<<<<<< HEAD
         val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
         NavigationBarItem(
             selected = selected,
             onClick = {
                 haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+=======
+        NavigationBarItem(
+            selected = selected,
+            onClick = {
+>>>>>>> official/master
                 if (!selected) {
                     tabNavigator.current = tab
                 } else {
@@ -286,11 +292,17 @@ object HomeScreen : Screen() {
         val navigator = LocalNavigator.currentOrThrow
         val scope = rememberCoroutineScope()
         val selected = tabNavigator.current::class == tab::class
+<<<<<<< HEAD
         val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
         NavigationRailItem(
             selected = selected,
             onClick = {
                 haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+=======
+        NavigationRailItem(
+            selected = selected,
+            onClick = {
+>>>>>>> official/master
                 if (!selected) {
                     tabNavigator.current = tab
                 } else {

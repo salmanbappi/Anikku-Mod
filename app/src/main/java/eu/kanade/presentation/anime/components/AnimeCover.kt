@@ -3,17 +3,31 @@
 package eu.kanade.presentation.anime.components
 
 import androidx.annotation.ColorInt
+<<<<<<< HEAD
+=======
+import androidx.compose.foundation.Image
+>>>>>>> official/master
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
+<<<<<<< HEAD
 import androidx.compose.foundation.layout.fillMaxSize
+=======
+>>>>>>> official/master
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+<<<<<<< HEAD
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+=======
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+>>>>>>> official/master
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -27,7 +41,11 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImagePainter
+<<<<<<< HEAD
 import coil3.compose.rememberAsyncImagePainter
+=======
+import coil3.compose.SubcomposeAsyncImage
+>>>>>>> official/master
 import eu.kanade.tachiyomi.R
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.anime.model.asAnimeCover
@@ -65,6 +83,7 @@ enum class AnimeCover(val ratio: Float) {
         scale: ContentScale = ContentScale.Crop,
         // KMK <--
     ) {
+<<<<<<< HEAD
         val painter = rememberAsyncImagePainter(
             model = data,
             onState = { state ->
@@ -79,12 +98,24 @@ enum class AnimeCover(val ratio: Float) {
         val state by painter.state.collectAsState()
         val isSuccess = state is AsyncImagePainter.State.Success
         val isError = state is AsyncImagePainter.State.Error
+=======
+        // KMK -->
+        var succeed by remember { mutableStateOf(false) }
+        // KMK <--
+>>>>>>> official/master
 
         val modifierColored = modifier
             .aspectRatio(ratio)
             .clip(shape)
+<<<<<<< HEAD
             .alpha(if (isSuccess) alpha else 1f)
             .background(bgColor ?: CoverPlaceholderColor)
+=======
+            // KMK -->
+            .alpha(if (succeed) alpha else 1f)
+            .background(bgColor ?: CoverPlaceholderColor)
+            // KMK <--
+>>>>>>> official/master
             .then(
                 if (onClick != null) {
                     Modifier.clickable(
@@ -96,6 +127,7 @@ enum class AnimeCover(val ratio: Float) {
                 },
             )
 
+<<<<<<< HEAD
         Box(modifier = modifierColored) {
             androidx.compose.foundation.Image(
                 painter = painter,
@@ -142,6 +174,69 @@ enum class AnimeCover(val ratio: Float) {
                 )
             }
         }
+=======
+        SubcomposeAsyncImage(
+            model = data,
+            // KMK -->
+            loading = {
+                Box(
+                    modifier = modifierColored,
+                ) {
+                    CircularProgressIndicator(
+                        color = tint?.let { Color(it) } ?: CoverPlaceholderOnBgColor,
+                        modifier = Modifier
+                            .size(
+                                when (size) {
+                                    Size.Big -> COVER_TEMPLATE_SIZE_BIG
+                                    Size.Medium -> COVER_TEMPLATE_SIZE_MEDIUM
+                                    else -> COVER_TEMPLATE_SIZE_NORMAL
+                                },
+                            )
+                            .align(Alignment.Center),
+                        strokeWidth = when (size) {
+                            Size.Normal -> 3.dp
+                            else -> 2.dp
+                        },
+                    )
+                }
+            },
+            error = {
+                Box(
+                    modifier = modifierColored,
+                ) {
+                    Image(
+                        imageVector = ImageVector.vectorResource(R.drawable.cover_error_vector),
+                        contentDescription = contentDescription,
+                        modifier = Modifier
+                            .size(
+                                when (size) {
+                                    Size.Big -> COVER_TEMPLATE_SIZE_BIG
+                                    Size.Medium -> COVER_TEMPLATE_SIZE_MEDIUM
+                                    else -> COVER_TEMPLATE_SIZE_NORMAL
+                                },
+                            )
+                            .align(Alignment.Center),
+                        colorFilter = ColorFilter.tint(
+                            tint?.let { Color(it) } ?: CoverPlaceholderOnBgColor,
+                        ),
+                    )
+                }
+            },
+            onSuccess = { result ->
+                succeed = true
+                if (onCoverLoaded != null) {
+                    when (data) {
+                        is Anime -> onCoverLoaded(data.asAnimeCover(), result)
+                        is DomainMangaCover -> onCoverLoaded(data, result)
+                    }
+                }
+            },
+            // KMK <--
+            contentDescription = contentDescription,
+            modifier = modifierColored,
+            contentScale = scale,
+        )
+>>>>>>> official/master
     }
 
     companion object {
@@ -186,7 +281,11 @@ enum class AnimeCoverHide(private val ratio: Float) {
         Box(
             modifier = modifierColored,
         ) {
+<<<<<<< HEAD
             androidx.compose.foundation.Image(
+=======
+            Image(
+>>>>>>> official/master
                 imageVector = ImageVector.vectorResource(R.drawable.ic_baseline_menu_book_24),
                 contentDescription = contentDescription,
                 modifier = Modifier
@@ -203,4 +302,8 @@ enum class AnimeCoverHide(private val ratio: Float) {
 internal const val RatioSwitchToPanorama = 0.75f
 
 internal val CoverPlaceholderColor = Color(0x1F888888)
+<<<<<<< HEAD
 internal val CoverPlaceholderOnBgColor = Color(0x8F888888)
+=======
+internal val CoverPlaceholderOnBgColor = Color(0x8F888888)
+>>>>>>> official/master

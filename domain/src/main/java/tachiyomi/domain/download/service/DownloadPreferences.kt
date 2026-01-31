@@ -53,9 +53,12 @@ class DownloadPreferences(
     fun numberOfDownloads() = preferenceStore.getInt("download_slots", 1)
     fun downloadSpeedLimit() = preferenceStore.getInt("download_speed_limit", 0)
 
+<<<<<<< HEAD
     fun concurrentDownloads() = preferenceStore.getInt("concurrent_downloads", 10)
     fun downloadThreads() = preferenceStore.getInt("download_threads", 4)
 
+=======
+>>>>>>> official/master
     fun downloadNewUnreadChaptersOnly() = preferenceStore.getBoolean("download_new_unread_episodes_only", false)
 
     // KMK -->

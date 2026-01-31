@@ -5,9 +5,15 @@
     <string name="special_services">Арнайы қызметтер</string>
     <string name="pref_category_connections">Байланыстыру</string>
     <string name="pref_connections_summary">Discord-пен байланыстыру. Жақында басқа платформалар да болады...</string>
+<<<<<<< HEAD
     <string name="connections_info">AniZen үшін бірегей және қолданбаны пайдалану жолыңызды жақсартатын арнайы қызметтер</string>
     <string name="connections_discord">Discord</string>
     <string name="connections_discord_info">Discord қызметі токеніңізді сақтау арқылы жұмыс істейді. Өз тәуекеліңізбен қолданыңыз. Сіздің токеніңіз жергілікті жерде сақталады, AniZen оны басқа ешқайда бөліспейді</string>
+=======
+    <string name="connections_info">Anikku үшін бірегей және қолданбаны пайдалану жолыңызды жақсартатын арнайы қызметтер</string>
+    <string name="connections_discord">Discord</string>
+    <string name="connections_discord_info">Discord қызметі токеніңізді сақтау арқылы жұмыс істейді. Өз тәуекеліңізбен қолданыңыз. Сіздің токеніңіз жергілікті жерде сақталады, Anikku оны басқа ешқайда бөліспейді</string>
+>>>>>>> official/master
     <string name="pref_discord_rpc">Discord Rich Presence</string>
     <string name="show_chapters_titles_title">Бөлімдердің атауын көрсету</string>
     <string name="show_chapters_titles_subtitle">Көргелі жатқан бөлімдердің атауын көрсету</string>

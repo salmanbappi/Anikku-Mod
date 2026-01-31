@@ -1,22 +1,23 @@
-name: PR build check
+name: CI
 on:
-  pull_request:
+  push:
+    branches:
+      - master
     paths:
       - '**'
       - '!**.md'
-      - '!i18n-ank/src/commonMain/moko-resources/**/strings.xml'
-      - '!i18n-ank/src/commonMain/moko-resources/**/plurals.xml'
-      - 'i18n-ank/src/commonMain/moko-resources/base/strings.xml'
-      - 'i18n-ank/src/commonMain/moko-resources/base/plurals.xml'
+  # pull_request:
+  #   paths-ignore:
+  #     - '**.md'
   # Dispatch or Manual triggers
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -29,9 +30,46 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Dependency Review
-        if: github.repository == 'komikku-app/anikku'
-        uses: actions/dependency-review-action@595b5aeba73380359d98a5e087f648dbb0edce1b # v4.7.3
+      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3
+        id: filter
+        with:
+          filters: |
+            gofiles:
+              - 'go/**'
+
+      - name: Set up Go
+        if: steps.filter.outputs.gofiles == 'true'
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5
+        with:
+          go-version: '1.21'
+
+      - name: Setup Android SDK
+        if: steps.filter.outputs.gofiles == 'true'
+        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+        with:
+          sdk-version: '30'
+
+      - name: Install Android NDK
+        if: steps.filter.outputs.gofiles == 'true'
+        uses: nttld/setup-ndk@afb4c9964b521afb97c864b7d40b11e6911bd410 # v1
+        with:
+          ndk-version: r25b
+
+      - name: Commit build library
+        if: steps.filter.outputs.gofiles == 'true'
+        run: |
+          #git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          #git config --local user.name "github-actions[bot]"
+          git add app/libs/server.aar
+          git add app/libs/server-sources.jar
+          git commit -m "Add compiled torrserver library"
+
+      - name: Push changes
+        if: steps.filter.outputs.gofiles == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: torrserver
 
       - name: Validate Gradle Wrapper
         uses: gradle/actions/wrapper-validation@ed408507eac070d1f99cc633dbcf757c94c7933a # v4.4.3
@@ -43,7 +81,6 @@ jobs:
           distribution: temurin
 
       - name: Write google-services.json
-        if: github.repository == github.event.pull_request.head.repo.full_name
         uses: DamianReeves/write-file-action@6929a9a6d1807689191dcc8bbe62b54d70a32b42 # v1.3
         with:
           path: app/google-services.json
@@ -51,7 +88,6 @@ jobs:
           write-mode: overwrite
 
       - name: Write client_secrets.json
-        if: github.repository == github.event.pull_request.head.repo.full_name
         uses: DamianReeves/write-file-action@6929a9a6d1807689191dcc8bbe62b54d70a32b42 # v1.3
         with:
           path: app/src/main/assets/client_secrets.json
@@ -65,21 +101,15 @@ jobs:
         run: ./gradlew spotlessCheck
 
       - name: Build app
-        if: github.repository == github.event.pull_request.head.repo.full_name
-        run: ./gradlew assemblePreview -Pinclude-telemetry -Penable-updater
-
-      - name: Build app
-        if: github.repository != github.event.pull_request.head.repo.full_name
-        run: ./gradlew assemblePreview
+        run: ./gradlew assembleRelease -Pinclude-telemetry -Penable-updater
 
       - name: Run unit tests
         run: ./gradlew testReleaseUnitTest
 
       - name: Sign APK
-        if: github.repository == github.event.pull_request.head.repo.full_name
         uses: r0adkll/sign-android-release@f30bdd30588842ac76044ecdbd4b6d0e3e813478
         with:
-          releaseDirectory: app/build/outputs/apk/preview
+          releaseDirectory: app/build/outputs/apk/release
           signingKeyBase64: ${{ secrets.SIGNING_KEY }}
           alias: ${{ secrets.ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
@@ -87,37 +117,22 @@ jobs:
         env:
           BUILD_TOOLS_VERSION: '35.0.1'
 
-      - name: Signed File name
-        id: signed_filename
-        if: github.repository == github.event.pull_request.head.repo.full_name
-        run: |
-          echo "SIGNED_TRAIL=-signed" >> $GITHUB_OUTPUT
-
       - name: Rename apk
         id: current_commit
         run: |
           set -e
-          echo "The git ref is: ${{ github.ref }}"
-          version_tag=p$(echo ${{ github.ref }} | cut -d '/' -f 3)
+          version_tag=$(echo ${GITHUB_REF/refs\/heads\//} | sed -r 's/^refs\/(heads|tags)\///' | sed -r 's/[-\/]+/_/g')
           commit_count=$(git rev-list --count HEAD)
           echo "VERSION_TAG=$version_tag"
           echo "VERSION_TAG=$version_tag" >> $GITHUB_OUTPUT
           echo "COMMIT_COUNT=$commit_count"
           echo "COMMIT_COUNT=$commit_count" >> $GITHUB_OUTPUT
-<<<<<<< HEAD
-          mv app/build/outputs/apk/preview/app-universal-preview${{ steps.signed_filename.outputs.SIGNED_TRAIL }}.apk AniZen-$version_tag-r$commit_count.apk
-=======
-          mv app/build/outputs/apk/preview/app-universal-preview${{ steps.signed_filename.outputs.SIGNED_TRAIL }}.apk Anikku-$version_tag-r$commit_count.apk
->>>>>>> official/master
+          mv app/build/outputs/apk/release/app-universal-release-unsigned-signed.apk Anikku-$version_tag-r$commit_count.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-<<<<<<< HEAD
-          name: AniZen-${{ steps.current_commit.outputs.VERSION_TAG }}-r${{ steps.current_commit.outputs.COMMIT_COUNT }}.apk
-=======
           name: Anikku-${{ steps.current_commit.outputs.VERSION_TAG }}-r${{ steps.current_commit.outputs.COMMIT_COUNT }}.apk
->>>>>>> official/master
           path: ./*.apk
           retention-days: 1
 
@@ -125,4 +140,4 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: mapping-${{ github.sha }}
-          path: app/build/outputs/mapping/preview
+          path: app/build/outputs/mapping/release

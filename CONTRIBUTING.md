@@ -2,7 +2,11 @@ Looking to report an issue/bug or make a feature request? Please refer to the [R
 
 ---
 
+<<<<<<< HEAD
 Thanks for your interest in contributing to AniZen!
+=======
+Thanks for your interest in contributing to Anikku!
+>>>>>>> official/master
 
 
 # Code contributions

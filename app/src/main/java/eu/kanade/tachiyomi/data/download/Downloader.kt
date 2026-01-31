@@ -138,6 +138,12 @@ class Downloader(
     val isRunning: Boolean
         get() = downloaderJob?.isActive ?: false
 
+    /**
+     * Whether FFmpeg is running.
+     */
+    @Volatile
+    var isFFmpegRunning: Boolean = false
+
     init {
         scope.launch {
             val episodes = async { store.restore() }
@@ -286,6 +292,13 @@ class Downloader(
      * Destroys the downloader subscriptions.
      */
     private fun cancelDownloaderJob() {
+        isFFmpegRunning = false
+        FFmpegKitConfig.getSessions().filter {
+            it.isFFmpeg && (it.state == SessionState.CREATED || it.state == SessionState.RUNNING)
+        }.forEach {
+            it.cancel()
+        }
+
         downloaderJob?.cancel()
         downloaderJob = null
     }
@@ -795,6 +808,8 @@ class Downloader(
     ): UniFile {
         val video = download.video!!
 
+        isFFmpegRunning = true
+
         // always delete tmp file
         tmpDir.findFile("$filename.tmp")?.delete()
         val videoFile = tmpDir.createFile("$filename.tmp")!!
@@ -819,7 +834,7 @@ class Downloader(
                 "${uri.scheme}://${uri.host}"
             }
         val extendedHeaderOptions = if (originHeader != null) {
-            headerOptions.replace("'", "${if (headerOptions.endsWith("\r\n'")) "" else "\r\n"}Origin: $originHeader\r\n'")
+            headerOptions.replace("'", "${if (headerOptions.endsWith("\r\n'")) "" else "\r\n"}Origin: $originHeader\r\n'" )
         } else {
             headerOptions
         }

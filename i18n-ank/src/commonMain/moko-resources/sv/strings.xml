@@ -25,9 +25,15 @@
   <string name="channel_new_episodes">Episod uppdateringar</string>
   <string name="pref_category_connections">Anslutningar</string>
   <string name="pref_connections_summary">Discord, mer att komma..</string>
+<<<<<<< HEAD
   <string name="connections_info">Specialtjänster som är unika för AniZen och förbättrar hur du använder appen</string>
   <string name="connections_discord">Discord</string>
   <string name="connections_discord_info">Denna Discord-tjänst fungerar genom tokenloggning. Använd på egen risk. Din token lagras lokalt och AniZen delar den inte någon annanstans</string>
+=======
+  <string name="connections_info">Specialtjänster som är unika för Anikku och förbättrar hur du använder appen</string>
+  <string name="connections_discord">Discord</string>
+  <string name="connections_discord_info">Denna Discord-tjänst fungerar genom tokenloggning. Använd på egen risk. Din token lagras lokalt och Anikku delar den inte någon annanstans</string>
+>>>>>>> official/master
   <string name="show_chapters_titles_title">Visa avsnittsrubriker</string>
   <string name="show_chapters_titles_subtitle">Visa titeln på avsnittet du tittar på</string>
   <string name="discord_accounts">Discord-konton</string>

@@ -4,7 +4,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
+<<<<<<< HEAD
 import androidx.compose.runtime.remember
+=======
+>>>>>>> official/master
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.util.fastAny
 import eu.kanade.tachiyomi.ui.library.LibraryItem
@@ -23,8 +26,11 @@ internal fun LibraryComfortableGrid(
     searchQuery: String?,
     onGlobalSearchClicked: () -> Unit,
 ) {
+<<<<<<< HEAD
     val selectedIds = remember(selection) { selection.map { it.id }.toSet() }
 
+=======
+>>>>>>> official/master
     LazyLibraryGrid(
         modifier = Modifier.fillMaxSize(),
         columns = columns,
@@ -38,7 +44,11 @@ internal fun LibraryComfortableGrid(
         ) { libraryItem ->
             val anime = libraryItem.libraryAnime.anime
             AnimeComfortableGridItem(
+<<<<<<< HEAD
                 isSelected = libraryItem.libraryAnime.id in selectedIds,
+=======
+                isSelected = selection.fastAny { it.id == libraryItem.libraryAnime.id },
+>>>>>>> official/master
                 title = anime.title,
                 coverData = AnimeCover(
                     animeId = anime.id,

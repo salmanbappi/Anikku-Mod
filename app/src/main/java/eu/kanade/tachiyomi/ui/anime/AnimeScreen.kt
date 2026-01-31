@@ -200,6 +200,11 @@ class AnimeScreen(
                 navigator.push(MigrateSearchScreen(successState.anime.id))
             }.takeIf { successState.anime.favorite },
             changeAnimeSkipIntro = screenModel::showAnimeSkipIntroDialog.takeIf { successState.anime.favorite },
+            // SY -->
+            onMergeClicked = {
+                context.toast("Merge feature coming soon")
+            }.takeIf { successState.anime.favorite },
+            // SY <--
             onMultiBookmarkClicked = screenModel::bookmarkEpisodes,
             // AM (FILLERMARK) -->
             onMultiFillermarkClicked = screenModel::fillermarkEpisodes,

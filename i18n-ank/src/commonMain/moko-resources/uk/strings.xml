@@ -25,9 +25,15 @@
     <string name="channel_new_episodes">Оновлення епізод</string>
     <string name="pref_category_connections">З\'єднання</string>
     <string name="pref_connections_summary">Discord, ще більше...</string>
+<<<<<<< HEAD
     <string name="connections_info">Спеціальні послуги, які унікальні для AniZen та покращення способів використання додатку</string>
     <string name="connections_discord">Discord</string>
     <string name="connections_discord_info">Цей сервіс Discord працює через систему з використанням жетонів. Використовуйте на ваш власний ризик. Ваш токен зберігається на локальному і AniZen не поширює його ніде інше</string>
+=======
+    <string name="connections_info">Спеціальні послуги, які унікальні для Anikku та покращення способів використання додатку</string>
+    <string name="connections_discord">Discord</string>
+    <string name="connections_discord_info">Цей сервіс Discord працює через систему з використанням жетонів. Використовуйте на ваш власний ризик. Ваш токен зберігається на локальному і Anikku не поширює його ніде інше</string>
+>>>>>>> official/master
     <string name="show_chapters_titles_title">Показати заголовки епізодів</string>
     <string name="show_chapters_titles_subtitle">Показати назву епізоду, що ви дивитеся</string>
     <string name="discord_accounts">Облікові записи Discord</string>

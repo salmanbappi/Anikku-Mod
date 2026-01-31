@@ -139,7 +139,24 @@ val Context.hasMiuiPackageInstaller get() = isPackageInstalled("com.miui.package
 val Context.isShizukuInstalled get() = isPackageInstalled("moe.shizuku.privileged.api") || Sui.isSui()
 
 fun Context.isInstalledFromFDroid(): Boolean {
+<<<<<<< HEAD
     return false
+=======
+    val installerPackageName = try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            packageManager.getInstallSourceInfo(packageName).installingPackageName
+        } else {
+            @Suppress("DEPRECATION")
+            packageManager.getInstallerPackageName(packageName)
+        }
+    } catch (e: Exception) {
+        null
+    }
+
+    return installerPackageName == "org.fdroid.fdroid" ||
+        // F-Droid builds typically disable the updater
+        (!updaterEnabled && !isDebugBuildType)
+>>>>>>> official/master
 }
 
 fun Context.launchRequestPackageInstallsPermission() {

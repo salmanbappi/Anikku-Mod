@@ -346,7 +346,11 @@
     <string name="check_for_updates">Verificar por atualizações</string>
     <string name="licenses">Licenças de código aberto</string>
     <string name="downloaded_only_summary">Filtra todos os itens nasua biblioteca</string>
+<<<<<<< HEAD
     <string name="restore_duration">%1$02d min, %2$02d seg</string>
+=======
+    <string name="restore_duration">%02d min, %02d seg</string>
+>>>>>>> official/master
     <string name="gray_background">Cinza</string>
     <string name="viewer">Modo de leitura</string>
     <string name="pref_category_for_this_series">Para esta série</string>
@@ -817,7 +821,11 @@
     <string name="pref_waiting_time_aniskip_9">9 segundos</string>
     <string name="pref_waiting_time_aniskip_10">10 segundos</string>
     <string name="pref_enable_netflix_style_aniskip">Ativar estilo Netflix</string>
+<<<<<<< HEAD
     <string name="player_aniskip_dontskip_toast">Saltar em %2$d segundos</string>
+=======
+    <string name="player_aniskip_dontskip_toast">Saltar em %d segundos</string>
+>>>>>>> official/master
     <string name="notification_episodes_single">Episódio %1$s</string>
     <string name="notification_episodes_single_and_more">Episódio %1$s e %2$d mais</string>
     <string name="notification_episodes_multiple">Episódios %1$s</string>

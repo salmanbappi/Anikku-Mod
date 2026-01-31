@@ -45,6 +45,9 @@ fun AnimeToolbar(
     onClickEditCategory: (() -> Unit)?,
     onClickRefresh: () -> Unit,
     onClickMigrate: (() -> Unit)?,
+    // SY -->
+    onClickMerge: (() -> Unit)?,
+    // SY <--
     onClickSettings: (() -> Unit)?,
     // SY -->
     onClickEditInfo: (() -> Unit)?,
@@ -164,6 +167,16 @@ fun AnimeToolbar(
                                         ),
                                     )
                                 }
+                                // SY -->
+                                if (onClickMerge != null) {
+                                    add(
+                                        AppBar.OverflowAction(
+                                            title = stringResource(SYMR.strings.merge),
+                                            onClick = onClickMerge,
+                                        ),
+                                    )
+                                }
+                                // SY <--
                                 if (onClickShare != null) {
                                     add(
                                         AppBar.OverflowAction(

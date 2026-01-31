@@ -29,7 +29,11 @@ data class Release(
             else -> ""
         }
 
+<<<<<<< HEAD
         return assets.find { it.contains("AniZen$apkVariant-") } ?: assets[0]
+=======
+        return assets.find { it.contains("Anikku$apkVariant-") } ?: assets[0]
+>>>>>>> official/master
     }
 
     /**

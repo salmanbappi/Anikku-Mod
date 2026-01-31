@@ -25,13 +25,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+<<<<<<< HEAD
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+=======
+>>>>>>> official/master
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+<<<<<<< HEAD
 import eu.kanade.tachiyomi.ui.player.settings.PlayerPreferences
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.padding
@@ -39,6 +43,9 @@ import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
+=======
+import tachiyomi.presentation.core.components.material.padding
+>>>>>>> official/master
 
 @Composable
 fun PlayerUpdate(
@@ -64,6 +71,7 @@ fun TextPlayerUpdate(
         Text(text)
     }
 }
+<<<<<<< HEAD
 
 @Composable
 fun DoubleSpeedPlayerUpdate(
@@ -80,3 +88,5 @@ fun DoubleSpeedPlayerUpdate(
         }
     }
 }
+=======
+>>>>>>> official/master

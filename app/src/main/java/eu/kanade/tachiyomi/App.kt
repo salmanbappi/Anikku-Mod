@@ -70,7 +70,10 @@ import exh.log.xLogD
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+<<<<<<< HEAD
 import kotlinx.coroutines.launch
+=======
+>>>>>>> official/master
 import logcat.LogPriority
 import logcat.LogcatLogger
 import mihon.core.migration.Migrator
@@ -104,6 +107,7 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
     override fun onCreate() {
         super<Application>.onCreate()
         patchInjekt()
+<<<<<<< HEAD
 
         Injekt.importModule(PreferenceModule(this))
         Injekt.importModule(AppModule(this))
@@ -129,13 +133,21 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
             }
         }
 
+=======
+>>>>>>> official/master
         TelemetryConfig.init(
             applicationContext,
             isPreviewBuildType,
             BuildConfig.COMMIT_COUNT,
         )
 
+<<<<<<< HEAD
         if (isDebugBuildType) Timber.plant(Timber.DebugTree())
+=======
+        // KMK -->
+        if (isDebugBuildType) Timber.plant(Timber.DebugTree())
+        // KMK <--
+>>>>>>> official/master
 
         GlobalExceptionHandler.initialize(applicationContext, CrashActivity::class.java)
 
@@ -150,6 +162,25 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
             if (packageName != process) WebView.setDataDirectorySuffix(process)
         }
 
+<<<<<<< HEAD
+=======
+        Injekt.importModule(PreferenceModule(this))
+        Injekt.importModule(AppModule(this))
+        Injekt.importModule(DomainModule())
+        // SY -->
+        Injekt.importModule(SYPreferenceModule(this))
+        Injekt.importModule(SYDomainModule())
+        // SY <--
+        // KMK -->
+        Injekt.importModule(KMKDomainModule())
+        // KMK <--
+
+        setupExhLogging() // EXH logging
+        LogcatLogger.install(XLogLogcatLogger()) // SY Redirect Logcat to XLog
+
+        setupNotificationChannels()
+
+>>>>>>> official/master
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
 
         val scope = ProcessLifecycleOwner.get().lifecycleScope
@@ -197,6 +228,25 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
 
         // Updates widget update
         WidgetManager(Injekt.get(), Injekt.get()).apply { init(scope) }
+<<<<<<< HEAD
+=======
+
+        /*if (!LogcatLogger.isInstalled && networkPreferences.verboseLogging().get()) {
+            LogcatLogger.install(AndroidLogcatLogger(LogPriority.VERBOSE))
+        }*/
+
+        if (!WorkManager.isInitialized()) {
+            WorkManager.initialize(this, Configuration.Builder().build())
+        }
+
+        initializeMigrator()
+
+        val syncPreferences: SyncPreferences = Injekt.get()
+        val syncTriggerOpt = syncPreferences.getSyncTriggerOptions()
+        if (syncPreferences.isSyncEnabled() && syncTriggerOpt.syncOnAppStart) {
+            SyncDataJob.startNow(this@App)
+        }
+>>>>>>> official/master
     }
 
     private fun initializeMigrator() {
@@ -218,22 +268,43 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
         return ImageLoader.Builder(this).apply {
             val callFactoryLazy = lazy { Injekt.get<NetworkHelper>().client }
             components {
+<<<<<<< HEAD
                 add(OkHttpNetworkFetcherFactory(callFactoryLazy::value))
                 add(TachiyomiImageDecoder.Factory())
                 add(BufferedSourceFetcher.Factory())
                 add(AnimeCoverFetcher.AnimeCoverFactory(callFactoryLazy))
                 add(AnimeCoverFetcher.AnimeFactory(callFactoryLazy))
+=======
+                // NetworkFetcher.Factory
+                add(OkHttpNetworkFetcherFactory(callFactoryLazy::value))
+                // Decoder.Factory
+                add(TachiyomiImageDecoder.Factory())
+                // Fetcher.Factory
+                add(BufferedSourceFetcher.Factory())
+                add(AnimeCoverFetcher.AnimeCoverFactory(callFactoryLazy))
+                add(AnimeCoverFetcher.AnimeFactory(callFactoryLazy))
+                // Keyer
+>>>>>>> official/master
                 add(AnimeCoverKeyer())
                 add(AnimeKeyer())
             }
 
+<<<<<<< HEAD
             // Scrolling Optimization: Smooth transitions and better memory handling
+=======
+>>>>>>> official/master
             crossfade((300 * this@App.animatorDurationScale).toInt())
             allowRgb565(DeviceUtil.isLowRamDevice(this@App))
             if (networkPreferences.verboseLogging().get()) logger(DebugLogger())
 
+<<<<<<< HEAD
             fetcherCoroutineContext(Dispatchers.IO.limitedParallelism(8))
             decoderCoroutineContext(Dispatchers.IO.limitedParallelism(8)) // Maximize CPU usage for smooth scrolling
+=======
+            // Coil spawns a new thread for every image load by default
+            fetcherCoroutineContext(Dispatchers.IO.limitedParallelism(8))
+            decoderCoroutineContext(Dispatchers.IO.limitedParallelism(3))
+>>>>>>> official/master
         }
             .build()
     }
@@ -247,7 +318,13 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
             SyncDataJob.startNow(this@App)
         }
 
+<<<<<<< HEAD
         DiscordRPCService.start(applicationContext)
+=======
+        // AM (DISCORD) -->
+        DiscordRPCService.start(applicationContext)
+        // <-- AM (DISCORD)
+>>>>>>> official/master
     }
 
     override fun onStop(owner: LifecycleOwner) {
@@ -259,11 +336,23 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
             SyncDataJob.startNow(this@App)
         }
 
+<<<<<<< HEAD
         DiscordRPCService.stop(applicationContext)
     }
 
     override fun getPackageName(): String {
         try {
+=======
+        // AM (DISCORD) -->
+        DiscordRPCService.stop(applicationContext)
+        // <-- AM (DISCORD)
+    }
+
+    override fun getPackageName(): String {
+        // This causes freezes in Android 6/7 for some reason
+        try {
+            // Override the value passed as X-Requested-With in WebView requests
+>>>>>>> official/master
             val stackTrace = Looper.getMainLooper().thread.stackTrace
             val chromiumElement = stackTrace.find {
                 it.className.equals(
@@ -287,6 +376,10 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
         }
     }
 
+<<<<<<< HEAD
+=======
+    // EXH
+>>>>>>> official/master
     private fun setupExhLogging() {
         EHLogLevel.init(this)
 
@@ -304,7 +397,11 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
 
         val printers = mutableListOf<Printer>(AndroidPrinter())
 
+<<<<<<< HEAD
         val logFolder = runCatching { Injekt.get<StorageManager>().getLogsDirectory() }.getOrNull()
+=======
+        val logFolder = Injekt.get<StorageManager>().getLogsDirectory()
+>>>>>>> official/master
 
         if (logFolder != null) {
             val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
@@ -326,6 +423,10 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
                 }
         }
 
+<<<<<<< HEAD
+=======
+        // Install Crashlytics in prod
+>>>>>>> official/master
         if (!isDebugBuildType) {
             printers += CrashlyticsPrinter(LogLevel.ERROR)
         }
@@ -336,6 +437,22 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
         )
 
         xLogD("Application booting...")
+<<<<<<< HEAD
+=======
+        xLogD(
+            """
+                App version: ${BuildConfig.VERSION_NAME}, ${BuildConfig.COMMIT_SHA}, ${BuildConfig.VERSION_CODE})
+                Build version: ${BuildConfig.COMMIT_COUNT}
+                Android version: ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})
+                Android build ID: ${Build.DISPLAY}
+                Device brand: ${Build.BRAND}
+                Device manufacturer: ${Build.MANUFACTURER}
+                Device name: ${Build.DEVICE}
+                Device model: ${Build.MODEL}
+                Device product name: ${Build.PRODUCT}
+            """.trimIndent(),
+        )
+>>>>>>> official/master
     }
 
     private inner class DisableIncognitoReceiver : BroadcastReceiver() {
@@ -366,4 +483,8 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
     }
 }
 
+<<<<<<< HEAD
 private const val ACTION_DISABLE_INCOGNITO_MODE = "tachi.action.DISABLE_INCOGNITO_MODE"
+=======
+private const val ACTION_DISABLE_INCOGNITO_MODE = "tachi.action.DISABLE_INCOGNITO_MODE"
+>>>>>>> official/master

@@ -37,14 +37,26 @@ import uy.kohesive.injekt.api.get
 fun TachiyomiTheme(
     appTheme: AppTheme? = null,
     amoled: Boolean? = null,
+    seedColor: androidx.compose.ui.graphics.Color? = null,
     content: @Composable () -> Unit,
 ) {
     val uiPreferences = Injekt.get<UiPreferences>()
-    BaseTachiyomiTheme(
-        appTheme = appTheme ?: uiPreferences.appTheme().get(),
-        isAmoled = amoled ?: uiPreferences.themeDarkAmoled().get(),
-        content = content,
-    )
+    val theme = appTheme ?: uiPreferences.appTheme().get()
+    val isAmoled = amoled ?: uiPreferences.themeDarkAmoled().get()
+
+    if (seedColor != null) {
+        CoverBasedTheme(
+            seedColor = seedColor,
+            isAmoled = isAmoled,
+            content = content,
+        )
+    } else {
+        BaseTachiyomiTheme(
+            appTheme = theme,
+            isAmoled = isAmoled,
+            content = content,
+        )
+    }
 }
 
 @Composable
