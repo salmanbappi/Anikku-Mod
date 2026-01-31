@@ -146,7 +146,14 @@ class MainActivity : BaseActivity() {
 
         super.onCreate(savedInstanceState)
 
-        val didMigration = Migrator.awaitAndRelease()
+        // Startup Optimization: Run migration check in background
+        lifecycleScope.launch {
+            Migrator.await()
+            withUIContext {
+                Migrator.release()
+                ready = true
+            }
+        }
 
         // Do not let the launcher create a new activity http://stackoverflow.com/questions/16283079
         if (!isTaskRoot) {
