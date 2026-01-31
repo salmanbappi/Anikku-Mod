@@ -124,7 +124,11 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         
         // Use optimized hwdec string from mpvEx for better fallback
         val hwdec = if (decoderPreferences.tryHWDecoding().get()) {
-            "mediacodec,mediacodec-copy,no"
+            if (decoderPreferences.forceMediaCodecCopy().get()) {
+                "mediacodec-copy"
+            } else {
+                "mediacodec,mediacodec-copy,no"
+            }
         } else {
             "no"
         }
