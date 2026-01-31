@@ -113,6 +113,10 @@ fun checkAndSetCopyMode(prefs: DecoderPreferences) {
         if (!prefs.forceMediaCodecCopy().get()) {
             prefs.forceMediaCodecCopy().set(true)
         }
+    } else {
+        if (prefs.forceMediaCodecCopy().get()) {
+            prefs.forceMediaCodecCopy().set(false)
+        }
     }
 
     if (prefs.forceMediaCodecCopy().get()) {
