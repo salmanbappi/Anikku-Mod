@@ -1,6 +1,8 @@
 package eu.kanade.presentation.library.components
 
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
@@ -81,10 +83,10 @@ internal fun LibraryComfortableGrid(
                     isSelected = commonProps.isSelected,
                     title = commonProps.title,
                     coverData = commonProps.coverData,
-                    coverBadgeStart = commonProps.coverBadgeStart,
-                    coverBadgeEnd = commonProps.coverBadgeEnd,
-                    languageIconBadge = commonProps.languageIconBadge,
-                    sourceIconBadge = commonProps.sourceIconBadge,
+                    coverBadgeStart = { commonProps.coverBadgeStart() },
+                    coverBadgeEnd = { commonProps.coverBadgeEnd() },
+                    languageIconBadge = { commonProps.languageIconBadge(this) },
+                    sourceIconBadge = { commonProps.sourceIconBadge(this) },
                     onLongClick = commonProps.onLongClick,
                     onClick = commonProps.onClick,
                     onClickContinueWatching = commonProps.onClickContinueWatching,
@@ -94,10 +96,10 @@ internal fun LibraryComfortableGrid(
                     isSelected = commonProps.isSelected,
                     title = commonProps.title,
                     coverData = commonProps.coverData,
-                    coverBadgeStart = commonProps.coverBadgeStart,
-                    coverBadgeEnd = commonProps.coverBadgeEnd,
-                    languageIconBadge = commonProps.languageIconBadge,
-                    sourceIconBadge = commonProps.sourceIconBadge,
+                    coverBadgeStart = { commonProps.coverBadgeStart() },
+                    coverBadgeEnd = { commonProps.coverBadgeEnd() },
+                    languageIconBadge = { commonProps.languageIconBadge(this) },
+                    sourceIconBadge = { commonProps.sourceIconBadge(this) },
                     onLongClick = commonProps.onLongClick,
                     onClick = commonProps.onClick,
                     onClickContinueWatching = commonProps.onClickContinueWatching,
@@ -111,10 +113,10 @@ private data class AnimeComfortableGridItemProps(
     val isSelected: Boolean,
     val title: String,
     val coverData: AnimeCover,
-    val coverBadgeStart: @Composable () -> Unit,
-    val coverBadgeEnd: @Composable () -> Unit,
-    val languageIconBadge: @Composable () -> Unit,
-    val sourceIconBadge: @Composable () -> Unit,
+    val coverBadgeStart: @Composable RowScope.() -> Unit,
+    val coverBadgeEnd: @Composable RowScope.() -> Unit,
+    val languageIconBadge: @Composable BoxScope.() -> Unit,
+    val sourceIconBadge: @Composable BoxScope.() -> Unit,
     val onLongClick: () -> Unit,
     val onClick: () -> Unit,
     val onClickContinueWatching: (() -> Unit)?,

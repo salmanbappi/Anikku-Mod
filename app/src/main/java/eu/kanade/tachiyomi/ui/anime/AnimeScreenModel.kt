@@ -44,6 +44,8 @@ import eu.kanade.tachiyomi.util.AniChartApi
 import eu.kanade.tachiyomi.util.episode.getNextUnseen
 import eu.kanade.tachiyomi.util.removeCovers
 import eu.kanade.tachiyomi.util.system.toast
+import eu.kanade.tachiyomi.animesource.model.UpdateStrategy as SourceUpdateStrategy
+import eu.kanade.tachiyomi.source.model.UpdateStrategy
 import exh.util.nullIfEmpty
 import exh.util.trimOrNull
 import kotlinx.collections.immutable.ImmutableList
@@ -339,17 +341,23 @@ class AnimeScreenModel(
             fetchInterval = 0,
             dateAdded = 0L,
             viewerFlags = 0L,
-            chapterFlags = 0L,
+            episodeFlags = 0L,
             coverLastModified = 0L,
             url = this.url,
+            // SY -->
             ogTitle = this.title,
             ogArtist = this.artist,
             ogAuthor = this.author,
+            ogThumbnailUrl = this.thumbnail_url,
             ogDescription = this.description,
             ogGenre = this.genre?.split(", ")?.map { it.trim() },
             ogStatus = this.status.toLong(),
-            thumbnailUrl = this.thumbnail_url,
+            // SY <--
+            updateStrategy = UpdateStrategy.ALWAYS_UPDATE,
             initialized = false,
+            lastModifiedAt = 0L,
+            favoriteModifiedAt = null,
+            version = 0L,
         )
     }
 

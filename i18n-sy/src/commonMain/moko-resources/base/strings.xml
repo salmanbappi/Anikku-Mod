@@ -731,4 +731,22 @@
 
     <!-- Humanize time -->
     <string name="humanize_fallback">moments ago</string>
+
+    <!-- Missing Pro Strings -->
+    <string name="library_errors">Library Errors</string>
+    <string name="info_empty_library_update_errors">No library update errors found</string>
+    <string name="pref_enable_flare_solverr">Enable FlareSolverr</string>
+    <string name="pref_enable_flare_solverr_summary">Bypass Cloudflare by using FlareSolverr</string>
+    <string name="pref_flare_solverr_url">FlareSolverr URL</string>
+    <string name="pref_flare_solverr_url_summary">The URL where FlareSolverr is running</string>
+    <string name="pref_app_icon">App Icon</string>
+    <string name="pref_library_filter_categories_details">Filter categories details</string>
+    <string name="pref_show_empty_categories_search">Show empty categories in search</string>
+    <string name="pref_library_update_show_tab_badge_unseen">Show unseen count on tab badge</string>
+    <string name="pref_security">Security</string>
+    <string name="pref_skip_seen_episodes">Skip seen episodes</string>
+    <string name="pref_skip_filtered_episodes">Skip filtered episodes</string>
+    <string name="pref_skip_dupe_episodes">Skip duplicate episodes</string>
+    <string name="action_screen_shot">Screenshot</string>
+    <string name="pref_allow_gestures_in_panels">Allow gestures in panels</string>
 </resources>

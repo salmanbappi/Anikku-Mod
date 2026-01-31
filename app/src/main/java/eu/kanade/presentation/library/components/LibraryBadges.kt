@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import eu.kanade.presentation.theme.TachiyomiPreviewTheme
+import eu.kanade.presentation.util.rememberDrawablePainter
 import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.source.icon
 import tachiyomi.presentation.core.components.Badge
@@ -59,7 +60,7 @@ internal fun SourceIconBadge(source: Source?) {
     val icon = source?.icon()
     if (icon != null) {
         Badge(
-            painter = icon,
+            painter = rememberDrawablePainter(icon),
             modifier = Modifier.size(16.dp),
             color = Color.Transparent,
         )
