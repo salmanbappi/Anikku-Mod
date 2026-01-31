@@ -105,7 +105,7 @@ object PlayerSettingsPlayerScreen : SearchableSettings {
     @Composable
     private fun getAutomationGroup(playerPreferences: PlayerPreferences): Preference.PreferenceGroup {
         return Preference.PreferenceGroup(
-            title = stringResource(SYMR.strings.watched_list_default), // Using watched_list_default as placeholder for Playback Automation
+            title = "Playback Automation",
             preferenceItems = persistentListOf(
                 Preference.PreferenceItem.SwitchPreference(
                     pref = playerPreferences.skipSeenEpisodes(),
@@ -126,7 +126,7 @@ object PlayerSettingsPlayerScreen : SearchableSettings {
     @Composable
     private fun getScreenshotGroup(playerPreferences: PlayerPreferences): Preference.PreferenceGroup {
         return Preference.PreferenceGroup(
-            title = stringResource(MR.strings.action_screen_shot),
+            title = stringResource(SYMR.strings.action_screen_shot),
             preferenceItems = persistentListOf(
                 Preference.PreferenceItem.SwitchPreference(
                     pref = playerPreferences.screenshotSeparateFolders(),
@@ -154,7 +154,7 @@ object PlayerSettingsPlayerScreen : SearchableSettings {
             preferenceItems = persistentListOf(
                 Preference.PreferenceItem.SwitchPreference(
                     pref = allowGestures,
-                    title = stringResource(MR.strings.pref_allow_gestures_in_panels),
+                    title = stringResource(SYMR.strings.pref_allow_gestures_in_panels),
                 ),
                 Preference.PreferenceItem.SwitchPreference(
                     pref = showLoading,
@@ -278,7 +278,7 @@ object PlayerSettingsPlayerScreen : SearchableSettings {
                     title = stringResource(MR.strings.pref_enable_intro_skip),
                 ),
                 Preference.PreferenceItem.SwitchPreference(
-                    pref = enableAutoAniSkip,
+                    pref = enableAutoSkipAniSkip,
                     title = stringResource(MR.strings.pref_enable_auto_skip_ani_skip),
                     enabled = isIntroSkipEnabled,
                 ),
