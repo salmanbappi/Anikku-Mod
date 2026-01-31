@@ -65,9 +65,11 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
@@ -79,7 +81,6 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.mikepenz.markdown.model.markdownAnnotator
 import com.mikepenz.markdown.model.markdownAnnotatorConfig
-import eu.kanade.presentation.anime.components.MarkdownRender
 import eu.kanade.presentation.components.DropdownMenu
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.source.model.SAnime
@@ -448,7 +449,7 @@ private fun ColumnScope.AnimeContentInfo(
             modifier = Modifier.size(16.dp),
         )
         Text(
-            text = author?.takeIf { it.isNotBlank() }
+            text = author?.takeIf { it.isNotBlank() } 
                 ?: stringResource(MR.strings.unknown_author),
             style = MaterialTheme.typography.titleSmall,
             modifier = Modifier
@@ -613,7 +614,7 @@ private fun AnimeSummary(
                             if (expanded) MR.strings.manga_info_collapse else MR.strings.manga_info_expand,
                         ),
                         tint = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.background(Brush.radialGradient(colors = colors.asReversed())),
+                        modifier = Modifier.background(Brush.radialGradient(colors = colors.asReversed()))
                     )
                 }
             },
@@ -668,10 +669,19 @@ private fun RowScope.AnimeActionButton(
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
 ) {
+    val haptic = LocalHapticFeedback.current
     TextButton(
-        onClick = onClick,
+        onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            onClick()
+        },
         modifier = Modifier.weight(1f),
-        onLongClick = onLongClick,
+        onLongClick = onLongClick?.let {
+            {
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                it()
+            }
+        },
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(

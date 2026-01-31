@@ -255,7 +255,7 @@ object HomeScreen : Screen() {
         NavigationBarItem(
             selected = selected,
             onClick = {
-                haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 if (!selected) {
                     tabNavigator.current = tab
                 } else {
@@ -290,7 +290,7 @@ object HomeScreen : Screen() {
         NavigationRailItem(
             selected = selected,
             onClick = {
-                haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 if (!selected) {
                     tabNavigator.current = tab
                 } else {

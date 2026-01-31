@@ -57,6 +57,7 @@ import eu.kanade.tachiyomi.ui.category.CategoryScreen
 import eu.kanade.tachiyomi.ui.home.HomeScreen
 import eu.kanade.tachiyomi.ui.library.LibraryTab
 import eu.kanade.tachiyomi.ui.main.MainActivity
+import eu.kanade.tachiyomi.ui.player.CastManager
 import eu.kanade.tachiyomi.ui.setting.SettingsScreen
 import eu.kanade.tachiyomi.ui.webview.WebViewScreen
 import eu.kanade.tachiyomi.util.system.copyToClipboard
@@ -197,20 +198,10 @@ class AnimeScreen(
             onEditCategoryClicked = screenModel::showChangeCategoryDialog.takeIf { successState.anime.favorite },
             // SY -->
             onEditInfoClicked = screenModel::showEditAnimeInfoDialog,
-            // SY <--
-            onEditFetchIntervalClicked = screenModel::showSetAnimeFetchIntervalDialog.takeIf {
-                successState.anime.favorite
-            },
-            onMigrateClicked = {
-                navigator.push(MigrateSearchScreen(successState.anime.id))
-            }.takeIf { successState.anime.favorite },
-            changeAnimeSkipIntro = screenModel::showAnimeSkipIntroDialog.takeIf { successState.anime.favorite },
-            // SY -->
             onMergeClicked = {
                 navigator.push(MigrateSearchScreen(successState.anime.id))
             }.takeIf { successState.anime.favorite },
             onOpenFolder = {
-                // Logic for opening local folder
                 context.toast("Opening folder...")
             }.takeIf { successState.source.isLocal() },
             onClearAnime = {
@@ -219,6 +210,9 @@ class AnimeScreen(
             onSourceSettings = {
                 navigator.push(SourcePreferencesScreen(successState.source.id))
             }.takeIf { successState.source is ConfigurableSource },
+            onCastClicked = {
+                context.toast("Casting...")
+            },
             onRecommendationClicked = { anime ->
                 scope.launchIO {
                     val dbAnime = Injekt.get<GetAnimeByUrlAndSourceId>().await(anime.url, anime.source)
@@ -233,6 +227,13 @@ class AnimeScreen(
                 }
             },
             // SY <--
+            onEditFetchIntervalClicked = screenModel::showSetAnimeFetchIntervalDialog.takeIf {
+                successState.anime.favorite
+            },
+            onMigrateClicked = {
+                navigator.push(MigrateSearchScreen(successState.anime.id))
+            }.takeIf { successState.anime.favorite },
+            changeAnimeSkipIntro = screenModel::showAnimeSkipIntroDialog.takeIf { successState.anime.favorite },
             onMultiBookmarkClicked = screenModel::bookmarkEpisodes,
             // AM (FILLERMARK) -->
             onMultiFillermarkClicked = screenModel::fillermarkEpisodes,

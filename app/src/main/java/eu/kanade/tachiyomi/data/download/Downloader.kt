@@ -120,7 +120,7 @@ class Downloader(
     /**
      * Coroutine scope used for download job scheduling
      */
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO.limitedParallelism(100))
 
     /**
      * Job object for download queue management
@@ -710,7 +710,7 @@ class Downloader(
             logcat(LogPriority.ERROR, throwable = e) { "Failed to truncate file" }
         }
 
-        val threadCount = preferences.downloadThreads().get()
+        val threadCount = preferences.downloadThreads().get().coerceAtLeast(1)
         val chunkSize = totalSize / threadCount
         val progressMap = mutableMapOf<Int, Long>()
         var totalDownloaded = 0L

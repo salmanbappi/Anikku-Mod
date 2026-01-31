@@ -38,7 +38,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -150,22 +152,33 @@ private fun TrackInfoItem(
     onCopyLink: () -> Unit,
 ) {
     val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
     Column {
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             TrackLogoIcon(
                 tracker = tracker,
-                onClick = onOpenInBrowser,
-                onLongClick = onCopyLink,
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onOpenInBrowser()
+                },
+                onLongClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onCopyLink()
+                },
             )
             Box(
                 modifier = Modifier
                     .height(48.dp)
                     .weight(1f)
                     .combinedClickable(
-                        onClick = onNewSearch,
+                        onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onNewSearch()
+                        },
                         onLongClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             context.copyToClipboard(title, title)
                         },
                     )
@@ -252,9 +265,13 @@ private fun TrackDetailsItem(
     modifier: Modifier = Modifier,
     placeholder: String = "",
 ) {
+    val haptic = LocalHapticFeedback.current
     Box(
         modifier = modifier
-            .clickable(onClick = onClick)
+            .clickable(onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                onClick()
+            })
             .fillMaxHeight()
             .padding(12.dp),
         contentAlignment = Alignment.Center,
@@ -275,12 +292,16 @@ private fun TrackInfoItemEmpty(
     tracker: Tracker,
     onNewSearch: () -> Unit,
 ) {
+    val haptic = LocalHapticFeedback.current
     Row(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         TrackLogoIcon(tracker)
         TextButton(
-            onClick = onNewSearch,
+            onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                onNewSearch()
+            },
             modifier = Modifier
                 .padding(start = 16.dp)
                 .weight(1f),
@@ -296,9 +317,13 @@ private fun TrackInfoItemMenu(
     onRemoved: () -> Unit,
     onCopyLink: () -> Unit,
 ) {
+    val haptic = LocalHapticFeedback.current
     var expanded by remember { mutableStateOf(false) }
     Box(modifier = Modifier.wrapContentSize(Alignment.TopStart)) {
-        IconButton(onClick = { expanded = true }) {
+        IconButton(onClick = { 
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            expanded = true 
+        }) {
             Icon(
                 imageVector = Icons.Default.MoreVert,
                 contentDescription = stringResource(MR.strings.label_more),
@@ -311,6 +336,7 @@ private fun TrackInfoItemMenu(
             DropdownMenuItem(
                 text = { Text(stringResource(MR.strings.action_open_in_browser)) },
                 onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     onOpenInBrowser()
                     expanded = false
                 },
@@ -318,6 +344,7 @@ private fun TrackInfoItemMenu(
             DropdownMenuItem(
                 text = { Text(stringResource(MR.strings.action_copy_link)) },
                 onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     onCopyLink()
                     expanded = false
                 },
@@ -325,6 +352,7 @@ private fun TrackInfoItemMenu(
             DropdownMenuItem(
                 text = { Text(stringResource(MR.strings.action_remove)) },
                 onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     onRemoved()
                     expanded = false
                 },
