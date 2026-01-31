@@ -66,19 +66,6 @@ fun MoreScreen(
                     ),
                 ),
             ) {
-<<<<<<< HEAD
-=======
-                if (isFDroid) {
-                    WarningBanner(
-                        textRes = MR.strings.fdroid_warning,
-                        modifier = Modifier.clickable {
-                            uriHandler.openUri(
-                                "https://aniyomi.org/docs/faq/general#how-do-i-update-from-the-f-droid-builds",
-                            )
-                        },
-                    )
-                }
->>>>>>> official/master
             }
         },
     ) { contentPadding ->

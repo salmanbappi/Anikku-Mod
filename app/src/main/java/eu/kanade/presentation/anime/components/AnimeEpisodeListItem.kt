@@ -78,10 +78,7 @@ fun AnimeEpisodeListItem(
     // <-- AM (FILE_SIZE)
     modifier: Modifier = Modifier,
 ) {
-<<<<<<< HEAD
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
-=======
->>>>>>> official/master
     val start = getSwipeAction(
         action = episodeSwipeStartAction,
         seen = seen,
@@ -116,7 +113,6 @@ fun AnimeEpisodeListItem(
             modifier = modifier
                 .selectedBackground(selected)
                 .combinedClickable(
-<<<<<<< HEAD
                     onClick = {
                         haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
                         onClick()
@@ -125,10 +121,6 @@ fun AnimeEpisodeListItem(
                         haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
                         onLongClick()
                     },
-=======
-                    onClick = onClick,
-                    onLongClick = onLongClick,
->>>>>>> official/master
                 )
                 .padding(start = 16.dp, top = 12.dp, end = 8.dp, bottom = 12.dp),
         ) {

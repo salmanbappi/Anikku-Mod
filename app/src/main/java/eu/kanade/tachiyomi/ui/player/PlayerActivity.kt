@@ -306,10 +306,7 @@ class PlayerActivity : BaseActivity() {
 
     override fun onDestroy() {
         player.isExiting = true
-<<<<<<< HEAD
         PlayerStats.reset()
-=======
->>>>>>> official/master
 
         audioFocusRequest?.let {
             AudioManagerCompat.abandonAudioFocusRequest(audioManager, it)
@@ -502,7 +499,6 @@ class PlayerActivity : BaseActivity() {
         }
 
         // Copy over the bridge file
-<<<<<<< HEAD
         assets.list("")?.forEach { fileName ->
             if (fileName.endsWith(".lua")) {
                 val luaFile = scriptsDir()?.createFile(fileName)
@@ -511,12 +507,6 @@ class PlayerActivity : BaseActivity() {
                     luaAsset.bufferedReader().use { scriptLua.write(it.readText()) }
                 }
             }
-=======
-        val luaFile = scriptsDir()?.createFile("aniyomi.lua")
-        val luaBridge = assets.open("aniyomi.lua")
-        luaFile?.openOutputStream()?.bufferedWriter()?.use { scriptLua ->
-            luaBridge.bufferedReader().use { scriptLua.write(it.readText()) }
->>>>>>> official/master
         }
     }
 
@@ -548,7 +538,6 @@ class PlayerActivity : BaseActivity() {
     }
 
     private fun copyFontsDirectory() {
-<<<<<<< HEAD
         // Optimized font copying: checks if file exists and size matches to avoid startup lag
         // TODO: Ideally we should let MPV directly access the directory, but SAF makes it hard.
         CoroutineScope(Dispatchers.IO).launchIO {
@@ -568,15 +557,6 @@ class PlayerActivity : BaseActivity() {
                             logcat(LogPriority.ERROR, e) { "Failed to copy font: ${font.name}" }
                         }
                     }
-=======
-        // TODO: I think this is a bad hack.
-        //  We need to find a way to let MPV directly access our fonts directory.
-        CoroutineScope(Dispatchers.IO).launchIO {
-            storageManager.getFontsDirectory()?.listFiles()?.forEach { font ->
-                val outFile = UniFile.fromFile(applicationContext.filesDir)?.createFile(font.name)
-                outFile?.let {
-                    font.openInputStream().copyTo(it.openOutputStream())
->>>>>>> official/master
                 }
             }
             MPVLib.setPropertyString(
@@ -729,7 +709,6 @@ class PlayerActivity : BaseActivity() {
     internal fun onObserverEvent(property: String, value: Long) {
         if (player.isExiting) return
         when (property) {
-<<<<<<< HEAD
             "video-params/w" -> PlayerStats.videoW.value = value
             "video-params/h" -> PlayerStats.videoH.value = value
             "video-out-params/w" -> PlayerStats.videoOutW.value = value
@@ -739,8 +718,6 @@ class PlayerActivity : BaseActivity() {
             "video-bitrate" -> PlayerStats.videoBitrate.value = value
             "vo-delayed-frame-count" -> PlayerStats.delayedFrames.value = value
             "vo-passes" -> PlayerStats.voPasses.value = value
-=======
->>>>>>> official/master
             "time-pos" -> {
                 viewModel.updatePlayBackPos(value.toFloat())
                 viewModel.setChapter(value.toFloat())
@@ -768,10 +745,7 @@ class PlayerActivity : BaseActivity() {
     internal fun onObserverEvent(property: String, value: Boolean) {
         if (player.isExiting) return
         when (property) {
-<<<<<<< HEAD
             "interpolation" -> PlayerStats.isInterpolating.value = value
-=======
->>>>>>> official/master
             "pause" -> {
                 if (value && player.paused == true) {
                     viewModel.pause()
@@ -811,7 +785,6 @@ class PlayerActivity : BaseActivity() {
 
     internal fun onObserverEvent(property: String, value: String) {
         if (player.isExiting) return
-<<<<<<< HEAD
         when (property) {
             "video-sync" -> PlayerStats.videoSync.value = value
             "tscale" -> PlayerStats.tscale.value = value
@@ -821,8 +794,6 @@ class PlayerActivity : BaseActivity() {
             "video-params/primaries" -> PlayerStats.videoPrimaries.value = value
             "hwdec-current" -> PlayerStats.hwdec.value = value
         }
-=======
->>>>>>> official/master
         when (property.substringBeforeLast("/")) {
             "aid" -> trackId(value)?.let { viewModel.updateAudio(it) }
             "sid" -> trackId(value)?.let { viewModel.updateSubtitle(it, viewModel.selectedSubtitles.value.second) }
@@ -839,7 +810,6 @@ class PlayerActivity : BaseActivity() {
         if (player.isExiting) return
         when (property) {
             "speed" -> viewModel.playbackSpeed.update { value.toFloat() }
-<<<<<<< HEAD
             "estimated-vf-fps" -> PlayerStats.estimatedVfFps.value = value
             "video-params/fps" -> PlayerStats.videoParamsFps.value = value
             "fps" -> if (PlayerStats.videoParamsFps.value == 0.0) PlayerStats.videoParamsFps.value = value
@@ -848,8 +818,6 @@ class PlayerActivity : BaseActivity() {
             "display-fps" -> PlayerStats.displayFps.value = value
             "estimated-display-fps" -> PlayerStats.estimatedDisplayFps.value = value
             "mistime" -> PlayerStats.mistime.value = value
-=======
->>>>>>> official/master
             "video-params/aspect" -> if (isPipSupportedAndEnabled) createPipParams()
         }
     }
@@ -1346,11 +1314,7 @@ class PlayerActivity : BaseActivity() {
 
         // aniSkip stuff
         viewModel.waitingSkipIntro = playerPreferences.waitingTimeIntroSkip().get()
-<<<<<<< HEAD
         lifecycleScope.launchIO {
-=======
-        runBlocking {
->>>>>>> official/master
             if (
                 viewModel.introSkipEnabled &&
                 playerPreferences.aniSkipEnabled().get() &&

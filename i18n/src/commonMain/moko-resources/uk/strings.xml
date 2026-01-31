@@ -354,11 +354,7 @@
     <string name="restore_in_progress">Відновлення вже відбувається</string>
     <string name="creating_backup_error">Резервне копіювання не вдалося</string>
     <string name="backup_in_progress">Резервне копіювання вже виконується</string>
-<<<<<<< HEAD
     <string name="restore_duration">%1$02d хв, %2$02d сек</string>
-=======
-    <string name="restore_duration">%02d хв, %02d сек</string>
->>>>>>> official/master
     <string name="backup_restore_missing_sources">Відсутні джерела:</string>
     <string name="invalid_backup_file_missing_manga">У резервній копії не міститься жодного запису бібліотеки.</string>
     <string name="invalid_backup_file">Недійсний файл резервної копії:</string>
@@ -875,11 +871,7 @@
     <string name="pref_waiting_time_aniskip_5">5 секунд</string>
     <string name="pref_waiting_time_aniskip">Час очікування кнопки</string>
     <string name="pref_waiting_time_aniskip_6">6 секунд</string>
-<<<<<<< HEAD
     <string name="player_aniskip_dontskip_toast">Пропуск %1$s через %2$d секунд</string>
-=======
-    <string name="player_aniskip_dontskip_toast">Пропуск %s через %d секунд</string>
->>>>>>> official/master
     <string name="player_aniskip_dontskip">Не пропускати</string>
     <string name="player_aniskip_skip">%s пропущено</string>
     <string name="label_manga_extensions">Розширення манґи</string>
@@ -1184,11 +1176,7 @@
     <string name="player_sheets_filters_hue">Відтінок</string>
     <string name="player_sheets_filters_warning">Деякі фільтри можуть не працювати з поточним відеодрайвером</string>
     <string name="player_sheets_add_ext_audio">Додати зовнішні звукові доріжки</string>
-<<<<<<< HEAD
     <string name="player_sheets_decoder_formatted">%1$s (%2$s)</string>
-=======
-    <string name="player_sheets_decoder_formatted">%s (%s)</string>
->>>>>>> official/master
     <string name="player_sheets_stats_page_title">Сторінка статистики за замовчуванням</string>
     <string name="player_sheets_tracks_off">Вимкнено</string>
     <string name="player_sheets_stats_page_chip">Сторінка %d</string>

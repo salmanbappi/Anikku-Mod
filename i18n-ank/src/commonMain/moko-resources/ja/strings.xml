@@ -25,15 +25,9 @@
   <string name="channel_new_episodes">エピソード更新</string>
   <string name="pref_category_connections">コネクション</string>
   <string name="pref_connections_summary">不一致、もっと来るべきchar@@0</string>
-<<<<<<< HEAD
   <string name="connections_info">AniZenならではのスペシャルサービス</string>
   <string name="connections_discord">Discord</string>
   <string name="connections_discord_info">このDiscordサービスはトークンロギングを通じて動作します。自己責任で使用してください。あなたのトークンはローカルに保存され、AniZenは他のどこにも共有しません。</string>
-=======
-  <string name="connections_info">Anikkuならではのスペシャルサービス</string>
-  <string name="connections_discord">Discord</string>
-  <string name="connections_discord_info">このDiscordサービスはトークンロギングを通じて動作します。自己責任で使用してください。あなたのトークンはローカルに保存され、Anikkuは他のどこにも共有しません。</string>
->>>>>>> official/master
   <string name="show_chapters_titles_title">エピソードタイトルを表示</string>
   <string name="show_chapters_titles_subtitle">あなたが見ているエピソードのタイトルを表示する</string>
   <string name="discord_accounts">Discordアカウント</string>

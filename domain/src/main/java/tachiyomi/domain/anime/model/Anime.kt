@@ -41,19 +41,12 @@ data class Anime(
 ) : Serializable {
 
     // SY -->
-<<<<<<< HEAD
     private val customAnimeInfo by lazy {
         if (favorite) {
             getCustomAnimeInfo.get(id)
         } else {
             null
         }
-=======
-    private val customAnimeInfo = if (favorite) {
-        getCustomAnimeInfo.get(id)
-    } else {
-        null
->>>>>>> official/master
     }
 
     val title: String

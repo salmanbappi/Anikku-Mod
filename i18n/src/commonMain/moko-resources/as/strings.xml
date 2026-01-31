@@ -475,11 +475,7 @@
     <string name="backup_restore_missing_trackers">ট্ৰেকাৰসমূহত লগ ইন কৰা নাই:</string>
     <string name="backup_restore_content_full">আপোনাক প্ৰয়োজন হ\'ব পাৰে অনুপস্থিত এক্সটেনচনসমূহ ইনষ্টল কৰিবলৈ আৰু তাৰ পিছত ট্ৰেকিং সেৱাসমূহত লগ ইন কৰিবলৈ।</string>
     <string name="restore_completed">পুনৰুদ্ধাৰ সম্পন্ন</string>
-<<<<<<< HEAD
     <string name="restore_duration">%1$02d মিনিট, %2$02d ছেকেণ্ড</string>
-=======
-    <string name="restore_duration">%02d মিনিট, %02d ছেকেণ্ড</string>
->>>>>>> official/master
     <string name="backup_in_progress">ব্যাকআপ ইতিমধ্যে প্ৰগ্ৰেছত আছে</string>
     <string name="backup_choice">আপুনি কি বেকআপ কৰিব বিচাৰিছে?</string>
     <string name="app_settings">এপ্‌ চেটিংচ</string>
@@ -1011,11 +1007,7 @@
     <string name="pref_waiting_time_aniskip_10">১০ ছেকেণ্ড</string>
     <string name="pref_enable_netflix_style_aniskip">নেটফ্লিক্স শৈলী সক্ৰিয় কৰক</string>
     <string name="player_aniskip_dontskip">এৰাই দিয়া নহয়</string>
-<<<<<<< HEAD
     <string name="player_aniskip_dontskip_toast">%2$d ছেকেণ্ডত %1$s এৰি দিয়া হৈছে</string>
-=======
-    <string name="player_aniskip_dontskip_toast">%d ছেকেণ্ডত %s এৰি দিয়া হৈছে</string>
->>>>>>> official/master
     <string name="player_aniskip_skip">%s এৰাই দিয়া</string>
     <string name="player_hwdec_mode">হাৰ্ডৱেৰ ডিক’ডিং মোড</string>
     <string name="notification_episodes_single">এপিচ’ড %1$s</string>
@@ -1194,11 +1186,7 @@
     <string name="player_sheets_filters_Saturation">সেচুৰেশ্বন</string>
     <string name="player_sheets_filters_warning">কিছুমান ফিল্টাৰে আপোনাৰ বৰ্তমানৰ ভিডিঅ\' ড্ৰাইভাৰত কাম নকৰিবও পাৰে</string>
     <string name="player_sheets_add_ext_audio">বাহ্যিক অডিঅ\' ট্ৰেক যোগ কৰক</string>
-<<<<<<< HEAD
     <string name="player_sheets_decoder_formatted">%1$s (%2$s)</string>
-=======
-    <string name="player_sheets_decoder_formatted">%s (%s)</string>
->>>>>>> official/master
     <string name="player_sheets_stats_page_title">অবিকল্পিত পৰিসংখ্যা পৃষ্ঠা</string>
     <string name="player_sheets_audio_delay_title">অডিঅ\' বিলম্ব</string>
     <string name="player_sheets_audio_delay_audio_sound_heard">শব্দ শুনা গ’ল</string>

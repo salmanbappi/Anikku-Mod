@@ -7,11 +7,7 @@
     <string name="not_selected">Not selected</string>
     <string name="action_menu_overflow_description">More options</string>
     <string name="action_bar_up_description">Navigate up</string>
-<<<<<<< HEAD
     <string name="app_name" translatable="false">AniZen</string>
-=======
-    <string name="app_name" translatable="false">Aniyomi</string>
->>>>>>> official/master
     <string name="name">Name</string>
     <string name="categories">Categories</string>
     <string name="manga">Manga</string>
@@ -304,13 +300,10 @@
     <string name="pref_debanding_yuv420p">YUV420P</string>
     <string name="pref_use_yuv420p_title">Use YUV420P pixel format</string>
     <string name="pref_use_yuv420p_subtitle">May fix black screens on some video codecs, can also improve performance at the cost of quality</string>
-<<<<<<< HEAD
     <string name="pref_high_quality_scaling">High quality scaling</string>
     <string name="pref_high_quality_scaling_summary">Uses better upscaling algorithms (may increase battery usage)</string>
     <string name="pref_interpolation">Interpolation (Smooth Motion)</string>
     <string name="pref_interpolation_summary">Makes motion look smoother (best for 24fps content)</string>
-=======
->>>>>>> official/master
 
     <!-- Player settings - Subtitles -->
     <string name="pref_player_subtitle">Subtitles</string>
@@ -409,21 +402,13 @@
     <string name="mpv_media_title">%1$s - E%2$s - %3$s</string>
     <string name="toast_sleep_timer_ended">Sleep timer ended</string>
     <string name="player_generic_unit_ms">ms</string>
-<<<<<<< HEAD
     <string name="player_gesture_seek_indicator" translatable="false">%1$c%2$s\n[%3$s]</string>
-=======
-    <string name="player_gesture_seek_indicator" translatable="false">%c%s\n[%s]</string>
->>>>>>> official/master
     <string name="numeric_chooser_value_too_big">Value too big</string>
     <string name="numeric_chooser_value_too_small">Value too small</string>
     <string name="enable_auto_play">Auto-play is on</string>
     <string name="disable_auto_play">Auto-play is off</string>
     <string name="player_aniskip_dontskip">Don\'t skip</string>
-<<<<<<< HEAD
     <string name="player_aniskip_dontskip_toast">Skipping %1$s in %2$d seconds</string>
-=======
-    <string name="player_aniskip_dontskip_toast">Skipping %s in %d seconds</string>
->>>>>>> official/master
     <string name="player_aniskip_skip">%s skipped</string>
 
     <!-- Errors -->
@@ -437,15 +422,9 @@
     <!-- Sheets -->
 
     <string name="player_sheets_delay_set_as_default">Set as default</string>
-<<<<<<< HEAD
     <string name="player_sheets_track_title_w_lang" translatable="false">#%1$d: %2$s (%3$s)</string>
     <string name="player_sheets_track_title_wo_lang" translatable="false">#%1$d: %2$s</string>
     <string name="player_sheets_track_lang_wo_title" translatable="false">#%1$d: %2$s</string>
-=======
-    <string name="player_sheets_track_title_w_lang" translatable="false">#%d: %s (%s)</string>
-    <string name="player_sheets_track_title_wo_lang" translatable="false">#%d: %s</string>
-    <string name="player_sheets_track_lang_wo_title" translatable="false">#%d: %s</string>
->>>>>>> official/master
     <string name="player_sheets_track_delay">Delay</string>
     <string name="player_sheets_track_palette">Palette</string>
 
@@ -508,7 +487,6 @@
     <string name="player_sheets_filters_gamma">Gamma</string>
     <string name="player_sheets_filters_Saturation">Saturation</string>
     <string name="player_sheets_filters_hue">Hue</string>
-<<<<<<< HEAD
     <string name="player_sheets_filters_sharpen">Sharpness</string>
     <string name="player_sheets_filters_blur">Blur</string>
     <string name="player_sheets_filters_grain">Film Grain</string>
@@ -533,8 +511,6 @@
     <string name="anime4k_quality_fast">Fast</string>
     <string name="anime4k_quality_balanced">Balanced</string>
     <string name="anime4k_quality_high">High</string>
-=======
->>>>>>> official/master
     <string name="player_sheets_filters_warning">Some filters may not work on your current video driver</string>
 
     <!-- Sheets - Audio tracks -->
@@ -546,11 +522,7 @@
     <string name="player_sheets_qualities_title">Qualities</string>
 
     <!-- Sheets - Decoders -->
-<<<<<<< HEAD
     <string name="player_sheets_decoder_formatted">%1$s (%2$s)</string>
-=======
-    <string name="player_sheets_decoder_formatted">%s (%s)</string>
->>>>>>> official/master
 
     <!-- Sheets - More Sheet -->
     <string name="player_sheets_more_title">More</string>
@@ -562,11 +534,7 @@
     <string name="player_sheets_custom_buttons_title">Custom buttons</string>
     <string name="player_seek_n_seconds">%d seconds</string>
     <string name="player_speed" translatable="false">%.2fx</string>
-<<<<<<< HEAD
     <string name="player_gesture_seek_indicator" translatable="false">%1$c%2$s\n[%3$s]</string>
-=======
-    <string name="player_gesture_seek_indicator" translatable="false">%c%s\n[%s]</string>
->>>>>>> official/master
     <string name="timer_title">Sleep Timer</string>
     <string name="timer_remaining">%s remaining</string>
     <string name="timer_picker_enter_timer">Enter duration</string>
@@ -896,11 +864,7 @@
     <string name="backup_restore_missing_trackers">Trackers not logged into:</string>
     <string name="backup_restore_content_full">You may need to install any missing extensions and log in to tracking services afterwards to use them.</string>
     <string name="restore_completed">Restore completed</string>
-<<<<<<< HEAD
     <string name="restore_duration">%1$02d min, %2$02d sec</string>
-=======
-    <string name="restore_duration">%02d min, %02d sec</string>
->>>>>>> official/master
     <string name="backup_in_progress">Backup is already in progress</string>
     <string name="backup_choice">What do you want to backup?</string>
     <string name="app_settings">App settings</string>

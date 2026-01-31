@@ -112,7 +112,6 @@ open class Video(
             field = value
         }
 
-<<<<<<< HEAD
     @Transient
     @Volatile
     var lastByteRead: Long = 0
@@ -120,8 +119,6 @@ open class Video(
             field = value
         }
 
-=======
->>>>>>> official/master
     fun copy(
         videoUrl: String = this.videoUrl,
         videoTitle: String = this.videoTitle,

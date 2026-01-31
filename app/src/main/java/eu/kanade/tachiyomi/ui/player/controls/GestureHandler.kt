@@ -119,10 +119,6 @@ fun GestureHandler(
             .fillMaxSize()
             .windowInsetsPadding(WindowInsets.safeGestures)
             .pointerInput(Unit) {
-<<<<<<< HEAD
-=======
-                val originalSpeed = viewModel.playbackSpeed.value
->>>>>>> official/master
                 detectTapGestures(
                     onTap = {
                         if (controlsShown) viewModel.hideControls() else viewModel.showControls()
@@ -142,10 +138,7 @@ fun GestureHandler(
                         }
                     },
                     onPress = {
-<<<<<<< HEAD
                         val originalSpeed = viewModel.playbackSpeed.value
-=======
->>>>>>> official/master
                         if (panelShown != Panels.None && !allowGesturesInPanels) {
                             viewModel.panelShown.update { Panels.None }
                         }
@@ -179,14 +172,9 @@ fun GestureHandler(
                         if (!isLongPressing) {
                             haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                             isLongPressing = true
-<<<<<<< HEAD
                             val longPressSpeed = playerPreferences.playerSpeedLongPress().get()
                             MPVLib.setPropertyDouble("speed", longPressSpeed.toDouble())
                             viewModel.playerUpdate.update { PlayerUpdates.DoubleSpeed }
-=======
-                            viewModel.pause()
-                            viewModel.sheetShown.update { Sheets.Screenshot }
->>>>>>> official/master
                         }
                     },
                 )
@@ -279,51 +267,31 @@ fun GestureHandler(
                                 originalMPVVolume = currentMPVVolume
                                 startingY = change.position.y
                             }
-<<<<<<< HEAD
                             val newVal = calculateNewVerticalGestureValue(
-=======
-                            viewModel.changeVolumeTo(
-                                calculateNewVerticalGestureValue(
->>>>>>> official/master
                                     originalVolume,
                                     startingY,
                                     change.position.y,
                                     volumeGestureSens,
-<<<<<<< HEAD
                                 )
                             if ((newVal <= 0 && currentVolume > 0) || (newVal >= viewModel.maxVolume && currentVolume < viewModel.maxVolume)) {
                                 haptics.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
                             }
                             viewModel.changeVolumeTo(newVal)
-=======
-                                ),
-                            )
->>>>>>> official/master
                         }
                         viewModel.displayVolumeSlider()
                     }
                     val changeBrightness: () -> Unit = {
                         if (startingY == 0f) startingY = change.position.y
-<<<<<<< HEAD
                         val newVal = calculateNewVerticalGestureValue(
-=======
-                        viewModel.changeBrightnessTo(
-                            calculateNewVerticalGestureValue(
->>>>>>> official/master
                                 originalBrightness,
                                 startingY,
                                 change.position.y,
                                 brightnessGestureSens,
-<<<<<<< HEAD
                             )
                         if ((newVal <= 0f && currentBrightness > 0f) || (newVal >= 1f && currentBrightness < 1f)) {
                             haptics.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
                         }
                         viewModel.changeBrightnessTo(newVal)
-=======
-                            ),
-                        )
->>>>>>> official/master
                         viewModel.displayBrightnessSlider()
                     }
                     if (swapVolumeBrightness) {

@@ -25,15 +25,9 @@
   <string name="channel_new_episodes">Επεισόδιο ενημερώσεις</string>
   <string name="pref_category_connections">Συνδέσεις</string>
   <string name="pref_connections_summary">Discord, περισσότερα για να έρθει..</string>
-<<<<<<< HEAD
   <string name="connections_info">Ειδικές Υπηρεσίες που είναι μοναδικές για το AniZen και ενισχύουν τον τρόπο με τον οποίο χρησιμοποιείτε την εφαρμογή</string>
   <string name="connections_discord">Discord</string>
   <string name="connections_discord_info">Αυτή η υπηρεσία του Discord λειτουργεί μέσω καταγραφής συμβόλων. Χρησιμοποιήστε το με δική σας ευθύνη. Το διακριτικό αποθηκεύεται τοπικά και το AniZen δεν το μοιράζεται πουθενά αλλού</string>
-=======
-  <string name="connections_info">Ειδικές Υπηρεσίες που είναι μοναδικές για το Anikku και ενισχύουν τον τρόπο με τον οποίο χρησιμοποιείτε την εφαρμογή</string>
-  <string name="connections_discord">Discord</string>
-  <string name="connections_discord_info">Αυτή η υπηρεσία του Discord λειτουργεί μέσω καταγραφής συμβόλων. Χρησιμοποιήστε το με δική σας ευθύνη. Το διακριτικό αποθηκεύεται τοπικά και το Anikku δεν το μοιράζεται πουθενά αλλού</string>
->>>>>>> official/master
   <string name="show_chapters_titles_title">Εμφάνιση Τίτλων Επεισόδια</string>
   <string name="show_chapters_titles_subtitle">Εμφάνιση του τίτλου του επεισοδίου που παρακολουθείτε</string>
   <string name="discord_accounts">Λογαριασμοί Discord</string>
