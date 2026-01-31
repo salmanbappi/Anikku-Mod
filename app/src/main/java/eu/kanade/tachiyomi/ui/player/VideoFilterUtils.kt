@@ -26,20 +26,18 @@ import logcat.logcat
 fun applyFilter(filter: VideoFilters, value: Int, prefs: DecoderPreferences) {
     val property = filter.mpvProperty
     
-    // Update copy mode preference based on all filters
-    checkAndSetCopyMode(prefs)
-
     when (property) {
         "vf_sharpen", "vf_blur" -> {
             MPVLib.setPropertyString("vf", buildVFChain(prefs))
         }
         else -> MPVLib.setPropertyInt(property, value)
     }
+
+    // Update copy mode preference based on all filters AFTER applying properties
+    checkAndSetCopyMode(prefs)
 }
 
 fun applyDebandMode(mode: Debanding, prefs: DecoderPreferences) {
-    checkAndSetCopyMode(prefs)
-    
     when (mode) {
         Debanding.None -> {
             MPVLib.setPropertyBoolean("deband", false)
@@ -58,6 +56,7 @@ fun applyDebandMode(mode: Debanding, prefs: DecoderPreferences) {
             }
         }
     }
+    checkAndSetCopyMode(prefs)
 }
 
 fun applyDebandSetting(setting: DebandSettings, value: Int) {
@@ -105,7 +104,6 @@ fun checkAndSetCopyMode(prefs: DecoderPreferences) {
         prefs.sharpenFilter().get() > 0 ||
         prefs.blurFilter().get() > 0 ||
         prefs.videoDebanding().get() == Debanding.CPU ||
-        prefs.smoothMotion().get() ||
         prefs.saturationFilter().get() != 0 ||
         prefs.hueFilter().get() != 0
 
@@ -122,7 +120,8 @@ fun checkAndSetCopyMode(prefs: DecoderPreferences) {
     if (prefs.forceMediaCodecCopy().get()) {
         MPVLib.setPropertyString("hwdec", "mediacodec-copy")
     } else {
-        MPVLib.setPropertyString("hwdec", "auto")
+        val hwdec = if (prefs.tryHWDecoding().get()) "auto" else "no"
+        MPVLib.setPropertyString("hwdec", hwdec)
     }
 }
 
@@ -141,9 +140,6 @@ fun applyTheme(theme: VideoFilterTheme, prefs: DecoderPreferences) {
     prefs.debandThreshold().set(32)
     prefs.debandRange().set(16)
 
-    // Update copy mode based on new theme values
-    checkAndSetCopyMode(prefs)
-
     // Apply direct properties
     MPVLib.setPropertyInt("brightness", theme.brightness)
     MPVLib.setPropertyInt("contrast", theme.contrast)
@@ -160,6 +156,9 @@ fun applyTheme(theme: VideoFilterTheme, prefs: DecoderPreferences) {
     MPVLib.setPropertyInt("deband-threshold", 32)
     MPVLib.setPropertyInt("deband-range", 16)
     MPVLib.setPropertyInt("deband-grain", 48)
+
+    // Update copy mode based on new theme values AFTER applying properties
+    checkAndSetCopyMode(prefs)
 }
 
 fun applyAnime4K(prefs: DecoderPreferences, manager: Anime4KManager, isInit: Boolean = false) {
