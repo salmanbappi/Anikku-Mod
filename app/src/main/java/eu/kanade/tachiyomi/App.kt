@@ -70,7 +70,6 @@ import exh.log.xLogD
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import logcat.LogPriority
 import logcat.LogcatLogger
 import mihon.core.migration.Migrator
@@ -126,29 +125,28 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
             if (packageName != process) WebView.setDataDirectorySuffix(process)
         }
 
-        // Startup Optimization: Initialize components on background thread where possible
-        ProcessLifecycleOwner.get().lifecycleScope.launch(Dispatchers.IO) {
-            Injekt.importModule(PreferenceModule(this@App))
-            Injekt.importModule(AppModule(this@App))
-            Injekt.importModule(DomainModule())
-            Injekt.importModule(SYPreferenceModule(this@App))
-            Injekt.importModule(SYDomainModule())
-            Injekt.importModule(KMKDomainModule())
+        // Restore synchronous initialization to prevent startup crashes
+        Injekt.importModule(PreferenceModule(this))
+        Injekt.importModule(AppModule(this))
+        Injekt.importModule(DomainModule())
+        Injekt.importModule(SYPreferenceModule(this))
+        Injekt.importModule(SYDomainModule())
+        Injekt.importModule(KMKDomainModule())
 
-            setupExhLogging()
-            LogcatLogger.install(XLogLogcatLogger())
-            setupNotificationChannels()
-            
-            if (!WorkManager.isInitialized()) {
-                WorkManager.initialize(this@App, Configuration.Builder().build())
-            }
-            initializeMigrator()
-            
-            val syncPreferences: SyncPreferences = Injekt.get()
-            val syncTriggerOpt = syncPreferences.getSyncTriggerOptions()
-            if (syncPreferences.isSyncEnabled() && syncTriggerOpt.syncOnAppStart) {
-                SyncDataJob.startNow(this@App)
-            }
+        setupExhLogging()
+        LogcatLogger.install(XLogLogcatLogger())
+        setupNotificationChannels()
+        
+        if (!WorkManager.isInitialized()) {
+            WorkManager.initialize(this, Configuration.Builder().build())
+        }
+        
+        initializeMigrator()
+        
+        val syncPreferences: SyncPreferences = Injekt.get()
+        val syncTriggerOpt = syncPreferences.getSyncTriggerOptions()
+        if (syncPreferences.isSyncEnabled() && syncTriggerOpt.syncOnAppStart) {
+            SyncDataJob.startNow(this)
         }
 
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
