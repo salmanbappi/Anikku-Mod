@@ -203,6 +203,7 @@ class AnimeScreen(
             // SY -->
             onMergeClicked = {
                 context.toast("Merge feature coming soon")
+                Unit
             }.takeIf { successState.anime.favorite },
             // SY <--
             onMultiBookmarkClicked = screenModel::bookmarkEpisodes,

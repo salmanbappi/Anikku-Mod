@@ -97,6 +97,7 @@ import eu.kanade.tachiyomi.util.system.toast
 import eu.kanade.tachiyomi.util.system.updaterEnabled
 import eu.kanade.tachiyomi.util.view.setComposeContent
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
@@ -134,6 +135,8 @@ class MainActivity : BaseActivity() {
     private val connectionsPreferences: ConnectionsPreferences by injectLazy()
     // <-- AM (CONNECTIONS)
 
+    private val didMigrationState = MutableStateFlow(false)
+
     init {
         registerSecureActivity(this)
     }
@@ -148,7 +151,8 @@ class MainActivity : BaseActivity() {
 
         // Startup Optimization: Run migration check in background
         lifecycleScope.launch {
-            Migrator.await()
+            val didMigration = Migrator.await()
+            didMigrationState.value = didMigration
             withUIContext {
                 Migrator.release()
                 ready = true
@@ -284,7 +288,13 @@ class MainActivity : BaseActivity() {
                 ShowOnboarding()
             }
 
-            var showChangelog by remember { mutableStateOf(didMigration && !isDebugBuildType) }
+            val didMigration by didMigrationState.collectAsState()
+            var showChangelog by remember { mutableStateOf(false) }
+            LaunchedEffect(didMigration) {
+                if (didMigration && !isDebugBuildType) {
+                    showChangelog = true
+                }
+            }
             if (showChangelog) {
                 AlertDialog(
                     onDismissRequest = { showChangelog = false },
