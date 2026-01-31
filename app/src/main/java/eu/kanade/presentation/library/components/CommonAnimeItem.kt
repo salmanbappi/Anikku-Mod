@@ -297,15 +297,11 @@ private fun GridItemSelectable(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-<<<<<<< HEAD
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
-=======
->>>>>>> official/master
     Box(
         modifier = modifier
             .clip(MaterialTheme.shapes.small)
             .combinedClickable(
-<<<<<<< HEAD
                 onClick = {
                     haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
                     onClick()
@@ -314,10 +310,6 @@ private fun GridItemSelectable(
                     haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
                     onLongClick()
                 },
-=======
-                onClick = onClick,
-                onLongClick = onLongClick,
->>>>>>> official/master
             )
             .selectedOutline(isSelected = isSelected, color = MaterialTheme.colorScheme.secondary)
             .padding(4.dp),
@@ -357,10 +349,7 @@ fun AnimeListItem(
     entries: Int = 0,
     containerHeight: Int = 0,
 ) {
-<<<<<<< HEAD
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
-=======
->>>>>>> official/master
     Row(
         modifier = Modifier
             .selectedBackground(isSelected)
@@ -374,7 +363,6 @@ fun AnimeListItem(
                 },
             )
             .combinedClickable(
-<<<<<<< HEAD
                 onClick = {
                     haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
                     onClick()
@@ -383,10 +371,6 @@ fun AnimeListItem(
                     haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
                     onLongClick()
                 },
-=======
-                onClick = onClick,
-                onLongClick = onLongClick,
->>>>>>> official/master
             )
             .padding(horizontal = 16.dp, vertical = 3.dp),
         verticalAlignment = Alignment.CenterVertically,

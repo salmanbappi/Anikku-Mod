@@ -139,11 +139,7 @@
     <string name="history">Povijest</string>
     <string name="track">Praćenje</string>
     <string name="manga">Unosi u biblioteci</string>
-<<<<<<< HEAD
     <string name="restore_duration">%1$02d min, %2$02d s</string>
-=======
-    <string name="restore_duration">%02d min, %02d s</string>
->>>>>>> official/master
     <string name="restore_completed">Obnavljanje je završeno</string>
     <string name="backup_created">Sigurnosna kopija je stvorena</string>
     <string name="pref_backup_interval">Učestalost automatskog spremanja sigurnosnih kopija</string>
@@ -815,11 +811,7 @@
     <string name="pref_waiting_time_aniskip_8">8 sekunda</string>
     <string name="pref_waiting_time_aniskip_9">9 sekunda</string>
     <string name="pref_waiting_time_aniskip_10">10 sekunda</string>
-<<<<<<< HEAD
     <string name="player_aniskip_dontskip_toast">%1$s se preskače za %2$d sekunde</string>
-=======
-    <string name="player_aniskip_dontskip_toast">%s se preskače za %d sekunde</string>
->>>>>>> official/master
     <string name="player_aniskip_skip">%s preskočeno</string>
     <string name="player_hwdec_mode">Modus hardverskog dekodiranja</string>
     <string name="notification_episodes_multiple">Epizode %1$s</string>
@@ -931,11 +923,7 @@
     <string name="local_manga_source">Izvor lokalnog manga</string>
     <string name="local_anime_source">Izvor lokalnog animea</string>
     <string name="delete_downloads_for_anime">Izbrisati preuzete epizode?</string>
-<<<<<<< HEAD
     <string name="episode_downloading_progress">Preuzimanje (%1$d% %)</string>
-=======
-    <string name="episode_downloading_progress">Preuzimanje (%d% %)</string>
->>>>>>> official/master
     <string name="show_episode_number">Broj epizode</string>
     <string name="plan_to_watch">Planiram gledati</string>
     <string name="not_interesting">Nezanimljivo</string>
@@ -1249,11 +1237,7 @@
     <string name="player_sheets_filters_title">Filtri</string>
     <string name="player_sheets_filters_brightness">Svjetlina</string>
     <string name="player_sheets_filters_warning">Neki filtri možda neće raditi s tvojim trenutačnim upravljačkim programom za videa</string>
-<<<<<<< HEAD
     <string name="player_sheets_decoder_formatted">%1$s (%2$s)</string>
-=======
-    <string name="player_sheets_decoder_formatted">%s (%s)</string>
->>>>>>> official/master
     <string name="player_sheets_more_title">Više</string>
     <string name="timer_picker_pick_time">Odaberi trajanje</string>
     <string name="player_sheets_subtitles_border_style_opaque_box">Neprozirni okvir</string>

@@ -349,11 +349,7 @@
     <string name="check_for_updates">Güncellemeleri denetle</string>
     <string name="last_used_source">Son kullanılan</string>
     <string name="local_source_help_guide">Yerel kaynak kılavuzu</string>
-<<<<<<< HEAD
     <string name="restore_duration">%1$02d dk, %2$02d sn</string>
-=======
-    <string name="restore_duration">%02d dk, %02d sn</string>
->>>>>>> official/master
     <string name="downloaded_only_summary">Kütüphanedeki tüm girdileri filtreler</string>
     <string name="gray_background">Gri</string>
     <string name="viewer">Okuma modu</string>
@@ -898,11 +894,7 @@
     <string name="label_history">Manga</string>
     <string name="pref_waiting_time_aniskip_7">7 saniye</string>
     <string name="pref_waiting_time_aniskip_8">8 saniye</string>
-<<<<<<< HEAD
     <string name="player_aniskip_dontskip_toast">%1$s, %2$d saniye içinde atlanacak</string>
-=======
-    <string name="player_aniskip_dontskip_toast">%s, %d saniye içinde atlanacak</string>
->>>>>>> official/master
     <string name="label_manga_extensions">Manga Eklentileri</string>
     <string name="pref_library_manga_columns">Satır başına manga sayısı</string>
     <string name="pref_library_anime_columns">Satır başına anime sayısı</string>
@@ -1192,11 +1184,7 @@
     <string name="player_sheets_filters_Saturation">Doygunluk</string>
     <string name="player_sheets_filters_hue">Ton</string>
     <string name="player_sheets_filters_warning">Bazı filtreler şu anki video sürücünüzde çalışmayabilir</string>
-<<<<<<< HEAD
     <string name="player_sheets_decoder_formatted">%1$s (%2$s)</string>
-=======
-    <string name="player_sheets_decoder_formatted">%s (%s)</string>
->>>>>>> official/master
     <string name="pref_audio_channels">Ses kanalları</string>
     <string name="player_sheets_stats_page_title">Varsayılan istatistik sayfası</string>
     <string name="player_sheets_custom_buttons_title">Özel butonlar</string>

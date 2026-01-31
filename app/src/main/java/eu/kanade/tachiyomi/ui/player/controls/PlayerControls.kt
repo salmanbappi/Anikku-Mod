@@ -69,26 +69,17 @@ import eu.kanade.tachiyomi.ui.player.cast.components.CastSheet
 import eu.kanade.tachiyomi.ui.player.controls.components.BrightnessOverlay
 import eu.kanade.tachiyomi.ui.player.controls.components.BrightnessSlider
 import eu.kanade.tachiyomi.ui.player.controls.components.ControlsButton
-<<<<<<< HEAD
 import eu.kanade.tachiyomi.ui.player.controls.components.DoubleSpeedPlayerUpdate
-=======
->>>>>>> official/master
 import eu.kanade.tachiyomi.ui.player.controls.components.SeekbarWithTimers
 import eu.kanade.tachiyomi.ui.player.controls.components.TextPlayerUpdate
 import eu.kanade.tachiyomi.ui.player.controls.components.VolumeSlider
 import eu.kanade.tachiyomi.ui.player.controls.components.sheets.toFixed
-<<<<<<< HEAD
 import eu.kanade.tachiyomi.ui.player.settings.AdvancedPlayerPreferences
-=======
->>>>>>> official/master
 import eu.kanade.tachiyomi.ui.player.settings.AudioPreferences
 import eu.kanade.tachiyomi.ui.player.settings.GesturePreferences
 import eu.kanade.tachiyomi.ui.player.settings.PlayerPreferences
 import eu.kanade.tachiyomi.ui.player.settings.SubtitlePreferences
-<<<<<<< HEAD
 import exh.log.InterpolationStatsOverlay
-=======
->>>>>>> official/master
 import `is`.xyz.mpv.MPVLib
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
@@ -315,11 +306,7 @@ fun PlayerControls(
                     },
                 ) {
                     when (currentPlayerUpdate) {
-<<<<<<< HEAD
                         is PlayerUpdates.DoubleSpeed -> DoubleSpeedPlayerUpdate()
-=======
-                        // is PlayerUpdates.DoubleSpeed -> DoubleSpeedPlayerUpdate()
->>>>>>> official/master
                         is PlayerUpdates.AspectRatio -> TextPlayerUpdate(stringResource(aspectRatio.titleRes))
                         is PlayerUpdates.ShowText -> TextPlayerUpdate(
                             (currentPlayerUpdate as PlayerUpdates.ShowText).value,
@@ -660,15 +647,12 @@ fun PlayerControls(
         BrightnessOverlay(
             brightness = currentBrightness,
         )
-<<<<<<< HEAD
 
         val advancedPlayerPreferences = remember { Injekt.get<AdvancedPlayerPreferences>() }
         val statsPage by advancedPlayerPreferences.playerStatisticsPage().collectAsState()
         if (statsPage == 6) {
             InterpolationStatsOverlay()
         }
-=======
->>>>>>> official/master
     }
 
     if (showCastSheet) {

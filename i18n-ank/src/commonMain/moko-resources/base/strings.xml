@@ -180,11 +180,7 @@
 
         <!-- Discord section -->
     <string name="discord_download_button_anime">Watch on %s</string>
-<<<<<<< HEAD
     <string name="discord_app_description_anime">AniZen - an anime watching app</string>
-=======
-    <string name="discord_app_description_anime">Anikku - an anime watching app</string>
->>>>>>> official/master
     <string name="show_episodes_titles_title">Show Episodes Titles</string>
     <string name="show_episodes_titles_subtitle">Show the title of the episode you are watching</string>
     <string name="video">Video</string>

@@ -43,7 +43,6 @@ data class Download(
             progressStateFlow.value = value
         }
 
-<<<<<<< HEAD
     // Rich Notification Fields
     @Transient var speed: String = ""
     @Transient var downloadedSegments: Int = 0
@@ -52,8 +51,6 @@ data class Download(
     private var lastUpdateTime: Long = 0
     private var lastBytesRead: Long = 0
 
-=======
->>>>>>> official/master
     /**
      * Updates the status of the download
      *
@@ -67,7 +64,6 @@ data class Download(
         } else {
             -1
         }
-<<<<<<< HEAD
         
         // Speed Calculation
         val now = System.currentTimeMillis()
@@ -84,8 +80,6 @@ data class Download(
             lastBytesRead = bytesRead
         }
 
-=======
->>>>>>> official/master
         if (progress != newProgress) progress = newProgress
     }
 

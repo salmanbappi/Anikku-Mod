@@ -351,11 +351,7 @@
     <string name="local_source_help_guide">Guia de fonts locals</string>
     <string name="last_used_source">Utilitzada per darrera vegada</string>
     <string name="check_for_updates">Comprova si hi ha actualitzacions</string>
-<<<<<<< HEAD
     <string name="restore_duration">%1$02d min i %2$02d s</string>
-=======
-    <string name="restore_duration">%02d min i %02d s</string>
->>>>>>> official/master
     <string name="downloaded_only_summary">Filtra tots els elements de la vostra biblioteca</string>
     <string name="gray_background">Gris</string>
     <string name="viewer">Mode de lectura</string>
@@ -941,11 +937,7 @@
     <string name="pref_waiting_time_aniskip_6">6 segons</string>
     <string name="pref_waiting_time_aniskip_7">7 segons</string>
     <string name="notification_episodes_single">Episodi %1$s</string>
-<<<<<<< HEAD
     <string name="player_aniskip_dontskip_toast">Salta en %2$d segons</string>
-=======
-    <string name="player_aniskip_dontskip_toast">Salta en %d segons</string>
->>>>>>> official/master
     <string name="player_aniskip_skip">%s saltats</string>
     <string name="player_hwdec_mode">Establir per defecte el mode decodificació per hardware</string>
     <string name="episode_settings">Ajustos del episodi</string>

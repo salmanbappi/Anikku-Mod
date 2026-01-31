@@ -352,11 +352,7 @@
     <string name="last_used_source">上次浏览</string>
     <string name="downloaded_only_summary">筛选仓库里的全部作品</string>
     <string name="check_for_updates">检查更新</string>
-<<<<<<< HEAD
     <string name="restore_duration">%1$02d 分 %2$02d 秒</string>
-=======
-    <string name="restore_duration">%02d 分 %02d 秒</string>
->>>>>>> official/master
     <string name="gray_background">灰色</string>
     <string name="pref_category_for_this_series">本作品</string>
     <string name="viewer">阅读模式</string>
@@ -1039,11 +1035,7 @@
     <string name="pref_enable_auto_skip_ani_skip">开启自动跳过</string>
     <string name="pref_waiting_time_aniskip_7">7 秒</string>
     <string name="pref_waiting_time_aniskip_10">10 秒</string>
-<<<<<<< HEAD
     <string name="player_aniskip_dontskip_toast">将在 %2$d 秒内跳过 %1$s</string>
-=======
-    <string name="player_aniskip_dontskip_toast">将在 %d 秒内跳过 %s</string>
->>>>>>> official/master
     <string name="theme_cottoncandy">棉花糖</string>
     <string name="theme_mocha">摩卡</string>
     <string name="data_saver_image_format">压缩为 Jpeg</string>
@@ -1185,11 +1177,7 @@
     <string name="player_sheets_filters_Saturation">饱和</string>
     <string name="player_sheets_filters_hue">色调</string>
     <string name="player_sheets_filters_warning">某些过滤器可能无法在您当前的视频驱动程序上运行</string>
-<<<<<<< HEAD
     <string name="player_sheets_decoder_formatted">%1$s (%2$s)</string>
-=======
-    <string name="player_sheets_decoder_formatted">%s (%s)</string>
->>>>>>> official/master
     <string name="player_sheets_more_title">更多</string>
     <string name="player_sheets_stats_page_title">默认统计信息页面</string>
     <string name="player_sheets_tracks_off">关闭</string>

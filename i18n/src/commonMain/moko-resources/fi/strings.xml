@@ -345,11 +345,7 @@
     <string name="check_for_updates">Tarkista päivitykset</string>
     <string name="last_used_source">Viimeksi käytetty</string>
     <string name="local_source_help_guide">Paikallinen lähdeopas</string>
-<<<<<<< HEAD
     <string name="restore_duration">%1$02d min, %2$02d sek</string>
-=======
-    <string name="restore_duration">%02d min, %02d sek</string>
->>>>>>> official/master
     <string name="downloaded_only_summary">Suodattaa kaikki sarjat kirjastossasi</string>
     <string name="gray_background">Harmaa</string>
     <string name="pref_category_for_this_series">Tälle sarjalle</string>
@@ -716,11 +712,7 @@
     <string name="pref_enable_netflix_style_aniskip">Ota Netflix-tyyli käyttöön</string>
     <string name="pref_waiting_time_aniskip_10">10 sekuntia</string>
     <string name="player_aniskip_dontskip">Älä ohita</string>
-<<<<<<< HEAD
     <string name="player_aniskip_dontskip_toast">%1$s ohitetaan %2$d sekunnin kuluttua</string>
-=======
-    <string name="player_aniskip_dontskip_toast">%s ohitetaan %d sekunnin kuluttua</string>
->>>>>>> official/master
     <string name="player_aniskip_skip">%s ohitettu</string>
     <string name="label_manga_library">Manga</string>
     <string name="label_anime_library">Anime</string>

@@ -11,7 +11,6 @@ class DecoderPreferences(
     fun gpuNext() = preferenceStore.getBoolean("pref_gpu_next", false)
     fun videoDebanding() = preferenceStore.getEnum("pref_video_debanding", Debanding.None)
     fun useYUV420P() = preferenceStore.getBoolean("use_yuv420p", true)
-<<<<<<< HEAD
     fun highQualityScaling() = preferenceStore.getBoolean("pref_high_quality_scaling", false)
     fun smoothMotion() = preferenceStore.getBoolean("pref_smooth_motion", false)
     fun interpolationMode() = preferenceStore.getEnum("pref_interpolation_mode", InterpolationMode.Oversample)
@@ -20,8 +19,6 @@ class DecoderPreferences(
     fun anime4kMode() = preferenceStore.getString("pref_anime4k_mode", "OFF")
     fun anime4kQuality() = preferenceStore.getString("pref_anime4k_quality", "BALANCED")
     fun forceMediaCodecCopy() = preferenceStore.getBoolean("pref_force_mediacodec_copy", false)
-=======
->>>>>>> official/master
 
     // Non-preferences
 
@@ -30,7 +27,6 @@ class DecoderPreferences(
     fun contrastFilter() = preferenceStore.getInt("pref_player_filter_contrast")
     fun gammaFilter() = preferenceStore.getInt("pref_player_filter_gamma")
     fun hueFilter() = preferenceStore.getInt("pref_player_filter_hue")
-<<<<<<< HEAD
     fun sharpenFilter() = preferenceStore.getInt("pref_player_filter_sharpen")
     fun blurFilter() = preferenceStore.getInt("pref_player_filter_blur")
     fun debandFilter() = preferenceStore.getInt("pref_player_filter_deband")
@@ -46,6 +42,4 @@ enum class InterpolationMode(val title: String, val value: String) {
     Oversample("Balanced (Anime)", "oversample"),
     Mitchell("Smooth (Cinematic)", "mitchell"),
     CatmullRom("High Quality (Sharp)", "catmull_rom")
-=======
->>>>>>> official/master
 }
