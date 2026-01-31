@@ -105,7 +105,8 @@ fun checkAndSetCopyMode(prefs: DecoderPreferences) {
         prefs.blurFilter().get() > 0 ||
         prefs.videoDebanding().get() == Debanding.CPU ||
         prefs.saturationFilter().get() != 0 ||
-        prefs.hueFilter().get() != 0
+        prefs.hueFilter().get() != 0 ||
+        prefs.smoothMotion().get()
 
     if (requiresCopyMode) {
         if (!prefs.forceMediaCodecCopy().get()) {
