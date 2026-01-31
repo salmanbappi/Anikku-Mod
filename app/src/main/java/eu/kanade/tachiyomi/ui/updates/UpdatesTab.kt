@@ -50,7 +50,7 @@ data object UpdatesTab : Tab {
                 NavStyle.MOVE_UPDATES_TO_MORE -> 4u // 5
                 NavStyle.MOVE_HISTORY_TO_MORE -> 2u // 2
                 NavStyle.MOVE_BROWSE_TO_MORE -> 1u // 2
-                // NavStyle.MOVE_MANGA_TO_MORE -> 1u
+                else -> 1u
             }
             return TabOptions(
                 index = index,

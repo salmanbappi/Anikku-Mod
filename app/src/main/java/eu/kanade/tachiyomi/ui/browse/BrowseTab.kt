@@ -3,16 +3,19 @@ package eu.kanade.tachiyomi.ui.browse
 import androidx.compose.animation.graphics.res.animatedVectorResource
 import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
 import androidx.compose.animation.graphics.vector.AnimatedImageVector
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.TabOptions
+import eu.kanade.presentation.components.TabContent
 import eu.kanade.presentation.components.TabbedScreen
 import eu.kanade.presentation.util.Tab
 import eu.kanade.tachiyomi.R
@@ -30,7 +33,9 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import tachiyomi.i18n.MR
+import tachiyomi.i18n.sy.SYMR
 import tachiyomi.presentation.core.i18n.stringResource
+import tachiyomi.presentation.core.screens.EmptyScreen
 
 data object BrowseTab : Tab {
 
@@ -67,11 +72,12 @@ data object BrowseTab : Tab {
 
         val tabs = persistentListOf(
             sourcesTab(),
-            tachiyomi.presentation.core.screens.TabContent(
+            TabContent(
                 titleRes = SYMR.strings.feed,
-                content = { 
-                    tachiyomi.presentation.core.screens.EmptyScreen(
+                content = { contentPadding, _ -> 
+                    EmptyScreen(
                         stringRes = SYMR.strings.feed,
+                        modifier = Modifier.padding(contentPadding),
                     )
                 }
             ),

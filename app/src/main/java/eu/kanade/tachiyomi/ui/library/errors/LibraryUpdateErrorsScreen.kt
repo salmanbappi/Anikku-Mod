@@ -24,6 +24,7 @@ import eu.kanade.presentation.anime.components.BaseAnimeListItem
 import eu.kanade.presentation.components.AppBar
 import eu.kanade.presentation.components.AppBarActions
 import eu.kanade.presentation.util.Screen
+import eu.kanade.tachiyomi.source.model.UpdateStrategy
 import eu.kanade.tachiyomi.ui.anime.AnimeScreen
 import kotlinx.collections.immutable.persistentListOf
 import tachiyomi.i18n.MR
@@ -94,9 +95,6 @@ class LibraryUpdateErrorsScreen : Screen() {
         ) {
             BaseAnimeListItem(
                 anime = item.error.animeCover.let { cover ->
-                    // Construct a dummy anime for the cover component
-                    // In a real scenario, you'd fetch the actual anime object
-                    // but for errors, the title and cover might be enough.
                     tachiyomi.domain.anime.model.Anime(
                         id = item.error.animeId,
                         source = item.error.animeSource,
@@ -106,17 +104,21 @@ class LibraryUpdateErrorsScreen : Screen() {
                         fetchInterval = 0,
                         dateAdded = 0,
                         viewerFlags = 0,
-                        chapterFlags = 0,
+                        episodeFlags = 0,
                         coverLastModified = item.error.animeCover.lastModified ?: 0,
                         url = "",
                         ogTitle = item.error.animeTitle,
                         ogArtist = null,
                         ogAuthor = null,
+                        ogThumbnailUrl = item.error.animeCover.ogUrl,
                         ogDescription = null,
                         ogGenre = null,
                         ogStatus = 0,
-                        thumbnailUrl = item.error.animeCover.ogUrl,
+                        updateStrategy = UpdateStrategy.ALWAYS_UPDATE,
                         initialized = true,
+                        lastModifiedAt = 0,
+                        favoriteModifiedAt = null,
+                        version = 0,
                     )
                 },
                 onClickItem = onClick,

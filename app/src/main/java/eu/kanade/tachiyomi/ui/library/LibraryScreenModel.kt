@@ -99,7 +99,7 @@ class LibraryScreenModel(
     private val updateAnime: UpdateAnime = Injekt.get(),
     private val setAnimeCategories: SetAnimeCategories = Injekt.get(),
     private val preferences: BasePreferences = Injekt.get(),
-    private val libraryPreferences: LibraryPreferences = Injekt.get(),
+    internal val libraryPreferences: LibraryPreferences = Injekt.get(),
     private val coverCache: CoverCache = Injekt.get(),
     private val sourceManager: SourceManager = Injekt.get(),
     private val downloadManager: DownloadManager = Injekt.get(),

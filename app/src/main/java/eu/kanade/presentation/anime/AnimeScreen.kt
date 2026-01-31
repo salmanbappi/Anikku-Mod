@@ -161,6 +161,7 @@ fun AnimeScreen(
     onOpenFolder: (() -> Unit)?,
     onClearAnime: (() -> Unit)?,
     onSourceSettings: (() -> Unit)?,
+    onCastClicked: (() -> Unit)?,
     onRecommendationClicked: (Anime) -> Unit,
     // SY <--
 
@@ -255,6 +256,7 @@ fun AnimeScreen(
                 onOpenFolder = onOpenFolder,
                 onClearAnime = onClearAnime,
                 onSourceSettings = onSourceSettings,
+                onCastClicked = onCastClicked,
                 onRecommendationClicked = onRecommendationClicked,
                 // SY <--
                 onMultiBookmarkClicked = onMultiBookmarkClicked,
@@ -308,6 +310,7 @@ fun AnimeScreen(
                 onOpenFolder = onOpenFolder,
                 onClearAnime = onClearAnime,
                 onSourceSettings = onSourceSettings,
+                onCastClicked = onCastClicked,
                 onRecommendationClicked = onRecommendationClicked,
                 // SY <--
                 onMultiBookmarkClicked = onMultiBookmarkClicked,
@@ -374,6 +377,7 @@ private fun AnimeScreenSmallImpl(
     onOpenFolder: (() -> Unit)?,
     onClearAnime: (() -> Unit)?,
     onSourceSettings: (() -> Unit)?,
+    onCastClicked: (() -> Unit)?,
     onRecommendationClicked: (Anime) -> Unit,
     // SY <--
 
@@ -451,6 +455,7 @@ private fun AnimeScreenSmallImpl(
                 onClickOpenFolder = onOpenFolder,
                 onClickClearAnime = onClearAnime,
                 onClickSourceSettings = onSourceSettings,
+                onClickCast = onCastClicked,
                 // SY <--
                 onClickSettings = onSettingsClicked,
                 changeAnimeSkipIntro = changeAnimeSkipIntro,
@@ -700,6 +705,7 @@ fun AnimeScreenLargeImpl(
     onOpenFolder: (() -> Unit)?,
     onClearAnime: (() -> Unit)?,
     onSourceSettings: (() -> Unit)?,
+    onCastClicked: (() -> Unit)?,
     onRecommendationClicked: (Anime) -> Unit,
     // SY <--
 
@@ -772,6 +778,7 @@ fun AnimeScreenLargeImpl(
                 onClickOpenFolder = onOpenFolder,
                 onClickClearAnime = onClearAnime,
                 onClickSourceSettings = onSourceSettings,
+                onClickCast = onCastClicked,
                 // SY <--
                 actionModeCounter = selectedEpisodeCount,
                 onSelectAll = { onAllEpisodeSelected(true) },
@@ -1200,7 +1207,7 @@ private fun formatTime(milliseconds: Long, useDayFormat: Boolean = false): Strin
             TimeUnit.MILLISECONDS.toMinutes(milliseconds) -
                 TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(milliseconds)),
             TimeUnit.MILLISECONDS.toSeconds(milliseconds) -
-                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliseconds)),
+                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toDays(milliseconds) * 24 * 60 * 60 * 1000 / 1000 / 60), // Simplified
         )
     } else if (milliseconds > 3600000L) {
         String.format(
