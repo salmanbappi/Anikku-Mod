@@ -30,11 +30,7 @@ import eu.kanade.tachiyomi.ui.player.settings.AudioPreferences
 import eu.kanade.tachiyomi.ui.player.settings.DecoderPreferences
 import eu.kanade.tachiyomi.ui.player.settings.PlayerPreferences
 import eu.kanade.tachiyomi.ui.player.settings.SubtitlePreferences
-<<<<<<< HEAD
-import eu.kanade.tachiyomi.ui.player.buildVFChain
 import eu.kanade.tachiyomi.ui.player.utils.Anime4KManager
-=======
->>>>>>> official/master
 import `is`.xyz.mpv.BaseMPVView
 import `is`.xyz.mpv.KeyMapping
 import `is`.xyz.mpv.MPVLib
@@ -51,10 +47,7 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
     private val audioPreferences: AudioPreferences by injectLazy()
     private val advancedPreferences: AdvancedPlayerPreferences by injectLazy()
     private val networkPreferences: NetworkPreferences by injectLazy()
-<<<<<<< HEAD
     private val anime4kManager: Anime4KManager by injectLazy()
-=======
->>>>>>> official/master
 
     var isExiting = false
 
@@ -121,7 +114,6 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
     var aid: Int by TrackDelegate("aid")
 
     override fun initOptions(vo: String) {
-<<<<<<< HEAD
         val useAnime4K = decoderPreferences.enableAnime4K().get()
         // Anime4K is incompatible with gpu-next
         setVo(if (decoderPreferences.gpuNext().get() && !useAnime4K) "gpu-next" else "gpu")
@@ -192,6 +184,10 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
             }
         }
 
+        if (decoderPreferences.useYUV420P().get()) {
+            MPVLib.setOptionString("vf", "format=yuv420p")
+        }
+
         val vfChain = buildVFChain(decoderPreferences)
         if (vfChain.isNotEmpty()) {
             MPVLib.setOptionString("vf", vfChain)
@@ -200,21 +196,6 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         anime4kManager.initialize()
         applyAnime4K(decoderPreferences, anime4kManager, isInit = true)
 
-=======
-        setVo(if (decoderPreferences.gpuNext().get()) "gpu-next" else "gpu")
-        MPVLib.setPropertyBoolean("pause", true)
-        MPVLib.setOptionString("profile", "fast")
-        MPVLib.setOptionString("hwdec", if (decoderPreferences.tryHWDecoding().get()) "auto" else "no")
-        when (decoderPreferences.videoDebanding().get()) {
-            Debanding.None -> {}
-            Debanding.CPU -> MPVLib.setOptionString("vf", "gradfun=radius=12")
-            Debanding.GPU -> MPVLib.setOptionString("deband", "yes")
-        }
-
-        if (decoderPreferences.useYUV420P().get()) {
-            MPVLib.setOptionString("vf", "format=yuv420p")
-        }
->>>>>>> official/master
         MPVLib.setOptionString("msg-level", "all=" + if (networkPreferences.verboseLogging().get()) "v" else "warn")
 
         MPVLib.setPropertyBoolean("keep-open", true)
@@ -224,31 +205,20 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         MPVLib.setOptionString("tls-ca-file", "${context.filesDir.path}/cacert.pem")
 
         // Limit demuxer cache since the defaults are too high for mobile devices
-<<<<<<< HEAD
-        // Increased for smoother seeking/skipping
         val cacheMegs = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) 128 else 64
         MPVLib.setOptionString("demuxer-max-bytes", "${cacheMegs * 1024 * 1024}")
         MPVLib.setOptionString("demuxer-max-back-bytes", "${cacheMegs * 1024 * 1024}")
         MPVLib.setOptionString("hr-seek", "default")
         MPVLib.setOptionString("hr-seek-framedrop", "yes")
-=======
-        val cacheMegs = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) 64 else 32
-        MPVLib.setOptionString("demuxer-max-bytes", "${cacheMegs * 1024 * 1024}")
-        MPVLib.setOptionString("demuxer-max-back-bytes", "${cacheMegs * 1024 * 1024}")
->>>>>>> official/master
-        //
+        
         val screenshotDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
         screenshotDir.mkdirs()
         MPVLib.setOptionString("screenshot-directory", screenshotDir.path)
 
         VideoFilters.entries.forEach {
-<<<<<<< HEAD
             if (!it.mpvProperty.startsWith("vf_")) {
                 MPVLib.setOptionString(it.mpvProperty, it.preference(decoderPreferences).get().toString())
             }
-=======
-            MPVLib.setOptionString(it.mpvProperty, it.preference(decoderPreferences).get().toString())
->>>>>>> official/master
         }
 
         MPVLib.setOptionString("speed", playerPreferences.playerSpeed().get().toString())
@@ -265,19 +235,11 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
 
     override fun postInitOptions() {
         advancedPreferences.playerStatisticsPage().get().let {
-<<<<<<< HEAD
             if (it in 1..5) {
                 MPVLib.command(arrayOf("script-binding", "stats/display-stats-toggle"))
                 MPVLib.command(arrayOf("script-binding", "stats/display-page-$it"))
             } else if (it == 6 || it == 0) {
-                // Explicitly ensure internal stats are OFF for Page 6 or Off mode
-                // We use a dummy command to ensure the toggle state is predictable
                 MPVLib.setPropertyString("user-data/stats/display-page", "0")
-=======
-            if (it != 0) {
-                MPVLib.command(arrayOf("script-binding", "stats/display-stats-toggle"))
-                MPVLib.command(arrayOf("script-binding", "stats/display-page-$it"))
->>>>>>> official/master
             }
         }
     }
@@ -335,10 +297,6 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         "sid" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
         "secondary-sid" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
         "aid" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-<<<<<<< HEAD
-        "speed" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
-        "video-params/aspect" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
-=======
 
         "speed" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
         "video-params/aspect" to MPVLib.mpvFormat.MPV_FORMAT_DOUBLE,
@@ -346,14 +304,10 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         "hwdec-current" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
         "hwdec" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
 
->>>>>>> official/master
         "pause" to MPVLib.mpvFormat.MPV_FORMAT_FLAG,
         "paused-for-cache" to MPVLib.mpvFormat.MPV_FORMAT_FLAG,
         "seeking" to MPVLib.mpvFormat.MPV_FORMAT_FLAG,
         "eof-reached" to MPVLib.mpvFormat.MPV_FORMAT_FLAG,
-<<<<<<< HEAD
-        "hwdec-current" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
-=======
 
         "user-data/aniyomi/show_text" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
         "user-data/aniyomi/toggle_ui" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
@@ -371,7 +325,6 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         "user-data/aniyomi/launch_int_picker" to MPVLib.mpvFormat.MPV_FORMAT_STRING,
 
         "user-data/current-anime/intro-length" to MPVLib.mpvFormat.MPV_FORMAT_INT64,
->>>>>>> official/master
     )
 
     private fun setupAudioOptions() {
