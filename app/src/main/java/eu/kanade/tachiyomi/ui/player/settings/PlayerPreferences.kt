@@ -93,5 +93,8 @@ class PlayerPreferences(
     fun skipDuplicateEpisodes() = preferenceStore.getBoolean("skip_duplicate_episodes", false)
     fun screenshotSeparateFolders() = preferenceStore.getBoolean("screenshot_separate_folders", false)
     fun screenshotFoldersByTitle() = preferenceStore.getBoolean("screenshot_folders_by_title", false)
+
+    fun forceHorzSeekbar() = preferenceStore.getBoolean("pref_force_horz_seekbar", false)
+    fun leftHandedVerticalSeekbar() = preferenceStore.getBoolean("pref_left_handed_vertical_seekbar", false)
     // SY <--
 }

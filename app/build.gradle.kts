@@ -47,6 +47,8 @@ android {
         buildConfigField("boolean", "UPDATER_ENABLED", "${Config.enableUpdater}")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        resourceConfigurations += listOf("en", "bn", "es", "ja", "zh", "pt")
     }
 
     buildTypes {

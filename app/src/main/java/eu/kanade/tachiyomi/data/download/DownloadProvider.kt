@@ -10,6 +10,7 @@ import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.core.common.storage.displayablePath
 import tachiyomi.core.common.util.system.logcat
 import tachiyomi.domain.anime.model.Anime
+import tachiyomi.domain.download.service.DownloadPreferences
 import tachiyomi.domain.episode.model.Episode
 import tachiyomi.domain.storage.service.StorageManager
 import tachiyomi.i18n.MR
@@ -27,6 +28,7 @@ import uy.kohesive.injekt.api.get
 class DownloadProvider(
     private val context: Context,
     private val storageManager: StorageManager = Injekt.get(),
+    private val downloadPreferences: DownloadPreferences = Injekt.get(),
     // AM (FILE_SIZE) -->
     private val localFileSystem: LocalSourceFileSystem = Injekt.get(),
     // <-- AM (FILE_SIZE)
@@ -43,9 +45,13 @@ class DownloadProvider(
      */
     internal fun getAnimeDir(animeTitle: String, source: Source): UniFile {
         try {
-            return downloadsDir!!
-                .createDirectory(getSourceDirName(source))!!
-                .createDirectory(getAnimeDirName(animeTitle))!!
+            val root = downloadsDir!!
+            return if (downloadPreferences.createFolderPerAnime().get()) {
+                root.createDirectory(getAnimeDirName(animeTitle))!!
+            } else {
+                root.createDirectory(getSourceDirName(source))!!
+                    .createDirectory(getAnimeDirName(animeTitle))!!
+            }
         } catch (e: Throwable) {
             logcat(LogPriority.ERROR, e) { "Invalid download directory" }
             throw Exception(
@@ -73,6 +79,9 @@ class DownloadProvider(
      * @param source the source of the anime.
      */
     fun findAnimeDir(animeTitle: String, source: Source): UniFile? {
+        if (downloadPreferences.createFolderPerAnime().get()) {
+            return downloadsDir?.findFile(getAnimeDirName(animeTitle))
+        }
         val sourceDir = findSourceDir(source)
         return sourceDir?.findFile(getAnimeDirName(animeTitle))
     }

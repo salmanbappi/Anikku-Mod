@@ -14,9 +14,11 @@ import eu.kanade.presentation.more.settings.Preference
 import eu.kanade.presentation.more.settings.screen.browse.ExtensionReposScreen
 import eu.kanade.tachiyomi.util.system.AuthenticatorUtil.authenticate
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
 import mihon.domain.extensionrepo.interactor.GetExtensionRepoCount
 import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.i18n.MR
+import tachiyomi.i18n.sy.SYMR
 import tachiyomi.presentation.core.i18n.pluralStringResource
 import tachiyomi.presentation.core.i18n.stringResource
 import uy.kohesive.injekt.Injekt
@@ -59,6 +61,51 @@ object SettingsBrowseScreen : SearchableSettings {
                     ),
                 ),
             ),
+            // SY -->
+            Preference.PreferenceGroup(
+                title = stringResource(SYMR.strings.feed),
+                preferenceItems = persistentListOf(
+                    Preference.PreferenceItem.SwitchPreference(
+                        pref = sourcePreferences.hideFeed(),
+                        title = stringResource(SYMR.strings.pref_hide_feed),
+                    ),
+                    Preference.PreferenceItem.ListPreference(
+                        pref = sourcePreferences.feedPosition(),
+                        title = stringResource(SYMR.strings.pref_feed_position),
+                        entries = persistentMapOf(
+                            0 to "First",
+                            1 to "Second",
+                            2 to "Third",
+                        ),
+                    ),
+                ),
+            ),
+            Preference.PreferenceGroup(
+                title = "Source UI",
+                preferenceItems = persistentListOf(
+                    Preference.PreferenceItem.SwitchPreference(
+                        pref = sourcePreferences.sourceNavigation(),
+                        title = stringResource(SYMR.strings.pref_source_navigation),
+                        subtitle = stringResource(SYMR.strings.pref_source_navigation_summery),
+                    ),
+                    Preference.PreferenceItem.SwitchPreference(
+                        pref = sourcePreferences.sourceFiltering(),
+                        title = stringResource(SYMR.strings.pref_source_source_filtering),
+                        subtitle = stringResource(SYMR.strings.pref_source_source_filtering_summery),
+                    ),
+                ),
+            ),
+            Preference.PreferenceGroup(
+                title = stringResource(SYMR.strings.pref_category_all_sources),
+                preferenceItems = persistentListOf(
+                    Preference.PreferenceItem.SwitchPreference(
+                        pref = sourcePreferences.enableSourceBlacklist(),
+                        title = stringResource(SYMR.strings.enable_source_blacklist),
+                        subtitle = stringResource(SYMR.strings.enable_source_blacklist_summary),
+                    ),
+                ),
+            ),
+            // SY <--
             Preference.PreferenceGroup(
                 title = stringResource(MR.strings.pref_category_nsfw_content),
                 preferenceItems = persistentListOf(

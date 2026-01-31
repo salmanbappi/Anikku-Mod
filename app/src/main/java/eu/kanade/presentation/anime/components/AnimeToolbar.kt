@@ -2,6 +2,7 @@ package eu.kanade.presentation.anime.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Cast
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.FilterList
@@ -51,6 +52,7 @@ fun AnimeToolbar(
     onClickOpenFolder: (() -> Unit)?,
     onClickClearAnime: (() -> Unit)?,
     onClickSourceSettings: (() -> Unit)?,
+    onClickCast: (() -> Unit)?,
     // SY <--
     onClickSettings: (() -> Unit)?,
     // Anime only
@@ -111,6 +113,15 @@ fun AnimeToolbar(
                     AppBarActions(
                         actions = persistentListOf<AppBar.AppBarAction>().builder()
                             .apply {
+                                if (onClickCast != null) {
+                                    add(
+                                        AppBar.Action(
+                                            title = "Cast",
+                                            icon = Icons.Outlined.Cast,
+                                            onClick = onClickCast,
+                                        ),
+                                    )
+                                }
                                 if (onClickDownload != null) {
                                     add(
                                         AppBar.Action(

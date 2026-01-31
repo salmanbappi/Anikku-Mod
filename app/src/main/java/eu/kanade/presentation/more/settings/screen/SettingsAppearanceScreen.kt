@@ -49,6 +49,7 @@ object SettingsAppearanceScreen : SearchableSettings {
             getAnimeInfoGroup(uiPreferences = uiPreferences),
             getDisplayGroup(uiPreferences = uiPreferences),
             getNavbarGroup(uiPreferences = uiPreferences),
+            getAdvancedUiGroup(uiPreferences = uiPreferences),
         )
     }
 
@@ -240,6 +241,37 @@ object SettingsAppearanceScreen : SearchableSettings {
                 Preference.PreferenceItem.SwitchPreference(
                     pref = uiPreferences.bottomBarLabels(),
                     title = stringResource(SYMR.strings.pref_show_bottom_bar_labels),
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = uiPreferences.hideHistoryButton(),
+                    title = stringResource(SYMR.strings.pref_hide_history_button),
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = uiPreferences.hideUpdatesButton(),
+                    title = stringResource(SYMR.strings.pref_hide_updates_button),
+                ),
+            ),
+        )
+    }
+
+    @Composable
+    private fun getAdvancedUiGroup(uiPreferences: UiPreferences): Preference.PreferenceGroup {
+        return Preference.PreferenceGroup(
+            title = "Advanced UI",
+            preferenceItems = persistentListOf(
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = uiPreferences.smoothScroll(),
+                    title = stringResource(SYMR.strings.pref_smooth_scroll),
+                ),
+                Preference.PreferenceItem.ListPreference(
+                    pref = uiPreferences.appIcon(),
+                    title = stringResource(SYMR.strings.pref_app_icon),
+                    entries = persistentListOf(
+                        0 to "Default",
+                        1 to "Blue",
+                        2 to "Green",
+                        3 to "Red",
+                    ).associate { it }.toImmutableMap(),
                 ),
             ),
         )
