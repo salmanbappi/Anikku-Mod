@@ -40,10 +40,18 @@ class UiPreferences(
 
     fun startScreen() = preferenceStore.getEnum("start_screen", StartScreen.ANIME)
 
-    fun navStyle() = preferenceStore.getEnum("bottom_rail_nav_style", NavStyle.MOVE_HISTORY_TO_MORE)
+    fun navStyle() = preferenceStore.getEnum("bottom_rail_nav_style", NavStyle.DEFAULT)
 
     // SY -->
     fun bottomBarLabels() = preferenceStore.getBoolean("pref_show_bottom_bar_labels", true)
+
+    fun themeBasedOnCover() = preferenceStore.getBoolean("pref_theme_cover_based", false)
+
+    fun themeBasedOnCoverStyle() = preferenceStore.getInt("pref_theme_cover_based_style", 0)
+
+    fun panoramaCover() = preferenceStore.getBoolean("pref_panorama_cover", false)
+
+    fun topAlignCover() = preferenceStore.getBoolean("pref_top_align_cover", false)
     // SY <--
 
     companion object {

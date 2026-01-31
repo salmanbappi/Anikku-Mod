@@ -45,6 +45,10 @@ fun LibraryContent(
     getDisplayMode: (Int) -> PreferenceMutableState<LibraryDisplayMode>,
     getColumnsForOrientation: (Boolean) -> PreferenceMutableState<Int>,
     getAnimeLibraryForPage: (Int) -> List<LibraryItem>,
+    // SY -->
+    showLanguageIcon: Boolean = false,
+    showSourceIcon: Boolean = false,
+    // SY <--
 ) {
     Column(
         modifier = Modifier.padding(
@@ -108,6 +112,8 @@ fun LibraryContent(
                 onClickAnime = onClickAnime,
                 onLongClickAnime = onToggleRangeSelection,
                 onClickContinueWatching = onContinueWatchingClicked,
+                showLanguageIcon = showLanguageIcon,
+                showSourceIcon = showSourceIcon,
             )
         }
 

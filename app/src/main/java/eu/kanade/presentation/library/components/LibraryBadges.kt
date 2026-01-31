@@ -1,12 +1,18 @@
 package eu.kanade.presentation.library.components
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.unit.dp
 import eu.kanade.presentation.theme.TachiyomiPreviewTheme
+import eu.kanade.tachiyomi.source.Source
+import eu.kanade.tachiyomi.source.icon
 import tachiyomi.presentation.core.components.Badge
 
 @Composable
@@ -46,6 +52,25 @@ internal fun LanguageBadge(
         )
     }
 }
+
+// SY -->
+@Composable
+internal fun SourceIconBadge(source: Source?) {
+    val icon = source?.icon()
+    if (icon != null) {
+        Badge(
+            painter = icon,
+            modifier = Modifier.size(16.dp),
+            color = Color.Transparent,
+        )
+    }
+}
+
+@Composable
+internal fun LanguageIconBadge(sourceLanguage: String?) {
+    // Implement language flag icon logic here if needed
+}
+// SY <--
 
 @PreviewLightDark
 @Composable

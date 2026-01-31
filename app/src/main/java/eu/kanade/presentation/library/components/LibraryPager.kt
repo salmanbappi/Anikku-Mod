@@ -42,6 +42,10 @@ fun LibraryPager(
     onClickAnime: (LibraryAnime) -> Unit,
     onLongClickAnime: (LibraryAnime) -> Unit,
     onClickContinueWatching: ((LibraryAnime) -> Unit)?,
+    // SY -->
+    showLanguageIcon: Boolean = false,
+    showSourceIcon: Boolean = false,
+    // SY <--
 ) {
     var containerHeight by remember { mutableIntStateOf(0) }
     HorizontalPager(
@@ -101,9 +105,11 @@ fun LibraryPager(
                     onLongClick = onLongClickAnime,
                     searchQuery = searchQuery,
                     onGlobalSearchClicked = onGlobalSearchClicked,
+                    showLanguageIcon = showLanguageIcon,
+                    showSourceIcon = showSourceIcon,
                 )
             }
-            LibraryDisplayMode.ComfortableGrid -> {
+            LibraryDisplayMode.ComfortableGrid, LibraryDisplayMode.ComfortableGridPanorama -> {
                 LibraryComfortableGrid(
                     items = library,
                     columns = columns,
@@ -114,9 +120,11 @@ fun LibraryPager(
                     onClickContinueWatching = onClickContinueWatching,
                     searchQuery = searchQuery,
                     onGlobalSearchClicked = onGlobalSearchClicked,
+                    isPanorama = displayMode == LibraryDisplayMode.ComfortableGridPanorama,
+                    showLanguageIcon = showLanguageIcon,
+                    showSourceIcon = showSourceIcon,
                 )
             }
-            else -> {}
         }
     }
 }

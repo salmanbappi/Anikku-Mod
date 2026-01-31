@@ -86,4 +86,12 @@ class PlayerPreferences(
     // Old
 
     fun autoplayEnabled() = preferenceStore.getBoolean("pref_auto_play_enabled", false)
+
+    // SY -->
+    fun skipSeenEpisodes() = preferenceStore.getBoolean("skip_seen_episodes", false)
+    fun skipFilteredEpisodes() = preferenceStore.getBoolean("skip_filtered_episodes", false)
+    fun skipDuplicateEpisodes() = preferenceStore.getBoolean("skip_duplicate_episodes", false)
+    fun screenshotSeparateFolders() = preferenceStore.getBoolean("screenshot_separate_folders", false)
+    fun screenshotFoldersByTitle() = preferenceStore.getBoolean("screenshot_folders_by_title", false)
+    // SY <--
 }

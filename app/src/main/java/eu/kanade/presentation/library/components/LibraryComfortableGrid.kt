@@ -6,7 +6,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.util.fastAny
 import eu.kanade.tachiyomi.ui.library.LibraryItem
 import tachiyomi.domain.anime.model.AnimeCover
 import tachiyomi.domain.library.model.LibraryAnime
@@ -22,6 +21,11 @@ internal fun LibraryComfortableGrid(
     onClickContinueWatching: ((LibraryAnime) -> Unit)?,
     searchQuery: String?,
     onGlobalSearchClicked: () -> Unit,
+    // SY -->
+    isPanorama: Boolean = false,
+    showLanguageIcon: Boolean = false,
+    showSourceIcon: Boolean = false,
+    // SY <--
 ) {
     val selectedIds = remember(selection) { selection.map { it.id }.toSet() }
 
@@ -37,7 +41,7 @@ internal fun LibraryComfortableGrid(
             contentType = { "anime_library_comfortable_grid_item" },
         ) { libraryItem ->
             val anime = libraryItem.libraryAnime.anime
-            AnimeComfortableGridItem(
+            val commonProps = AnimeComfortableGridItemProps(
                 isSelected = libraryItem.libraryAnime.id in selectedIds,
                 title = anime.title,
                 coverData = AnimeCover(
@@ -57,6 +61,12 @@ internal fun LibraryComfortableGrid(
                         sourceLanguage = libraryItem.sourceLanguage,
                     )
                 },
+                languageIconBadge = {
+                    if (showLanguageIcon) LanguageIconBadge(sourceLanguage = libraryItem.sourceLanguage)
+                },
+                sourceIconBadge = {
+                    if (showSourceIcon) SourceIconBadge(source = libraryItem.source)
+                },
                 onLongClick = { onLongClick(libraryItem.libraryAnime) },
                 onClick = { onClick(libraryItem.libraryAnime) },
                 onClickContinueWatching = if (onClickContinueWatching != null && libraryItem.unseenCount > 0) {
@@ -65,6 +75,47 @@ internal fun LibraryComfortableGrid(
                     null
                 },
             )
+
+            if (isPanorama) {
+                AnimePanoramaGridItem(
+                    isSelected = commonProps.isSelected,
+                    title = commonProps.title,
+                    coverData = commonProps.coverData,
+                    coverBadgeStart = commonProps.coverBadgeStart,
+                    coverBadgeEnd = commonProps.coverBadgeEnd,
+                    languageIconBadge = commonProps.languageIconBadge,
+                    sourceIconBadge = commonProps.sourceIconBadge,
+                    onLongClick = commonProps.onLongClick,
+                    onClick = commonProps.onClick,
+                    onClickContinueWatching = commonProps.onClickContinueWatching,
+                )
+            } else {
+                AnimeComfortableGridItem(
+                    isSelected = commonProps.isSelected,
+                    title = commonProps.title,
+                    coverData = commonProps.coverData,
+                    coverBadgeStart = commonProps.coverBadgeStart,
+                    coverBadgeEnd = commonProps.coverBadgeEnd,
+                    languageIconBadge = commonProps.languageIconBadge,
+                    sourceIconBadge = commonProps.sourceIconBadge,
+                    onLongClick = commonProps.onLongClick,
+                    onClick = commonProps.onClick,
+                    onClickContinueWatching = commonProps.onClickContinueWatching,
+                )
+            }
         }
     }
 }
+
+private data class AnimeComfortableGridItemProps(
+    val isSelected: Boolean,
+    val title: String,
+    val coverData: AnimeCover,
+    val coverBadgeStart: @Composable () -> Unit,
+    val coverBadgeEnd: @Composable () -> Unit,
+    val languageIconBadge: @Composable () -> Unit,
+    val sourceIconBadge: @Composable () -> Unit,
+    val onLongClick: () -> Unit,
+    val onClick: () -> Unit,
+    val onClickContinueWatching: (() -> Unit)?,
+)

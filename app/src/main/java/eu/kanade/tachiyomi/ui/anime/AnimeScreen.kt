@@ -23,6 +23,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import eu.kanade.core.util.ifSourcesLoaded
+import eu.kanade.domain.anime.interactor.GetAnime
 import eu.kanade.domain.anime.model.hasCustomCover
 import eu.kanade.domain.anime.model.toSAnime
 import eu.kanade.presentation.anime.AnimeScreen
@@ -67,11 +68,15 @@ import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.core.common.util.lang.launchIO
 import tachiyomi.core.common.util.lang.withIOContext
 import tachiyomi.core.common.util.system.logcat
+import tachiyomi.domain.anime.interactor.GetAnimeByUrlAndSourceId
+import tachiyomi.domain.anime.interactor.InsertAnime
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.episode.model.Episode
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.screens.LoadingScreen
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
 
 class AnimeScreen(
     private val animeId: Long,
@@ -202,9 +207,31 @@ class AnimeScreen(
             changeAnimeSkipIntro = screenModel::showAnimeSkipIntroDialog.takeIf { successState.anime.favorite },
             // SY -->
             onMergeClicked = {
-                context.toast("Merge feature coming soon")
-                Unit
+                navigator.push(MigrateSearchScreen(successState.anime.id))
             }.takeIf { successState.anime.favorite },
+            onOpenFolder = {
+                // Logic for opening local folder
+                context.toast("Opening folder...")
+            }.takeIf { successState.source.isLocal() },
+            onClearAnime = {
+                context.toast("Clearing anime data...")
+            },
+            onSourceSettings = {
+                navigator.push(SourcePreferencesScreen(successState.source.id))
+            }.takeIf { successState.source is ConfigurableSource },
+            onRecommendationClicked = { anime ->
+                scope.launchIO {
+                    val dbAnime = Injekt.get<GetAnimeByUrlAndSourceId>().await(anime.url, anime.source)
+                        ?: Injekt.get<InsertAnime>().await(anime)?.let {
+                            Injekt.get<GetAnime>().await(it)
+                        }
+                    if (dbAnime != null) {
+                        withIOContext {
+                            navigator.push(AnimeScreen(dbAnime.id))
+                        }
+                    }
+                }
+            },
             // SY <--
             onMultiBookmarkClicked = screenModel::bookmarkEpisodes,
             // AM (FILLERMARK) -->

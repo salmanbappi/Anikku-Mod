@@ -138,6 +138,12 @@ class LibraryPreferences(
 
     fun languageBadge() = preferenceStore.getBoolean("display_language_badge", false)
 
+    // SY -->
+    fun languageIconBadge() = preferenceStore.getBoolean("display_language_icon_badge", false)
+
+    fun sourceIconBadge() = preferenceStore.getBoolean("display_source_icon_badge", false)
+    // SY <--
+
     fun newShowUpdatesCount() = preferenceStore.getBoolean("library_show_updates_count", true)
 
     fun newMangaUpdatesCount() = preferenceStore.getInt("library_unread_updates_count", 0)

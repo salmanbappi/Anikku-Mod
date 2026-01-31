@@ -47,11 +47,12 @@ fun AnimeToolbar(
     onClickMigrate: (() -> Unit)?,
     // SY -->
     onClickMerge: (() -> Unit)?,
+    onClickEditInfo: (() -> Unit)?,
+    onClickOpenFolder: (() -> Unit)?,
+    onClickClearAnime: (() -> Unit)?,
+    onClickSourceSettings: (() -> Unit)?,
     // SY <--
     onClickSettings: (() -> Unit)?,
-    // SY -->
-    onClickEditInfo: (() -> Unit)?,
-    // SY <--
     // Anime only
     changeAnimeSkipIntro: (() -> Unit)?,
     // For action mode
@@ -173,6 +174,38 @@ fun AnimeToolbar(
                                         AppBar.OverflowAction(
                                             title = stringResource(SYMR.strings.merge),
                                             onClick = onClickMerge,
+                                        ),
+                                    )
+                                }
+                                if (onClickEditInfo != null) {
+                                    add(
+                                        AppBar.OverflowAction(
+                                            title = stringResource(SYMR.strings.action_edit_info),
+                                            onClick = onClickEditInfo,
+                                        ),
+                                    )
+                                }
+                                if (onClickOpenFolder != null) {
+                                    add(
+                                        AppBar.OverflowAction(
+                                            title = "Open folder",
+                                            onClick = onClickOpenFolder,
+                                        ),
+                                    )
+                                }
+                                if (onClickClearAnime != null) {
+                                    add(
+                                        AppBar.OverflowAction(
+                                            title = "Clear anime",
+                                            onClick = onClickClearAnime,
+                                        ),
+                                    )
+                                }
+                                if (onClickSourceSettings != null) {
+                                    add(
+                                        AppBar.OverflowAction(
+                                            title = stringResource(MR.strings.source_settings),
+                                            onClick = onClickSourceSettings,
                                         ),
                                     )
                                 }

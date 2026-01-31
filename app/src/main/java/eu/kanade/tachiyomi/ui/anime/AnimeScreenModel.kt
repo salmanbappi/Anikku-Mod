@@ -25,6 +25,7 @@ import eu.kanade.domain.track.service.TrackPreferences
 import eu.kanade.presentation.anime.DownloadAction
 import eu.kanade.presentation.anime.components.EpisodeDownloadAction
 import eu.kanade.presentation.util.formattedMessage
+import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.model.Video
 import eu.kanade.tachiyomi.data.download.DownloadCache
 import eu.kanade.tachiyomi.data.download.DownloadManager
@@ -250,6 +251,9 @@ class AnimeScreenModel(
                 val fetchFromSourceTasks = listOf(
                     async { if (needRefreshInfo) fetchAnimeFromSource() },
                     async { if (needRefreshEpisode) fetchEpisodesFromSource() },
+                    // SY -->
+                    async { fetchSuggestionsAndRecommendations() },
+                    // SY <--
                 )
                 fetchFromSourceTasks.awaitAll()
             }
@@ -265,6 +269,9 @@ class AnimeScreenModel(
             val fetchFromSourceTasks = listOf(
                 async { fetchAnimeFromSource(manualFetch) },
                 async { fetchEpisodesFromSource(manualFetch) },
+                // SY -->
+                async { fetchSuggestionsAndRecommendations() },
+                // SY <--
             )
             fetchFromSourceTasks.awaitAll()
             updateSuccessState { it.copy(isRefreshingData = false) }
@@ -296,6 +303,56 @@ class AnimeScreenModel(
     }
 
     // SY -->
+    /**
+     * Fetch suggestions and recommendations from source.
+     */
+    private suspend fun fetchSuggestionsAndRecommendations() {
+        val state = successState ?: return
+        if (state.source is eu.kanade.tachiyomi.animesource.AnimeSource) {
+            try {
+                withIOContext {
+                    state.source.getRelatedAnimeList(
+                        state.anime.toSAnime(),
+                        exceptionHandler = { logcat(LogPriority.ERROR, it) },
+                        pushResults = { (title, results), completed ->
+                            updateSuccessState { successState ->
+                                val updatedResults = successState.recommendations.toMutableMap()
+                                updatedResults[title] = results.map { it.toAnime(state.source.id) }
+                                successState.copy(recommendations = updatedResults)
+                            }
+                        },
+                    )
+                }
+            } catch (e: Throwable) {
+                logcat(LogPriority.ERROR, e)
+            }
+        }
+    }
+
+    private fun SAnime.toAnime(sourceId: Long): Anime {
+        return Anime(
+            id = -1L,
+            source = sourceId,
+            favorite = false,
+            lastUpdate = 0L,
+            nextUpdate = 0L,
+            fetchInterval = 0,
+            dateAdded = 0L,
+            viewerFlags = 0L,
+            chapterFlags = 0L,
+            coverLastModified = 0L,
+            url = this.url,
+            ogTitle = this.title,
+            ogArtist = this.artist,
+            ogAuthor = this.author,
+            ogDescription = this.description,
+            ogGenre = this.genre?.split(", ")?.map { it.trim() },
+            ogStatus = this.status.toLong(),
+            thumbnailUrl = this.thumbnail_url,
+            initialized = false,
+        )
+    }
+
     fun updateAnimeInfo(
         title: String?,
         author: String?,
@@ -1305,6 +1362,9 @@ class AnimeScreenModel(
                 anime.nextEpisodeToAir,
                 anime.nextEpisodeAiringAt,
             ),
+            // SY -->
+            val recommendations: Map<String, List<Anime>> = emptyMap(),
+            // SY <--
         ) : State {
 
             val processedEpisodes by lazy {
