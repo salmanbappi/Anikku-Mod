@@ -76,7 +76,7 @@ data object MoreTab : Tab {
             onIncognitoModeChange = { screenModel.incognitoMode = it },
             isFDroid = context.isInstalledFromFDroid(),
             navStyle = navStyle,
-            onClickAlt = { navigator.push(navStyle.moreTab) },
+            onClickAlt = { navStyle.moreTab?.let { navigator.push(it) } },
             onClickDownloadQueue = { navigator.push(DownloadQueueScreen) },
             onClickCategories = { navigator.push(CategoryScreen) },
             onClickStats = { navigator.push(StatsScreen) },
@@ -84,6 +84,9 @@ data object MoreTab : Tab {
             onClickPlayerSettings = { navigator.push(PlayerSettingsScreen) },
             onClickSettings = { navigator.push(SettingsScreen()) },
             onClickAbout = { navigator.push(SettingsScreen(SettingsScreen.Destination.About)) },
+            onClickLibraryUpdateErrors = {
+                // Logic for opening library update errors screen
+            },
         )
 
         LaunchedEffect(Unit) {

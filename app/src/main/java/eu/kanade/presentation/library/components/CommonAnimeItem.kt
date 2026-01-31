@@ -80,6 +80,10 @@ fun AnimeCompactGridItem(
     coverAlpha: Float = 1f,
     coverBadgeStart: @Composable (RowScope.() -> Unit)? = null,
     coverBadgeEnd: @Composable (RowScope.() -> Unit)? = null,
+    // SY -->
+    languageIconBadge: @Composable (BoxScope.() -> Unit)? = null,
+    sourceIconBadge: @Composable (BoxScope.() -> Unit)? = null,
+    // SY <--
 ) {
     GridItemSelectable(
         isSelected = isSelected,
@@ -97,6 +101,8 @@ fun AnimeCompactGridItem(
             },
             badgesStart = coverBadgeStart,
             badgesEnd = coverBadgeEnd,
+            languageIconBadge = languageIconBadge,
+            sourceIconBadge = sourceIconBadge,
             content = {
                 if (title != null) {
                     CoverTextOverlay(
@@ -186,6 +192,10 @@ fun AnimeComfortableGridItem(
     coverBadgeStart: (@Composable RowScope.() -> Unit)? = null,
     coverBadgeEnd: (@Composable RowScope.() -> Unit)? = null,
     onClickContinueWatching: (() -> Unit)? = null,
+    // SY -->
+    languageIconBadge: @Composable (BoxScope.() -> Unit)? = null,
+    sourceIconBadge: @Composable (BoxScope.() -> Unit)? = null,
+    // SY <--
 ) {
     GridItemSelectable(
         isSelected = isSelected,
@@ -204,6 +214,8 @@ fun AnimeComfortableGridItem(
                 },
                 badgesStart = coverBadgeStart,
                 badgesEnd = coverBadgeEnd,
+                languageIconBadge = languageIconBadge,
+                sourceIconBadge = sourceIconBadge,
                 content = {
                     if (onClickContinueWatching != null) {
                         ContinueWatchingButton(
@@ -229,20 +241,89 @@ fun AnimeComfortableGridItem(
 }
 
 /**
+ * SY -->
+ * Layout of grid list item with wide title below the panorama cover.
+ */
+@Composable
+fun AnimePanoramaGridItem(
+    isSelected: Boolean = false,
+    title: String,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    titleMaxLines: Int = 2,
+    coverData: EntryCoverModel,
+    coverAlpha: Float = 1f,
+    coverBadgeStart: (@Composable RowScope.() -> Unit)? = null,
+    coverBadgeEnd: (@Composable RowScope.() -> Unit)? = null,
+    onClickContinueWatching: (() -> Unit)? = null,
+    languageIconBadge: @Composable (BoxScope.() -> Unit)? = null,
+    sourceIconBadge: @Composable (BoxScope.() -> Unit)? = null,
+) {
+    GridItemSelectable(
+        isSelected = isSelected,
+        onClick = onClick,
+        onLongClick = onLongClick,
+    ) {
+        Column {
+            AnimeGridCover(
+                ratio = AnimeCover.Panorama.ratio,
+                cover = {
+                    AnimeCover.Panorama(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .alpha(if (isSelected) GRID_SELECTED_COVER_ALPHA else coverAlpha),
+                        data = coverData,
+                    )
+                },
+                badgesStart = coverBadgeStart,
+                badgesEnd = coverBadgeEnd,
+                languageIconBadge = languageIconBadge,
+                sourceIconBadge = sourceIconBadge,
+                content = {
+                    if (onClickContinueWatching != null) {
+                        ContinueWatchingButton(
+                            size = ContinueWatchingButtonSizeLarge,
+                            iconSize = ContinueWatchingButtonIconSizeLarge,
+                            onClick = onClickContinueWatching,
+                            modifier = Modifier
+                                .padding(ContinueWatchingButtonGridPadding)
+                                .align(Alignment.BottomEnd),
+                        )
+                    }
+                },
+            )
+            GridItemTitle(
+                modifier = Modifier.padding(4.dp),
+                title = title,
+                style = MaterialTheme.typography.titleSmall,
+                minLines = 2,
+                maxLines = titleMaxLines,
+            )
+        }
+    }
+}
+/** SY <-- */
+
+/**
  * Common cover layout to add contents to be drawn on top of the cover.
  */
 @Composable
 private fun AnimeGridCover(
     modifier: Modifier = Modifier,
+    ratio: Float = AnimeCover.Book.ratio,
     cover: @Composable BoxScope.() -> Unit = {},
     badgesStart: (@Composable RowScope.() -> Unit)? = null,
     badgesEnd: (@Composable RowScope.() -> Unit)? = null,
+    // SY -->
+    languageIconBadge: @Composable (BoxScope.() -> Unit)? = null,
+    sourceIconBadge: @Composable (BoxScope.() -> Unit)? = null,
+    // SY <--
     content: @Composable (BoxScope.() -> Unit)? = null,
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .aspectRatio(AnimeCover.Book.ratio),
+            .aspectRatio(ratio),
     ) {
         cover()
         content?.invoke(this)
@@ -263,6 +344,19 @@ private fun AnimeGridCover(
                 content = badgesEnd,
             )
         }
+
+        // SY -->
+        if (languageIconBadge != null || sourceIconBadge != null) {
+            BadgeGroup(
+                modifier = Modifier
+                    .padding(4.dp)
+                    .align(Alignment.BottomStart),
+            ) {
+                languageIconBadge?.invoke(this@Box)
+                sourceIconBadge?.invoke(this@Box)
+            }
+        }
+        // SY <--
     }
 }
 

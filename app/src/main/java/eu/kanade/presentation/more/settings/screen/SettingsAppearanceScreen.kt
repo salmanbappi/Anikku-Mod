@@ -46,10 +46,9 @@ object SettingsAppearanceScreen : SearchableSettings {
 
         return listOf(
             getThemeGroup(uiPreferences = uiPreferences),
+            getAnimeInfoGroup(uiPreferences = uiPreferences),
             getDisplayGroup(uiPreferences = uiPreferences),
-            // SY -->
             getNavbarGroup(uiPreferences = uiPreferences),
-            // SY <--
         )
     }
 
@@ -113,6 +112,47 @@ object SettingsAppearanceScreen : SearchableSettings {
                         (context as? Activity)?.let { ActivityCompat.recreate(it) }
                         true
                     },
+                ),
+            ),
+        )
+    }
+
+    @Composable
+    private fun getAnimeInfoGroup(
+        uiPreferences: UiPreferences,
+    ): Preference.PreferenceGroup {
+        return Preference.PreferenceGroup(
+            title = stringResource(KMR.strings.pref_manga_info),
+            preferenceItems = persistentListOf(
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = uiPreferences.themeBasedOnCover(),
+                    title = stringResource(KMR.strings.pref_theme_cover_based),
+                ),
+                Preference.PreferenceItem.ListPreference(
+                    pref = uiPreferences.themeBasedOnCoverStyle(),
+                    title = stringResource(KMR.strings.pref_theme_cover_based_style),
+                    entries = persistentListOf(
+                        0 to stringResource(KMR.strings.pref_theme_cover_based_style_tonalspot),
+                        1 to stringResource(KMR.strings.pref_theme_cover_based_style_neutral),
+                        2 to stringResource(KMR.strings.pref_theme_cover_based_style_vibrant),
+                        3 to stringResource(KMR.strings.pref_theme_cover_based_style_expressive),
+                        4 to stringResource(KMR.strings.pref_theme_cover_based_style_rainbow),
+                        5 to stringResource(KMR.strings.pref_theme_cover_based_style_fruitsalad),
+                        6 to stringResource(KMR.strings.pref_theme_cover_based_style_monochrome),
+                        7 to stringResource(KMR.strings.pref_theme_cover_based_style_fidelity),
+                        8 to stringResource(KMR.strings.pref_theme_cover_based_style_content),
+                    ).associate { it }.toImmutableMap(),
+                    enabled = uiPreferences.themeBasedOnCover().collectAsState().value,
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = uiPreferences.panoramaCover(),
+                    title = stringResource(KMR.strings.pref_panorama_cover),
+                    subtitle = stringResource(KMR.strings.pref_panorama_cover_summary),
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = uiPreferences.topAlignCover(),
+                    title = stringResource(KMR.strings.pref_top_align_cover),
+                    subtitle = stringResource(KMR.strings.pref_top_align_cover_summary),
                 ),
             ),
         )
@@ -204,7 +244,6 @@ object SettingsAppearanceScreen : SearchableSettings {
             ),
         )
     }
-// SY <--
 }
 
 private val DateFormats = listOf(

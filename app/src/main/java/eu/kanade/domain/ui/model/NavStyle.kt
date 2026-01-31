@@ -3,6 +3,7 @@ package eu.kanade.domain.ui.model
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
@@ -18,8 +19,9 @@ import tachiyomi.i18n.MR
 
 enum class NavStyle(
     val titleRes: StringResource,
-    val moreTab: Tab,
+    val moreTab: Tab?,
 ) {
+    DEFAULT(titleRes = MR.strings.label_more, moreTab = null),
     MOVE_UPDATES_TO_MORE(titleRes = MR.strings.pref_bottom_nav_no_updates, moreTab = UpdatesTab),
     MOVE_HISTORY_TO_MORE(titleRes = MR.strings.pref_bottom_nav_no_history, moreTab = HistoryTab),
     MOVE_BROWSE_TO_MORE(titleRes = MR.strings.pref_bottom_nav_no_browse, moreTab = BrowseTab),
@@ -28,6 +30,7 @@ enum class NavStyle(
     val moreIcon: ImageVector
         @Composable
         get() = when (this) {
+            DEFAULT -> Icons.Outlined.MoreHoriz
             MOVE_UPDATES_TO_MORE -> ImageVector.vectorResource(id = R.drawable.ic_updates_outline_24dp)
             MOVE_HISTORY_TO_MORE -> Icons.Outlined.History
             MOVE_BROWSE_TO_MORE -> Icons.Outlined.Explore
@@ -41,6 +44,10 @@ enum class NavStyle(
                 HistoryTab,
                 BrowseTab,
                 MoreTab,
-            ).apply { remove(this@NavStyle.moreTab) }
+            ).apply { 
+                if (this@NavStyle.moreTab != null) {
+                    remove(this@NavStyle.moreTab) 
+                }
+            }
         }
 }

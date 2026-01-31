@@ -67,6 +67,14 @@ data object BrowseTab : Tab {
 
         val tabs = persistentListOf(
             sourcesTab(),
+            tachiyomi.presentation.core.screens.TabContent(
+                titleRes = SYMR.strings.feed,
+                content = { 
+                    tachiyomi.presentation.core.screens.EmptyScreen(
+                        stringRes = SYMR.strings.feed,
+                    )
+                }
+            ),
             extensionsTab(extensionsScreenModel),
             migrateSourceTab(),
         )

@@ -85,7 +85,7 @@ data object LibraryTab : Tab {
             )
             return TabOptions(
                 index = 0u,
-                title = stringResource(title),
+                title = "Library",
                 icon = rememberAnimatedVectorPainter(image, isSelected),
             )
         }
@@ -260,6 +260,10 @@ data object LibraryTab : Tab {
                                 it,
                             )
                         },
+                        // SY -->
+                        showLanguageIcon = screenModel.libraryPreferences.languageIconBadge().collectAsState().value,
+                        showSourceIcon = screenModel.libraryPreferences.sourceIconBadge().collectAsState().value,
+                        // SY <--
                     ) { state.getAnimelibItemsByPage(it) }
                 }
             }

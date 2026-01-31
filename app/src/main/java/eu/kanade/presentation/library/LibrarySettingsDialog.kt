@@ -34,6 +34,7 @@ import tachiyomi.domain.library.model.sort
 import tachiyomi.domain.library.service.LibraryPreferences
 import tachiyomi.i18n.MR
 import tachiyomi.i18n.ank.AMR
+import tachiyomi.i18n.kmk.KMR
 import tachiyomi.i18n.sy.SYMR
 import tachiyomi.presentation.core.components.BaseSortItem
 import tachiyomi.presentation.core.components.CheckboxItem
@@ -136,6 +137,14 @@ private fun ColumnScope.FilterPage(
         state = filterCompleted,
         onClick = { screenModel.toggleFilter(LibraryPreferences::filterCompleted) },
     )
+    // SY -->
+    val filterLewd by screenModel.libraryPreferences.filterLewd().collectAsState()
+    TriStateItem(
+        label = stringResource(SYMR.strings.lewd),
+        state = filterLewd,
+        onClick = { screenModel.toggleFilter(LibraryPreferences::filterLewd) },
+    )
+    // SY <--
     // TODO: re-enable when custom intervals are ready for stable
     if ((!isReleaseBuildType) && LibraryPreferences.ANIME_OUTSIDE_RELEASE_PERIOD in autoUpdateAnimeRestrictions) {
         val filterIntervalCustom by screenModel.libraryPreferences.filterIntervalCustom().collectAsState()
@@ -253,6 +262,7 @@ private fun ColumnScope.SortPage(
 private val displayModes = listOf(
     MR.strings.action_display_grid to LibraryDisplayMode.CompactGrid,
     MR.strings.action_display_comfortable_grid to LibraryDisplayMode.ComfortableGrid,
+    KMR.strings.action_display_comfortable_grid_panorama to LibraryDisplayMode.ComfortableGridPanorama,
     MR.strings.action_display_cover_only_grid to LibraryDisplayMode.CoverOnlyGrid,
     MR.strings.action_display_list to LibraryDisplayMode.List,
 )
@@ -321,6 +331,16 @@ private fun ColumnScope.DisplayPage(
         label = stringResource(MR.strings.action_display_language_badge),
         pref = screenModel.libraryPreferences.languageBadge(),
     )
+    // SY -->
+    CheckboxItem(
+        label = stringResource(KMR.strings.action_display_language_icon),
+        pref = screenModel.libraryPreferences.languageIconBadge(),
+    )
+    CheckboxItem(
+        label = stringResource(KMR.strings.action_display_source_badge),
+        pref = screenModel.libraryPreferences.sourceIconBadge(),
+    )
+    // SY <--
     CheckboxItem(
         label = stringResource(AMR.strings.action_display_show_continue_watching_button),
         pref = screenModel.libraryPreferences.showContinueWatchingButton(),
@@ -335,6 +355,12 @@ private fun ColumnScope.DisplayPage(
         label = stringResource(MR.strings.action_display_show_number_of_items),
         pref = screenModel.libraryPreferences.categoryNumberOfItems(),
     )
+    // SY -->
+    CheckboxItem(
+        label = stringResource(KMR.strings.action_show_hidden_categories),
+        pref = screenModel.libraryPreferences.showHiddenCategories(),
+    )
+    // SY <--
 }
 
 data class GroupMode(
@@ -392,4 +418,3 @@ private fun ColumnScope.GroupPage(
         )
     }
 }
-// SY <--

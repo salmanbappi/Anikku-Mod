@@ -6,7 +6,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.util.fastAny
 import eu.kanade.tachiyomi.ui.library.LibraryItem
 import tachiyomi.domain.anime.model.AnimeCover
 import tachiyomi.domain.library.model.LibraryAnime
@@ -23,6 +22,10 @@ fun LibraryCompactGrid(
     onClickContinueWatching: ((LibraryAnime) -> Unit)?,
     searchQuery: String?,
     onGlobalSearchClicked: () -> Unit,
+    // SY -->
+    showLanguageIcon: Boolean = false,
+    showSourceIcon: Boolean = false,
+    // SY <--
 ) {
     val selectedIds = remember(selection) { selection.map { it.id }.toSet() }
 
@@ -57,6 +60,12 @@ fun LibraryCompactGrid(
                         isLocal = libraryItem.isLocal,
                         sourceLanguage = libraryItem.sourceLanguage,
                     )
+                },
+                languageIconBadge = {
+                    if (showLanguageIcon) LanguageIconBadge(sourceLanguage = libraryItem.sourceLanguage)
+                },
+                sourceIconBadge = {
+                    if (showSourceIcon) SourceIconBadge(source = libraryItem.source)
                 },
                 onLongClick = { onLongClick(libraryItem.libraryAnime) },
                 onClick = { onClick(libraryItem.libraryAnime) },

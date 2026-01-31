@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.automirrored.outlined.Label
 import androidx.compose.material.icons.outlined.CloudOff
+import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.GetApp
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.QueryStats
@@ -32,6 +33,7 @@ import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.ui.more.DownloadQueueState
 import tachiyomi.core.common.Constants
 import tachiyomi.i18n.MR
+import tachiyomi.i18n.sy.SYMR
 import tachiyomi.presentation.core.components.ScrollbarLazyColumn
 import tachiyomi.presentation.core.components.material.Scaffold
 import tachiyomi.presentation.core.i18n.pluralStringResource
@@ -54,6 +56,9 @@ fun MoreScreen(
     onClickPlayerSettings: () -> Unit,
     onClickSettings: () -> Unit,
     onClickAbout: () -> Unit,
+    // SY -->
+    onClickLibraryUpdateErrors: () -> Unit,
+    // SY <--
 ) {
     val uriHandler = LocalUriHandler.current
 
@@ -96,12 +101,14 @@ fun MoreScreen(
 
             item { HorizontalDivider() }
 
-            item {
-                TextPreferenceWidget(
-                    title = navStyle.moreTab.options.title,
-                    icon = navStyle.moreIcon,
-                    onPreferenceClick = onClickAlt,
-                )
+            if (navStyle.moreTab != null) {
+                item {
+                    TextPreferenceWidget(
+                        title = navStyle.moreTab.options.title,
+                        icon = navStyle.moreIcon,
+                        onPreferenceClick = onClickAlt,
+                    )
+                }
             }
 
             item {
@@ -159,6 +166,16 @@ fun MoreScreen(
                     onPreferenceClick = onClickDataAndStorage,
                 )
             }
+
+            // SY -->
+            item {
+                TextPreferenceWidget(
+                    title = stringResource(SYMR.strings.library_errors),
+                    icon = Icons.Outlined.ErrorOutline,
+                    onPreferenceClick = onClickLibraryUpdateErrors,
+                )
+            }
+            // SY <--
 
             item { HorizontalDivider() }
 

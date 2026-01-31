@@ -6,6 +6,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,11 +17,15 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -29,6 +34,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -50,6 +56,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastMap
@@ -73,8 +81,10 @@ import eu.kanade.presentation.anime.components.ExpandableAnimeDescription
 import eu.kanade.presentation.anime.components.MissingEpisodeCountListItem
 import eu.kanade.presentation.anime.components.NextEpisodeAiringListItem
 import eu.kanade.presentation.components.relativeDateTimeText
+import eu.kanade.presentation.library.components.AnimeComfortableGridItem
 import eu.kanade.presentation.theme.TachiyomiTheme
 import eu.kanade.presentation.util.formatEpisodeNumber
+import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.download.DownloadProvider
 import eu.kanade.tachiyomi.data.download.model.Download
 import eu.kanade.tachiyomi.source.ConfigurableSource
@@ -88,6 +98,7 @@ import eu.kanade.tachiyomi.util.system.copyToClipboard
 import kotlinx.coroutines.delay
 import tachiyomi.core.common.util.lang.withIOContext
 import tachiyomi.domain.anime.model.Anime
+import tachiyomi.domain.anime.model.asAnimeCover
 import tachiyomi.domain.episode.model.Episode
 import tachiyomi.domain.episode.service.missingEpisodesCount
 import tachiyomi.domain.library.service.LibraryPreferences
@@ -147,6 +158,10 @@ fun AnimeScreen(
     // SY -->
     onEditInfoClicked: () -> Unit,
     onMergeClicked: (() -> Unit)?,
+    onOpenFolder: (() -> Unit)?,
+    onClearAnime: (() -> Unit)?,
+    onSourceSettings: (() -> Unit)?,
+    onRecommendationClicked: (Anime) -> Unit,
     // SY <--
 
     // For bottom action menu
@@ -237,6 +252,10 @@ fun AnimeScreen(
                 // SY -->
                 onEditInfoClicked = onEditInfoClicked,
                 onMergeClicked = onMergeClicked,
+                onOpenFolder = onOpenFolder,
+                onClearAnime = onClearAnime,
+                onSourceSettings = onSourceSettings,
+                onRecommendationClicked = onRecommendationClicked,
                 // SY <--
                 onMultiBookmarkClicked = onMultiBookmarkClicked,
                 // AM (FILLERMARK) -->
@@ -286,6 +305,10 @@ fun AnimeScreen(
                 // SY -->
                 onEditInfoClicked = onEditInfoClicked,
                 onMergeClicked = onMergeClicked,
+                onOpenFolder = onOpenFolder,
+                onClearAnime = onClearAnime,
+                onSourceSettings = onSourceSettings,
+                onRecommendationClicked = onRecommendationClicked,
                 // SY <--
                 onMultiBookmarkClicked = onMultiBookmarkClicked,
                 // AM (FILLERMARK) -->
@@ -348,6 +371,10 @@ private fun AnimeScreenSmallImpl(
     // SY -->
     onEditInfoClicked: () -> Unit,
     onMergeClicked: (() -> Unit)?,
+    onOpenFolder: (() -> Unit)?,
+    onClearAnime: (() -> Unit)?,
+    onSourceSettings: (() -> Unit)?,
+    onRecommendationClicked: (Anime) -> Unit,
     // SY <--
 
     // For bottom action menu
@@ -421,6 +448,9 @@ private fun AnimeScreenSmallImpl(
                 // SY -->
                 onClickEditInfo = onEditInfoClicked.takeIf { state.anime.favorite },
                 onClickMerge = onMergeClicked.takeIf { state.anime.favorite },
+                onClickOpenFolder = onOpenFolder,
+                onClickClearAnime = onClearAnime,
+                onClickSourceSettings = onSourceSettings,
                 // SY <--
                 onClickSettings = onSettingsClicked,
                 changeAnimeSkipIntro = changeAnimeSkipIntro,
@@ -550,6 +580,15 @@ private fun AnimeScreenSmallImpl(
                         )
                     }
 
+                    // SY -->
+                    item(key = "recommendations") {
+                        RecommendationsComponent(
+                            recommendations = state.recommendations,
+                            onClickAnime = onRecommendationClicked,
+                        )
+                    }
+                    // SY <--
+
                     item(
                         key = AnimeScreenItem.EPISODE_HEADER,
                         contentType = AnimeScreenItem.EPISODE_HEADER,
@@ -658,6 +697,10 @@ fun AnimeScreenLargeImpl(
     // SY -->
     onEditInfoClicked: () -> Unit,
     onMergeClicked: (() -> Unit)?,
+    onOpenFolder: (() -> Unit)?,
+    onClearAnime: (() -> Unit)?,
+    onSourceSettings: (() -> Unit)?,
+    onRecommendationClicked: (Anime) -> Unit,
     // SY <--
 
     // For bottom action menu
@@ -726,6 +769,9 @@ fun AnimeScreenLargeImpl(
                 // SY -->
                 onClickEditInfo = onEditInfoClicked.takeIf { state.anime.favorite },
                 onClickMerge = onMergeClicked.takeIf { state.anime.favorite },
+                onClickOpenFolder = onOpenFolder,
+                onClickClearAnime = onClearAnime,
+                onClickSourceSettings = onSourceSettings,
                 // SY <--
                 actionModeCounter = selectedEpisodeCount,
                 onSelectAll = { onAllEpisodeSelected(true) },
@@ -833,6 +879,12 @@ fun AnimeScreenLargeImpl(
                             onTagSearch = onTagSearch,
                             onCopyTagToClipboard = onCopyTagToClipboard,
                         )
+                        // SY -->
+                        RecommendationsComponent(
+                            recommendations = state.recommendations,
+                            onClickAnime = onRecommendationClicked,
+                        )
+                        // SY <--
                     }
                 },
                 endContent = {
@@ -910,6 +962,44 @@ fun AnimeScreenLargeImpl(
                     }
                 },
             )
+        }
+    }
+}
+
+@Composable
+fun RecommendationsComponent(
+    recommendations: Map<String, List<Anime>>,
+    onClickAnime: (Anime) -> Unit,
+) {
+    if (recommendations.isEmpty()) return
+
+    Column {
+        recommendations.forEach { (title, results) ->
+            if (results.isEmpty()) return@forEach
+
+            Text(
+                text = title,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
+
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                items(results) { anime ->
+                    Box(modifier = Modifier.width(120.dp)) {
+                        AnimeComfortableGridItem(
+                            title = anime.title,
+                            coverData = anime.asAnimeCover(),
+                            onClick = { onClickAnime(anime) },
+                            onLongClick = { /* Optional */ },
+                        )
+                    }
+                }
+            }
         }
     }
 }
