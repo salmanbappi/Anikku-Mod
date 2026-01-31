@@ -33,10 +33,6 @@ fun applyFilter(filter: VideoFilters, value: Int, prefs: DecoderPreferences) {
         "vf_sharpen", "vf_blur" -> {
             MPVLib.setPropertyString("vf", buildVFChain(prefs))
         }
-        "saturation" -> {
-            // saturation -100 is grayscale in mpv
-            MPVLib.setPropertyInt("saturation", value)
-        }
         else -> MPVLib.setPropertyInt(property, value)
     }
 }
@@ -88,7 +84,7 @@ fun buildVFChain(decoderPreferences: DecoderPreferences): String {
     }
 
     if (sharpen > 0) {
-        val amount = (sharpen / 100f) * 1.5f
+        val amount = (sharpen / 100f) * 3.0f
         lavfiList.add("unsharp=5:5:$amount:5:5:0")
     }
 
@@ -109,18 +105,20 @@ fun checkAndSetCopyMode(prefs: DecoderPreferences) {
         prefs.sharpenFilter().get() > 0 ||
         prefs.blurFilter().get() > 0 ||
         prefs.videoDebanding().get() == Debanding.CPU ||
-        prefs.smoothMotion().get()
+        prefs.smoothMotion().get() ||
+        prefs.saturationFilter().get() != 0 ||
+        prefs.hueFilter().get() != 0
 
     if (requiresCopyMode) {
         if (!prefs.forceMediaCodecCopy().get()) {
             prefs.forceMediaCodecCopy().set(true)
         }
+    }
+
+    if (prefs.forceMediaCodecCopy().get()) {
         MPVLib.setPropertyString("hwdec", "mediacodec-copy")
     } else {
-        if (prefs.forceMediaCodecCopy().get()) {
-             prefs.forceMediaCodecCopy().set(false)
-             MPVLib.setPropertyString("hwdec", "auto")
-        }
+        MPVLib.setPropertyString("hwdec", "auto")
     }
 }
 
