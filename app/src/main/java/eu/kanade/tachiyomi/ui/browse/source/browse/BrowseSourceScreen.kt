@@ -159,6 +159,20 @@ data class BrowseSourceScreen(
                             .padding(horizontal = MaterialTheme.padding.small),
                         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
                     ) {
+                        if (state.savedSearches.isNotEmpty()) {
+                            state.savedSearches.forEach { savedSearch ->
+                                FilterChip(
+                                    selected = false,
+                                    onClick = { screenModel.loadSearch(savedSearch) },
+                                    label = { Text(text = savedSearch.name) },
+                                )
+                            }
+                            HorizontalDivider(
+                                modifier = Modifier
+                                    .padding(vertical = 4.dp)
+                                    .size(width = 1.dp, height = FilterChipDefaults.Height),
+                            )
+                        }
                         FilterChip(
                             selected = state.listing == Listing.Popular,
                             onClick = {
@@ -272,7 +286,31 @@ data class BrowseSourceScreen(
                         screenModel.loadSearch(it)
                         onDismissRequest()
                     },
-                    onSavedSearchLongClick = { screenModel.deleteSearch(it.id) },
+                    onSavedSearchLongClick = {
+                        screenModel.setDialog(BrowseSourceScreenModel.Dialog.DeleteSavedSearch(it))
+                    },
+                )
+            }
+            is BrowseSourceScreenModel.Dialog.DeleteSavedSearch -> {
+                AlertDialog(
+                    onDismissRequest = onDismissRequest,
+                    title = { Text(text = "Delete Saved Search?") },
+                    text = { Text(text = "Are you sure you want to delete '${dialog.savedSearch.name}'?") },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                screenModel.deleteSearch(dialog.savedSearch.id)
+                                onDismissRequest()
+                            },
+                        ) {
+                            Text(text = stringResource(MR.strings.action_ok))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = onDismissRequest) {
+                            Text(text = stringResource(MR.strings.action_cancel))
+                        }
+                    },
                 )
             }
             is BrowseSourceScreenModel.Dialog.SaveSearch -> {

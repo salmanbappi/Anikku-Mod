@@ -165,7 +165,7 @@ private fun SavedSearches(
                         },
                     ),
                     selected = false,
-                    onClick = { onSavedSearchClick(savedSearch) },
+                    onClick = {},
                     label = { Text(text = savedSearch.name) },
                 )
             }
