@@ -27,6 +27,9 @@ import eu.kanade.tachiyomi.ui.browse.migration.sources.migrateSourceTab
 import eu.kanade.tachiyomi.ui.browse.source.globalsearch.GlobalSearchScreen
 import eu.kanade.tachiyomi.ui.browse.source.sourcesTab
 import eu.kanade.tachiyomi.ui.main.MainActivity
+import tachiyomi.domain.library.service.LibraryPreferences
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
@@ -65,25 +68,33 @@ data object BrowseTab : Tab {
     @Composable
     override fun Content() {
         val context = LocalContext.current
+        val libraryPreferences: LibraryPreferences = Injekt.get()
+        val showBrowseFeed by libraryPreferences.showBrowseFeed().collectAsState()
 
         // Hoisted for extensions tab's search bar
         val extensionsScreenModel = rememberScreenModel { ExtensionsScreenModel() }
         val animeExtensionsState by extensionsScreenModel.state.collectAsState()
 
-        val tabs = persistentListOf(
-            sourcesTab(),
-            TabContent(
-                titleRes = SYMR.strings.feed,
-                content = { contentPadding, _ -> 
-                    EmptyScreen(
-                        stringRes = SYMR.strings.feed,
-                        modifier = Modifier.padding(contentPadding),
+        val tabs = remember(showBrowseFeed) {
+            persistentListOf<TabContent>().builder().apply {
+                add(sourcesTab())
+                if (showBrowseFeed) {
+                    add(
+                        TabContent(
+                            titleRes = SYMR.strings.feed,
+                            content = { contentPadding, _ ->
+                                EmptyScreen(
+                                    stringRes = SYMR.strings.feed,
+                                    modifier = Modifier.padding(contentPadding),
+                                )
+                            },
+                        ),
                     )
                 }
-            ),
-            extensionsTab(extensionsScreenModel),
-            migrateSourceTab(),
-        )
+                add(extensionsTab(extensionsScreenModel))
+                add(migrateSourceTab())
+            }.build()
+        }
 
         val state = rememberPagerState { tabs.size }
 

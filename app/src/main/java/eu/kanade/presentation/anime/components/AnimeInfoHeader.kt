@@ -70,6 +70,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
@@ -113,6 +114,7 @@ fun AnimeInfoBox(
         // Backdrop
         val backdropGradientColors = listOf(
             Color.Transparent,
+            MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
             MaterialTheme.colorScheme.background,
         )
         AsyncImage(
@@ -130,8 +132,8 @@ fun AnimeInfoBox(
                         brush = Brush.verticalGradient(colors = backdropGradientColors),
                     )
                 }
-                .blur(4.dp)
-                .alpha(0.2f),
+                .blur(8.dp)
+                .alpha(0.3f),
         )
 
         // Anime & source info
@@ -173,7 +175,7 @@ fun AnimeActionRow(
     onEditCategory: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
-    val defaultActionButtonColor = MaterialTheme.colorScheme.onSurface.copy(alpha = DISABLED_ALPHA)
+    val defaultActionButtonColor = MaterialTheme.colorScheme.onSurface.copy(alpha = SECONDARY_ALPHA)
 
     // TODO: show something better when using custom interval
     val nextUpdateDays = remember(nextUpdate) {
@@ -185,7 +187,7 @@ fun AnimeActionRow(
         }
     }
 
-    Row(modifier = modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp)) {
+    Row(modifier = modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 8.dp)) {
         AnimeActionButton(
             title = if (favorite) {
                 stringResource(MR.strings.in_library)
@@ -254,7 +256,7 @@ fun ExpandableAnimeDescription(
             description = desc,
             expanded = expanded,
             modifier = Modifier
-                .padding(top = 8.dp)
+                .padding(top = 12.dp)
                 .padding(horizontal = 16.dp)
                 .clickableNoIndication { onExpanded(!expanded) },
         )
@@ -421,7 +423,8 @@ private fun ColumnScope.AnimeContentInfo(
     val context = LocalContext.current
     Text(
         text = title.ifBlank { stringResource(MR.strings.unknown_title) },
-        style = MaterialTheme.typography.titleLarge,
+        style = MaterialTheme.typography.headlineMedium,
+        fontWeight = FontWeight.Bold,
         modifier = Modifier.clickableNoIndication(
             onLongClick = {
                 if (title.isNotBlank()) {
@@ -436,7 +439,7 @@ private fun ColumnScope.AnimeContentInfo(
         textAlign = textAlign,
     )
 
-    Spacer(modifier = Modifier.height(2.dp))
+    Spacer(modifier = Modifier.height(4.dp))
 
     Row(
         modifier = Modifier.secondaryItemAlpha(),
@@ -492,7 +495,7 @@ private fun ColumnScope.AnimeContentInfo(
         }
     }
 
-    Spacer(modifier = Modifier.height(2.dp))
+    Spacer(modifier = Modifier.height(4.dp))
 
     Row(
         modifier = Modifier.secondaryItemAlpha(),
@@ -579,7 +582,7 @@ private fun AnimeSummary(
         contents = listOf(
             {
                 Text(
-                    text = "\n\n", // Shows at least 3 lines
+                    text = "\n\n\n", // Shows at least 3 lines
                     style = MaterialTheme.typography.bodyMedium,
                 )
             },
@@ -688,14 +691,17 @@ private fun RowScope.AnimeActionButton(
                 imageVector = icon,
                 contentDescription = null,
                 tint = color,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(24.dp),
             )
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(6.dp))
             Text(
                 text = title,
                 color = color,
-                fontSize = 12.sp,
+                fontSize = 11.sp,
                 textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = TextOverflow.Visible,
             )
         }
     }

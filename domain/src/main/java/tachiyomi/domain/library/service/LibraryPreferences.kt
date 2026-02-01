@@ -263,6 +263,8 @@ class LibraryPreferences(
     }
 
     // SY -->
+    fun showBrowseFeed() = preferenceStore.getBoolean("show_browse_feed", true)
+
     fun sortTagsForLibrary() = preferenceStore.getStringSet("sort_anime_tags_for_library", mutableSetOf())
 
     fun groupLibraryUpdateType() = preferenceStore.getEnum("group_anime_library_update_type", GroupLibraryMode.GLOBAL)
