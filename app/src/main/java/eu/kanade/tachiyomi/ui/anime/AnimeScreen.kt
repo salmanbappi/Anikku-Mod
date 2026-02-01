@@ -5,7 +5,6 @@ import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -133,7 +132,7 @@ class AnimeScreen(
             // AM (FILE_SIZE) -->
             showFileSize = screenModel.showFileSize,
             // <-- AM (FILE_SIZE)
-            onBackClicked = navigator::pop,
+            onBackClicked = { navigator.pop() },
             onEpisodeClicked = { episode, alt ->
                 scope.launchIO {
                     if (successState.source.isSourceForTorrents()) {
