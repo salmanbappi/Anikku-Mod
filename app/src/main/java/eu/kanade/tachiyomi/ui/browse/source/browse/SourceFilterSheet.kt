@@ -84,17 +84,6 @@ fun SourceFilterSheet(
                 }
             }
 
-            item {
-                Text(
-                    text = "Note: Only one category group works at a time",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 8.dp)
-                        .secondaryItemAlpha(),
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
-
             items(filters) { filter ->
                 FilterItem(
                     filter = filter,
