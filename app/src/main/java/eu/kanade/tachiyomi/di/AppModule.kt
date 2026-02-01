@@ -7,6 +7,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import eu.kanade.domain.track.store.DelayedTrackingStore
+import eu.kanade.tachiyomi.data.ai.AiManager
 import eu.kanade.tachiyomi.data.cache.ChapterCache
 import eu.kanade.tachiyomi.data.cache.CoverCache
 import eu.kanade.tachiyomi.data.connections.ConnectionsManager
@@ -149,6 +150,8 @@ class AppModule(val app: Application) : InjektModule {
         addSingletonFactory { ExternalIntents() }
 
         addSingletonFactory { Anime4KManager(app) }
+
+        addSingletonFactory { AiManager(get(), get(), get()) }
 
         // AM (CONNECTIONS) -->
         addSingletonFactory { ConnectionsManager() }
