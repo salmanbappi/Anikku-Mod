@@ -162,4 +162,93 @@ class AniChartApi {
         val instant = offsetDateTime.toInstant()
         return instant.epochSecond
     }
+
+    suspend fun getRecommendations(title: String): List<Anime> {
+        return withIOContext {
+            val query = """
+                query {
+                    Media(search: "$title", type: ANIME) {
+                        recommendations {
+                            nodes {
+                                mediaRecommendation {
+                                    id
+                                    idMal
+                                    title {
+                                        romaji
+                                        english
+                                        native
+                                    }
+                                    coverImage {
+                                        extraLarge
+                                    }
+                                    description
+                                    genres
+                                    status
+                                }
+                            }
+                        }
+                    }
+                }
+            """.trimMargin()
+
+            val response = try {
+                client.newCall(
+                    POST(
+                        "https://graphql.anilist.co",
+                        body = buildJsonObject { put("query", query) }.toString()
+                            .toRequestBody(jsonMime),
+                    ),
+                ).execute()
+            } catch (e: Exception) {
+                return@withIOContext emptyList()
+            }
+
+            if (!response.isSuccessful) return@withIOContext emptyList()
+
+            val body = response.body.string()
+            // Simplified parsing for brevity, in a real scenario use a proper JSON parser
+            val nodes = body.substringAfter("nodes\":[").substringBeforeLast("]}}")
+            if (nodes.isBlank()) return@withIOContext emptyList()
+
+            val recommendedAnimes = mutableListOf<Anime>()
+            nodes.split("mediaRecommendation\":{").drop(1).forEach { node ->
+                val id = node.substringAfter("id\":").substringBefore(",").toLongOrNull() ?: return@forEach
+                val malId = node.substringAfter("idMal\":").substringBefore(",").toLongOrNull()
+                val romajiTitle = node.substringAfter("romaji\":\"").substringBefore("\"")
+                val englishTitle = node.substringAfter("english\":\"").substringBefore("\"").takeIf { it != "null" }
+                val coverImage = node.substringAfter("extraLarge\":\"").substringBefore("\"").replace("\\/", "/")
+                val description = node.substringAfter("description\":\"").substringBefore("\"")
+                val status = node.substringAfter("status\":\"").substringBefore("\"")
+
+                recommendedAnimes.add(
+                    Anime(
+                        id = -1L,
+                        source = -1L,
+                        favorite = false,
+                        lastUpdate = 0L,
+                        nextUpdate = 0L,
+                        fetchInterval = 0,
+                        dateAdded = 0L,
+                        viewerFlags = 0L,
+                        episodeFlags = 0L,
+                        coverLastModified = 0L,
+                        url = "https://anilist.co/anime/$id",
+                        ogTitle = romajiTitle,
+                        ogArtist = null,
+                        ogAuthor = null,
+                        ogThumbnailUrl = coverImage,
+                        ogDescription = description,
+                        ogGenre = null,
+                        ogStatus = 0L,
+                        updateStrategy = eu.kanade.tachiyomi.source.model.UpdateStrategy.ALWAYS_UPDATE,
+                        initialized = true,
+                        lastModifiedAt = 0L,
+                        favoriteModifiedAt = null,
+                        version = 0L,
+                    )
+                )
+            }
+            return@withIOContext recommendedAnimes
+        }
+    }
 }
