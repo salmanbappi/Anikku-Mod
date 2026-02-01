@@ -32,6 +32,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
@@ -146,8 +149,9 @@ object HomeScreen : Screen() {
                                     )
                                 }
 
-                                val bottomNavVisible by produceState(initialValue = true) {
-                                    showBottomNavEvent.receiveAsFlow().collectLatest { value = it }
+                                var bottomNavVisible by rememberSaveable { mutableStateOf(true) }
+                                LaunchedEffect(Unit) {
+                                    showBottomNavEvent.receiveAsFlow().collectLatest { bottomNavVisible = it }
                                 }
 
                                 AnimatedVisibility(
