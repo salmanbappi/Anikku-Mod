@@ -10,8 +10,8 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
@@ -87,6 +87,7 @@ fun TabbedScreen(
                         text = {
                             TabText(
                                 text = stringResource(tab.titleRes),
+                                modifier = Modifier.padding(horizontal = 8.dp),
                                 badgeCount = tab.badgeNumber,
                             )
                         },
@@ -135,7 +136,7 @@ private fun FlexibleTabRow(
             block()
         }
     } else {
-        PrimaryTabRow(
+        SecondaryTabRow(
             selectedTabIndex = selectedTabIndex,
             modifier = Modifier.zIndex(1f),
         ) {
