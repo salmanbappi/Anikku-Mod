@@ -202,19 +202,18 @@ fun AnimeScreen(
         topBar = {
             AnimeToolbar(
                 title = state.anime.title,
-                titleAlpha = 1f,
-                isFromSource = state.isFromSource,
+                titleAlphaProvider = { 1f },
                 hasFilters = state.filterActive,
                 onBackClicked = onBackClicked,
-                onRefresh = onRefresh,
-                onSearch = onSearch,
-                onFilterButtonClicked = onFilterButtonClicked,
-                onEditCategoryClicked = onEditCategoryClicked.takeIf { state.anime.favorite },
-                onEditFetchIntervalClicked = onEditFetchIntervalClicked.takeIf { state.anime.favorite },
-                onMigrateClicked = onMigrateClicked,
+                onClickFilter = onFilterButtonClicked,
+                onClickShare = onShareClicked,
+                onClickDownload = onDownloadActionClicked,
+                onClickEditCategory = onEditCategoryClicked,
+                onClickRefresh = onRefresh,
+                onClickMigrate = onMigrateClicked,
                 // SY -->
-                onClickEditInfo = onEditInfoClicked.takeIf { state.anime.favorite },
                 onClickMerge = onMergeClicked.takeIf { state.anime.favorite },
+                onClickEditInfo = onEditInfoClicked.takeIf { state.anime.favorite },
                 onClickOpenFolder = onOpenFolder,
                 onClickClearAnime = onClearAnime,
                 onClickSourceSettings = onSourceSettings,
@@ -315,10 +314,23 @@ fun AnimeScreen(
                             sourceName = remember { state.source.getNameForAnimeInfo() },
                             isStubSource = state.source is StubSource,
                             onCoverClick = onCoverClicked,
-                            onFavoriteClick = onAddToLibraryClicked,
-                            onTrackingClick = onTrackingClicked.takeIf { state.hasLoggedInTrackers },
-                            onWebViewClick = onWebViewClicked,
-                            onWebViewLongClick = onWebViewLongClicked,
+                            doSearch = onSearch,
+                        )
+                    }
+
+                    item(
+                        key = "action_row",
+                    ) {
+                        AnimeActionRow(
+                            favorite = state.anime.favorite,
+                            trackingCount = state.trackingCount,
+                            nextUpdate = state.anime.expectedNextUpdate,
+                            isUserIntervalMode = state.anime.fetchInterval > 0,
+                            onAddToLibraryClicked = onAddToLibraryClicked,
+                            onWebViewClicked = onWebViewClicked,
+                            onWebViewLongClicked = onWebViewLongClicked,
+                            onTrackingClicked = onTrackingClicked,
+                            onEditIntervalClicked = onEditFetchIntervalClicked,
                             onEditCategory = onEditCategoryClicked,
                         )
                     }
@@ -350,9 +362,10 @@ fun AnimeScreen(
                         contentType = AnimeScreenItem.EPISODE_HEADER,
                     ) {
                         EpisodeHeader(
+                            enabled = !state.isRefreshingData,
                             episodeCount = episodes.size,
-                            isRefreshing = state.isRefreshingData,
-                            onFilterButtonClicked = onFilterButtonClicked,
+                            missingEpisodeCount = state.episodes.missingEpisodesCount(),
+                            onClick = onFilterButtonClicked,
                         )
                     }
 
@@ -559,6 +572,11 @@ private fun LazyListScope.sharedEpisodeItems(
                     },
                     onDownloadClick = if (onDownloadEpisode != null) {
                         { onDownloadEpisode(listOf(item), it) }
+                    } else {
+                        null
+                    },
+                    onDownloadLongClick = if (onDownloadEpisode != null) {
+                        { onDownloadEpisode(listOf(item), EpisodeDownloadAction.SHOW_QUALITIES) }
                     } else {
                         null
                     },
