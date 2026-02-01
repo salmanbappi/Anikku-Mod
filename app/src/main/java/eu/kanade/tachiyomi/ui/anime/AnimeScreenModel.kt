@@ -146,7 +146,7 @@ class AnimeScreenModel(
         get() = successState?.source
 
     val isUpdateIntervalEnabled: Boolean
-        get() = DomainUpdateStrategy.ALWAYS_UPDATE == DomainUpdateStrategy.ALWAYS_UPDATE
+        get() = true
 
     private var isRefreshing: Boolean = false
 
@@ -424,7 +424,7 @@ class AnimeScreenModel(
 
     fun markEpisodesSeen(episodes: List<Episode>, seen: Boolean) {
         screenModelScope.launchIO {
-            setSeenStatus.await(episodes, seen)
+            setSeenStatus.await(seen = seen, episodes = episodes.toTypedArray())
         }
     }
 
@@ -435,7 +435,7 @@ class AnimeScreenModel(
                 .filterIsInstance<EpisodeItem>()
                 .filter { it.episode.episodeNumber < episode.episodeNumber }
                 .map { it.episode }
-            setSeenStatus.await(episodesToMark, true)
+            setSeenStatus.await(seen = true, episodes = episodesToMark.toTypedArray())
         }
     }
 
@@ -467,6 +467,11 @@ class AnimeScreenModel(
             EpisodeDownloadAction.DELETE -> {
                 deleteEpisodes(episodes)
             }
+            // SY -->
+            EpisodeDownloadAction.SHOW_QUALITIES -> {
+                // Placeholder for SHOW_QUALITIES branch
+            }
+            // SY <--
         }
     }
 
@@ -479,7 +484,6 @@ class AnimeScreenModel(
             DownloadAction.NEXT_10_EPISODES -> downloadUnseenEpisodes(episodes, 10)
             DownloadAction.NEXT_25_EPISODES -> downloadUnseenEpisodes(episodes, 25)
             DownloadAction.UNSEEN_EPISODES -> downloadUnseenEpisodes(episodes, null)
-            DownloadAction.ALL_EPISODES -> downloadUnseenEpisodes(episodes, episodes.size)
         }
     }
 
@@ -503,56 +507,83 @@ class AnimeScreenModel(
 
     // Episode filter actions
     fun setDownloadedFilter(filter: TriState) {
+        val state = successState ?: return
+        val flag = when (filter) {
+            TriState.ENABLED_IS -> Anime.EPISODE_SHOW_DOWNLOADED
+            TriState.ENABLED_NOT -> Anime.EPISODE_SHOW_NOT_DOWNLOADED
+            TriState.DISABLED -> Anime.SHOW_ALL
+        }
         screenModelScope.launchIO {
-            setAnimeDefaultEpisodeFlags.awaitSetDownloadedFilter(animeId, filter)
+            setAnimeEpisodeFlags.awaitSetDownloadedFilter(state.anime, flag)
         }
     }
 
     fun setUnseenFilter(filter: TriState) {
+        val state = successState ?: return
+        val flag = when (filter) {
+            TriState.ENABLED_IS -> Anime.EPISODE_SHOW_UNSEEN
+            TriState.ENABLED_NOT -> Anime.EPISODE_SHOW_SEEN
+            TriState.DISABLED -> Anime.SHOW_ALL
+        }
         screenModelScope.launchIO {
-            setAnimeDefaultEpisodeFlags.awaitSetUnseenFilter(animeId, filter)
+            setAnimeEpisodeFlags.awaitSetUnreadFilter(state.anime, flag)
         }
     }
 
     fun setBookmarkedFilter(filter: TriState) {
+        val state = successState ?: return
+        val flag = when (filter) {
+            TriState.ENABLED_IS -> Anime.EPISODE_SHOW_BOOKMARKED
+            TriState.ENABLED_NOT -> Anime.EPISODE_SHOW_NOT_BOOKMARKED
+            TriState.DISABLED -> Anime.SHOW_ALL
+        }
         screenModelScope.launchIO {
-            setAnimeDefaultEpisodeFlags.awaitSetBookmarkedFilter(animeId, filter)
+            setAnimeEpisodeFlags.awaitSetBookmarkFilter(state.anime, flag)
         }
     }
 
     // AM (FILLERMARK) -->
     fun setFillermarkedFilter(filter: TriState) {
+        val state = successState ?: return
+        val flag = when (filter) {
+            TriState.ENABLED_IS -> Anime.EPISODE_SHOW_FILLERMARKED
+            TriState.ENABLED_NOT -> Anime.EPISODE_SHOW_NOT_FILLERMARKED
+            TriState.DISABLED -> Anime.SHOW_ALL
+        }
         screenModelScope.launchIO {
-            setAnimeDefaultEpisodeFlags.awaitSetFillermarkedFilter(animeId, filter)
+            setAnimeEpisodeFlags.awaitSetFillermarkFilter(state.anime, flag)
         }
     }
     // <-- AM (FILLERMARK)
 
     fun setSorting(sorting: Long) {
+        val state = successState ?: return
         screenModelScope.launchIO {
-            setAnimeEpisodeFlags.awaitSetSorting(animeId, sorting)
+            setAnimeEpisodeFlags.awaitSetSortingModeOrFlipOrder(state.anime, sorting)
         }
     }
 
     fun setDisplayMode(displayMode: Long) {
+        val state = successState ?: return
         screenModelScope.launchIO {
-            setAnimeEpisodeFlags.awaitSetDisplayMode(animeId, displayMode)
+            setAnimeEpisodeFlags.awaitSetDisplayMode(state.anime, displayMode)
         }
     }
 
     fun setCurrentSettingsAsDefault() {
         val state = successState ?: return
         screenModelScope.launchIO {
-            setAnimeDefaultEpisodeFlags.awaitSetAll(
-                animeId,
-                state.anime.downloadedFilter,
-                state.anime.unseenFilter,
-                state.anime.bookmarkedFilter,
+            setAnimeEpisodeFlags.awaitSetAllFlags(
+                animeId = animeId,
+                unseenFilter = state.anime.unseenFilterRaw,
+                downloadedFilter = state.anime.downloadedFilterRaw,
+                bookmarkedFilter = state.anime.bookmarkedFilterRaw,
                 // AM (FILLERMARK) -->
-                state.anime.fillermarkedFilter,
+                fillermarkedFilter = state.anime.fillermarkedFilterRaw,
                 // <-- AM (FILLERMARK)
-                state.anime.sorting,
-                state.anime.displayMode,
+                sortingMode = state.anime.sorting,
+                sortingDirection = if (state.anime.sortDescending()) Anime.EPISODE_SORT_DESC else Anime.EPISODE_SORT_ASC,
+                displayMode = state.anime.displayMode,
             )
         }
     }
@@ -566,6 +597,11 @@ class AnimeScreenModel(
             LibraryPreferences.EpisodeSwipeAction.ToggleBookmark -> {
                 bookmarkEpisodes(listOf(episode), !episode.bookmark)
             }
+            // AM (FILLERMARK) -->
+            LibraryPreferences.EpisodeSwipeAction.ToggleFillermark -> {
+                fillermarkEpisodes(listOf(episode), !episode.fillermark)
+            }
+            // <-- AM (FILLERMARK)
             LibraryPreferences.EpisodeSwipeAction.Download -> {
                 val download = downloadManager.getQueuedDownloadOrNull(episode.id)
                 if (download != null) {
@@ -584,7 +620,7 @@ class AnimeScreenModel(
         val episodes = state.episodes.toMutableList()
         val index = episodes.indexOf(episodeItem)
         if (index != -1) {
-            episodes[index] = episodeItem.copy(selected = !episodeItem.selected)
+            episodes[index] = (episodes[index] as EpisodeItem).copy(selected = !episodeItem.selected)
             updateState { (it as State.Success).copy(episodes = episodes) }
         }
     }

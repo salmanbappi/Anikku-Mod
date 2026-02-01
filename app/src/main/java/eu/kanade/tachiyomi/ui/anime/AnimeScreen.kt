@@ -72,7 +72,7 @@ import tachiyomi.core.common.util.lang.withIOContext
 import tachiyomi.core.common.util.system.logcat
 import tachiyomi.domain.anime.interactor.GetAnime
 import tachiyomi.domain.anime.interactor.GetAnimeByUrlAndSourceId
-import tachiyomi.domain.anime.interactor.InsertAnime
+import tachiyomi.domain.anime.interactor.NetworkToLocalAnime
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.episode.model.Episode
 import tachiyomi.i18n.MR
@@ -141,7 +141,7 @@ class AnimeScreen(
             // AM (FILE_SIZE) -->
             showFileSize = screenModel.showFileSize,
             // <-- AM (FILE_SIZE)
-            onBackClicked = navigator::pop,
+            onBackClicked = { navigator.pop() },
             onEpisodeClicked = { episode, alt ->
                 scope.launchIO {
                     if (successState.source.isSourceForTorrents()) {
@@ -153,7 +153,7 @@ class AnimeScreen(
                     openEpisode(context, episode, extPlayer)
                 }
             },
-            onDownloadEpisode = screenModel::runEpisodeDownloadActions.takeIf { !successState.source.isLocalOrStub() },
+            onDownloadEpisode = { episodes, action -> screenModel.runEpisodeDownloadActions(episodes, action) },
             onAddToLibraryClicked = {
                 screenModel.toggleFavorite()
                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -180,8 +180,8 @@ class AnimeScreen(
                 }
             },
             onTagSearch = { scope.launch { performGenreSearch(navigator, it, screenModel.source!!) } },
-            onFilterButtonClicked = screenModel::showSettingsDialog,
-            onRefresh = screenModel::fetchAllFromSource,
+            onFilterButtonClicked = { screenModel.showSettingsDialog() },
+            onRefresh = { screenModel.fetchAllFromSource() },
             onContinueWatching = {
                 scope.launchIO {
                     val extPlayer = screenModel.alwaysUseExternalPlayer
@@ -189,8 +189,7 @@ class AnimeScreen(
                 }
             },
             onSearch = { query, global -> scope.launch { performSearch(navigator, query, global) } },
-            onCoverClicked = screenModel::showCoverDialog,
-            onSearchRecommendation = { query -> scope.launch { performSearch(navigator, query, true) } },
+            onCoverClicked = { screenModel.showCoverDialog() },
             onShareClicked = {
                 shareAnime(
                     context,
@@ -198,71 +197,66 @@ class AnimeScreen(
                     screenModel.source,
                 )
             }.takeIf { isHttpSource },
-            onDownloadActionClicked = screenModel::runDownloadAction.takeIf { !successState.source.isLocalOrStub() },
-            onEditCategoryClicked = screenModel::showChangeCategoryDialog.takeIf { successState.anime.favorite },
+            onDownloadActionClicked = { screenModel.runDownloadAction(it) },
+            onEditCategoryClicked = { screenModel.openChangeCategoryDialog() },
             // SY -->
-            onEditInfoClicked = screenModel::showEditAnimeInfoDialog,
+            onEditInfoClicked = { screenModel.showEditAnimeInfoDialog() },
             onMergeClicked = {
                 navigator.push(MigrateSearchScreen(successState.anime.id))
-            }.takeIf { successState.anime.favorite },
+            },
             onOpenFolder = {
                 context.toast("Opening folder...")
-            }.takeIf { successState.source.isLocal() },
+            },
             onClearAnime = {
                 context.toast("Clearing anime data...")
-                Unit
             },
             onSourceSettings = {
                 navigator.push(SourcePreferencesScreen(successState.source.id))
-            }.takeIf { successState.source is ConfigurableSource },
+            },
             onCastClicked = {
                 context.toast("Casting...")
             },
             onRecommendationClicked = { anime ->
                 scope.launchIO {
                     val dbAnime = Injekt.get<GetAnimeByUrlAndSourceId>().await(anime.url, anime.source)
-                        ?: Injekt.get<InsertAnime>().await(anime.toSAnime().let { sAnime ->
+                        ?: Injekt.get<NetworkToLocalAnime>().await(
                             tachiyomi.domain.anime.model.Anime(
                                 id = -1L,
                                 source = anime.source,
-                                url = anime.url,
-                                title = anime.title,
-                                thumbnailUrl = anime.thumbnail_url,
                                 favorite = false,
                                 lastUpdate = 0L,
                                 nextUpdate = 0L,
                                 fetchInterval = 0,
                                 dateAdded = 0L,
                                 viewerFlags = 0L,
-                                chapterFlags = 0L,
+                                episodeFlags = 0L,
                                 coverLastModified = 0L,
-                                author = anime.author,
-                                artist = anime.artist,
-                                description = anime.description,
-                                genre = anime.genre,
-                                status = anime.status.toLong(),
-                                initialized = false,
-                                updateStrategy = tachiyomi.domain.anime.model.UpdateStrategy.ALWAYS_UPDATE,
-                                lastRefreshAt = 0L,
+                                url = anime.url,
+                                ogTitle = anime.title,
+                                ogArtist = anime.artist,
+                                ogAuthor = anime.author,
+                                ogThumbnailUrl = anime.thumbnail_url,
+                                ogDescription = anime.description,
+                                ogGenre = anime.genre,
+                                ogStatus = anime.status.toLong(),
+                                updateStrategy = eu.kanade.tachiyomi.source.model.UpdateStrategy.ALWAYS_UPDATE,
+                                initialized = true,
+                                lastModifiedAt = 0L,
+                                favoriteModifiedAt = null,
+                                version = 0L,
                             )
-                        })?.let {
-                            Injekt.get<GetAnime>().await(it)
-                        }
-                    if (dbAnime != null) {
-                        withIOContext {
-                            navigator.push(AnimeScreen(dbAnime.id))
-                        }
+                        )
+                    withIOContext {
+                        navigator.push(AnimeScreen(dbAnime.id))
                     }
                 }
             },
             // SY <--
-            onEditFetchIntervalClicked = screenModel::showSetAnimeFetchIntervalDialog.takeIf {
-                successState.anime.favorite
-            },
+            onEditFetchIntervalClicked = { screenModel.showSetAnimeFetchIntervalDialog() },
             onMigrateClicked = {
                 navigator.push(MigrateSearchScreen(successState.anime.id))
-            }.takeIf { successState.anime.favorite },
-            changeAnimeSkipIntro = screenModel::showAnimeSkipIntroDialog.takeIf { successState.anime.favorite },
+            },
+            changeAnimeSkipIntro = { screenModel.showAnimeSkipIntroDialog() },
             onMultiBookmarkClicked = screenModel::bookmarkEpisodes,
             // AM (FILLERMARK) -->
             onMultiFillermarkClicked = screenModel::fillermarkEpisodes,
@@ -337,7 +331,7 @@ class AnimeScreen(
                 // <-- AM (FILLERMARK)
                 onSortModeChanged = screenModel::setSorting,
                 onDisplayModeChanged = screenModel::setDisplayMode,
-                onSetAsDefault = screenModel::setCurrentSettingsAsDefault,
+                onSetAsDefault = { screenModel.setCurrentSettingsAsDefault() },
             )
             AnimeScreenModel.Dialog.TrackSheet -> {
                 NavigatorAdaptiveSheet(
@@ -382,8 +376,10 @@ class AnimeScreen(
             is AnimeScreenModel.Dialog.EditAnimeInfo -> {
                 EditAnimeDialog(
                     anime = dialog.anime,
-                    onDismissRequest = screenModel::dismissDialog,
-                    onPositiveClick = screenModel::updateAnimeInfo,
+                    onDismissRequest = { screenModel.dismissDialog() },
+                    onPositiveClick = { title, author, artist, description, tags, status ->
+                        screenModel.updateAnimeInfo(title, author, artist, description, tags, status)
+                    },
                 )
             }
             // SY <--
