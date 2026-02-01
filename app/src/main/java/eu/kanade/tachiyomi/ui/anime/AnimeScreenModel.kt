@@ -126,18 +126,8 @@ class AnimeScreenModel(
     private val setSeenStatus: SetSeenStatus = Injekt.get(),
     private val updateEpisode: UpdateEpisode = Injekt.get(),
     private val updateAnime: UpdateAnime = Injekt.get(),
-    private val syncEpisodesWithSource: SyncEpisodesWithSource = Injekt.get(),
-    private val getCategories: GetCategories = Injekt.get(),
-    private val getTracks: GetTracks = Injekt.get(),
     private val addTracks: AddTracks = Injekt.get(),
-    private val setAnimeCategories: SetAnimeCategories = Injekt.get(),
-    private val animeRepository: AnimeRepository = Injekt.get(),
-    private val filterEpisodesForDownload: FilterEpisodesForDownload = Injekt.get(),
-    internal val setAnimeViewerFlags: SetAnimeViewerFlags = Injekt.get(),
-    val snackbarHostState: SnackbarHostState = SnackbarHostState(),
-    // AM (FILE_SIZE) -->
-    private val storagePreferences: StoragePreferences = Injekt.get(),
-    // <-- AM (FILE_SIZE)
+    private val aiManager: eu.kanade.tachiyomi.data.ai.AiManager = Injekt.get(),
 ) : StateScreenModel<AnimeScreenModel.State>(State.Loading) {
 
     private val successState: State.Success?
@@ -1285,6 +1275,17 @@ class AnimeScreenModel(
         updateSuccessState { it.copy(dialog = Dialog.ShowQualities(episode, it.anime, it.source)) }
     }
 
+    fun fetchAIEpisodeSummary() {
+        val state = successState ?: return
+        val lastWatchedEpisode = state.episodes.sortedByDescending { it.episode.episodeNumber }
+            .find { it.episode.seen } ?: return
+
+        screenModelScope.launchIO {
+            val summary = aiManager.getEpisodeSummary(state.anime.title, lastWatchedEpisode.episode.episodeNumber)
+            updateSuccessState { it.copy(aiEpisodeSummary = summary) }
+        }
+    }
+
     sealed interface State {
         @Immutable
         data object Loading : State
@@ -1305,6 +1306,7 @@ class AnimeScreenModel(
                 anime.nextEpisodeToAir,
                 anime.nextEpisodeAiringAt,
             ),
+            val aiEpisodeSummary: String? = null,
         ) : State {
 
             val processedEpisodes by lazy {

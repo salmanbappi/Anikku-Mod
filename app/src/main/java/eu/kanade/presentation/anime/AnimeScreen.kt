@@ -154,6 +154,7 @@ fun AnimeScreen(
     onEpisodeSelected: (EpisodeList.Item, Boolean, Boolean, Boolean) -> Unit,
     onAllEpisodeSelected: (Boolean) -> Unit,
     onInvertSelection: () -> Unit,
+    onFetchAIEpisodeSummary: () -> Unit,
 ) {
     val context = LocalContext.current
     val onCopyTagToClipboard: (tag: String) -> Unit = {
@@ -214,6 +215,7 @@ fun AnimeScreen(
             onAllEpisodeSelected = onAllEpisodeSelected,
             onInvertSelection = onInvertSelection,
             onSettingsClicked = onSettingsClicked,
+            onFetchAIEpisodeSummary = onFetchAIEpisodeSummary,
         )
     } else {
         AnimeScreenLargeImpl(
@@ -262,6 +264,7 @@ fun AnimeScreen(
             onAllEpisodeSelected = onAllEpisodeSelected,
             onInvertSelection = onInvertSelection,
             onSettingsClicked = onSettingsClicked,
+            onFetchAIEpisodeSummary = onFetchAIEpisodeSummary,
         )
     }
 }
@@ -327,6 +330,7 @@ private fun AnimeScreenSmallImpl(
     onEpisodeSelected: (EpisodeList.Item, Boolean, Boolean, Boolean) -> Unit,
     onAllEpisodeSelected: (Boolean) -> Unit,
     onInvertSelection: () -> Unit,
+    onFetchAIEpisodeSummary: () -> Unit,
 ) {
     val episodeListState = rememberLazyListState()
 
@@ -476,6 +480,8 @@ private fun AnimeScreenSmallImpl(
                             isStubSource = remember { state.source is StubSource },
                             onCoverClick = onCoverClicked,
                             doSearch = onSearch,
+                            onFetchAIEpisodeSummary = onFetchAIEpisodeSummary,
+                            aiEpisodeSummary = state.aiEpisodeSummary,
                         )
                     }
 
@@ -771,6 +777,8 @@ fun AnimeScreenLargeImpl(
                             isStubSource = remember { state.source is StubSource },
                             onCoverClick = onCoverClicked,
                             doSearch = onSearch,
+                            onFetchAIEpisodeSummary = onFetchAIEpisodeSummary,
+                            aiEpisodeSummary = state.aiEpisodeSummary,
                         )
                         AnimeActionRow(
                             favorite = state.anime.favorite,

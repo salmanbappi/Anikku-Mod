@@ -25,6 +25,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.HourglassEmpty
@@ -51,6 +52,7 @@ import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -92,8 +94,11 @@ import tachiyomi.presentation.core.components.material.TextButton
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.pluralStringResource
 import tachiyomi.presentation.core.i18n.stringResource
+import tachiyomi.presentation.core.util.collectAsState
 import tachiyomi.presentation.core.util.clickableNoIndication
 import tachiyomi.presentation.core.util.secondaryItemAlpha
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import kotlin.math.roundToInt
@@ -107,6 +112,8 @@ fun AnimeInfoBox(
     isStubSource: Boolean,
     onCoverClick: () -> Unit,
     doSearch: (query: String, global: Boolean) -> Unit,
+    onFetchAIEpisodeSummary: () -> Unit,
+    aiEpisodeSummary: String?,
     modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier) {
@@ -144,6 +151,8 @@ fun AnimeInfoBox(
                     isStubSource = isStubSource,
                     onCoverClick = onCoverClick,
                     doSearch = doSearch,
+                    onFetchAIEpisodeSummary = onFetchAIEpisodeSummary,
+                    aiEpisodeSummary = aiEpisodeSummary,
                 )
             } else {
                 AnimeAndSourceTitlesLarge(
@@ -153,6 +162,8 @@ fun AnimeInfoBox(
                     isStubSource = isStubSource,
                     onCoverClick = onCoverClick,
                     doSearch = doSearch,
+                    onFetchAIEpisodeSummary = onFetchAIEpisodeSummary,
+                    aiEpisodeSummary = aiEpisodeSummary,
                 )
             }
         }
@@ -334,6 +345,8 @@ private fun AnimeAndSourceTitlesLarge(
     isStubSource: Boolean,
     onCoverClick: () -> Unit,
     doSearch: (query: String, global: Boolean) -> Unit,
+    onFetchAIEpisodeSummary: () -> Unit,
+    aiEpisodeSummary: String?,
 ) {
     Column(
         modifier = Modifier
@@ -358,6 +371,11 @@ private fun AnimeAndSourceTitlesLarge(
             doSearch = doSearch,
             textAlign = TextAlign.Center,
         )
+        AiEpisodeIntelligence(
+            summary = aiEpisodeSummary,
+            onFetch = onFetchAIEpisodeSummary,
+            modifier = Modifier.padding(top = 8.dp)
+        )
     }
 }
 
@@ -369,6 +387,8 @@ private fun AnimeAndSourceTitlesSmall(
     isStubSource: Boolean,
     onCoverClick: () -> Unit,
     doSearch: (query: String, global: Boolean) -> Unit,
+    onFetchAIEpisodeSummary: () -> Unit,
+    aiEpisodeSummary: String?,
 ) {
     Row(
         modifier = Modifier
@@ -397,6 +417,61 @@ private fun AnimeAndSourceTitlesSmall(
                 isStubSource = isStubSource,
                 doSearch = doSearch,
             )
+            AiEpisodeIntelligence(
+                summary = aiEpisodeSummary,
+                onFetch = onFetchAIEpisodeSummary,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun AiEpisodeIntelligence(
+    summary: String?,
+    onFetch: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val aiPreferences = remember { Injekt.get<eu.kanade.domain.ai.AiPreferences>() }
+    val enableAi by aiPreferences.enableAi().collectAsState()
+    val episodeIntelligence by aiPreferences.episodeIntelligence().collectAsState()
+
+    if (!enableAi || !episodeIntelligence) return
+
+    Column(modifier = modifier) {
+        if (summary != null) {
+            Text(
+                text = "Previously on...",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Text(
+                text = summary,
+                style = MaterialTheme.typography.bodySmall,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.secondaryItemAlpha(),
+            )
+        } else {
+            TextButton(
+                onClick = onFetch,
+                modifier = Modifier.height(32.dp),
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AutoAwesome,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                    )
+                    Text(
+                        text = "Previously on...",
+                        style = MaterialTheme.typography.labelMedium,
+                    )
+                }
+            }
         }
     }
 }
