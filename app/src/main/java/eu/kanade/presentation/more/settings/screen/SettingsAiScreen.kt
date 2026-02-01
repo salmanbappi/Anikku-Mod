@@ -1,0 +1,124 @@
+package eu.kanade.presentation.more.settings.screen
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import eu.kanade.domain.ai.AiPreferences
+import eu.kanade.presentation.more.settings.Preference
+import kotlinx.collections.immutable.persistentListOf
+import tachiyomi.i18n.MR
+import tachiyomi.presentation.core.i18n.stringResource
+import tachiyomi.presentation.core.util.collectAsState
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
+
+object SettingsAiScreen : SearchableSettings {
+
+    @ReadOnlyComposable
+    @Composable
+    override fun getTitleRes() = MR.strings.pref_category_ai
+
+    @Composable
+    override fun getPreferences(): List<Preference> {
+        val aiPreferences = remember { Injekt.get<AiPreferences>() }
+
+        return listOf(
+            getMainGroup(aiPreferences = aiPreferences),
+            getFeaturesGroup(aiPreferences = aiPreferences),
+            getApiKeysGroup(aiPreferences = aiPreferences),
+        )
+    }
+
+    @Composable
+    private fun getMainGroup(aiPreferences: AiPreferences): Preference.PreferenceGroup {
+        val enableAiPref = aiPreferences.enableAi()
+        val enableAi by enableAiPref.collectAsState()
+
+        return Preference.PreferenceGroup(
+            title = stringResource(MR.strings.pref_category_ai),
+            preferenceItems = persistentListOf(
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = enableAiPref,
+                    title = stringResource(MR.strings.pref_enable_ai),
+                    subtitle = stringResource(MR.strings.pref_enable_ai_summary),
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = aiPreferences.useLocalOnly(),
+                    title = stringResource(MR.strings.pref_ai_local_only),
+                    subtitle = stringResource(MR.strings.pref_ai_local_only_summary),
+                    enabled = enableAi,
+                ),
+            ),
+        )
+    }
+
+    @Composable
+    private fun getFeaturesGroup(aiPreferences: AiPreferences): Preference.PreferenceGroup {
+        val enableAi by aiPreferences.enableAi().collectAsState()
+        val localOnly by aiPreferences.useLocalOnly().collectAsState()
+
+        return Preference.PreferenceGroup(
+            title = "AI Features",
+            enabled = enableAi,
+            preferenceItems = persistentListOf(
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = aiPreferences.smartSearch(),
+                    title = stringResource(MR.strings.pref_ai_smart_search),
+                    subtitle = stringResource(MR.strings.pref_ai_smart_search_summary),
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = aiPreferences.episodeIntelligence(),
+                    title = stringResource(MR.strings.pref_ai_episode_intelligence),
+                    subtitle = stringResource(MR.strings.pref_ai_episode_intelligence_summary),
+                    enabled = !localOnly,
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = aiPreferences.subtitleEnhancer(),
+                    title = stringResource(MR.strings.pref_ai_subtitle_enhancer),
+                    subtitle = stringResource(MR.strings.pref_ai_subtitle_enhancer_summary),
+                    enabled = !localOnly,
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = aiPreferences.localRecommendations(),
+                    title = stringResource(MR.strings.pref_ai_local_recommendations),
+                    subtitle = stringResource(MR.strings.pref_ai_local_recommendations_summary),
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = aiPreferences.performanceIntelligence(),
+                    title = stringResource(MR.strings.pref_ai_performance_intelligence),
+                    subtitle = stringResource(MR.strings.pref_ai_performance_intelligence_summary),
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = aiPreferences.personalAssistant(),
+                    title = stringResource(MR.strings.pref_ai_personal_assistant),
+                    subtitle = stringResource(MR.strings.pref_ai_personal_assistant_summary),
+                    enabled = !localOnly,
+                ),
+            ),
+        )
+    }
+
+    @Composable
+    private fun getApiKeysGroup(aiPreferences: AiPreferences): Preference.PreferenceGroup {
+        val enableAi by aiPreferences.enableAi().collectAsState()
+        val localOnly by aiPreferences.useLocalOnly().collectAsState()
+
+        return Preference.PreferenceGroup(
+            title = "Cloud API Keys",
+            enabled = enableAi && !localOnly,
+            preferenceItems = persistentListOf(
+                Preference.PreferenceItem.EditTextPreference(
+                    pref = aiPreferences.groqApiKey(),
+                    title = stringResource(MR.strings.pref_ai_groq_api_key),
+                    subtitle = stringResource(MR.strings.pref_ai_groq_api_key_summary),
+                ),
+                Preference.PreferenceItem.EditTextPreference(
+                    pref = aiPreferences.geminiApiKey(),
+                    title = stringResource(MR.strings.pref_ai_gemini_api_key),
+                    subtitle = stringResource(MR.strings.pref_ai_gemini_api_key_summary),
+                ),
+            ),
+        )
+    }
+}
