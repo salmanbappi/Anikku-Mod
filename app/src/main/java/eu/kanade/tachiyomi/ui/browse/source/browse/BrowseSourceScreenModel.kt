@@ -92,19 +92,20 @@ class BrowseSourceScreenModel(
     val source = sourceManager.getOrStub(sourceId)
 
     init {
-        if (source is CatalogueSource) {
+        val catalogueSource = source as? CatalogueSource
+        if (catalogueSource != null) {
             mutableState.update {
                 var query: String? = null
                 var listing = it.listing
 
                 if (listing is Listing.Search) {
                     query = listing.query
-                    listing = Listing.Search(query, source.getFilterList())
+                    listing = Listing.Search(query, catalogueSource.getFilterList())
                 }
 
                 it.copy(
                     listing = listing,
-                    filters = source.getFilterList(),
+                    filters = catalogueSource.getFilterList(),
                     toolbarQuery = query,
                 )
             }
@@ -164,9 +165,9 @@ class BrowseSourceScreenModel(
     }
 
     fun resetFilters() {
-        if (source !is CatalogueSource) return
+        val catalogueSource = source as? CatalogueSource ?: return
 
-        mutableState.update { it.copy(filters = source.getFilterList()) }
+        mutableState.update { it.copy(filters = catalogueSource.getFilterList()) }
     }
 
     fun setListing(listing: Listing) {
@@ -240,9 +241,9 @@ class BrowseSourceScreenModel(
     }
 
     fun loadSearch(savedSearch: SavedSearch) {
-        if (source !is CatalogueSource) return
+        val catalogueSource = source as? CatalogueSource ?: return
 
-        val filters = source.getFilterList()
+        val filters = catalogueSource.getFilterList()
         savedSearch.filtersJson?.let {
             filterSerializer.deserialize(filters, it)
         }
@@ -258,10 +259,10 @@ class BrowseSourceScreenModel(
     }
 
     fun search(query: String? = null, filters: FilterList? = null) {
-        if (source !is CatalogueSource) return
+        val catalogueSource = source as? CatalogueSource ?: return
 
         val input = state.value.listing as? Listing.Search
-            ?: Listing.Search(query = null, filters = source.getFilterList())
+            ?: Listing.Search(query = null, filters = catalogueSource.getFilterList())
 
         if (query != null && query.startsWith("ai:", ignoreCase = true)) {
             performAiSearch(query.removePrefix("ai:").trim())
@@ -280,10 +281,11 @@ class BrowseSourceScreenModel(
     }
 
     private fun performAiSearch(query: String) {
+        val catalogueSource = source as? CatalogueSource ?: return
         screenModelScope.launchIO {
             val aiResponse = aiManager.parseSearchQuery(query) ?: return@launchIO
             
-            val filters = source.getFilterList()
+            val filters = catalogueSource.getFilterList()
             applyAiFilters(filters, aiResponse)
 
             mutableState.update {
@@ -318,9 +320,9 @@ class BrowseSourceScreenModel(
     }
 
     fun searchGenre(genreName: String) {
-        if (source !is CatalogueSource) return
+        val catalogueSource = source as? CatalogueSource ?: return
 
-        val defaultFilters = source.getFilterList()
+        val defaultFilters = catalogueSource.getFilterList()
         var genreExists = false
 
         filter@ for (sourceFilter in defaultFilters) {
