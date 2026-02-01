@@ -179,18 +179,18 @@ fun AnimeScreen(
                 }
             }
             AnimeBottomActionMenu(
-                selected = selectedEpisodes,
-                onEpisodeClicked = onEpisodeClicked,
-                onMultiBookmarkClicked = onMultiBookmarkClicked,
-                // AM (FILLERMARK) -->
-                onMultiFillermarkClicked = onMultiFillermarkClicked,
-                // <-- AM (FILLERMARK)
-                onMultiMarkAsSeenClicked = onMultiMarkAsSeenClicked,
-                onMarkPreviousAsSeenClicked = onMarkPreviousAsSeenClicked,
-                onDownloadEpisode = onDownloadEpisode,
-                onMultiDeleteClicked = onMultiDeleteClicked,
-                fillFraction = 1f,
-                alwaysUseExternalPlayer = alwaysUseExternalPlayer,
+                visible = isAnySelected,
+                onBookmarkClicked = { onMultiBookmarkClicked(selectedEpisodes.map { it.episode }, true) }.takeIf { selectedEpisodes.fastAny { !it.episode.bookmark } },
+                onRemoveBookmarkClicked = { onMultiBookmarkClicked(selectedEpisodes.map { it.episode }, false) }.takeIf { selectedEpisodes.fastAll { it.episode.bookmark } },
+                onFillermarkClicked = { onMultiFillermarkClicked(selectedEpisodes.map { it.episode }, true) }.takeIf { selectedEpisodes.fastAny { !it.episode.fillermark } },
+                onRemoveFillermarkClicked = { onMultiFillermarkClicked(selectedEpisodes.map { it.episode }, false) }.takeIf { selectedEpisodes.fastAll { it.episode.fillermark } },
+                onMarkAsSeenClicked = { onMultiMarkAsSeenClicked(selectedEpisodes.map { it.episode }, true) }.takeIf { selectedEpisodes.fastAny { !it.episode.seen } },
+                onMarkAsUnseenClicked = { onMultiMarkAsSeenClicked(selectedEpisodes.map { it.episode }, false) }.takeIf { selectedEpisodes.fastAny { it.episode.seen } },
+                onMarkPreviousAsSeenClicked = { onMarkPreviousAsSeenClicked(selectedEpisodes.first().episode) }.takeIf { selectedEpisodes.size == 1 },
+                onDownloadClicked = { onDownloadEpisode(selectedEpisodes, EpisodeDownloadAction.START) }.takeIf { selectedEpisodes.fastAny { it.downloadState != Download.State.DOWNLOADED } },
+                onDeleteClicked = { onMultiDeleteClicked(selectedEpisodes.map { it.episode }) },
+                onExternalClicked = { onEpisodeClicked(selectedEpisodes.first().episode, true) }.takeIf { selectedEpisodes.size == 1 },
+                onInternalClicked = { onEpisodeClicked(selectedEpisodes.first().episode, false) }.takeIf { selectedEpisodes.size == 1 },
             )
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -284,13 +284,14 @@ fun AnimeScreen(
                         item(
                             key = "description_with_tag",
                         ) {
+                            val context = LocalContext.current
                             ExpandableAnimeDescription(
                                 defaultExpandState = state.isFromSource,
                                 description = state.anime.description,
                                 tagsProvider = { state.anime.genre },
                                 onTagSearch = onTagSearch,
-                                onCopyTagToClipboard = { context ->
-                                    context.copyToClipboard(it, it)
+                                onCopyTagToClipboard = { tag ->
+                                    context.copyToClipboard(tag, tag)
                                 },
                                 modifier = Modifier.padding(top = 8.dp)
                             )
