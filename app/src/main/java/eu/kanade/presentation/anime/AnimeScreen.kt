@@ -108,7 +108,7 @@ import tachiyomi.presentation.core.components.VerticalFastScroller
 import tachiyomi.presentation.core.components.material.ExtendedFloatingActionButton
 import tachiyomi.presentation.core.components.material.PullRefresh
 import tachiyomi.presentation.core.components.material.Scaffold
-import tachiyomi.presentation.core.components.material.SnackbarHost
+import androidx.compose.material3.SnackbarHost
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.plus
 import tachiyomi.presentation.core.util.shouldExpandFAB
