@@ -158,6 +158,7 @@ data class SourceSearchScreen(
                     onFilter = { screenModel.search(filters = state.filters) },
                     onUpdate = screenModel::onFilterUpdate,
                     savedSearches = state.savedSearches,
+                    currentSavedSearchId = state.currentSavedSearch?.id,
                     onSavedSearchClick = {
                         screenModel.loadSearch(it)
                         onDismissRequest()
