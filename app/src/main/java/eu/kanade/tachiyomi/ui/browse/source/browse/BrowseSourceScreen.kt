@@ -160,20 +160,6 @@ data class BrowseSourceScreen(
                             .padding(horizontal = MaterialTheme.padding.small),
                         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
                     ) {
-                        if (state.savedSearches.isNotEmpty()) {
-                            state.savedSearches.forEach { savedSearch ->
-                                FilterChip(
-                                    selected = false,
-                                    onClick = { screenModel.loadSearch(savedSearch) },
-                                    label = { Text(text = savedSearch.name) },
-                                )
-                            }
-                            HorizontalDivider(
-                                modifier = Modifier
-                                    .padding(vertical = 4.dp)
-                                    .size(width = 1.dp, height = FilterChipDefaults.Height),
-                            )
-                        }
                         FilterChip(
                             selected = state.listing == Listing.Popular,
                             onClick = {
@@ -214,7 +200,7 @@ data class BrowseSourceScreen(
                         }
                         if (state.filters.isNotEmpty()) {
                             FilterChip(
-                                selected = state.listing is Listing.Search,
+                                selected = state.listing is Listing.Search && state.currentSavedSearch == null,
                                 onClick = screenModel::openFilterSheet,
                                 leadingIcon = {
                                     Icon(
@@ -228,6 +214,21 @@ data class BrowseSourceScreen(
                                     Text(text = stringResource(MR.strings.action_filter))
                                 },
                             )
+                        }
+
+                        if (state.savedSearches.isNotEmpty()) {
+                            HorizontalDivider(
+                                modifier = Modifier
+                                    .padding(vertical = 4.dp)
+                                    .size(width = 1.dp, height = FilterChipDefaults.Height),
+                            )
+                            state.savedSearches.forEach { savedSearch ->
+                                FilterChip(
+                                    selected = state.currentSavedSearch?.id == savedSearch.id,
+                                    onClick = { screenModel.loadSearch(savedSearch) },
+                                    label = { Text(text = savedSearch.name) },
+                                )
+                            }
                         }
                     }
 
