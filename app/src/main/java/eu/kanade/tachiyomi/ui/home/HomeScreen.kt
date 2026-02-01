@@ -4,7 +4,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
@@ -183,11 +182,9 @@ object HomeScreen : Screen() {
                                 materialFadeThroughIn(
                                     initialScale = 1f,
                                     durationMillis = TAB_FADE_DURATION,
-                                    easing = LinearOutSlowInEasing,
                                 ) togetherWith
                                     materialFadeThroughOut(
                                         durationMillis = TAB_FADE_DURATION,
-                                        easing = LinearOutSlowInEasing,
                                     )
                             },
                             label = "tabContent",
