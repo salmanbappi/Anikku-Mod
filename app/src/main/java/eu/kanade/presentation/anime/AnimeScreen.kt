@@ -346,6 +346,7 @@ fun AnimeScreen(
                             tagsProvider = { state.anime.genre },
                             onTagSearch = onTagSearch,
                             onCopyTagToClipboard = onCopyTagToClipboard,
+                            modifier = Modifier.padding(top = 8.dp)
                         )
                     }
 

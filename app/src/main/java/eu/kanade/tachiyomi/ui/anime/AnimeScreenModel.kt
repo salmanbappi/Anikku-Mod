@@ -191,6 +191,16 @@ class AnimeScreenModel(
         }
 
         screenModelScope.launchIO {
+            getAnimeAndEpisodes.subscribe(animeId)
+                .flowWithLifecycle(lifecycle)
+                .filter { (anime, _) -> !anime.initialized || isFromSource }
+                .distinctUntilChanged { old, new -> old.first.initialized == new.first.initialized }
+                .collectLatest { 
+                    fetchAllFromSource()
+                }
+        }
+
+        screenModelScope.launchIO {
             downloadCache.changes
                 .flowWithLifecycle(lifecycle)
                 .collectLatest {
