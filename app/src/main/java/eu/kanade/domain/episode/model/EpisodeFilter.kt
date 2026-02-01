@@ -2,7 +2,7 @@ package eu.kanade.domain.episode.model
 
 import eu.kanade.domain.anime.model.downloadedFilter
 import eu.kanade.tachiyomi.data.download.DownloadManager
-import eu.kanade.tachiyomi.ui.anime.EpisodeList
+import eu.kanade.tachiyomi.ui.anime.EpisodeItem
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.anime.model.applyFilter
 import tachiyomi.domain.episode.model.Episode
@@ -47,7 +47,7 @@ fun List<Episode>.applyFilters(anime: Anime, downloadManager: DownloadManager): 
  * Applies the view filters to the list of episodes obtained from the database.
  * @return an observable of the list of episodes filtered and sorted.
  */
-fun List<EpisodeList.Item>.applyFilters(anime: Anime): Sequence<EpisodeList.Item> {
+fun List<EpisodeItem>.applyFilters(anime: Anime): Sequence<EpisodeItem> {
     val isLocalAnime = anime.isLocal()
     val unseenFilter = anime.unseenFilter
     val downloadedFilter = anime.downloadedFilter
@@ -56,11 +56,11 @@ fun List<EpisodeList.Item>.applyFilters(anime: Anime): Sequence<EpisodeList.Item
     val fillermarkedFilter = anime.fillermarkedFilter
     // <-- AM (FILLERMARK)
     return asSequence()
-        .filter { (episode) -> applyFilter(unseenFilter) { !episode.seen } }
-        .filter { (episode) -> applyFilter(bookmarkedFilter) { episode.bookmark } }
+        .filter { item -> applyFilter(unseenFilter) { !item.episode.seen } }
+        .filter { item -> applyFilter(bookmarkedFilter) { item.episode.bookmark } }
         // AM (FILLERMARK) -->
-        .filter { (episode) -> applyFilter(fillermarkedFilter) { episode.fillermark } }
+        .filter { item -> applyFilter(fillermarkedFilter) { item.episode.fillermark } }
         // <-- AM (FILLERMARK)
-        .filter { applyFilter(downloadedFilter) { it.isDownloaded || isLocalAnime } }
-        .sortedWith { (episode1), (episode2) -> getEpisodeSort(anime).invoke(episode1, episode2) }
+        .filter { item -> applyFilter(downloadedFilter) { item.downloadState == eu.kanade.tachiyomi.data.download.model.Download.State.DOWNLOADED || isLocalAnime } }
+        .sortedWith { item1, item2 -> getEpisodeSort(anime).invoke(item1.episode, item2.episode) }
 }
