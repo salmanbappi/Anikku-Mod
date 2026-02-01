@@ -6,7 +6,6 @@ import androidx.annotation.ColorInt
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -15,6 +14,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -25,13 +27,13 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
-import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
+import coil3.request.crossfade
 import eu.kanade.tachiyomi.R
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.anime.model.asAnimeCover
@@ -69,9 +71,12 @@ enum class AnimeCover(val ratio: Float) {
         scale: ContentScale = ContentScale.Crop,
         // KMK <--
     ) {
-        val density = LocalDensity.current
         val context = LocalContext.current
-        BoxWithConstraints(
+        var state by remember { mutableStateOf<AsyncImagePainter.State>(AsyncImagePainter.State.Empty) }
+        val isSuccess = state is AsyncImagePainter.State.Success
+        val isError = state is AsyncImagePainter.State.Error
+
+        Box(
             modifier = modifier
                 .aspectRatio(ratio)
                 .clip(shape)
@@ -87,34 +92,27 @@ enum class AnimeCover(val ratio: Float) {
                     },
                 ),
         ) {
-            val painter = rememberAsyncImagePainter(
-                model = ImageRequest.Builder(context)
-                    .data(data)
-                    .size(
-                        width = with(density) { maxWidth.roundToPx() },
-                        height = with(density) { maxHeight.roundToPx() },
-                    )
-                    .build(),
-                onState = { state ->
-                    if (state is AsyncImagePainter.State.Success && onCoverLoaded != null) {
-                        when (data) {
-                            is Anime -> onCoverLoaded(data.asAnimeCover(), state)
-                            is DomainMangaCover -> onCoverLoaded(data, state)
-                        }
-                    }
+            AsyncImage(
+                model = remember(data) {
+                    ImageRequest.Builder(context)
+                        .data(data)
+                        .crossfade(true)
+                        .build()
                 },
-            )
-            val state by painter.state.collectAsState()
-            val isSuccess = state is AsyncImagePainter.State.Success
-            val isError = state is AsyncImagePainter.State.Error
-
-            androidx.compose.foundation.Image(
-                painter = painter,
                 contentDescription = contentDescription,
                 modifier = Modifier
                     .fillMaxSize()
                     .alpha(if (isSuccess) alpha else 1f),
                 contentScale = scale,
+                onState = { newState ->
+                    state = newState
+                    if (newState is AsyncImagePainter.State.Success && onCoverLoaded != null) {
+                        when (data) {
+                            is Anime -> onCoverLoaded(data.asAnimeCover(), newState)
+                            is DomainMangaCover -> onCoverLoaded(data, newState)
+                        }
+                    }
+                },
             )
 
             if (state is AsyncImagePainter.State.Loading) {

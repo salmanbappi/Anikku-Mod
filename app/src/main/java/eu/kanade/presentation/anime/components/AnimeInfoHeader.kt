@@ -117,7 +117,7 @@ fun AnimeInfoBox(
         )
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data(anime)
+                .data(anime.asAnimeCover())
                 .crossfade(true)
                 .build(),
             contentDescription = null,
