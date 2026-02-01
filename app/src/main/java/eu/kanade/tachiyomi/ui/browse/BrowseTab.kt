@@ -79,7 +79,7 @@ data object BrowseTab : Tab {
             state = state,
             searchQuery = animeExtensionsState.searchQuery,
             onChangeSearchQuery = extensionsScreenModel::search,
-            scrollable = true,
+            scrollable = false,
         )
         LaunchedEffect(Unit) {
             switchToExtensionTabChannel.receiveAsFlow()
