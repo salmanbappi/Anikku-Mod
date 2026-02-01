@@ -112,19 +112,14 @@ import tachiyomi.presentation.core.components.material.SnackbarHost
 import tachiyomi.presentation.core.components.material.VerticalFastScroller
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.plus
-
-enum class AnimeScreenItem {
-    INFO_BOX,
-    DESCRIPTION_WITH_TAG,
-    EPISODE_HEADER,
-    AIRING_INFO,
-}
+import tachiyomi.presentation.core.util.shouldExpandFAB
+import java.time.Instant
 
 @Composable
 fun AnimeScreen(
     state: AnimeScreenModel.State.Success,
     snackbarHostState: SnackbarHostState,
-    nextUpdate: Long?,
+    nextUpdate: Instant?,
     isTabletUi: Boolean,
     episodeSwipeStartAction: LibraryPreferences.EpisodeSwipeAction,
     episodeSwipeEndAction: LibraryPreferences.EpisodeSwipeAction,
@@ -183,7 +178,7 @@ fun AnimeScreen(
                     EpisodeList.Item(it.episode, it.downloadState, it.downloadProgress, null, it.selected)
                 }
             }
-            SharedAnimeBottomActionMenu(
+            AnimeBottomActionMenu(
                 selected = selectedEpisodes,
                 onEpisodeClicked = onEpisodeClicked,
                 onMultiBookmarkClicked = onMultiBookmarkClicked,
@@ -256,8 +251,7 @@ fun AnimeScreen(
                         ),
                     ) {
                         item(
-                            key = AnimeScreenItem.INFO_BOX,
-                            contentType = AnimeScreenItem.INFO_BOX,
+                            key = "info_box",
                         ) {
                             AnimeInfoBox(
                                 isTabletUi = false,
@@ -288,15 +282,16 @@ fun AnimeScreen(
                         }
 
                         item(
-                            key = AnimeScreenItem.DESCRIPTION_WITH_TAG,
-                            contentType = AnimeScreenItem.DESCRIPTION_WITH_TAG,
+                            key = "description_with_tag",
                         ) {
                             ExpandableAnimeDescription(
                                 defaultExpandState = state.isFromSource,
                                 description = state.anime.description,
                                 tagsProvider = { state.anime.genre },
                                 onTagSearch = onTagSearch,
-                                onCopyTagToClipboard = onCopyTagToClipboard,
+                                onCopyTagToClipboard = { context ->
+                                    context.copyToClipboard(it, it)
+                                },
                                 modifier = Modifier.padding(top = 8.dp)
                             )
                         }
@@ -311,8 +306,7 @@ fun AnimeScreen(
                         }
 
                         item(
-                            key = AnimeScreenItem.EPISODE_HEADER,
-                            contentType = AnimeScreenItem.EPISODE_HEADER,
+                            key = "episode_header",
                         ) {
                             EpisodeHeader(
                                 enabled = !isAnySelected,
@@ -323,27 +317,25 @@ fun AnimeScreen(
 
                         if (state.airingTime > 0L) {
                             item(
-                                key = AnimeScreenItem.AIRING_INFO,
-                                contentType = AnimeScreenItem.AIRING_INFO,
+                                key = "airing_info",
                             ) {
                                 NextEpisodeAiringListItem(
-                                    airingEpisodeNumber = state.airingEpisodeNumber,
-                                    airingTime = stringResource(
+                                    title = stringResource(
                                         SYMR.strings.airing_expected_days,
                                         formatTime(state.airingTime, useDayFormat = true),
                                     ),
+                                    date = formatTime(state.airingTime, useDayFormat = true),
                                 )
                             }
                         }
 
                         sharedEpisodeItems(
+                            this,
                             anime = state.anime,
-                            // AM (FILE_SIZE) -->
                             source = state.source,
                             showFileSize = showFileSize,
-                            // <-- AM (FILE_SIZE)
                             episodes = state.episodeListItems,
-                            isAnyEpisodeSelected = episodes.fastAny { it.selected },
+                            isAnyEpisodeSelected = isAnySelected,
                             episodeSwipeStartAction = episodeSwipeStartAction,
                             episodeSwipeEndAction = episodeSwipeEndAction,
                             onEpisodeClicked = onEpisodeClicked,
@@ -392,12 +384,11 @@ fun AnimeScreen(
 }
 
 private fun formatTime(timestamp: Long, useDayFormat: Boolean): String {
-    // Basic implementation for build success
     return java.text.DateFormat.getDateTimeInstance().format(java.util.Date(timestamp * 1000L))
 }
 
-@Composable
-private fun LazyListScope.sharedEpisodeItems(
+private fun sharedEpisodeItems(
+    scope: LazyListScope,
     anime: Anime,
     source: Source,
     showFileSize: Boolean,
@@ -410,9 +401,9 @@ private fun LazyListScope.sharedEpisodeItems(
     onEpisodeSelected: (EpisodeList.Item, Boolean, Boolean, Boolean) -> Unit,
     onEpisodeSwipe: (EpisodeList.Item, LibraryPreferences.EpisodeSwipeAction) -> Unit,
 ) {
-    items(
+    scope.items(
         items = episodes,
-        key = { it.id },
+        key = { it.id_key },
         contentType = {
             when (it) {
                 is EpisodeList.Item -> "episode"
@@ -423,20 +414,24 @@ private fun LazyListScope.sharedEpisodeItems(
         when (item) {
             is EpisodeList.Item -> {
                 AnimeEpisodeListItem(
-                    episode = item.episode,
-                    downloadState = item.downloadState,
-                    downloadProgress = item.downloadProgress,
+                    title = item.episode.name,
+                    date = item.episode.dateUpload.takeIf { it > 0 }?.let { formatTime(it / 1000, false) },
+                    watchProgress = null,
+                    scanlator = item.episode.scanlator,
+                    seen = item.episode.seen,
+                    bookmark = item.episode.bookmark,
+                    fillermark = item.episode.fillermark,
                     selected = item.selected,
-                    onEpisodeClicked = { onEpisodeClicked(item.episode, false) },
-                    onEpisodeLongClicked = { onEpisodeSelected(item, !item.selected, true, false) },
-                    onDownloadEpisode = { onDownloadEpisode(listOf(item), it) },
-                    onEpisodeSelected = { onEpisodeSelected(item, it, false, false) },
+                    downloadIndicatorEnabled = true,
+                    downloadStateProvider = { item.downloadState },
+                    downloadProgressProvider = { item.downloadProgress },
                     onEpisodeSwipe = { onEpisodeSwipe(item, it) },
                     episodeSwipeStartAction = episodeSwipeStartAction,
                     episodeSwipeEndAction = episodeSwipeEndAction,
-                    // AM (FILE_SIZE) -->
-                    showFileSize = showFileSize,
-                    // <-- AM (FILE_SIZE)
+                    onLongClick = { onEpisodeSelected(item, !item.selected, true, false) },
+                    onClick = { onEpisodeClicked(item.episode, false) },
+                    onDownloadClick = { onDownloadEpisode(listOf(item), it) },
+                    fileSize = item.fileSize,
                 )
             }
             is EpisodeList.MissingCount -> {
@@ -446,8 +441,8 @@ private fun LazyListScope.sharedEpisodeItems(
     }
 }
 
-private val EpisodeList.id: Any
+private val EpisodeList.id_key: Any
     get() = when (this) {
-        is EpisodeList.Item -> id
+        is EpisodeList.Item -> episode.id
         is EpisodeList.MissingCount -> id
     }
