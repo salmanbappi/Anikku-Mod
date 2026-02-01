@@ -858,11 +858,12 @@ class PlayerActivity : BaseActivity() {
             ),
         )
         builder.setSourceRectHint(pipRect)
-        player.videoH?.let {
-            val height = it
-            val width = it * player.getVideoOutAspect()!!
-            val rational = Rational(height, width.toInt()).toFloat()
-            if (rational in 0.42..2.38) builder.setAspectRatio(Rational(width.toInt(), height))
+        player.videoH?.let { height ->
+            player.getVideoOutAspect()?.let { aspect ->
+                val width = height * aspect
+                val rational = Rational(height, width.toInt()).toFloat()
+                if (rational in 0.42..2.38) builder.setAspectRatio(Rational(width.toInt(), height))
+            }
         }
         return builder.build()
     }

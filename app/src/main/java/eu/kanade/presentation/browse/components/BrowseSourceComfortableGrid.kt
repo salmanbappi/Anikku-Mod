@@ -40,7 +40,7 @@ fun BrowseSourceComfortableGrid(
 
         items(
             count = animeList.itemCount,
-            key = { index -> animeList[index]?.value?.id ?: index },
+            key = { index -> "${animeList[index]?.value?.id}_$index" },
         ) { index ->
             val anime by animeList[index]?.collectAsState() ?: return@items
             BrowseSourceComfortableGridItem(
