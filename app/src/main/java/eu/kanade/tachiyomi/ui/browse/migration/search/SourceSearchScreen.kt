@@ -109,9 +109,10 @@ data class SourceSearchScreen(
                 }
             },
             floatingActionButton = {
+                val filterLabel = stringResource(MR.strings.action_filter)
                 AnimatedVisibility(visible = state.filters.isNotEmpty()) {
                     ExtendedFloatingActionButton(
-                        text = { Text(text = stringResource(MR.strings.action_filter)) },
+                        text = { Text(text = filterLabel) },
                         icon = { Icon(Icons.Outlined.FilterList, contentDescription = "") },
                         onClick = screenModel::openFilterSheet,
                     )

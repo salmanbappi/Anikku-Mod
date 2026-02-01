@@ -20,8 +20,10 @@ import eu.kanade.domain.base.BasePreferences
 import eu.kanade.domain.source.service.SourcePreferences
 import eu.kanade.domain.track.interactor.AddTracks
 import eu.kanade.presentation.util.ioCoroutineScope
-import eu.kanade.tachiyomi.data.cache.CoverCache
 import eu.kanade.tachiyomi.data.ai.AiManager
+import eu.kanade.tachiyomi.data.cache.CoverCache
+import eu.kanade.tachiyomi.animesource.AnimeCatalogueSource
+import eu.kanade.tachiyomi.animesource.model.AnimeFilter
 import eu.kanade.tachiyomi.source.CatalogueSource
 import eu.kanade.tachiyomi.source.model.FilterList
 import eu.kanade.tachiyomi.util.removeCovers
@@ -92,20 +94,19 @@ class BrowseSourceScreenModel(
     val source = sourceManager.getOrStub(sourceId)
 
     init {
-        val catalogueSource = source as? CatalogueSource
-        if (catalogueSource != null) {
+        if (source is CatalogueSource) {
             mutableState.update {
                 var query: String? = null
                 var listing = it.listing
 
                 if (listing is Listing.Search) {
                     query = listing.query
-                    listing = Listing.Search(query, catalogueSource.getFilterList())
+                    listing = Listing.Search(query, source.getFilterList())
                 }
 
                 it.copy(
                     listing = listing,
-                    filters = catalogueSource.getFilterList(),
+                    filters = source.getFilterList(),
                     toolbarQuery = query,
                 )
             }
@@ -165,9 +166,9 @@ class BrowseSourceScreenModel(
     }
 
     fun resetFilters() {
-        val catalogueSource = source as? CatalogueSource ?: return
+        if (source !is CatalogueSource) return
 
-        mutableState.update { it.copy(filters = catalogueSource.getFilterList()) }
+        mutableState.update { it.copy(filters = source.getFilterList()) }
     }
 
     fun setListing(listing: Listing) {
@@ -241,9 +242,9 @@ class BrowseSourceScreenModel(
     }
 
     fun loadSearch(savedSearch: SavedSearch) {
-        val catalogueSource = source as? CatalogueSource ?: return
+        if (source !is CatalogueSource) return
 
-        val filters = catalogueSource.getFilterList()
+        val filters = source.getFilterList()
         savedSearch.filtersJson?.let {
             filterSerializer.deserialize(filters, it)
         }
@@ -259,29 +260,17 @@ class BrowseSourceScreenModel(
     }
 
     fun search(query: String? = null, filters: FilterList? = null) {
-        val catalogueSource = source as? CatalogueSource ?: return
-
-        val input = state.value.listing as? Listing.Search
-            ?: Listing.Search(query = null, filters = catalogueSource.getFilterList())
-
-        if (query != null && query.startsWith("ai:", ignoreCase = true)) {
-            performAiSearch(query.removePrefix("ai:").trim())
+        if (query?.startsWith("ai:", ignoreCase = true) == true) {
+            performAiSearch(query.substring(3).trim())
             return
         }
-
-        mutableState.update {
-            it.copy(
-                listing = input.copy(
-                    query = query ?: input.query,
-                    filters = filters ?: input.filters,
-                ),
-                toolbarQuery = query ?: input.query,
-            )
-        }
+        val nextListing = Listing.Search(query, filters)
+        if (state.value.listing == nextListing) return
+        mutableState.update { it.copy(listing = nextListing) }
     }
 
     private fun performAiSearch(query: String) {
-        val catalogueSource = source as? CatalogueSource ?: return
+        val catalogueSource = source as? AnimeCatalogueSource ?: return
         screenModelScope.launchIO {
             val aiResponse = aiManager.parseSearchQuery(query) ?: return@launchIO
             
@@ -300,29 +289,28 @@ class BrowseSourceScreenModel(
 
     private fun applyAiFilters(filters: FilterList, aiResponse: AiManager.AiSearchResponse) {
         aiResponse.genres.forEach { genre ->
-            filters.filterIsInstance<AnimeSourceModelFilter.Group<*>>().forEach { group ->
-                group.state.filterIsInstance<AnimeSourceModelFilter<*>>().forEach { filter ->
+            filters.filterIsInstance<AnimeFilter.Group<*>>().forEach { group ->
+                group.state.filterIsInstance<AnimeFilter<*>>().forEach { filter ->
                     if (filter.name.equals(genre, ignoreCase = true)) {
                         when (filter) {
-                            is AnimeSourceModelFilter.CheckBox -> filter.state = true
-                            is AnimeSourceModelFilter.TriState -> filter.state = AnimeSourceModelFilter.TriState.STATE_INCLUDE
+                            is AnimeFilter.CheckBox -> filter.state = true
+                            is AnimeFilter.TriState -> filter.state = AnimeFilter.TriState.STATE_INCLUDE
                             else -> {}
                         }
                     }
                 }
             }
-            filters.filterIsInstance<AnimeSourceModelFilter.Select<*>>().forEach { filter ->
+            filters.filterIsInstance<AnimeFilter.Select<*>>().forEach { filter ->
                 val index = filter.values.indexOfFirst { it.toString().equals(genre, ignoreCase = true) }
                 if (index != -1) filter.state = index
             }
         }
-        // Similar logic for themes...
     }
 
     fun searchGenre(genreName: String) {
-        val catalogueSource = source as? CatalogueSource ?: return
+        if (source !is CatalogueSource) return
 
-        val defaultFilters = catalogueSource.getFilterList()
+        val defaultFilters = source.getFilterList()
         var genreExists = false
 
         filter@ for (sourceFilter in defaultFilters) {

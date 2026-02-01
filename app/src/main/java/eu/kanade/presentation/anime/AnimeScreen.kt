@@ -632,7 +632,6 @@ fun AnimeScreenLargeImpl(
     // <-- AM (FILLERMARK)
     onMultiMarkAsSeenClicked: (List<Episode>, markAsSeen: Boolean) -> Unit,
     onMarkPreviousAsSeenClicked: (Episode) -> Unit,
-    onMarkPreviousAsSeenClicked: (Episode) -> Unit,
     onMultiDeleteClicked: (List<Episode>) -> Unit,
 
     // For swipe actions
@@ -962,7 +961,7 @@ private fun LazyListScope.sharedEpisodeItems(
         items = episodes,
         key = { item ->
             when (item) {
-                is EpisodeList.MissingCount -> "missing-count-${item.id}"
+                is EpisodeList.MissingCount -> "missing-count-${item.hashCode()}"
                 is EpisodeList.Item -> "episode-${item.id}"
             }
         },
