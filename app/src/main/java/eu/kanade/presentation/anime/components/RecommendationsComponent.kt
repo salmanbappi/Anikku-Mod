@@ -17,9 +17,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import eu.kanade.presentation.components.BadgeGroup
 import eu.kanade.presentation.library.components.AnimeComfortableGridItem
 import tachiyomi.domain.anime.model.Anime
+import tachiyomi.domain.anime.model.asAnimeCover
+import tachiyomi.presentation.core.components.BadgeGroup
 import tachiyomi.presentation.core.components.material.padding
 
 @Composable
@@ -74,11 +75,11 @@ private fun RecommendationItem(
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         AnimeComfortableGridItem(
-            anime = anime,
+            isSelected = false,
+            title = anime.title,
             onClick = onClick,
             onLongClick = onClick,
-            isSelected = false,
-            titleAlpha = 1f,
+            coverData = anime.asAnimeCover(),
         )
     }
 }
