@@ -632,6 +632,7 @@ fun AnimeScreenLargeImpl(
     // <-- AM (FILLERMARK)
     onMultiMarkAsSeenClicked: (List<Episode>, markAsSeen: Boolean) -> Unit,
     onMarkPreviousAsSeenClicked: (Episode) -> Unit,
+    onMarkPreviousAsSeenClicked: (Episode) -> Unit,
     onMultiDeleteClicked: (List<Episode>) -> Unit,
 
     // For swipe actions
@@ -641,6 +642,7 @@ fun AnimeScreenLargeImpl(
     onEpisodeSelected: (EpisodeList.Item, Boolean, Boolean, Boolean) -> Unit,
     onAllEpisodeSelected: (Boolean) -> Unit,
     onInvertSelection: () -> Unit,
+    onFetchAIEpisodeSummary: () -> Unit,
 ) {
     val layoutDirection = LocalLayoutDirection.current
     val density = LocalDensity.current
@@ -960,7 +962,7 @@ private fun LazyListScope.sharedEpisodeItems(
         items = episodes,
         key = { item ->
             when (item) {
-                is EpisodeList.MissingCount -> "missing-count-${item.hashCode()}"
+                is EpisodeList.MissingCount -> "missing-count-${item.id}"
                 is EpisodeList.Item -> "episode-${item.id}"
             }
         },
