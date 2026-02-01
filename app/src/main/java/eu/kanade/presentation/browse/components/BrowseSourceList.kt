@@ -43,7 +43,10 @@ fun BrowseSourceList(
             }
         }
 
-        items(count = animeList.itemCount) { index ->
+        items(
+            count = animeList.itemCount,
+            key = { index -> animeList[index]?.value?.id ?: index },
+        ) { index ->
             val anime by animeList[index]?.collectAsState() ?: return@items
             BrowseSourceListItem(
                 anime = anime,

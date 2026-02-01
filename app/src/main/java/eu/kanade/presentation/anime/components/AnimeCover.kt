@@ -6,6 +6,7 @@ import androidx.annotation.ColorInt
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -23,11 +24,13 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
+import coil3.request.ImageRequest
 import eu.kanade.tachiyomi.R
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.anime.model.asAnimeCover
@@ -65,42 +68,50 @@ enum class AnimeCover(val ratio: Float) {
         scale: ContentScale = ContentScale.Crop,
         // KMK <--
     ) {
-        val painter = rememberAsyncImagePainter(
-            model = data,
-            onState = { state ->
-                if (state is AsyncImagePainter.State.Success && onCoverLoaded != null) {
-                    when (data) {
-                        is Anime -> onCoverLoaded(data.asAnimeCover(), state)
-                        is DomainMangaCover -> onCoverLoaded(data, state)
-                    }
-                }
-            },
-        )
-        val state by painter.state.collectAsState()
-        val isSuccess = state is AsyncImagePainter.State.Success
-        val isError = state is AsyncImagePainter.State.Error
-
-        val modifierColored = modifier
-            .aspectRatio(ratio)
-            .clip(shape)
-            .alpha(if (isSuccess) alpha else 1f)
-            .background(bgColor ?: CoverPlaceholderColor)
-            .then(
-                if (onClick != null) {
-                    Modifier.clickable(
-                        role = Role.Button,
-                        onClick = onClick,
+        val density = LocalDensity.current
+        BoxWithConstraints(
+            modifier = modifier
+                .aspectRatio(ratio)
+                .clip(shape)
+                .background(bgColor ?: CoverPlaceholderColor)
+                .then(
+                    if (onClick != null) {
+                        Modifier.clickable(
+                            role = Role.Button,
+                            onClick = onClick,
+                        )
+                    } else {
+                        Modifier
+                    },
+                ),
+        ) {
+            val painter = rememberAsyncImagePainter(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(data)
+                    .size(
+                        width = with(density) { maxWidth.roundToPx() },
+                        height = with(density) { maxHeight.roundToPx() },
                     )
-                } else {
-                    Modifier
+                    .build(),
+                onState = { state ->
+                    if (state is AsyncImagePainter.State.Success && onCoverLoaded != null) {
+                        when (data) {
+                            is Anime -> onCoverLoaded(data.asAnimeCover(), state)
+                            is DomainMangaCover -> onCoverLoaded(data, state)
+                        }
+                    }
                 },
             )
+            val state by painter.state.collectAsState()
+            val isSuccess = state is AsyncImagePainter.State.Success
+            val isError = state is AsyncImagePainter.State.Error
 
-        Box(modifier = modifierColored) {
             androidx.compose.foundation.Image(
                 painter = painter,
                 contentDescription = contentDescription,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .alpha(if (isSuccess) alpha else 1f),
                 contentScale = scale,
             )
 
