@@ -278,7 +278,7 @@ object PlayerSettingsPlayerScreen : SearchableSettings {
                     title = stringResource(MR.strings.pref_enable_intro_skip),
                 ),
                 Preference.PreferenceItem.SwitchPreference(
-                    pref = enableAutoSkipAniSkip,
+                    pref = enableAutoAniSkip,
                     title = stringResource(MR.strings.pref_enable_auto_skip_ani_skip),
                     enabled = isIntroSkipEnabled,
                 ),

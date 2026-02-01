@@ -23,7 +23,6 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import eu.kanade.core.util.ifSourcesLoaded
-import eu.kanade.domain.anime.interactor.GetAnime
 import eu.kanade.domain.anime.model.hasCustomCover
 import eu.kanade.domain.anime.model.toSAnime
 import eu.kanade.presentation.anime.AnimeScreen
@@ -71,6 +70,7 @@ import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.core.common.util.lang.launchIO
 import tachiyomi.core.common.util.lang.withIOContext
 import tachiyomi.core.common.util.system.logcat
+import tachiyomi.domain.anime.interactor.GetAnime
 import tachiyomi.domain.anime.interactor.GetAnimeByUrlAndSourceId
 import tachiyomi.domain.anime.interactor.InsertAnime
 import tachiyomi.domain.anime.model.Anime
@@ -190,6 +190,7 @@ class AnimeScreen(
             },
             onSearch = { query, global -> scope.launch { performSearch(navigator, query, global) } },
             onCoverClicked = screenModel::showCoverDialog,
+            onSearchRecommendation = { query -> scope.launch { performSearch(navigator, query, true) } },
             onShareClicked = {
                 shareAnime(
                     context,
@@ -209,6 +210,7 @@ class AnimeScreen(
             }.takeIf { successState.source.isLocal() },
             onClearAnime = {
                 context.toast("Clearing anime data...")
+                Unit
             },
             onSourceSettings = {
                 navigator.push(SourcePreferencesScreen(successState.source.id))
@@ -219,7 +221,31 @@ class AnimeScreen(
             onRecommendationClicked = { anime ->
                 scope.launchIO {
                     val dbAnime = Injekt.get<GetAnimeByUrlAndSourceId>().await(anime.url, anime.source)
-                        ?: Injekt.get<InsertAnime>().await(anime)?.let {
+                        ?: Injekt.get<InsertAnime>().await(anime.toSAnime().let { sAnime ->
+                            tachiyomi.domain.anime.model.Anime(
+                                id = -1L,
+                                source = anime.source,
+                                url = anime.url,
+                                title = anime.title,
+                                thumbnailUrl = anime.thumbnail_url,
+                                favorite = false,
+                                lastUpdate = 0L,
+                                nextUpdate = 0L,
+                                fetchInterval = 0,
+                                dateAdded = 0L,
+                                viewerFlags = 0L,
+                                chapterFlags = 0L,
+                                coverLastModified = 0L,
+                                author = anime.author,
+                                artist = anime.artist,
+                                description = anime.description,
+                                genre = anime.genre,
+                                status = anime.status.toLong(),
+                                initialized = false,
+                                updateStrategy = tachiyomi.domain.anime.model.UpdateStrategy.ALWAYS_UPDATE,
+                                lastRefreshAt = 0L,
+                            )
+                        })?.let {
                             Injekt.get<GetAnime>().await(it)
                         }
                     if (dbAnime != null) {
