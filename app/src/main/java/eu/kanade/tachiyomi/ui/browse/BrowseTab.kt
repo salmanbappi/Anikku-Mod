@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -39,7 +40,7 @@ import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.screens.EmptyScreen
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
-import tachiyomi.presentation.core.util.collectAsState
+import tachiyomi.presentation.core.util.collectAsState as collectPreferenceAsState
 
 data object BrowseTab : Tab {
 
@@ -70,7 +71,7 @@ data object BrowseTab : Tab {
     override fun Content() {
         val context = LocalContext.current
         val libraryPreferences: LibraryPreferences = remember { Injekt.get() }
-        val showBrowseFeed by libraryPreferences.showBrowseFeed().collectAsState()
+        val showBrowseFeed by libraryPreferences.showBrowseFeed().collectPreferenceAsState()
 
         // Hoisted for extensions tab's search bar
         val extensionsScreenModel = rememberScreenModel { ExtensionsScreenModel() }
