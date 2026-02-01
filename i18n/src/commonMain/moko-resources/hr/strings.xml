@@ -910,7 +910,7 @@
     <string name="pref_skip_length">Dodirni dvaput za preskakanje vremena</string>
     <string name="pref_player_hide_controls">Sakrij kontrole playera pri otvaranju playera</string>
     <string name="pref_category_external_player">Eksterni player</string>
-    <string name="episode_download_progress">%1$d% %</string>
+    <string name="episode_download_progress">%1$d%%</string>
     <string name="pref_player_fullscreen">Prikaži sadržaj u izresku ekrana</string>
     <string name="pref_pip_on_exit">Automatski prebaci u modus slika-u-slici pri zatvaranju playera</string>
     <string name="pref_mpv_conf">Uredi MPV konfiguracijsku datoteku za daljnje postavke playera</string>
@@ -923,7 +923,7 @@
     <string name="local_manga_source">Izvor lokalnog manga</string>
     <string name="local_anime_source">Izvor lokalnog animea</string>
     <string name="delete_downloads_for_anime">Izbrisati preuzete epizode?</string>
-    <string name="episode_downloading_progress">Preuzimanje (%1$d% %)</string>
+    <string name="episode_downloading_progress">Preuzimanje (%1$d%%)</string>
     <string name="show_episode_number">Broj epizode</string>
     <string name="plan_to_watch">Planiram gledati</string>
     <string name="not_interesting">Nezanimljivo</string>
