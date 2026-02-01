@@ -56,6 +56,7 @@ fun SourceFilterSheet(
     onUpdate: (AnimeFilter<*>) -> Unit,
     // Saved Searches
     savedSearches: ImmutableList<SavedSearch>,
+    currentSavedSearchId: Long?,
     onSavedSearchClick: (SavedSearch) -> Unit,
     onSavedSearchLongClick: (SavedSearch) -> Unit,
 ) {
@@ -76,6 +77,7 @@ fun SourceFilterSheet(
                 item {
                     SavedSearches(
                         savedSearches = savedSearches,
+                        currentSavedSearchId = currentSavedSearchId,
                         onSavedSearchClick = onSavedSearchClick,
                         onSavedSearchLongClick = onSavedSearchLongClick,
                     )
@@ -143,6 +145,7 @@ private fun Header(
 @Composable
 private fun SavedSearches(
     savedSearches: ImmutableList<SavedSearch>,
+    currentSavedSearchId: Long?,
     onSavedSearchClick: (SavedSearch) -> Unit,
     onSavedSearchLongClick: (SavedSearch) -> Unit,
 ) {
@@ -158,18 +161,23 @@ private fun SavedSearches(
         ) {
             savedSearches.forEach { savedSearch ->
                 Box(
-                    modifier = Modifier.combinedClickable(
-                        onClick = { onSavedSearchClick(savedSearch) },
-                        onLongClick = {
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            onSavedSearchLongClick(savedSearch)
-                        },
-                    ),
+                    contentAlignment = Alignment.Center,
                 ) {
                     FilterChip(
-                        selected = false,
+                        selected = currentSavedSearchId == savedSearch.id,
                         onClick = {},
                         label = { Text(text = savedSearch.name) },
+                    )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .combinedClickable(
+                                onClick = { onSavedSearchClick(savedSearch) },
+                                onLongClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    onSavedSearchLongClick(savedSearch)
+                                },
+                            ),
                     )
                 }
             }
