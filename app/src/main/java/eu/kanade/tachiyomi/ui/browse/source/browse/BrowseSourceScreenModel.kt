@@ -21,6 +21,7 @@ import eu.kanade.domain.source.service.SourcePreferences
 import eu.kanade.domain.track.interactor.AddTracks
 import eu.kanade.presentation.util.ioCoroutineScope
 import eu.kanade.tachiyomi.data.cache.CoverCache
+import eu.kanade.tachiyomi.data.ai.AiManager
 import eu.kanade.tachiyomi.source.CatalogueSource
 import eu.kanade.tachiyomi.source.model.FilterList
 import eu.kanade.tachiyomi.util.removeCovers
@@ -83,6 +84,7 @@ class BrowseSourceScreenModel(
     private val insertSavedSearch: InsertSavedSearch = Injekt.get(),
     private val deleteSavedSearchById: DeleteSavedSearchById = Injekt.get(),
     private val filterSerializer: FilterSerializer = Injekt.get(),
+    private val aiManager: AiManager = Injekt.get(),
 ) : StateScreenModel<BrowseSourceScreenModel.State>(State(Listing.valueOf(listingQuery))) {
 
     var displayMode by sourcePreferences.sourceDisplayMode().asState(screenModelScope)
@@ -261,6 +263,11 @@ class BrowseSourceScreenModel(
         val input = state.value.listing as? Listing.Search
             ?: Listing.Search(query = null, filters = source.getFilterList())
 
+        if (query != null && query.startsWith("ai:", ignoreCase = true)) {
+            performAiSearch(query.removePrefix("ai:").trim())
+            return
+        }
+
         mutableState.update {
             it.copy(
                 listing = input.copy(
@@ -270,6 +277,44 @@ class BrowseSourceScreenModel(
                 toolbarQuery = query ?: input.query,
             )
         }
+    }
+
+    private fun performAiSearch(query: String) {
+        screenModelScope.launchIO {
+            val aiResponse = aiManager.parseSearchQuery(query) ?: return@launchIO
+            
+            val filters = source.getFilterList()
+            applyAiFilters(filters, aiResponse)
+
+            mutableState.update {
+                it.copy(
+                    filters = filters,
+                    toolbarQuery = aiResponse.description ?: query,
+                    listing = Listing.Search(query = aiResponse.description ?: query, filters = filters),
+                )
+            }
+        }
+    }
+
+    private fun applyAiFilters(filters: FilterList, aiResponse: AiManager.AiSearchResponse) {
+        aiResponse.genres.forEach { genre ->
+            filters.filterIsInstance<AnimeSourceModelFilter.Group<*>>().forEach { group ->
+                group.state.filterIsInstance<AnimeSourceModelFilter<*>>().forEach { filter ->
+                    if (filter.name.equals(genre, ignoreCase = true)) {
+                        when (filter) {
+                            is AnimeSourceModelFilter.CheckBox -> filter.state = true
+                            is AnimeSourceModelFilter.TriState -> filter.state = AnimeSourceModelFilter.TriState.STATE_INCLUDE
+                            else -> {}
+                        }
+                    }
+                }
+            }
+            filters.filterIsInstance<AnimeSourceModelFilter.Select<*>>().forEach { filter ->
+                val index = filter.values.indexOfFirst { it.toString().equals(genre, ignoreCase = true) }
+                if (index != -1) filter.state = index
+            }
+        }
+        // Similar logic for themes...
     }
 
     fun searchGenre(genreName: String) {
