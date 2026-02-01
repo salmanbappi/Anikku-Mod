@@ -377,8 +377,8 @@ class AnimeScreen(
                 EditAnimeDialog(
                     anime = dialog.anime,
                     onDismissRequest = { screenModel.dismissDialog() },
-                    onPositiveClick = { title, author, artist, description, tags, status ->
-                        screenModel.updateAnimeInfo(title, author, artist, description, tags, status)
+                    onPositiveClick = { title, author, artist, thumbnailUrl, description, tags, status ->
+                        screenModel.updateAnimeInfo(title, author, artist, thumbnailUrl, description, tags, status)
                     },
                 )
             }
