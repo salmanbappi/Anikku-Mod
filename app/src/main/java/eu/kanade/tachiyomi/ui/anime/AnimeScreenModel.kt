@@ -193,11 +193,12 @@ class AnimeScreenModel(
             getAnimeAndEpisodes.subscribe(animeId)
                 .flowWithLifecycle(lifecycle)
                 .filter { (anime, _) -> !anime.initialized || isFromSource }
-                .distinctUntilChanged { old, new -> old.first.initialized == new.first.initialized }
                 .collectLatest { 
                     fetchAllFromSource()
                 }
         }
+
+        fetchRecommendations()
 
         screenModelScope.launchIO {
             downloadCache.changes
@@ -244,6 +245,21 @@ class AnimeScreenModel(
             },
             downloadProgress = activeDownload?.progress ?: 0,
         )
+    }
+
+    fun fetchRecommendations() {
+        val state = successState ?: return
+        screenModelScope.launchIO {
+            try {
+                val animeTitle = state.anime.ogTitle ?: state.anime.title
+                val recommendations = AniChartApi().getRecommendations(animeTitle)
+                if (recommendations.isNotEmpty()) {
+                    updateState { (it as State.Success).copy(recommendations = mapOf("Recommendations" to recommendations)) }
+                }
+            } catch (e: Exception) {
+                logcat(LogPriority.ERROR, e) { "Failed to fetch recommendations" }
+            }
+        }
     }
 
     fun fetchAllFromSource() {
