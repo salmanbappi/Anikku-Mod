@@ -36,10 +36,12 @@ import eu.kanade.tachiyomi.data.track.TrackerManager
 import eu.kanade.tachiyomi.network.HttpException
 import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.source.isSourceForTorrents
+import eu.kanade.tachiyomi.source.model.UpdateStrategy
 import eu.kanade.tachiyomi.torrentServer.TorrentServerUtils
 import eu.kanade.tachiyomi.ui.anime.track.TrackItem
 import eu.kanade.tachiyomi.ui.player.settings.GesturePreferences
 import eu.kanade.tachiyomi.ui.player.settings.PlayerPreferences
+import eu.kanade.tachiyomi.ui.player.CastManager
 import eu.kanade.tachiyomi.util.AniChartApi
 import eu.kanade.tachiyomi.util.episode.getNextUnseen
 import eu.kanade.tachiyomi.util.removeCovers
@@ -100,8 +102,6 @@ import uy.kohesive.injekt.api.get
 import java.util.ArrayDeque
 import java.util.Calendar
 import kotlin.math.floor
-import eu.kanade.tachiyomi.source.model.UpdateStrategy as SourceUpdateStrategy
-import tachiyomi.domain.anime.model.UpdateStrategy as DomainUpdateStrategy
 
 @Suppress("LargeClass")
 class AnimeScreenModel(
@@ -375,6 +375,7 @@ class AnimeScreenModel(
         title: String?,
         author: String?,
         artist: String?,
+        thumbnailUrl: String?,
         description: String?,
         tags: List<String>?,
         status: Long?,
@@ -387,6 +388,7 @@ class AnimeScreenModel(
                     title = title?.trimOrNull(),
                     author = author?.trimOrNull(),
                     artist = artist?.trimOrNull(),
+                    thumbnailUrl = thumbnailUrl?.trimOrNull(),
                     description = description?.trimOrNull(),
                     genre = tags?.nullIfEmpty(),
                     status = status,
@@ -665,7 +667,7 @@ class AnimeScreenModel(
 
     fun invertSelection() {
         val state = successState ?: return
-        val episodes = state.episodes.map {
+        val episodes = state.processedEpisodes.map {
             it.copy(selected = !it.selected)
         }
         updateState { (it as State.Success).copy(episodes = episodes) }
@@ -692,7 +694,7 @@ class AnimeScreenModel(
                 episodes // Filters should be applied here if needed
             }
 
-            val episodeListItems by lazy {
+            val episodeListItems: List<EpisodeList> by lazy {
                 processedEpisodes.insertSeparators { before, after ->
                     val (lowerEpisode, higherEpisode) = if (anime.sortDescending()) {
                         after to before
@@ -720,7 +722,7 @@ class AnimeScreenModel(
                     when (it) {
                         is EpisodeItem -> EpisodeList.Item(it.episode, it.downloadState, it.downloadProgress, null, it.selected)
                         is EpisodeList.MissingCount -> it
-                        else -> it // Should not happen
+                        else -> throw IllegalStateException("Unexpected item type in episode list")
                     }
                 }
             }
