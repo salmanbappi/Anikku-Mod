@@ -82,7 +82,7 @@ object HomeScreen : Screen() {
     private val openTabEvent = Channel<Tab>()
     private val showBottomNavEvent = Channel<Boolean>()
 
-    private const val TAB_FADE_DURATION = 100
+    private const val TAB_FADE_DURATION = 220
     private const val TAB_NAVIGATOR_KEY = "HomeTabs"
 
     private val uiPreferences: UiPreferences by injectLazy()
@@ -151,8 +151,8 @@ object HomeScreen : Screen() {
 
                                 AnimatedVisibility(
                                     visible = bottomNavVisible && (navStyle == NavStyle.SHOW_ALL || tabNavigator.current != navStyle.moreTab),
-                                    enter = expandVertically(animationSpec = androidx.compose.animation.core.tween(100)),
-                                    exit = shrinkVertically(animationSpec = androidx.compose.animation.core.tween(100)),
+                                    enter = expandVertically(animationSpec = androidx.compose.animation.core.tween(150)),
+                                    exit = shrinkVertically(animationSpec = androidx.compose.animation.core.tween(150)),
                                 ) {
                                     NavigationBar {
                                         navStyle.tabs
