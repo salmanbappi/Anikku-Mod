@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
@@ -69,6 +70,7 @@ enum class AnimeCover(val ratio: Float) {
         // KMK <--
     ) {
         val density = LocalDensity.current
+        val context = LocalContext.current
         BoxWithConstraints(
             modifier = modifier
                 .aspectRatio(ratio)
@@ -86,7 +88,7 @@ enum class AnimeCover(val ratio: Float) {
                 ),
         ) {
             val painter = rememberAsyncImagePainter(
-                model = ImageRequest.Builder(LocalContext.current)
+                model = ImageRequest.Builder(context)
                     .data(data)
                     .size(
                         width = with(density) { maxWidth.roundToPx() },
