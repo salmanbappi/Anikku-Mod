@@ -235,7 +235,7 @@ class AnimeScreen(
                                 ogTitle = anime.title,
                                 ogArtist = anime.artist,
                                 ogAuthor = anime.author,
-                                ogThumbnailUrl = anime.thumbnail_url,
+                                ogThumbnailUrl = anime.thumbnailUrl,
                                 ogDescription = anime.description,
                                 ogGenre = anime.genre,
                                 ogStatus = anime.status.toLong(),
