@@ -1,6 +1,7 @@
 package eu.kanade.domain
 
 import android.app.Application
+import eu.kanade.tachiyomi.ui.browse.source.browse.FilterSerializer
 import tachiyomi.data.anime.AnimeMergeRepositoryImpl
 import tachiyomi.data.anime.CustomAnimeRepositoryImpl
 import tachiyomi.data.source.FeedSavedSearchRepositoryImpl
@@ -55,7 +56,7 @@ class SYDomainModule : InjektModule {
         addFactory { GetAnimeBySource(get()) }
         addFactory { DeleteEpisodes(get()) }
         addFactory { DeleteAnimeById(get()) }
-//        addFactory { FilterSerializer() }
+        addFactory { FilterSerializer() }
         addFactory { GetHistoryByAnimeId(get()) }
         addFactory { GetEpisodeByUrl(get()) }
 //        addFactory { GetSourceCategories(get()) }

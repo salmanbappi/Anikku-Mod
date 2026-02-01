@@ -25,13 +25,16 @@ import eu.kanade.tachiyomi.source.CatalogueSource
 import eu.kanade.tachiyomi.source.model.FilterList
 import eu.kanade.tachiyomi.util.removeCovers
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -48,7 +51,11 @@ import tachiyomi.domain.category.interactor.SetAnimeCategories
 import tachiyomi.domain.category.model.Category
 import tachiyomi.domain.episode.interactor.SetAnimeDefaultEpisodeFlags
 import tachiyomi.domain.library.service.LibraryPreferences
+import tachiyomi.domain.source.interactor.DeleteSavedSearchById
 import tachiyomi.domain.source.interactor.GetRemoteAnime
+import tachiyomi.domain.source.interactor.GetSavedSearchBySourceId
+import tachiyomi.domain.source.interactor.InsertSavedSearch
+import tachiyomi.domain.source.model.SavedSearch
 import tachiyomi.domain.source.service.SourceManager
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
@@ -72,6 +79,10 @@ class BrowseSourceScreenModel(
     private val networkToLocalAnime: NetworkToLocalAnime = Injekt.get(),
     private val updateAnime: UpdateAnime = Injekt.get(),
     private val addTracks: AddTracks = Injekt.get(),
+    private val getSavedSearchBySourceId: GetSavedSearchBySourceId = Injekt.get(),
+    private val insertSavedSearch: InsertSavedSearch = Injekt.get(),
+    private val deleteSavedSearchById: DeleteSavedSearchById = Injekt.get(),
+    private val filterSerializer: FilterSerializer = Injekt.get(),
 ) : StateScreenModel<BrowseSourceScreenModel.State>(State(Listing.valueOf(listingQuery))) {
 
     var displayMode by sourcePreferences.sourceDisplayMode().asState(screenModelScope)
@@ -100,6 +111,12 @@ class BrowseSourceScreenModel(
         if (!basePreferences.incognitoMode().get()) {
             sourcePreferences.lastUsedSource().set(source.id)
         }
+
+        getSavedSearchBySourceId.subscribe(sourceId)
+            .onEach { savedSearches ->
+                mutableState.update { it.copy(savedSearches = savedSearches.toImmutableList()) }
+            }
+            .launchIn(screenModelScope)
     }
 
     /**
@@ -160,6 +177,79 @@ class BrowseSourceScreenModel(
         mutableState.update {
             it.copy(
                 filters = filters,
+            )
+        }
+    }
+
+    /**
+     * Updated to handle mutual exclusivity in filter groups
+     */
+    fun onFilterUpdate(filter: AnimeSourceModelFilter<*>) {
+        if (source !is CatalogueSource) return
+
+        val currentFilters = state.value.filters
+        if (filter is AnimeSourceModelFilter.Group<*>) {
+            // Check if this group has any active selections
+            val isNotEmpty = filter.state.any {
+                (it as? AnimeSourceModelFilter.CheckBox)?.state == true ||
+                    (it as? AnimeSourceModelFilter.TriState)?.state != AnimeSourceModelFilter.TriState.STATE_IGNORE
+            }
+
+            if (isNotEmpty) {
+                // Clear other groups
+                currentFilters.filterIsInstance<AnimeSourceModelFilter.Group<*>>()
+                    .filter { it != filter }
+                    .forEach { group ->
+                        group.state.forEach { subFilter ->
+                            when (subFilter) {
+                                is AnimeSourceModelFilter.CheckBox -> subFilter.state = false
+                                is AnimeSourceModelFilter.TriState -> subFilter.state = AnimeSourceModelFilter.TriState.STATE_IGNORE
+                                else -> {}
+                            }
+                        }
+                    }
+            }
+        }
+        mutableState.update { it.copy(filters = currentFilters) }
+    }
+
+    fun saveSearch(name: String) {
+        val query = state.value.toolbarQuery
+        val filters = state.value.filters
+        val filtersJson = if (filters.isNotEmpty()) filterSerializer.serialize(filters) else null
+
+        screenModelScope.launchIO {
+            insertSavedSearch.await(
+                SavedSearch(
+                    id = -1,
+                    source = sourceId,
+                    name = name,
+                    query = query,
+                    filtersJson = filtersJson,
+                ),
+            )
+        }
+    }
+
+    fun deleteSearch(savedSearchId: Long) {
+        screenModelScope.launchIO {
+            deleteSavedSearchById.await(savedSearchId)
+        }
+    }
+
+    fun loadSearch(savedSearch: SavedSearch) {
+        if (source !is CatalogueSource) return
+
+        val filters = source.getFilterList()
+        savedSearch.filtersJson?.let {
+            filterSerializer.deserialize(filters, it)
+        }
+
+        mutableState.update {
+            it.copy(
+                filters = filters,
+                toolbarQuery = savedSearch.query,
+                listing = Listing.Search(query = savedSearch.query, filters = filters),
             )
         }
     }
@@ -360,6 +450,7 @@ class BrowseSourceScreenModel(
             val initialSelection: ImmutableList<CheckboxState.State<Category>>,
         ) : Dialog
         data class Migrate(val newAnime: Anime, val oldAnime: Anime) : Dialog
+        data object SaveSearch : Dialog
     }
 
     @Immutable
@@ -367,6 +458,7 @@ class BrowseSourceScreenModel(
         val listing: Listing,
         val filters: FilterList = FilterList(),
         val toolbarQuery: String? = null,
+        val savedSearches: ImmutableList<SavedSearch> = persistentListOf(),
         val dialog: Dialog? = null,
     ) {
         val isUserQuery get() = listing is Listing.Search && !listing.query.isNullOrEmpty()

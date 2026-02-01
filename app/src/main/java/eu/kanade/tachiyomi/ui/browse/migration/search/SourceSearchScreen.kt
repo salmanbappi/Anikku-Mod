@@ -25,7 +25,7 @@ import eu.kanade.presentation.util.Screen
 import eu.kanade.tachiyomi.source.online.HttpSource
 import eu.kanade.tachiyomi.ui.anime.AnimeScreen
 import eu.kanade.tachiyomi.ui.browse.source.browse.BrowseSourceScreenModel
-import eu.kanade.tachiyomi.ui.browse.source.browse.SourceFilterDialog
+import eu.kanade.tachiyomi.ui.browse.source.browse.SourceFilterSheet
 import eu.kanade.tachiyomi.ui.home.HomeScreen
 import eu.kanade.tachiyomi.ui.webview.WebViewScreen
 import kotlinx.coroutines.launch
@@ -112,12 +112,19 @@ data class SourceSearchScreen(
         val onDismissRequest = { screenModel.setDialog(null) }
         when (val dialog = state.dialog) {
             is BrowseSourceScreenModel.Dialog.Filter -> {
-                SourceFilterDialog(
+                SourceFilterSheet(
                     onDismissRequest = onDismissRequest,
                     filters = state.filters,
                     onReset = screenModel::resetFilters,
+                    onSave = {}, // Disable save search in migration for now
                     onFilter = { screenModel.search(filters = state.filters) },
-                    onUpdate = screenModel::setFilters,
+                    onUpdate = screenModel::onFilterUpdate,
+                    savedSearches = state.savedSearches,
+                    onSavedSearchClick = {
+                        screenModel.loadSearch(it)
+                        onDismissRequest()
+                    },
+                    onSavedSearchLongClick = { screenModel.deleteSearch(it.id) },
                 )
             }
             is BrowseSourceScreenModel.Dialog.Migrate -> {
