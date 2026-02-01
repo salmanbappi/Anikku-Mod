@@ -308,9 +308,13 @@ fun AnimeScreen(
                         item(
                             key = "episode_header",
                         ) {
+                            val missingEpisodeCount = remember(state.episodeListItems) {
+                                state.episodeListItems.filterIsInstance<EpisodeList.MissingCount>().sumOf { it.count }
+                            }
                             EpisodeHeader(
                                 enabled = !isAnySelected,
                                 episodeCount = episodes.size,
+                                missingEpisodeCount = missingEpisodeCount,
                                 onClick = onFilterButtonClicked,
                             )
                         }
