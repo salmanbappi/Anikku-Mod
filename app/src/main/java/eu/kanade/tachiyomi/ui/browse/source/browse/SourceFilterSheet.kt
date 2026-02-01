@@ -3,6 +3,7 @@ package eu.kanade.tachiyomi.ui.browse.source.browse
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -167,7 +168,7 @@ private fun SavedSearches(
                 ) {
                     FilterChip(
                         selected = false,
-                        onClick = { onSavedSearchClick(savedSearch) },
+                        onClick = {},
                         label = { Text(text = savedSearch.name) },
                     )
                 }
