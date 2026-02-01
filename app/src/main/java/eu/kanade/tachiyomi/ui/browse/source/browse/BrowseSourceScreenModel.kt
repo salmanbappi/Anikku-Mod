@@ -264,7 +264,7 @@ class BrowseSourceScreenModel(
             performAiSearch(query.substring(3).trim())
             return
         }
-        val nextListing = Listing.Search(query, filters)
+        val nextListing = Listing.Search(query, filters ?: state.value.filters)
         if (state.value.listing == nextListing) return
         mutableState.update { it.copy(listing = nextListing) }
     }
