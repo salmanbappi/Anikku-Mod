@@ -36,7 +36,7 @@ import eu.kanade.tachiyomi.data.track.TrackerManager
 import eu.kanade.tachiyomi.network.HttpException
 import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.source.isSourceForTorrents
-import eu.kanade.tachiyomi.source.model.UpdateStrategy
+import eu.kanade.tachiyomi.source.model.UpdateStrategy as SourceUpdateStrategy
 import eu.kanade.tachiyomi.torrentServer.TorrentServerUtils
 import eu.kanade.tachiyomi.ui.anime.track.TrackItem
 import eu.kanade.tachiyomi.ui.player.settings.GesturePreferences
@@ -102,6 +102,7 @@ import uy.kohesive.injekt.api.get
 import java.util.ArrayDeque
 import java.util.Calendar
 import kotlin.math.floor
+import tachiyomi.domain.anime.model.UpdateStrategy as DomainUpdateStrategy
 
 @Suppress("LargeClass")
 class AnimeScreenModel(

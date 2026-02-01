@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import cafe.adriel.voyager.core.model.rememberScreenModel
@@ -27,18 +28,18 @@ import eu.kanade.tachiyomi.ui.browse.migration.sources.migrateSourceTab
 import eu.kanade.tachiyomi.ui.browse.source.globalsearch.GlobalSearchScreen
 import eu.kanade.tachiyomi.ui.browse.source.sourcesTab
 import eu.kanade.tachiyomi.ui.main.MainActivity
-import tachiyomi.domain.library.service.LibraryPreferences
-import uy.kohesive.injekt.Injekt
-import uy.kohesive.injekt.api.get
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
+import tachiyomi.domain.library.service.LibraryPreferences
 import tachiyomi.i18n.MR
 import tachiyomi.i18n.sy.SYMR
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.screens.EmptyScreen
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
 
 data object BrowseTab : Tab {
 
@@ -68,16 +69,20 @@ data object BrowseTab : Tab {
     @Composable
     override fun Content() {
         val context = LocalContext.current
-        val libraryPreferences: LibraryPreferences = Injekt.get()
+        val libraryPreferences: LibraryPreferences = remember { Injekt.get() }
         val showBrowseFeed by libraryPreferences.showBrowseFeed().collectAsState()
 
         // Hoisted for extensions tab's search bar
         val extensionsScreenModel = rememberScreenModel { ExtensionsScreenModel() }
         val animeExtensionsState by extensionsScreenModel.state.collectAsState()
 
-        val tabs = remember(showBrowseFeed) {
+        val sourcesTab = sourcesTab()
+        val extensionsTab = extensionsTab(extensionsScreenModel)
+        val migrateSourceTab = migrateSourceTab()
+
+        val tabs = remember(showBrowseFeed, sourcesTab, extensionsTab, migrateSourceTab) {
             persistentListOf<TabContent>().builder().apply {
-                add(sourcesTab())
+                add(sourcesTab)
                 if (showBrowseFeed) {
                     add(
                         TabContent(
@@ -91,8 +96,8 @@ data object BrowseTab : Tab {
                         ),
                     )
                 }
-                add(extensionsTab(extensionsScreenModel))
-                add(migrateSourceTab())
+                add(extensionsTab)
+                add(migrateSourceTab)
             }.build()
         }
 
