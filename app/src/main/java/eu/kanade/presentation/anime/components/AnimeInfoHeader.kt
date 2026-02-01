@@ -85,6 +85,7 @@ import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.source.model.SAnime
 import eu.kanade.tachiyomi.util.system.copyToClipboard
 import tachiyomi.domain.anime.model.Anime
+import tachiyomi.domain.anime.model.asAnimeCover
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.DISABLED_ALPHA
 import tachiyomi.presentation.core.components.material.TextButton
@@ -342,10 +343,7 @@ private fun AnimeAndSourceTitlesLarge(
     ) {
         AnimeCover.Book(
             modifier = Modifier.fillMaxWidth(0.65f),
-            data = ImageRequest.Builder(LocalContext.current)
-                .data(anime)
-                .crossfade(true)
-                .build(),
+            data = anime.asAnimeCover(),
             contentDescription = stringResource(MR.strings.manga_cover),
             onClick = onCoverClick,
         )
@@ -383,10 +381,7 @@ private fun AnimeAndSourceTitlesSmall(
             modifier = Modifier
                 .sizeIn(maxWidth = 100.dp)
                 .align(Alignment.Top),
-            data = ImageRequest.Builder(LocalContext.current)
-                .data(anime)
-                .crossfade(true)
-                .build(),
+            data = anime.asAnimeCover(),
             contentDescription = stringResource(MR.strings.manga_cover),
             onClick = onCoverClick,
         )
