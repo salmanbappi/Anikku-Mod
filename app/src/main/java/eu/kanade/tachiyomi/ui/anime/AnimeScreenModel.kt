@@ -98,6 +98,8 @@ import tachiyomi.source.local.LocalSource
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import java.util.ArrayDeque
+import java.util.Calendar
+import kotlin.math.floor
 import eu.kanade.tachiyomi.source.model.UpdateStrategy as SourceUpdateStrategy
 import tachiyomi.domain.anime.model.UpdateStrategy as DomainUpdateStrategy
 
@@ -173,16 +175,16 @@ class AnimeScreenModel(
                     val source = sourceManager.getOrStub(anime.source)
                     updateState { state ->
                         val newState = if (state is State.Success) {
-                            state.copy(anime = anime, episodes = episodes, source = source)
+                            state.copy(anime = anime, episodes = episodes.map { it.toEpisodeItem() }, source = source)
                         } else {
                             State.Success(
                                 anime = anime,
-                                episodes = episodes,
+                                episodes = episodes.map { it.toEpisodeItem() },
                                 source = source,
                                 trackingCount = trackerManager.loggedInTrackers().size,
                             )
                         }
-                        newState.copy(episodes = newState.episodes.insertSeparators())
+                        newState
                     }
                 }
         }
@@ -192,7 +194,7 @@ class AnimeScreenModel(
                 .flowWithLifecycle(lifecycle)
                 .collectLatest {
                     val state = successState ?: return@collectLatest
-                    updateState { state.copy(episodes = state.episodes.insertSeparators()) }
+                    updateState { state } // Trigger lazy property re-evaluation
                 }
         }
 
@@ -202,7 +204,7 @@ class AnimeScreenModel(
                 .collectLatest { download ->
                     val state = successState ?: return@collectLatest
                     if (download.anime.id == state.anime.id) {
-                        updateState { state.copy(episodes = state.episodes.insertSeparators()) }
+                        updateState { state }
                     }
                 }
         }
@@ -220,6 +222,20 @@ class AnimeScreenModel(
                     }
                 }
         }
+    }
+
+    private fun Episode.toEpisodeItem(): EpisodeItem {
+        val activeDownload = downloadManager.getQueuedDownloadOrNull(id)
+        val downloaded = downloadManager.isEpisodeDownloaded(name, scanlator, anime?.title ?: "", anime?.source ?: -1L)
+        return EpisodeItem(
+            episode = this,
+            downloadState = when {
+                activeDownload != null -> activeDownload.status
+                downloaded -> Download.State.DOWNLOADED
+                else -> Download.State.NOT_DOWNLOADED
+            },
+            downloadProgress = activeDownload?.progress ?: 0,
+        )
     }
 
     fun fetchAllFromSource() {
@@ -431,8 +447,7 @@ class AnimeScreenModel(
     fun markPreviousEpisodeSeen(episode: Episode) {
         val state = successState ?: return
         screenModelScope.launchIO {
-            val episodesToMark = state.episodes
-                .filterIsInstance<EpisodeItem>()
+            val episodesToMark = state.processedEpisodes
                 .filter { it.episode.episodeNumber < episode.episodeNumber }
                 .map { it.episode }
             setSeenStatus.await(seen = true, episodes = episodesToMark.toTypedArray())
@@ -451,7 +466,7 @@ class AnimeScreenModel(
         when (action) {
             EpisodeDownloadAction.START -> {
                 downloadManager.downloadEpisodes(state.anime, episodes)
-                if (episodes.size == 1 && episodes.first().id == state.episodes.filterIsInstance<EpisodeItem>().firstOrNull()?.episode?.id) {
+                if (episodes.size == 1 && episodes.first().id == state.processedEpisodes.firstOrNull()?.episode?.id) {
                     fetchAllFromSource()
                 }
             }
@@ -477,7 +492,7 @@ class AnimeScreenModel(
 
     fun runDownloadAction(action: DownloadAction) {
         val state = successState ?: return
-        val episodes = state.episodes.filterIsInstance<EpisodeItem>().map { it.episode }
+        val episodes = state.processedEpisodes.map { it.episode }
         when (action) {
             DownloadAction.NEXT_1_EPISODE -> downloadUnseenEpisodes(episodes, 1)
             DownloadAction.NEXT_5_EPISODES -> downloadUnseenEpisodes(episodes, 5)
@@ -499,8 +514,7 @@ class AnimeScreenModel(
 
     fun getNextUnseenEpisode(): Episode? {
         val state = successState ?: return null
-        return state.episodes
-            .filterIsInstance<EpisodeItem>()
+        return state.processedEpisodes
             .map { it.episode }
             .getNextUnseen(state.anime, downloadManager)
     }
@@ -617,7 +631,7 @@ class AnimeScreenModel(
     // Selection actions
     fun toggleSelection(episodeItem: EpisodeItem) {
         val state = successState ?: return
-        val episodes = state.episodes.toMutableList()
+        val episodes = state.processedEpisodes.toMutableList()
         val index = episodes.indexOf(episodeItem)
         if (index != -1) {
             episodes[index] = (episodes[index] as EpisodeItem).copy(selected = !episodeItem.selected)
@@ -627,16 +641,16 @@ class AnimeScreenModel(
 
     fun toggleAllSelection(selected: Boolean) {
         val state = successState ?: return
-        val episodes = state.episodes.map {
-            if (it is EpisodeItem) it.copy(selected = selected) else it
+        val episodes = state.processedEpisodes.map {
+            it.copy(selected = selected)
         }
         updateState { (it as State.Success).copy(episodes = episodes) }
     }
 
     fun invertSelection() {
         val state = successState ?: return
-        val episodes = state.episodes.map {
-            if (it is EpisodeItem) it.copy(selected = !it.selected) else it
+        val episodes = state.processedEpisodes.map {
+            it.copy(selected = !it.selected)
         }
         updateState { (it as State.Success).copy(episodes = episodes) }
     }
@@ -645,14 +659,59 @@ class AnimeScreenModel(
         data object Loading : State
         data class Success(
             val anime: Anime,
-            val episodes: List<Any>,
+            val episodes: List<EpisodeItem>,
             val source: Source,
             val trackingCount: Int,
             val isRefreshing: Boolean = false,
             val dialog: Dialog? = null,
+            // SY -->
+            val recommendations: Map<String, List<Anime>> = emptyMap(),
+            // SY <--
         ) : State {
             val hasLoggedInTrackers: Boolean
                 get() = trackingCount > 0
+
+            val processedEpisodes by lazy {
+                episodes // Filters should be applied here if needed
+            }
+
+            val episodeListItems by lazy {
+                processedEpisodes.insertSeparators { before, after ->
+                    val (lowerEpisode, higherEpisode) = if (anime.sortDescending()) {
+                        after to before
+                    } else {
+                        before to after
+                    }
+                    if (higherEpisode == null) return@insertSeparators null
+
+                    if (lowerEpisode == null) {
+                        floor(higherEpisode.episode.episodeNumber)
+                            .toInt()
+                            .minus(1)
+                            .coerceAtLeast(0)
+                    } else {
+                        calculateChapterGap(higherEpisode.episode, lowerEpisode.episode)
+                    }
+                        .takeIf { it > 0 }
+                        ?.let { missingCount ->
+                            EpisodeList.MissingCount(
+                                id = "${lowerEpisode?.episode?.id}-${higherEpisode.episode.id}",
+                                count = missingCount,
+                            )
+                        }
+                }.map { 
+                    when (it) {
+                        is EpisodeItem -> EpisodeList.Item(it.episode, it.downloadState, it.downloadProgress, null, it.selected)
+                        is EpisodeList.MissingCount -> it
+                        else -> it // Should not happen
+                    }
+                }
+            }
+
+            val isRefreshingData: Boolean get() = isRefreshing
+            val filterActive: Boolean get() = anime.episodesFiltered()
+            val airingTime: Long get() = 0L // Placeholder
+            val airingEpisodeNumber: Int get() = 0 // Placeholder
         }
     }
 
@@ -671,6 +730,26 @@ class AnimeScreenModel(
         data class SetAnimeFetchInterval(val anime: Anime) : Dialog
         data class EditAnimeInfo(val anime: Anime) : Dialog
         data class ShowQualities(val anime: Anime, val episode: Episode, val source: Source) : Dialog
+    }
+}
+
+@Immutable
+sealed interface EpisodeList {
+    @Immutable
+    data class MissingCount(
+        val id: String,
+        val count: Int,
+    ) : EpisodeList
+
+    @Immutable
+    data class Item(
+        val episode: Episode,
+        val downloadState: Download.State,
+        val downloadProgress: Int,
+        var fileSize: Long? = null,
+        val selected: Boolean = false,
+    ) : EpisodeList {
+        val id = episode.id
     }
 }
 
