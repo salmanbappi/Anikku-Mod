@@ -1,17 +1,31 @@
 package eu.kanade.tachiyomi.ui.browse.migration.search
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FilterList
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -62,13 +76,33 @@ data class SourceSearchScreen(
 
         Scaffold(
             topBar = { scrollBehavior ->
-                SearchToolbar(
-                    searchQuery = state.toolbarQuery ?: "",
-                    onChangeSearchQuery = screenModel::setToolbarQuery,
-                    onClickCloseSearch = navigator::pop,
-                    onSearch = screenModel::search,
-                    scrollBehavior = scrollBehavior,
-                )
+                Column {
+                    SearchToolbar(
+                        searchQuery = state.toolbarQuery ?: "",
+                        onChangeSearchQuery = screenModel::setToolbarQuery,
+                        onClickCloseSearch = navigator::pop,
+                        onSearch = screenModel::search,
+                        scrollBehavior = scrollBehavior,
+                    )
+
+                    if (state.savedSearches.isNotEmpty()) {
+                        Row(
+                            modifier = Modifier
+                                .horizontalScroll(rememberScrollState())
+                                .padding(horizontal = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            state.savedSearches.forEach { savedSearch ->
+                                FilterChip(
+                                    selected = false,
+                                    onClick = { screenModel.loadSearch(savedSearch) },
+                                    label = { Text(text = savedSearch.name) },
+                                )
+                            }
+                        }
+                        HorizontalDivider()
+                    }
+                }
             },
             floatingActionButton = {
                 AnimatedVisibility(visible = state.filters.isNotEmpty()) {
@@ -124,7 +158,31 @@ data class SourceSearchScreen(
                         screenModel.loadSearch(it)
                         onDismissRequest()
                     },
-                    onSavedSearchLongClick = { screenModel.deleteSearch(it.id) },
+                    onSavedSearchLongClick = {
+                        screenModel.setDialog(BrowseSourceScreenModel.Dialog.DeleteSavedSearch(it))
+                    },
+                )
+            }
+            is BrowseSourceScreenModel.Dialog.DeleteSavedSearch -> {
+                AlertDialog(
+                    onDismissRequest = onDismissRequest,
+                    title = { Text(text = "Delete Saved Search?") },
+                    text = { Text(text = "Are you sure you want to delete '${dialog.savedSearch.name}'?") },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                screenModel.deleteSearch(dialog.savedSearch.id)
+                                onDismissRequest()
+                            },
+                        ) {
+                            Text(text = stringResource(MR.strings.action_ok))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = onDismissRequest) {
+                            Text(text = stringResource(MR.strings.action_cancel))
+                        }
+                    },
                 )
             }
             is BrowseSourceScreenModel.Dialog.Migrate -> {

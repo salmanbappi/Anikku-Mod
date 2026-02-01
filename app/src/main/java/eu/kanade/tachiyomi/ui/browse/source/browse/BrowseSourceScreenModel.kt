@@ -451,6 +451,7 @@ class BrowseSourceScreenModel(
         ) : Dialog
         data class Migrate(val newAnime: Anime, val oldAnime: Anime) : Dialog
         data object SaveSearch : Dialog
+        data class DeleteSavedSearch(val savedSearch: SavedSearch) : Dialog
     }
 
     @Immutable
