@@ -27,7 +27,7 @@
         <aapt:attr name="android:animation">
             <objectAnimator
                 android:propertyName="pathData"
-                android:duration="300"
+                android:duration="150"
                 android:valueFrom="M 11.6 14.6 L 17.599 10.101 C 17.599 10.101 17.6 10.1 17.6 10.1 L 14.79 7.993 C 14.761 7.971 14.732 7.949 14.702 7.927 L 14.691 7.919 L 11.6 5.6 C 11.6 5.98 11.6 6.36 11.6 6.739 L 11.6 14.544 C 11.6 14.563 11.6 14.581 11.6 14.6 M 13.6 10.1 L 13.6 10.1 L 13.6 10.1 L 13.6 10.1 L 13.6 10.1"
                 android:valueTo="M 8 18 L 20 18 C 21.2 18 22 17.2 22 16 L 22 4 C 22 2.8 21.2 2 20 2 L 20 2 L 8 2 C 6.8 2 6 2.8 6 4 L 6 16 C 6 17.2 6.8 18 8 18 M 11.6 14.6 L 11.6 14.6 L 11.6 5.6 L 17.6 10.1 L 11.6 14.6"
                 android:valueType="pathType"
