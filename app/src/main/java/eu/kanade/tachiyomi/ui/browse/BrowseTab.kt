@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -40,7 +39,7 @@ import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.screens.EmptyScreen
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
-import tachiyomi.core.common.preference.collectAsState
+import tachiyomi.presentation.core.util.collectAsState
 
 data object BrowseTab : Tab {
 
@@ -75,7 +74,7 @@ data object BrowseTab : Tab {
 
         // Hoisted for extensions tab's search bar
         val extensionsScreenModel = rememberScreenModel { ExtensionsScreenModel() }
-        val animeExtensionsState by extensionsScreenModel.state.collectAsState()
+        val extensionsState by extensionsScreenModel.state.collectAsState()
 
         val sourcesTab = sourcesTab()
         val extensionsTab = extensionsTab(extensionsScreenModel)
@@ -108,7 +107,7 @@ data object BrowseTab : Tab {
             titleRes = MR.strings.browse,
             tabs = tabs,
             state = state,
-            searchQuery = animeExtensionsState.searchQuery,
+            searchQuery = extensionsState.searchQuery,
             onChangeSearchQuery = extensionsScreenModel::search,
             scrollable = true,
         )
