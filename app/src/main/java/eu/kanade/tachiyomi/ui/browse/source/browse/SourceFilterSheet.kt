@@ -156,7 +156,7 @@ private fun SavedSearches(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             savedSearches.forEach { savedSearch ->
-                FilterChip(
+                Box(
                     modifier = Modifier.combinedClickable(
                         onClick = { onSavedSearchClick(savedSearch) },
                         onLongClick = {
@@ -164,10 +164,13 @@ private fun SavedSearches(
                             onSavedSearchLongClick(savedSearch)
                         },
                     ),
-                    selected = false,
-                    onClick = {},
-                    label = { Text(text = savedSearch.name) },
-                )
+                ) {
+                    FilterChip(
+                        selected = false,
+                        onClick = { onSavedSearchClick(savedSearch) },
+                        label = { Text(text = savedSearch.name) },
+                    )
+                }
             }
         }
     }

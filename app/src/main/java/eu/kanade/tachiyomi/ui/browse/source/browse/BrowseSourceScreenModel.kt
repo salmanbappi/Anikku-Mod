@@ -168,7 +168,7 @@ class BrowseSourceScreenModel(
     }
 
     fun setListing(listing: Listing) {
-        mutableState.update { it.copy(listing = listing, toolbarQuery = null) }
+        mutableState.update { it.copy(listing = listing, toolbarQuery = null, currentSavedSearch = null) }
     }
 
     fun setFilters(filters: FilterList) {
@@ -250,6 +250,7 @@ class BrowseSourceScreenModel(
                 filters = filters,
                 toolbarQuery = savedSearch.query,
                 listing = Listing.Search(query = savedSearch.query, filters = filters),
+                currentSavedSearch = savedSearch,
             )
         }
     }
@@ -460,6 +461,7 @@ class BrowseSourceScreenModel(
         val filters: FilterList = FilterList(),
         val toolbarQuery: String? = null,
         val savedSearches: ImmutableList<SavedSearch> = persistentListOf(),
+        val currentSavedSearch: SavedSearch? = null,
         val dialog: Dialog? = null,
     ) {
         val isUserQuery get() = listing is Listing.Search && !listing.query.isNullOrEmpty()

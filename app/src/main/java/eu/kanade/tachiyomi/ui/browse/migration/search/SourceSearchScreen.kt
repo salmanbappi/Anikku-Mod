@@ -98,7 +98,7 @@ data class SourceSearchScreen(
                         ) {
                             state.savedSearches.forEach { savedSearch ->
                                 FilterChip(
-                                    selected = false,
+                                    selected = state.currentSavedSearch?.id == savedSearch.id,
                                     onClick = { screenModel.loadSearch(savedSearch) },
                                     label = { Text(text = savedSearch.name) },
                                 )
