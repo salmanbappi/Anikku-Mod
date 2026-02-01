@@ -154,14 +154,14 @@ class AnimeScreenModel(
 
     val snackbarHostState = SnackbarHostState()
 
-    val episodeSwipeStartAction = libraryPreferences.animeSwipeStartAction().get()
-    val episodeSwipeEndAction = libraryPreferences.animeSwipeEndAction().get()
-    val showNextEpisodeAirTime = libraryPreferences.showNextEpisodeAirTime().get()
+    val episodeSwipeStartAction = libraryPreferences.swipeEpisodeStartAction().get()
+    val episodeSwipeEndAction = libraryPreferences.swipeEpisodeEndAction().get()
+    val showNextEpisodeAirTime = trackPreferences.showNextEpisodeAiringTime().get()
     val alwaysUseExternalPlayer = playerPreferences.alwaysUseExternalPlayer().get()
     val useExternalDownloader = downloadPreferences.useExternalDownloader().get()
 
     // AM (FILE_SIZE) -->
-    val showFileSize = libraryPreferences.showEpisodeFileSize().get()
+    val showFileSize = storagePreferences.showEpisodeFileSize().get()
     // <-- AM (FILE_SIZE)
 
     var autoOpenTrack: Boolean = false
@@ -182,6 +182,7 @@ class AnimeScreenModel(
                                 episodes = episodes.map { it.toEpisodeItem() },
                                 source = source,
                                 trackingCount = trackerManager.loggedInTrackers().size,
+                                isFromSource = isFromSource,
                             )
                         }
                         newState
@@ -251,7 +252,7 @@ class AnimeScreenModel(
                         author = networkAnime.author,
                         artist = networkAnime.artist,
                         description = networkAnime.description,
-                        genre = networkAnime.genre,
+                        genre = networkAnime.genre?.split(", "),
                         status = networkAnime.status.toLong(),
                         initialized = true,
                     ),
@@ -262,7 +263,8 @@ class AnimeScreenModel(
             } catch (e: Throwable) {
                 logcat(LogPriority.ERROR, e)
                 withUIContext {
-                    context.toast(formattedMessage(e))
+                    val message = with(context) { e.formattedMessage }
+                    context.toast(message)
                 }
             } finally {
                 isRefreshing = false
@@ -379,7 +381,7 @@ class AnimeScreenModel(
     ) {
         val state = successState ?: return
         screenModelScope.launchIO {
-            setCustomAnimeInfo.await(
+            setCustomAnimeInfo.set(
                 CustomAnimeInfo(
                     id = state.anime.id,
                     title = title?.trimOrNull(),
@@ -487,13 +489,11 @@ class AnimeScreenModel(
                 }
             }
             EpisodeDownloadAction.START_NOW -> {
-                val download = downloadManager.getQueuedDownloadOrNull(domainEpisodes.first().id)
-                if (download != null) {
-                    downloadManager.startDownloadNow(download)
-                }
+                downloadManager.startDownloadNow(domainEpisodes.first().id)
             }
             EpisodeDownloadAction.CANCEL -> {
-                domainEpisodes.forEach { downloadManager.cancelQueuedDownload(it.id) }
+                val downloads = domainEpisodes.mapNotNull { downloadManager.getQueuedDownloadOrNull(it.id) }
+                downloadManager.cancelQueuedDownloads(downloads)
             }
             EpisodeDownloadAction.DELETE -> {
                 deleteEpisodes(domainEpisodes)
@@ -620,7 +620,6 @@ class AnimeScreenModel(
 
     fun episodeSwipe(episodeItem: EpisodeList.Item, action: LibraryPreferences.EpisodeSwipeAction) {
         val episode = episodeItem.episode
-        val episodeItemInternal = EpisodeItem(episode, episodeItem.downloadState, episodeItem.downloadProgress, episodeItem.selected)
         when (action) {
             LibraryPreferences.EpisodeSwipeAction.ToggleSeen -> {
                 markEpisodesSeen(listOf(episode), !episode.seen)
@@ -683,6 +682,7 @@ class AnimeScreenModel(
             val dialog: Dialog? = null,
             // SY -->
             val recommendations: Map<String, List<Anime>> = emptyMap(),
+            val isFromSource: Boolean = false,
             // SY <--
         ) : State {
             val hasLoggedInTrackers: Boolean
@@ -707,7 +707,7 @@ class AnimeScreenModel(
                             .minus(1)
                             .coerceAtLeast(0)
                     } else {
-                        calculateChapterGap(higherEpisode.episode, lowerEpisode.episode)
+                        calculateChapterGap(higherChapterNumber = higherEpisode.episode.episodeNumber, lowerChapterNumber = lowerEpisode.episode.episodeNumber)
                     }
                         .takeIf { it > 0 }
                         ?.let { missingCount ->
