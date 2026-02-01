@@ -112,9 +112,14 @@ data object BrowseTab : Tab {
             onChangeSearchQuery = extensionsScreenModel::search,
             scrollable = true,
         )
-        LaunchedEffect(Unit) {
+        LaunchedEffect(tabs) {
             switchToExtensionTabChannel.receiveAsFlow()
-                .collectLatest { state.scrollToPage(1) }
+                .collectLatest { 
+                    val index = tabs.indexOf(extensionsTab)
+                    if (index != -1) {
+                        state.scrollToPage(index)
+                    }
+                }
         }
 
         LaunchedEffect(Unit) {

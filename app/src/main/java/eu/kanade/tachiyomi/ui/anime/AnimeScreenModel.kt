@@ -150,9 +150,10 @@ class AnimeScreenModel(
         get() = true
 
     private var isRefreshing: Boolean = false
+    private var hasAutoFetched: Boolean = false
 
     val snackbarHostState = SnackbarHostState()
-
+    // ... skipping some lines for brevity in instruction if needed, but I'll provide full block ...
     val episodeSwipeStartAction = libraryPreferences.swipeEpisodeStartAction().get()
     val episodeSwipeEndAction = libraryPreferences.swipeEpisodeEndAction().get()
     val showNextEpisodeAirTime = trackPreferences.showNextEpisodeAiringTime().get()
@@ -186,19 +187,17 @@ class AnimeScreenModel(
                         }
                         newState
                     }
+
+                    if ((!anime.initialized || isFromSource) && !hasAutoFetched) {
+                        hasAutoFetched = true
+                        fetchAllFromSource()
+                    }
+
+                    if (successState?.recommendations?.isEmpty() == true) {
+                        fetchRecommendations(anime)
+                    }
                 }
         }
-
-        screenModelScope.launchIO {
-            getAnimeAndEpisodes.subscribe(animeId)
-                .flowWithLifecycle(lifecycle)
-                .filter { (anime, _) -> !anime.initialized || isFromSource }
-                .collectLatest { 
-                    fetchAllFromSource()
-                }
-        }
-
-        fetchRecommendations()
 
         screenModelScope.launchIO {
             downloadCache.changes
@@ -247,14 +246,20 @@ class AnimeScreenModel(
         )
     }
 
-    fun fetchRecommendations() {
-        val state = successState ?: return
+    fun fetchRecommendations(anime: Anime? = null) {
+        val targetAnime = anime ?: this.anime ?: return
         screenModelScope.launchIO {
             try {
-                val animeTitle = state.anime.ogTitle ?: state.anime.title
+                val animeTitle = targetAnime.ogTitle ?: targetAnime.title
                 val recommendations = AniChartApi().getRecommendations(animeTitle)
                 if (recommendations.isNotEmpty()) {
-                    updateState { (it as State.Success).copy(recommendations = mapOf("Recommendations" to recommendations)) }
+                    updateState { state ->
+                        if (state is State.Success) {
+                            state.copy(recommendations = mapOf("Recommendations" to recommendations))
+                        } else {
+                            state
+                        }
+                    }
                 }
             } catch (e: Exception) {
                 logcat(LogPriority.ERROR, e) { "Failed to fetch recommendations" }
@@ -263,14 +268,17 @@ class AnimeScreenModel(
     }
 
     fun fetchAllFromSource() {
-        val state = successState ?: return
         if (isRefreshing) return
         isRefreshing = true
-        updateState { state.copy(isRefreshing = true) }
+        updateState { state ->
+            if (state is State.Success) state.copy(isRefreshing = true) else state
+        }
 
         screenModelScope.launchIO {
             try {
-                val networkAnime = source!!.getAnimeDetails(state.anime.toSAnime())
+                val state = successState ?: return@launchIO
+                val source = state.source
+                val networkAnime = source.getAnimeDetails(state.anime.toSAnime())
                 updateAnime.await(
                     AnimeUpdate(
                         id = animeId,
@@ -283,8 +291,8 @@ class AnimeScreenModel(
                     ),
                 )
 
-                val networkEpisodes = source!!.getEpisodeList(state.anime.toSAnime())
-                syncEpisodesWithSource.await(networkEpisodes, state.anime, source!!)
+                val networkEpisodes = source.getEpisodeList(state.anime.toSAnime())
+                syncEpisodesWithSource.await(networkEpisodes, state.anime, source)
             } catch (e: Throwable) {
                 logcat(LogPriority.ERROR, e)
                 withUIContext {
@@ -293,7 +301,9 @@ class AnimeScreenModel(
                 }
             } finally {
                 isRefreshing = false
-                updateState { state.copy(isRefreshing = false) }
+                updateState { state ->
+                    if (state is State.Success) state.copy(isRefreshing = false) else state
+                }
             }
         }
     }
