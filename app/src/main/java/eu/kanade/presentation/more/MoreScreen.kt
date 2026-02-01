@@ -96,12 +96,14 @@ fun MoreScreen(
 
             item { HorizontalDivider() }
 
-            item {
-                TextPreferenceWidget(
-                    title = navStyle.moreTab.options.title,
-                    icon = navStyle.moreIcon,
-                    onPreferenceClick = onClickAlt,
-                )
+            if (navStyle != NavStyle.SHOW_ALL) {
+                item {
+                    TextPreferenceWidget(
+                        title = navStyle.moreTab.options.title,
+                        icon = navStyle.moreIcon,
+                        onPreferenceClick = onClickAlt,
+                    )
+                }
             }
 
             item {

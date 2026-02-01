@@ -81,7 +81,7 @@ object HomeScreen : Screen() {
     private val openTabEvent = Channel<Tab>()
     private val showBottomNavEvent = Channel<Boolean>()
 
-    private const val TAB_FADE_DURATION = 200
+    private const val TAB_FADE_DURATION = 100
     private const val TAB_NAVIGATOR_KEY = "HomeTabs"
 
     private val uiPreferences: UiPreferences by injectLazy()
@@ -150,8 +150,8 @@ object HomeScreen : Screen() {
 
                                 AnimatedVisibility(
                                     visible = bottomNavVisible && tabNavigator.current != navStyle.moreTab,
-                                    enter = expandVertically(),
-                                    exit = shrinkVertically(),
+                                    enter = expandVertically(animationSpec = androidx.compose.animation.core.tween(100)),
+                                    exit = shrinkVertically(animationSpec = androidx.compose.animation.core.tween(100)),
                                 ) {
                                     NavigationBar {
                                         navStyle.tabs
@@ -250,7 +250,7 @@ object HomeScreen : Screen() {
         val tabNavigator = LocalTabNavigator.current
         val navigator = LocalNavigator.currentOrThrow
         val scope = rememberCoroutineScope()
-        val selected = tabNavigator.current::class == tab::class
+        val selected = tabNavigator.current.key == tab.key
         val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
         NavigationBarItem(
             selected = selected,
@@ -285,7 +285,7 @@ object HomeScreen : Screen() {
         val tabNavigator = LocalTabNavigator.current
         val navigator = LocalNavigator.currentOrThrow
         val scope = rememberCoroutineScope()
-        val selected = tabNavigator.current::class == tab::class
+        val selected = tabNavigator.current.key == tab.key
         val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
         NavigationRailItem(
             selected = selected,

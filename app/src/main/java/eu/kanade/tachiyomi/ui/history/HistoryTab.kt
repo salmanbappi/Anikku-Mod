@@ -51,6 +51,7 @@ data object HistoryTab : Tab {
             val index: UShort = when (currentNavigationStyle()) {
                 NavStyle.MOVE_HISTORY_TO_MORE -> 5u
                 NavStyle.MOVE_BROWSE_TO_MORE -> 3u
+                NavStyle.SHOW_ALL -> 2u
                 else -> 2u
             }
             return TabOptions(

@@ -35,7 +35,7 @@ fun extensionsTab(
     var privateExtensionToUninstall by remember { mutableStateOf<Extension?>(null) }
 
     return TabContent(
-        titleRes = MR.strings.label_anime_extensions,
+        titleRes = MR.strings.label_extensions,
         badgeNumber = state.updates.takeIf { it > 0 },
         searchEnabled = true,
         actions = persistentListOf(
@@ -93,7 +93,7 @@ fun extensionsTab(
             )
 
             privateExtensionToUninstall?.let { extension ->
-                AnimeExtensionUninstallConfirmation(
+                ExtensionUninstallConfirmation(
                     extensionName = extension.name,
                     onClickConfirm = {
                         extensionsScreenModel.uninstallExtension(extension)
@@ -108,7 +108,7 @@ fun extensionsTab(
 }
 
 @Composable
-private fun AnimeExtensionUninstallConfirmation(
+private fun ExtensionUninstallConfirmation(
     extensionName: String,
     onClickConfirm: () -> Unit,
     onDismissRequest: () -> Unit,

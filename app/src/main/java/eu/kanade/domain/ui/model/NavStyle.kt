@@ -23,6 +23,7 @@ enum class NavStyle(
     MOVE_UPDATES_TO_MORE(titleRes = MR.strings.pref_bottom_nav_no_updates, moreTab = UpdatesTab),
     MOVE_HISTORY_TO_MORE(titleRes = MR.strings.pref_bottom_nav_no_history, moreTab = HistoryTab),
     MOVE_BROWSE_TO_MORE(titleRes = MR.strings.pref_bottom_nav_no_browse, moreTab = BrowseTab),
+    SHOW_ALL(titleRes = MR.strings.all, moreTab = HistoryTab),
     ;
 
     val moreIcon: ImageVector
@@ -31,16 +32,21 @@ enum class NavStyle(
             MOVE_UPDATES_TO_MORE -> ImageVector.vectorResource(id = R.drawable.ic_updates_outline_24dp)
             MOVE_HISTORY_TO_MORE -> Icons.Outlined.History
             MOVE_BROWSE_TO_MORE -> Icons.Outlined.Explore
+            SHOW_ALL -> Icons.Outlined.History
         }
 
     val tabs: List<Tab>
         get() {
-            return mutableListOf(
+            val tabs = mutableListOf(
                 LibraryTab,
                 UpdatesTab,
                 HistoryTab,
                 BrowseTab,
                 MoreTab,
-            ).apply { remove(this@NavStyle.moreTab) }
+            )
+            if (this != SHOW_ALL) {
+                tabs.remove(this.moreTab)
+            }
+            return tabs
         }
 }
