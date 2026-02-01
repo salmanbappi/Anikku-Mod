@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material.icons.outlined.NewReleases
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -20,11 +21,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -256,12 +260,50 @@ data class BrowseSourceScreen(
         val onDismissRequest = { screenModel.setDialog(null) }
         when (val dialog = state.dialog) {
             is BrowseSourceScreenModel.Dialog.Filter -> {
-                SourceFilterDialog(
+                SourceFilterSheet(
                     onDismissRequest = onDismissRequest,
                     filters = state.filters,
                     onReset = screenModel::resetFilters,
+                    onSave = { screenModel.setDialog(BrowseSourceScreenModel.Dialog.SaveSearch) },
                     onFilter = { screenModel.search(filters = state.filters) },
-                    onUpdate = screenModel::setFilters,
+                    onUpdate = screenModel::onFilterUpdate,
+                    savedSearches = state.savedSearches,
+                    onSavedSearchClick = {
+                        screenModel.loadSearch(it)
+                        onDismissRequest()
+                    },
+                    onSavedSearchLongClick = { screenModel.deleteSearch(it.id) },
+                )
+            }
+            is BrowseSourceScreenModel.Dialog.SaveSearch -> {
+                var name by remember { mutableStateOf("") }
+                AlertDialog(
+                    onDismissRequest = onDismissRequest,
+                    title = { Text(text = "Save current search query?") },
+                    text = {
+                        TextField(
+                            value = name,
+                            onValueChange = { name = it },
+                            label = { Text(text = "Name") },
+                            singleLine = true,
+                        )
+                    },
+                    confirmButton = {
+                        TextButton(
+                            enabled = name.isNotBlank(),
+                            onClick = {
+                                screenModel.saveSearch(name)
+                                onDismissRequest()
+                            },
+                        ) {
+                            Text(text = stringResource(MR.strings.action_ok))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = onDismissRequest) {
+                            Text(text = stringResource(MR.strings.action_cancel))
+                        }
+                    },
                 )
             }
             is BrowseSourceScreenModel.Dialog.AddDuplicateAnime -> {
