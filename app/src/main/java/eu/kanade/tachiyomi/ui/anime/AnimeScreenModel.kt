@@ -622,6 +622,7 @@ class AnimeScreenModel(
 
     fun episodeSwipe(episodeItem: EpisodeList.Item, action: LibraryPreferences.EpisodeSwipeAction) {
         val episode = episodeItem.episode
+        val episodeItemInternal = EpisodeItem(episode, episodeItem.downloadState, episodeItem.downloadProgress, episodeItem.selected)
         when (action) {
             LibraryPreferences.EpisodeSwipeAction.ToggleSeen -> {
                 markEpisodesSeen(listOf(episode), !episode.seen)

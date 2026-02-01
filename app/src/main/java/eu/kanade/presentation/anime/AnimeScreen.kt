@@ -81,6 +81,7 @@ import eu.kanade.presentation.anime.components.EpisodeHeader
 import eu.kanade.presentation.anime.components.ExpandableAnimeDescription
 import eu.kanade.presentation.anime.components.MissingEpisodeCountListItem
 import eu.kanade.presentation.anime.components.NextEpisodeAiringListItem
+import eu.kanade.presentation.anime.components.RecommendationsComponent
 import eu.kanade.presentation.components.relativeDateTimeText
 import eu.kanade.presentation.library.components.AnimeComfortableGridItem
 import eu.kanade.presentation.theme.TachiyomiTheme
@@ -364,7 +365,7 @@ fun AnimeScreen(
                         EpisodeHeader(
                             enabled = !state.isRefreshingData,
                             episodeCount = episodes.size,
-                            missingEpisodeCount = state.episodes.missingEpisodesCount(),
+                            missingEpisodeCount = state.episodes.fastMap { it.episode.episodeNumber }.missingEpisodesCount(),
                             onClick = onFilterButtonClicked,
                         )
                     }
@@ -572,11 +573,6 @@ private fun LazyListScope.sharedEpisodeItems(
                     },
                     onDownloadClick = if (onDownloadEpisode != null) {
                         { onDownloadEpisode(listOf(item), it) }
-                    } else {
-                        null
-                    },
-                    onDownloadLongClick = if (onDownloadEpisode != null) {
-                        { onDownloadEpisode(listOf(item), EpisodeDownloadAction.SHOW_QUALITIES) }
                     } else {
                         null
                     },
