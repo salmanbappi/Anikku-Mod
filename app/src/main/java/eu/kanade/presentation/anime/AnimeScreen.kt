@@ -116,7 +116,7 @@ import java.time.Instant
 
 @Composable
 fun AnimeScreen(
-    state: AnimeScreenModel.Success,
+    state: AnimeScreenModel.State.Success,
     snackbarHostState: SnackbarHostState,
     nextUpdate: Instant?,
     isTabletUi: Boolean,
@@ -229,7 +229,7 @@ fun AnimeScreen(
 
         Box {
             PullRefresh(
-                refreshing = state.isRefreshingData,
+                refreshing = state.isRefreshing,
                 onRefresh = onRefresh,
                 enabled = !isAnySelected,
                 indicatorPadding = PaddingValues(top = topPadding),
@@ -431,7 +431,7 @@ private fun sharedEpisodeItems(
                     onLongClick = { onEpisodeSelected(item, !item.selected, true, false) },
                     onClick = { onEpisodeClicked(item.episode, false) },
                     onDownloadClick = { onDownloadEpisode(listOf(item), it) },
-                    fileSize = item.fileSize,
+                    fileSize = null, // Default value if not available
                 )
             }
             is EpisodeList.MissingCount -> {
