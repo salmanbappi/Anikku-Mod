@@ -246,6 +246,11 @@ fun AnimeToolbar(
                 containerColor = MaterialTheme.colorScheme
                     .surfaceColorAtElevation(3.dp)
                     .copy(alpha = if (isActionMode) 1f else backgroundAlphaProvider()),
+                scrolledContainerColor = MaterialTheme.colorScheme
+                    .surfaceColorAtElevation(3.dp),
+                titleContentColor = LocalContentColor.current.copy(alpha = if (isActionMode) 1f else titleAlphaProvider()),
+                navigationIconContentColor = LocalContentColor.current,
+                actionIconContentColor = LocalContentColor.current,
             ),
         )
     }
