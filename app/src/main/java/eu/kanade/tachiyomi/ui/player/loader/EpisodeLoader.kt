@@ -30,7 +30,7 @@ class EpisodeLoader {
          * @param source the source of the anime.
          */
         suspend fun getHosters(episode: Episode, anime: Anime, source: AnimeSource): List<Hoster> {
-            val isDownloaded = isDownload(episode, anime)
+            val isDownloaded = isDownload(episode, anime, skipCache = false)
             return when {
                 isDownloaded -> getHostersOnDownloaded(episode, anime, source)
                 source is AnimeHttpSource -> getHostersOnHttp(episode, source)
@@ -45,14 +45,14 @@ class EpisodeLoader {
          * @param episode the episode being parsed.
          * @param anime the anime of the episode.
          */
-        fun isDownload(episode: Episode, anime: Anime): Boolean {
+        fun isDownload(episode: Episode, anime: Anime, skipCache: Boolean = true): Boolean {
             val downloadManager: DownloadManager = Injekt.get()
             return downloadManager.isEpisodeDownloaded(
                 episode.name,
                 episode.scanlator,
                 anime.title,
                 anime.source,
-                skipCache = true,
+                skipCache = skipCache,
             )
         }
 

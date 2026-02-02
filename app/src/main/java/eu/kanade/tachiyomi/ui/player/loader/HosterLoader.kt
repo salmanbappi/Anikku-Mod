@@ -77,43 +77,47 @@ class HosterLoader {
          */
         suspend fun getBestVideo(source: AnimeSource, hosterList: List<Hoster>): Video? {
             val hosterStates = MutableList<HosterState>(hosterList.size) { HosterState.Idle("") }
+            val semaphore = kotlinx.coroutines.sync.Semaphore(5)
 
             return try {
                 withContext(Dispatchers.IO) {
                     hosterList.mapIndexed { hosterIdx, hoster ->
                         async {
-                            val hosterState = try {
-                                kotlinx.coroutines.withTimeout(5000) {
-                                    EpisodeLoader.loadHosterVideos(source, hoster)
-                                }
-                            } catch (e: Exception) {
-                                HosterState.Error(hoster.hosterName)
-                            }
-                            hosterStates[hosterIdx] = hosterState
-
-                            if (hosterState is HosterState.Ready) {
-                                val prefIndex = hosterState.videoList.indexOfFirst { it.preferred && !it.initialized }
-                                if (prefIndex != -1) {
-                                    val video = hosterState.videoList[prefIndex]
-                                    hosterStates[hosterIdx] =
-                                        (hosterStates[hosterIdx] as HosterState.Ready).getChangedAt(
-                                            prefIndex,
-                                            video,
-                                            Video.State.LOAD_VIDEO,
-                                        )
-
-                                    val resolvedVideo = getResolvedVideo(source, video)
-                                    if (resolvedVideo?.videoUrl?.isNotEmpty() == true) {
-                                        coroutineContext.cancelChildren()
-                                        throw EarlyReturnException(resolvedVideo)
+                            semaphore.withPermit {
+                                val hosterState = try {
+                                    kotlinx.coroutines.withTimeout(5000) {
+                                        EpisodeLoader.loadHosterVideos(source, hoster)
                                     }
+                                } catch (e: Exception) {
+                                    HosterState.Error(hoster.hosterName)
+                                }
+                                hosterStates[hosterIdx] = hosterState
 
-                                    hosterStates[hosterIdx] =
-                                        (hosterStates[hosterIdx] as HosterState.Ready).getChangedAt(
-                                            prefIndex,
-                                            video,
-                                            Video.State.ERROR,
-                                        )
+                                if (hosterState is HosterState.Ready) {
+                                    // Check for ANY valid video immediately to return fast
+                                    val validIndex = hosterState.videoList.indexOfFirst { it.videoUrl.isNotEmpty() && !it.initialized }
+                                    if (validIndex != -1) {
+                                        val video = hosterState.videoList[validIndex]
+                                        hosterStates[hosterIdx] =
+                                            (hosterStates[hosterIdx] as HosterState.Ready).getChangedAt(
+                                                validIndex,
+                                                video,
+                                                Video.State.LOAD_VIDEO,
+                                            )
+
+                                        val resolvedVideo = getResolvedVideo(source, video)
+                                        if (resolvedVideo?.videoUrl?.isNotEmpty() == true) {
+                                            coroutineContext.cancelChildren()
+                                            throw EarlyReturnException(resolvedVideo)
+                                        }
+
+                                        hosterStates[hosterIdx] =
+                                            (hosterStates[hosterIdx] as HosterState.Ready).getChangedAt(
+                                                validIndex,
+                                                video,
+                                                Video.State.ERROR,
+                                            )
+                                    }
                                 }
                             }
                         }

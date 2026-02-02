@@ -17,27 +17,18 @@ class AiManager(
 ) {
     private val jsonMediaType = "application/json; charset=utf-8".toMediaType()
 
-    private fun getEffectiveApiKey(): String {
-        return aiPreferences.groqApiKey().get().ifBlank { aiPreferences.geminiApiKey().get() }
-    }
-
     suspend fun parseSearchQuery(query: String, availableOptions: String): AiSearchResponse? {
         if (!aiPreferences.enableAi().get() || !aiPreferences.smartSearch().get()) return null
         
-        val apiKey = getEffectiveApiKey()
-        if (apiKey.isBlank()) return null
-
-        val customBaseUrl = aiPreferences.customBaseUrl().get()
-        val isCustom = customBaseUrl.isNotBlank()
-
+        val apiKey = aiPreferences.groqApiKey().get().ifBlank { return null }
+        
         val prompt = """
-            You are an expert anime librarian.
-            User Query: "$query"
-            
             Available Filters:
             $availableOptions
             
-            Task: Match intent to EXACT filters and refine query.
+            Task: Match user intent to EXACT filters and refine the search text.
+            User Query: "$query"
+            
             Output JSON ONLY:
             {
               "genres": ["Genre1"],
@@ -48,12 +39,29 @@ class AiManager(
             }
         """.trimIndent()
 
-        val model = if (isCustom) aiPreferences.customModel().get().ifBlank { "llama-3.3-70b-versatile" } else "llama-3.3-70b-versatile"
-        val url = if (isCustom) "$customBaseUrl/chat/completions" else "https://api.groq.com/openai/v1/chat/completions"
+        val requestBody = ChatCompletionRequest(
+            model = "llama-3.3-70b-versatile",
+            messages = listOf(
+                ChatMessage(role = "system", content = "You are a specialized anime database query parser. Output valid JSON only."),
+                ChatMessage(role = "user", content = prompt)
+            ),
+            response_format = ResponseFormat(type = "json_object")
+        )
 
-        val response = callAi(url, apiKey, model, prompt, true) ?: return null
+        val request = Request.Builder()
+            .url("https://api.groq.com/openai/v1/chat/completions")
+            .header("Authorization", "Bearer $apiKey")
+            .post(json.encodeToString(ChatCompletionRequest.serializer(), requestBody).toRequestBody(jsonMediaType))
+            .build()
+
         return try {
-            json.decodeFromString(AiSearchResponse.serializer(), response)
+            networkHelper.client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) return null
+                val result = response.body.string()
+                val chatResponse = json.decodeFromString(ChatCompletionResponse.serializer(), result)
+                val content = chatResponse.choices.firstOrNull()?.message?.content ?: return null
+                json.decodeFromString(AiSearchResponse.serializer(), content)
+            }
         } catch (e: Exception) {
             e.printStackTrace()
             null
@@ -62,17 +70,10 @@ class AiManager(
 
     suspend fun translateToEnglish(text: String): String? {
         if (!aiPreferences.enableAi().get()) return null
+        val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return null }
         
-        val customBaseUrl = aiPreferences.customBaseUrl().get()
-        val prompt = "Translate to English. Output only the translated text:\n$text"
-
-        if (customBaseUrl.isNotBlank()) {
-            val model = aiPreferences.customModel().get().ifBlank { "gemini-2.5-flash" }
-            return callAi("$customBaseUrl/chat/completions", getEffectiveApiKey(), model, prompt, false)
-        } else {
-            val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return null }
-            return callGemini(prompt, apiKey)
-        }
+        val prompt = "Translate the following text to English. Output ONLY the translated text:\n\n$text"
+        return callGemini(prompt, apiKey, "You are a professional translator.")
     }
 
     suspend fun getEpisodeSummary(
@@ -83,23 +84,18 @@ class AiManager(
     ): String? {
         if (!aiPreferences.enableAi().get() || !aiPreferences.episodeIntelligence().get()) return null
         
+        val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return null }
+        
         val context = StringBuilder()
         animeDescription?.let { context.append("Description: $it\n") }
         animeTags?.let { context.append("Tags: ${it.joinToString()}\n") }
 
         val prompt = """
             $context
-            Short spoiler-free summary for Episode $episodeNumber of '$animeTitle'. Max 3 sentences.
+            Provide a short, spoiler-free summary for episode $episodeNumber of '$animeTitle'. Max 3 sentences.
         """.trimIndent()
 
-        val customBaseUrl = aiPreferences.customBaseUrl().get()
-        if (customBaseUrl.isNotBlank()) {
-            val model = aiPreferences.customModel().get().ifBlank { "gemini-2.5-flash" }
-            return callAi("$customBaseUrl/chat/completions", getEffectiveApiKey(), model, prompt, false)
-        }
-
-        val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return null }
-        return callGemini(prompt, apiKey)
+        return callGemini(prompt, apiKey, "You are an anime expert providing concise episode summaries.")
     }
 
     suspend fun getGlossaryInfo(
@@ -110,22 +106,17 @@ class AiManager(
     ): String? {
         if (!aiPreferences.enableAi().get()) return null
         
+        val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return null }
+        
         val context = StringBuilder()
         animeDescription?.let { context.append("Context: $it\n") }
 
         val prompt = """
             $context
-            Explain "$query" in context of '$animeTitle'. Max 50 words.
+            Explain "$query" in the context of '$animeTitle'. Max 50 words.
         """.trimIndent()
 
-        val customBaseUrl = aiPreferences.customBaseUrl().get()
-        if (customBaseUrl.isNotBlank()) {
-            val model = aiPreferences.customModel().get().ifBlank { "gemini-2.5-flash" }
-            return callAi("$customBaseUrl/chat/completions", getEffectiveApiKey(), model, prompt, false)
-        }
-
-        val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return null }
-        return callGemini(prompt, apiKey)
+        return callGemini(prompt, apiKey, "You are an anime encyclopedia assistant.")
     }
 
     suspend fun getRecommendations(
@@ -134,6 +125,7 @@ class AiManager(
         animeTags: List<String>? = null
     ): List<String> {
         if (!aiPreferences.enableAi().get() || !aiPreferences.localRecommendations().get()) return emptyList()
+        val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return emptyList() }
 
         val context = StringBuilder()
         animeDescription?.let { context.append("Description: $it\n") }
@@ -141,17 +133,11 @@ class AiManager(
 
         val prompt = """
             $context
-            Recommend 5 anime similar to '$animeTitle'. Output: JSON list of strings ONLY.
+            Recommend 5 anime similar to '$animeTitle'.
+            Output: A JSON list of strings ONLY. Example: ["Anime A", "Anime B"]
         """.trimIndent()
 
-        val customBaseUrl = aiPreferences.customBaseUrl().get()
-        val response = if (customBaseUrl.isNotBlank()) {
-            val model = aiPreferences.customModel().get().ifBlank { "gemini-2.5-flash" }
-            callAi("$customBaseUrl/chat/completions", getEffectiveApiKey(), model, prompt, false)
-        } else {
-            val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return emptyList() }
-            callGemini(prompt, apiKey)
-        } ?: return emptyList()
+        val response = callGemini(prompt, apiKey, "You recommend anime based on user taste. Output JSON list only.") ?: return emptyList()
         
         return try {
             val cleanJson = response.replace("```json", "").replace("```", "").trim()
@@ -162,64 +148,32 @@ class AiManager(
         }
     }
 
-    private suspend fun callAi(
-        url: String, 
-        apiKey: String, 
-        model: String, 
-        prompt: String,
-        jsonMode: Boolean
-    ): String? {
-        val requestBody = ChatCompletionRequest(
-            model = model,
-            messages = listOf(
-                ChatMessage(role = "system", content = "You are a helpful assistant."),
-                ChatMessage(role = "user", content = prompt)
-            ),
-            response_format = if (jsonMode) ResponseFormat(type = "json_object") else null
-        )
-
-        val authHeader = if (apiKey.startsWith("ctx7sk")) apiKey else "Bearer $apiKey"
-
-        val request = Request.Builder()
-            .url(url)
-            .header("Authorization", authHeader)
-            .post(json.encodeToString(ChatCompletionRequest.serializer(), requestBody).toRequestBody(jsonMediaType))
-            .build()
-
-        return try {
-            networkHelper.client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    println("AI Error: ${response.code} ${response.message}")
-                    return null
-                }
-                val result = response.body.string()
-                val chatResponse = json.decodeFromString(ChatCompletionResponse.serializer(), result)
-                chatResponse.choices.firstOrNull()?.message?.content
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
-
-    private suspend fun callGemini(prompt: String, apiKey: String): String? {
+    private suspend fun callGemini(prompt: String, apiKey: String, systemInstruction: String? = null): String? {
         val requestBody = GeminiRequest(
-            contents = listOf(GeminiContent(parts = listOf(GeminiPart(text = prompt))))
+            contents = listOf(GeminiContent(parts = listOf(GeminiPart(text = prompt)))),
+            systemInstruction = systemInstruction?.let {
+                GeminiContent(parts = listOf(GeminiPart(text = it)))
+            }
         )
 
+        // Proper connection using gemini-3-flash-preview as requested by user
         val request = Request.Builder()
-            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey")
+            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=$apiKey")
             .post(json.encodeToString(GeminiRequest.serializer(), requestBody).toRequestBody(jsonMediaType))
             .build()
 
         return try {
             networkHelper.client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) return null
+                if (!response.isSuccessful) {
+                    println("Gemini Error: ${response.code} ${response.message}")
+                    return null
+                }
                 val result = response.body.string()
                 val geminiResponse = json.decodeFromString(GeminiResponse.serializer(), result)
                 geminiResponse.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text?.trim()
             }
         } catch (e: Exception) {
+            e.printStackTrace()
             null
         }
     }
@@ -256,7 +210,10 @@ class AiManager(
     )
 
     @Serializable
-    private data class GeminiRequest(val contents: List<GeminiContent>)
+    private data class GeminiRequest(
+        val contents: List<GeminiContent>,
+        val systemInstruction: GeminiContent? = null
+    )
 
     @Serializable
     private data class GeminiContent(val parts: List<GeminiPart>)

@@ -299,7 +299,8 @@ class BrowseSourceScreenModel(
             when (filter) {
                 is AnimeFilter.Group<*> -> {
                     val subFilters = filter.state.filterIsInstance<AnimeFilter<*>>()
-                    options.append("${filter.name}: [${subFilters.joinToString { it.name }}]\n")
+                    val names = subFilters.joinToString { (it as AnimeFilter<*>).name }
+                    options.append("${filter.name}: [$names]\n")
                 }
                 is AnimeFilter.Select<*> -> {
                     options.append("${filter.name}: [${filter.values.joinToString()}]\n")
