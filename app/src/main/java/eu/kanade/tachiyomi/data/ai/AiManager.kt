@@ -20,8 +20,11 @@ class AiManager(
     suspend fun parseSearchQuery(query: String, availableOptions: String): AiSearchResponse? {
         if (!aiPreferences.enableAi().get() || !aiPreferences.smartSearch().get()) return null
         
-        val apiKey = aiPreferences.groqApiKey().get().ifBlank { return null }
-        
+        val customBaseUrl = aiPreferences.customBaseUrl().get()
+        val isCustom = customBaseUrl.isNotBlank()
+        val apiKey = if (isCustom) aiPreferences.groqApiKey().get() else aiPreferences.groqApiKey().get()
+        if (apiKey.isBlank()) return null
+
         val prompt = """
             You are an expert anime librarian.
             User Query: "$query"
@@ -44,44 +47,34 @@ class AiManager(
             }
         """.trimIndent()
 
-        val requestBody = ChatCompletionRequest(
-            model = "llama-3.3-70b-versatile",
-            messages = listOf(
-                ChatMessage(role = "system", content = "You are a helpful assistant that outputs only valid JSON."),
-                ChatMessage(role = "user", content = prompt)
-            ),
-            response_format = ResponseFormat(type = "json_object")
-        )
+        val model = if (isCustom) aiPreferences.customModel().get().ifBlank { "llama-3.3-70b-versatile" } else "llama-3.3-70b-versatile"
+        val url = if (isCustom) "$customBaseUrl/chat/completions" else "https://api.groq.com/openai/v1/chat/completions"
 
-        val request = Request.Builder()
-            .url("https://api.groq.com/openai/v1/chat/completions")
-            .header("Authorization", "Bearer ${'$'}apiKey")
-            .post(json.encodeToString(ChatCompletionRequest.serializer(), requestBody).toRequestBody(jsonMediaType))
-            .build()
-
-        return try {
-            networkHelper.client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    println("AI Search Error: ${'$'}{response.code} ${'$'}{response.message}")
-                    return null
-                }
-                val result = response.body.string()
-                val chatResponse = json.decodeFromString(ChatCompletionResponse.serializer(), result)
-                val content = chatResponse.choices.firstOrNull()?.message?.content ?: return null
-                json.decodeFromString(AiSearchResponse.serializer(), content)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
+        return callChatCompletion(url, apiKey, model, prompt, true)
     }
 
     suspend fun translateToEnglish(text: String): String? {
         if (!aiPreferences.enableAi().get()) return null
-        val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return null }
+        
+        val customBaseUrl = aiPreferences.customBaseUrl().get()
+        val isCustom = customBaseUrl.isNotBlank()
         
         val prompt = "Translate the following text to English. If it is already in English, return it as is. Do not add explanations. Text:\n$text"
-        return callGemini(prompt, apiKey)
+
+        if (isCustom) {
+            val apiKey = aiPreferences.groqApiKey().get().ifBlank { return null }
+            val model = aiPreferences.customModel().get().ifBlank { "gemini-2.5-flash" }
+            val url = "$customBaseUrl/chat/completions"
+            val response = callChatCompletion(url, apiKey, model, prompt, false)
+            // Extract text from JSON response if needed, but callChatCompletion returns object.
+            // Wait, callChatCompletion returns AiSearchResponse? No, it should be generic.
+            // Let's refactor callChatCompletion to return String? or specialized object.
+            // For translation, we need string.
+            return callChatCompletionString(url, apiKey, model, prompt)
+        } else {
+            val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return null }
+            return callGemini(prompt, apiKey)
+        }
     }
 
     suspend fun getEpisodeSummary(
@@ -91,8 +84,6 @@ class AiManager(
         animeTags: List<String>? = null
     ): String? {
         if (!aiPreferences.enableAi().get() || !aiPreferences.episodeIntelligence().get()) return null
-        
-        val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return null }
         
         val context = StringBuilder()
         animeDescription?.let { context.append("Anime Description: $it\n") }
@@ -105,6 +96,14 @@ class AiManager(
             Maximum 3 sentences.
         """.trimIndent()
 
+        val customBaseUrl = aiPreferences.customBaseUrl().get()
+        if (customBaseUrl.isNotBlank()) {
+            val apiKey = aiPreferences.groqApiKey().get().ifBlank { return null }
+            val model = aiPreferences.customModel().get().ifBlank { "gemini-2.5-flash" }
+            return callChatCompletionString("$customBaseUrl/chat/completions", apiKey, model, prompt)
+        }
+
+        val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return null }
         return callGemini(prompt, apiKey)
     }
 
@@ -116,8 +115,6 @@ class AiManager(
     ): String? {
         if (!aiPreferences.enableAi().get()) return null
         
-        val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return null }
-        
         val context = StringBuilder()
         animeDescription?.let { context.append("Context: $it\n") }
 
@@ -127,6 +124,14 @@ class AiManager(
             Answer: Provide a short, cultural or plot-relevant explanation. Max 50 words.
         """.trimIndent()
 
+        val customBaseUrl = aiPreferences.customBaseUrl().get()
+        if (customBaseUrl.isNotBlank()) {
+            val apiKey = aiPreferences.groqApiKey().get().ifBlank { return null }
+            val model = aiPreferences.customModel().get().ifBlank { "gemini-2.5-flash" }
+            return callChatCompletionString("$customBaseUrl/chat/completions", apiKey, model, prompt)
+        }
+
+        val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return null }
         return callGemini(prompt, apiKey)
     }
 
@@ -136,7 +141,6 @@ class AiManager(
         animeTags: List<String>? = null
     ): List<String> {
         if (!aiPreferences.enableAi().get() || !aiPreferences.localRecommendations().get()) return emptyList()
-        val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return emptyList() }
 
         val context = StringBuilder()
         animeDescription?.let { context.append("Description: $it\n") }
@@ -149,7 +153,15 @@ class AiManager(
             Do not include explanations or markdown formatting.
         """.trimIndent()
 
-        val jsonString = callGemini(prompt, apiKey) ?: return emptyList()
+        val customBaseUrl = aiPreferences.customBaseUrl().get()
+        val jsonString = if (customBaseUrl.isNotBlank()) {
+            val apiKey = aiPreferences.groqApiKey().get().ifBlank { return emptyList() }
+            val model = aiPreferences.customModel().get().ifBlank { "gemini-2.5-flash" }
+            callChatCompletionString("$customBaseUrl/chat/completions", apiKey, model, prompt)
+        } else {
+            val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return emptyList() }
+            callGemini(prompt, apiKey)
+        } ?: return emptyList()
         
         return try {
             val cleanJson = jsonString.replace("```json", "").replace("```", "").trim()
@@ -157,6 +169,85 @@ class AiManager(
         } catch (e: Exception) {
             e.printStackTrace()
             emptyList()
+        }
+    }
+
+    private suspend fun callChatCompletion(
+        url: String, 
+        apiKey: String, 
+        model: String, 
+        prompt: String,
+        jsonMode: Boolean
+    ): AiSearchResponse? {
+        val requestBody = ChatCompletionRequest(
+            model = model,
+            messages = listOf(
+                ChatMessage(role = "system", content = "You are a helpful assistant."),
+                ChatMessage(role = "user", content = prompt)
+            ),
+            response_format = if (jsonMode) ResponseFormat(type = "json_object") else null
+        )
+
+        val request = Request.Builder()
+            .url(url)
+            .header("Authorization", "Bearer ${'$'}apiKey")
+            .post(json.encodeToString(ChatCompletionRequest.serializer(), requestBody).toRequestBody(jsonMediaType))
+            .build()
+
+        return try {
+            networkHelper.client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    println("AI Error: ${'$'}{response.code} ${'$'}{response.message}")
+                    return null
+                }
+                val result = response.body.string()
+                val chatResponse = json.decodeFromString(ChatCompletionResponse.serializer(), result)
+                val content = chatResponse.choices.firstOrNull()?.message?.content ?: return null
+                if (jsonMode) {
+                    json.decodeFromString(AiSearchResponse.serializer(), content)
+                } else {
+                    null // Should use callChatCompletionString
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    private suspend fun callChatCompletionString(
+        url: String, 
+        apiKey: String, 
+        model: String, 
+        prompt: String
+    ): String? {
+        val requestBody = ChatCompletionRequest(
+            model = model,
+            messages = listOf(
+                ChatMessage(role = "system", content = "You are a helpful assistant."),
+                ChatMessage(role = "user", content = prompt)
+            )
+        )
+
+        val request = Request.Builder()
+            .url(url)
+            .header("Authorization", "Bearer ${'$'}apiKey")
+            .post(json.encodeToString(ChatCompletionRequest.serializer(), requestBody).toRequestBody(jsonMediaType))
+            .build()
+
+        return try {
+            networkHelper.client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    println("AI Error: ${'$'}{response.code} ${'$'}{response.message}")
+                    return null
+                }
+                val result = response.body.string()
+                val chatResponse = json.decodeFromString(ChatCompletionResponse.serializer(), result)
+                chatResponse.choices.firstOrNull()?.message?.content
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 

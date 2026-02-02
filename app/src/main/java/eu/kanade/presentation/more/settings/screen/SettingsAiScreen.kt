@@ -27,6 +27,7 @@ object SettingsAiScreen : SearchableSettings {
             getMainGroup(aiPreferences = aiPreferences),
             getFeaturesGroup(aiPreferences = aiPreferences),
             getApiKeysGroup(aiPreferences = aiPreferences),
+            getCustomApiGroup(aiPreferences = aiPreferences),
         )
     }
 
@@ -79,7 +80,7 @@ object SettingsAiScreen : SearchableSettings {
         val enableAi by aiPreferences.enableAi().collectAsState()
 
         return Preference.PreferenceGroup(
-            title = "Cloud API Keys",
+            title = "Default Providers (Groq/Gemini)",
             enabled = enableAi,
             preferenceItems = persistentListOf(
                 Preference.PreferenceItem.EditTextPreference(
@@ -91,6 +92,28 @@ object SettingsAiScreen : SearchableSettings {
                     pref = aiPreferences.geminiApiKey(),
                     title = stringResource(MR.strings.pref_ai_gemini_api_key),
                     subtitle = stringResource(MR.strings.pref_ai_gemini_api_key_summary),
+                ),
+            ),
+        )
+    }
+
+    @Composable
+    private fun getCustomApiGroup(aiPreferences: AiPreferences): Preference.PreferenceGroup {
+        val enableAi by aiPreferences.enableAi().collectAsState()
+
+        return Preference.PreferenceGroup(
+            title = "Custom Provider (OpenAI Compatible)",
+            enabled = enableAi,
+            preferenceItems = persistentListOf(
+                Preference.PreferenceItem.EditTextPreference(
+                    pref = aiPreferences.customBaseUrl(),
+                    title = "Base URL",
+                    subtitle = "e.g. https://api.context7.com/v1",
+                ),
+                Preference.PreferenceItem.EditTextPreference(
+                    pref = aiPreferences.customModel(),
+                    title = "Model Name",
+                    subtitle = "e.g. gpt-4o, llama-3, gemini-2.5-flash",
                 ),
             ),
         )
