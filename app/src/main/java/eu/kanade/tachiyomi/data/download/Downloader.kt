@@ -550,16 +550,26 @@ class Downloader(
         headers.forEach { headerBuilder.add(it.first, it.second) }
         val headerMap = headerBuilder.build()
 
-        // 1. Fetch Playlist (Safe Handshake)
-        val request = Request.Builder().url(video.videoUrl).headers(headerMap).build()
-        val playlistContent = client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) throw IOException("Failed to fetch playlist: ${response.code}")
-            response.body?.string() ?: throw IOException("Empty playlist")
+        // 1. Fetch Playlist (Safe Handshake with Retry)
+        var playlistContent: String? = null
+        for (i in 1..3) {
+            try {
+                val request = Request.Builder().url(video.videoUrl).headers(headerMap).build()
+                playlistContent = client.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) throw IOException("Failed to fetch playlist: ${response.code}")
+                    response.body?.string() ?: throw IOException("Empty playlist")
+                }
+                break
+            } catch (e: Exception) {
+                if (i == 3) throw e
+                delay(1000L * i)
+            }
         }
 
         // 2. Parse segments
         val baseUrl = video.videoUrl.substringBeforeLast("/") + "/"
-        val segments = playlistContent.lines()
+        val segments = playlistContent!!.lines()
+            .map { it.trim() }
             .filter { it.isNotBlank() && !it.startsWith("#") }
             .map { if (it.startsWith("http")) it else baseUrl + it }
 
@@ -575,8 +585,8 @@ class Downloader(
         download.totalSegments = totalSegments
         download.downloadedSegments = 0
 
-        // 3. Parallel segment downloading with Sequential Writing (1DM+ Power)
-        val concurrency = preferences.downloadThreads().get().coerceAtLeast(4)
+        // 3. Parallel segment downloading with Sequential Writing (High Performance)
+        val concurrency = preferences.downloadThreads().get().coerceAtLeast(8)
         val semaphore = Semaphore(concurrency)
         
         context.contentResolver.openFileDescriptor(videoFile.uri, "rw")?.use { pfd ->

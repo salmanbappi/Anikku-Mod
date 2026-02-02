@@ -24,9 +24,4 @@ class AiPreferences(
     fun performanceIntelligence() = preferenceStore.getBoolean("ai_performance_intelligence", true)
 
     fun personalAssistant() = preferenceStore.getBoolean("ai_personal_assistant", false)
-
-    // Advanced settings
-    fun customBaseUrl() = preferenceStore.getString("ai_custom_base_url", "")
-    
-    fun customModel() = preferenceStore.getString("ai_custom_model", "")
 }
