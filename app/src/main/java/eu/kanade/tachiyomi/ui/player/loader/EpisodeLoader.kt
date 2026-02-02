@@ -9,6 +9,9 @@ import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import eu.kanade.tachiyomi.data.download.DownloadManager
 import eu.kanade.tachiyomi.ui.player.controls.components.sheets.HosterState
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.episode.model.Episode
 import tachiyomi.source.local.LocalSource
@@ -151,13 +154,21 @@ class EpisodeLoader {
             return source.getVideoList(hoster).parseVideoUrls(source)
         }
 
-        // TODO(1.6): Remove after ext lib bump
+        // Parallelized video URL parsing for faster startup
         private suspend fun List<Video>.parseVideoUrls(source: AnimeHttpSource): List<Video> {
-            return this.map { video ->
-                if (video.videoUrl != "null") return@map video
+            return coroutineScope {
+                this@parseVideoUrls.map { video ->
+                    async {
+                        if (video.videoUrl != "null" && video.videoUrl.isNotBlank()) return@async video
 
-                val newVideoUrl = source.getVideoUrl(video)
-                video.copy(videoUrl = newVideoUrl)
+                        val newVideoUrl = try {
+                            source.getVideoUrl(video)
+                        } catch (e: Exception) {
+                            "null"
+                        }
+                        video.copy(videoUrl = newVideoUrl)
+                    }
+                }.awaitAll()
             }
         }
 

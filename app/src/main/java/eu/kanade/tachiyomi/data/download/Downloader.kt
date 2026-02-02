@@ -694,11 +694,30 @@ class Downloader(
         val client = networkHelper.clientWithTimeOut(callTimeout = 0)
         val headers = video.headers ?: download.source.headers
         
-        // 1. Get total file size
-        val headRequest = Request.Builder().url(video.videoUrl).headers(headers).head().build()
-        val totalSize = client.newCall(headRequest).execute().use { response ->
-            if (!response.isSuccessful) throw IOException("Failed to get file size: ${response.code}")
-            response.header("Content-Length")?.toLong() ?: throw IOException("Content-Length missing")
+        // 1. Get total file size (Optimized: Use HEAD then Range GET fallback for speed)
+        var totalSize = 0L
+        try {
+            val headRequest = Request.Builder().url(video.videoUrl).headers(headers).head().build()
+            totalSize = client.newCall(headRequest).execute().use { response ->
+                if (response.isSuccessful) response.header("Content-Length")?.toLongOrNull() ?: 0L else 0L
+            }
+        } catch (e: Exception) {
+            logcat(LogPriority.WARN) { "HEAD request failed, falling back to GET" }
+        }
+
+        if (totalSize <= 0) {
+            val getRequest = Request.Builder()
+                .url(video.videoUrl)
+                .headers(headers)
+                .header("Range", "bytes=0-0")
+                .build()
+            totalSize = client.newCall(getRequest).execute().use { response ->
+                if (!response.isSuccessful && response.code != 206) throw IOException("Failed to connect: ${response.code}")
+                val contentRange = response.header("Content-Range")
+                contentRange?.substringAfterLast("/")?.toLongOrNull() 
+                    ?: response.header("Content-Length")?.toLongOrNull() 
+                    ?: throw IOException("Size missing")
+            }
         }
 
         if (totalSize <= 0) throw IOException("Invalid content length")
@@ -712,7 +731,7 @@ class Downloader(
             logcat(LogPriority.ERROR, throwable = e) { "Failed to truncate file" }
         }
 
-        val threadCount = preferences.downloadThreads().get()
+        val threadCount = preferences.downloadThreads().get().coerceAtLeast(4)
         val chunkSize = totalSize / threadCount
         val progressMap = mutableMapOf<Int, Long>()
         var totalDownloaded = 0L
