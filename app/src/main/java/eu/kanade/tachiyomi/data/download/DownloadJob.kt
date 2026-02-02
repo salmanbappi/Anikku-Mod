@@ -78,6 +78,7 @@ class DownloadJob(context: Context, workerParams: WorkerParameters) : CoroutineW
 
         // Keep the worker running when needed
         while (active) {
+            delay(1000)
             active = !isStopped && downloadManager.isRunning && networkCheck
         }
 
