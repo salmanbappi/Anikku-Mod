@@ -65,7 +65,7 @@ class EpisodeLoader {
         private suspend fun getHostersOnHttp(episode: Episode, source: AnimeHttpSource): List<Hoster> {
             // TODO(1.6): Remove else block when dropping support for ext lib <1.6
             return try {
-                kotlinx.coroutines.withTimeout(30000) {
+                kotlinx.coroutines.withTimeout(15000) {
                     if (source.javaClass.declaredMethods.any { it.name == "getHosterList" }) {
                         source.getHosterList(episode.toSEpisode())
                     } else {
