@@ -62,12 +62,24 @@ class AiManager(
         }
     }
 
-    suspend fun getEpisodeSummary(animeTitle: String, episodeNumber: Double): String? {
+    suspend fun getEpisodeSummary(
+        animeTitle: String, 
+        episodeNumber: Double,
+        animeDescription: String? = null,
+        animeTags: List<String>? = null
+    ): String? {
         if (!aiPreferences.enableAi().get() || !aiPreferences.episodeIntelligence().get() || aiPreferences.useLocalOnly().get()) return null
         
         val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return null }
         
-        val prompt = "Provide a short, spoiler-free summary for episode $episodeNumber of the anime '$animeTitle'. Do not include major plot twists."
+        val context = StringBuilder()
+        animeDescription?.let { context.append("Description: $it\n") }
+        animeTags?.let { context.append("Tags: ${it.joinToString()}\n") }
+
+        val prompt = """
+            $context
+            Provide a short, spoiler-free summary for episode $episodeNumber of the anime '$animeTitle'. Do not include major plot twists.
+        """.trimIndent()
 
         val requestBody = GeminiRequest(
             contents = listOf(GeminiContent(parts = listOf(GeminiPart(text = prompt))))
@@ -90,12 +102,24 @@ class AiManager(
         }
     }
 
-    suspend fun getGlossaryInfo(animeTitle: String, query: String): String? {
+    suspend fun getGlossaryInfo(
+        animeTitle: String, 
+        query: String,
+        animeDescription: String? = null,
+        animeTags: List<String>? = null
+    ): String? {
         if (!aiPreferences.enableAi().get() || aiPreferences.useLocalOnly().get()) return null
         
         val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return null }
         
-        val prompt = "Explain the following about the anime '${'$'}animeTitle': ${'$'}query. Provide cultural context if relevant. Keep it concise."
+        val context = StringBuilder()
+        animeDescription?.let { context.append("Description: $it\n") }
+        animeTags?.let { context.append("Tags: ${it.joinToString()}\n") }
+
+        val prompt = """
+            $context
+            Explain the following about the anime '$animeTitle': $query. Provide cultural context if relevant. Keep it concise.
+        """.trimIndent()
 
         val requestBody = GeminiRequest(
             contents = listOf(GeminiContent(parts = listOf(GeminiPart(text = prompt))))
