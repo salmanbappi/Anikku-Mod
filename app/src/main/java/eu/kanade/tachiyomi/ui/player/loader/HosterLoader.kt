@@ -80,10 +80,11 @@ class HosterLoader {
             val semaphore = kotlinx.coroutines.sync.Semaphore(5)
 
             return try {
-                withContext(Dispatchers.IO) {
+                withContext<Video?>(Dispatchers.IO) {
                     hosterList.mapIndexed { hosterIdx, hoster ->
                         async {
-                            semaphore.withPermit {
+                            semaphore.acquire()
+                            try {
                                 val hosterState = try {
                                     kotlinx.coroutines.withTimeout(5000) {
                                         EpisodeLoader.loadHosterVideos(source, hoster)
@@ -119,6 +120,8 @@ class HosterLoader {
                                             )
                                     }
                                 }
+                            } finally {
+                                semaphore.release()
                             }
                         }
                     }.awaitAll()
