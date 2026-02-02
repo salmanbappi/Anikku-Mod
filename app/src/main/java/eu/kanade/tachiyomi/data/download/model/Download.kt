@@ -44,7 +44,7 @@ data class Download(
         }
 
     // Rich Notification Fields
-    @Transient var speed: String = ""
+    @Transient var speed: String = "Connecting..."
     @Transient var downloadedSegments: Int = 0
     @Transient var totalSegments: Int = 0
     

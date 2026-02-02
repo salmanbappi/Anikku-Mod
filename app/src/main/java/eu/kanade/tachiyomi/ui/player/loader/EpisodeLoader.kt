@@ -24,6 +24,7 @@ import uy.kohesive.injekt.api.get
  */
 class EpisodeLoader {
     companion object {
+        private val hasHosterListMethod = mutableMapOf<String, Boolean>()
 
         /**
          * Returns a list of hosters of an [episode] based on the type of [source] used.
@@ -66,10 +67,14 @@ class EpisodeLoader {
          * @param source the online source of the episode.
          */
         private suspend fun getHostersOnHttp(episode: Episode, source: AnimeHttpSource): List<Hoster> {
-            // TODO(1.6): Remove else block when dropping support for ext lib <1.6
+            val sourceClass = source.javaClass.name
+            val hasMethod = hasHosterListMethod.getOrPut(sourceClass) {
+                source.javaClass.declaredMethods.any { it.name == "getHosterList" }
+            }
+
             return try {
                 kotlinx.coroutines.withTimeout(15000) {
-                    if (source.javaClass.declaredMethods.any { it.name == "getHosterList" }) {
+                    if (hasMethod) {
                         source.getHosterList(episode.toSEpisode())
                     } else {
                         source.getVideoList(episode.toSEpisode()).toHosterList()
