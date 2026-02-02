@@ -64,10 +64,16 @@ class EpisodeLoader {
          */
         private suspend fun getHostersOnHttp(episode: Episode, source: AnimeHttpSource): List<Hoster> {
             // TODO(1.6): Remove else block when dropping support for ext lib <1.6
-            return if (source.javaClass.declaredMethods.any { it.name == "getHosterList" }) {
-                source.getHosterList(episode.toSEpisode())
-            } else {
-                source.getVideoList(episode.toSEpisode()).toHosterList()
+            return try {
+                kotlinx.coroutines.withTimeout(30000) {
+                    if (source.javaClass.declaredMethods.any { it.name == "getHosterList" }) {
+                        source.getHosterList(episode.toSEpisode())
+                    } else {
+                        source.getVideoList(episode.toSEpisode()).toHosterList()
+                    }
+                }
+            } catch (e: kotlinx.coroutines.TimeoutCancellationException) {
+                throw java.io.IOException("Connection timed out while fetching hosters")
             }
         }
 
