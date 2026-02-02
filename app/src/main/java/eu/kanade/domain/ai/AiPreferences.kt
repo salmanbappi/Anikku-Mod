@@ -26,5 +26,7 @@ class AiPreferences(
     fun personalAssistant() = preferenceStore.getBoolean("ai_personal_assistant", false)
 
     // Advanced settings
-    fun useLocalOnly() = preferenceStore.getBoolean("ai_use_local_only", false)
+    fun customBaseUrl() = preferenceStore.getString("ai_custom_base_url", "")
+    
+    fun customModel() = preferenceStore.getString("ai_custom_model", "")
 }
