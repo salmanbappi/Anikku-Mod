@@ -287,6 +287,7 @@ class AnimeScreenModel(
             withIOContext {
                 val networkAnime = state.source.getAnimeDetails(state.anime.toSAnime())
                 updateAnime.awaitUpdateFromSource(state.anime, networkAnime, manualFetch)
+                autoTranslate()
             }
         } catch (e: Throwable) {
             // Ignore early hints "errors" that aren't handled by OkHttp
@@ -1240,6 +1241,7 @@ class AnimeScreenModel(
 
     fun fetchAIGlossary(query: String) {
         val state = successState ?: return
+        updateSuccessState { it.copy(isFetchingAiGlossary = true, aiGlossaryInfo = null) }
         screenModelScope.launchIO {
             val info = aiManager.getGlossaryInfo(
                 animeTitle = state.anime.title,
@@ -1247,7 +1249,7 @@ class AnimeScreenModel(
                 animeDescription = state.anime.description,
                 animeTags = state.anime.genre
             )
-            updateSuccessState { it.copy(aiGlossaryInfo = info) }
+            updateSuccessState { it.copy(aiGlossaryInfo = info, isFetchingAiGlossary = false) }
         }
     }
 
@@ -1368,6 +1370,7 @@ class AnimeScreenModel(
             ),
             val aiEpisodeSummary: String? = null,
             val aiGlossaryInfo: String? = null,
+            val isFetchingAiGlossary: Boolean = false,
         ) : State {
 
             val processedEpisodes by lazy {

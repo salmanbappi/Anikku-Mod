@@ -14,7 +14,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,13 +30,10 @@ fun AiGlossaryDialog(
     onDismissRequest: () -> Unit,
     onFetch: (String) -> Unit,
     glossaryInfo: String?,
+    isFetching: Boolean,
 ) {
     var query by remember { mutableStateOf("") }
-    var isFetching by remember { mutableStateOf(false) }
-
-    LaunchedEffect(glossaryInfo) {
-        isFetching = false
-    }
+    var hasSearched by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismissRequest,
@@ -45,7 +41,7 @@ fun AiGlossaryDialog(
             TextButton(
                 onClick = {
                     if (query.isNotBlank()) {
-                        isFetching = true
+                        hasSearched = true
                         onFetch(query)
                     }
                 },
@@ -76,21 +72,30 @@ fun AiGlossaryDialog(
                     label = { Text(text = "What do you want to know?") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
+                    enabled = !isFetching,
                 )
                 
-                if (isFetching || glossaryInfo != null) {
+                if (hasSearched) {
                     Spacer(modifier = Modifier.height(16.dp))
                     Column(
                         modifier = Modifier
                             .height(200.dp)
-                            .verticalScroll(rememberScrollState())
+                            .verticalScroll(rememberScrollState()),
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        if (isFetching && glossaryInfo == null) {
-                            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                        if (isFetching) {
+                            CircularProgressIndicator(modifier = Modifier.padding(16.dp))
                         } else if (glossaryInfo != null) {
                             Text(
                                 text = glossaryInfo,
                                 style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        } else {
+                            Text(
+                                text = "AI couldn't find any information for this query.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.secondaryItemAlpha(),
                             )
                         }
                     }

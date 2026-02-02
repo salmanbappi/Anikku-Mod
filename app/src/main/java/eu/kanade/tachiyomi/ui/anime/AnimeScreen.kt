@@ -215,6 +215,7 @@ class AnimeScreen(
             onFetchAIEpisodeSummary = screenModel::fetchAIEpisodeSummary,
             onFetchAIGlossary = screenModel::fetchAIGlossary,
             onShowAiGlossary = screenModel::showAiGlossary,
+            isFetchingAiGlossary = successState.isFetchingAiGlossary,
         )
 
         val onDismissRequest = {
@@ -384,6 +385,7 @@ class AnimeScreen(
                     onDismissRequest = onDismissRequest,
                     onFetch = screenModel::fetchAIGlossary,
                     glossaryInfo = successState.aiGlossaryInfo,
+                    isFetching = successState.isFetchingAiGlossary,
                 )
             }
         }
