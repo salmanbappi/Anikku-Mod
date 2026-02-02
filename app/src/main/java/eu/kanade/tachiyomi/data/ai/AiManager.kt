@@ -17,17 +17,21 @@ class AiManager(
 ) {
     private val jsonMediaType = "application/json; charset=utf-8".toMediaType()
 
-    suspend fun parseSearchQuery(query: String): AiSearchResponse? {
+    suspend fun parseSearchQuery(query: String, availableOptions: String): AiSearchResponse? {
         if (!aiPreferences.enableAi().get() || !aiPreferences.smartSearch().get()) return null
         
         val apiKey = aiPreferences.groqApiKey().get().ifBlank { return null }
         
         val prompt = """
-            Convert the following natural language anime search query into a JSON object with:
-            - genres: list of genre strings (e.g. ["Action", "Horror"])
-            - themes: list of theme strings
-            - status: "Ongoing", "Completed", or null
-            - description: a refined search description or null
+            You are an AI search assistant for an anime app.
+            Available Filter Options (Genres, Themes, etc.):
+            $availableOptions
+            
+            Based on the user's query, output a JSON object with:
+            - genres: list of genre/theme strings that EXACTLY match the available options.
+            - status: "Ongoing" or "Completed" if specified, else null.
+            - query: a refined search text (the anime title or specific keywords) or null.
+            - action: "FILTER" if you set specific filters, "TEXT" if you only refined the query, or "BOTH".
             
             Query: "$query"
             
@@ -62,6 +66,14 @@ class AiManager(
         }
     }
 
+    suspend fun translateToEnglish(text: String): String? {
+        if (!aiPreferences.enableAi().get()) return null
+        val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return null }
+        
+        val prompt = "Translate the following text to English. If it is already in English, return it exactly as is. Output ONLY the translated text:\n\n$text"
+        return callGemini(prompt, apiKey)
+    }
+
     suspend fun getEpisodeSummary(
         animeTitle: String, 
         episodeNumber: Double,
@@ -81,25 +93,7 @@ class AiManager(
             Provide a short, spoiler-free summary for episode $episodeNumber of the anime '$animeTitle'. Do not include major plot twists.
         """.trimIndent()
 
-        val requestBody = GeminiRequest(
-            contents = listOf(GeminiContent(parts = listOf(GeminiPart(text = prompt))))
-        )
-
-        val request = Request.Builder()
-            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${'$'}apiKey")
-            .post(json.encodeToString(GeminiRequest.serializer(), requestBody).toRequestBody(jsonMediaType))
-            .build()
-
-        return try {
-            networkHelper.client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) return null
-                val result = response.body.string()
-                val geminiResponse = json.decodeFromString(GeminiResponse.serializer(), result)
-                geminiResponse.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text
-            }
-        } catch (e: Exception) {
-            null
-        }
+        return callGemini(prompt, apiKey)
     }
 
     suspend fun getGlossaryInfo(
@@ -121,12 +115,16 @@ class AiManager(
             Explain the following about the anime '$animeTitle': $query. Provide cultural context if relevant. Keep it concise.
         """.trimIndent()
 
+        return callGemini(prompt, apiKey)
+    }
+
+    private suspend fun callGemini(prompt: String, apiKey: String): String? {
         val requestBody = GeminiRequest(
             contents = listOf(GeminiContent(parts = listOf(GeminiPart(text = prompt))))
         )
 
         val request = Request.Builder()
-            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${'$'}apiKey")
+            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${'$'}apiKey")
             .post(json.encodeToString(GeminiRequest.serializer(), requestBody).toRequestBody(jsonMediaType))
             .build()
 
@@ -135,7 +133,7 @@ class AiManager(
                 if (!response.isSuccessful) return null
                 val result = response.body.string()
                 val geminiResponse = json.decodeFromString(GeminiResponse.serializer(), result)
-                geminiResponse.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text
+                geminiResponse.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text?.trim()
             }
         } catch (e: Exception) {
             null
@@ -169,7 +167,8 @@ class AiManager(
         val genres: List<String> = emptyList(),
         val themes: List<String> = emptyList(),
         val status: String? = null,
-        val description: String? = null,
+        val query: String? = null,
+        val action: String = "TEXT"
     )
 
     @Serializable

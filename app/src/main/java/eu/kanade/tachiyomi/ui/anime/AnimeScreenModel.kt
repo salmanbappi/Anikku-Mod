@@ -135,6 +135,7 @@ class AnimeScreenModel(
     private val animeRepository: AnimeRepository = Injekt.get(),
     private val filterEpisodesForDownload: FilterEpisodesForDownload = Injekt.get(),
     private val aiManager: AiManager = Injekt.get(),
+    private val aiPreferences: eu.kanade.domain.ai.AiPreferences = Injekt.get(),
     internal val setAnimeViewerFlags: SetAnimeViewerFlags = Injekt.get(),
     val snackbarHostState: SnackbarHostState = SnackbarHostState(),
     // AM (FILE_SIZE) -->
@@ -246,6 +247,7 @@ class AnimeScreenModel(
             }
             // Start observe tracking since it only needs animeId
             observeTrackers()
+            autoTranslate()
 
             // Fetch info-episodes when needed
             if (screenModelScope.isActive) {
@@ -1246,6 +1248,29 @@ class AnimeScreenModel(
                 animeTags = state.anime.genre
             )
             updateSuccessState { it.copy(aiGlossaryInfo = info) }
+        }
+    }
+
+    private fun autoTranslate() {
+        if (!aiPreferences.enableAi().get()) return
+        val anime = successState?.anime ?: return
+        
+        screenModelScope.launchIO {
+            val translatedTitle = aiManager.translateToEnglish(anime.title)
+            val translatedDesc = anime.description?.let { aiManager.translateToEnglish(it) }
+            
+            if ((translatedTitle != null && !translatedTitle.equals(anime.title, true)) || 
+                (translatedDesc != null && !translatedDesc.equals(anime.description, true))) {
+                updateAnimeInfo(
+                    title = translatedTitle ?: anime.title,
+                    author = anime.author,
+                    artist = anime.artist,
+                    thumbnailUrl = anime.thumbnailUrl,
+                    description = translatedDesc ?: anime.description,
+                    tags = anime.genre,
+                    status = anime.status,
+                )
+            }
         }
     }
 
