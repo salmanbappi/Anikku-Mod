@@ -164,14 +164,17 @@ class EpisodeLoader {
             return coroutineScope {
                 this@parseVideoUrls.map { video ->
                     async {
-                        if (video.videoUrl != "null" && video.videoUrl.isNotBlank()) return@async video
+                        if (video.videoUrl != "null" && video.videoUrl.isNotBlank() && !video.videoUrl.contains("placeholder")) return@async video
 
-                        val newVideoUrl = try {
-                            source.getVideoUrl(video)
+                        try {
+                            // High-speed resolution: Reduced timeout for individual quality links
+                            kotlinx.coroutines.withTimeout(10000) {
+                                val newVideoUrl = source.getVideoUrl(video)
+                                video.copy(videoUrl = newVideoUrl)
+                            }
                         } catch (e: Exception) {
-                            "null"
+                            video
                         }
-                        video.copy(videoUrl = newVideoUrl)
                     }
                 }.awaitAll()
             }

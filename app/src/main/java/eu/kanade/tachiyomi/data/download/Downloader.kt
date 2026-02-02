@@ -525,7 +525,7 @@ class Downloader(
         filename: String,
     ): UniFile {
         val video = download.video!!
-        val client = networkHelper.client
+        val client = networkHelper.downloadClient
         val headers = (video.headers ?: download.source.headers).toMutableList()
         
         // 1DM+ Secrets: Mimic a real browser environment
@@ -692,141 +692,142 @@ class Downloader(
         val video = download.video!!
         val videoFile = tmpDir.findFile("$filename.tmp") ?: tmpDir.createFile("$filename.tmp")!!
         
-        val client = networkHelper.clientWithTimeOut(callTimeout = 0)
+        val client = networkHelper.downloadClient
         val headers = video.headers ?: download.source.headers
         
-        var totalSize = 0L
-        val threadCount = preferences.downloadThreads().get().coerceAtLeast(4)
-        val progressMap = mutableMapOf<Int, Long>()
-        var totalDownloaded = 0L
+        val threadCount = preferences.downloadThreads().get().coerceAtLeast(8)
+        val segmentSize = 2 * 1024 * 1024L // 2MB segments for dynamic splitting
+        val progressMap = java.util.concurrent.ConcurrentHashMap<Int, Long>()
+        var totalSize = -1L
+        
+        val sizeDeferred = kotlinx.coroutines.CompletableDeferred<Long>()
 
-        coroutineScope {
-            // Leader Thread: Get size and start downloading chunk 0 immediately
-            val leaderJob = launch(Dispatchers.IO) {
-                var attempt = 0
-                while (attempt < 5) {
-                    try {
-                        val request = Request.Builder()
-                            .url(video.videoUrl)
-                            .headers(headers)
-                            .header("Range", "bytes=0-")
-                            .build()
-
-                        client.newCall(request).execute().use { response ->
-                            if (!response.isSuccessful && response.code != 206) {
-                                throw IOException("Unexpected response code: ${response.code}")
-                            }
-
-                            val contentRange = response.header("Content-Range")
-                            totalSize = contentRange?.substringAfterLast("/")?.toLongOrNull() 
-                                ?: response.header("Content-Length")?.toLongOrNull() 
-                                ?: throw IOException("Size missing")
-                            
-                            val chunkSize = totalSize / threadCount
-                            val leaderEnd = chunkSize - 1
-
-                            // Background ftruncate to not block leader download
-                            launch(Dispatchers.IO) {
-                                try {
-                                    context.contentResolver.openFileDescriptor(videoFile.uri, "rw")?.use { pfd ->
-                                        Os.ftruncate(pfd.fileDescriptor, totalSize)
-                                    }
-                                } catch (e: Exception) {
-                                    logcat(LogPriority.ERROR, throwable = e) { "Truncate failed" }
-                                }
-                            }
-
-                            val body = response.body ?: throw IOException("Empty body")
-                            context.contentResolver.openFileDescriptor(videoFile.uri, "rw")?.use { pfd ->
-                                FileOutputStream(pfd.fileDescriptor).channel.use { channel ->
-                                    var currentStart = 0L
-                                    channel.position(currentStart)
-                                    val buffer = ByteArray(64 * 1024)
-                                    var bytesRead: Int
-                                    val bis = body.byteStream()
-                                    while (bis.read(buffer).also { bytesRead = it } != -1 && currentStart <= leaderEnd) {
-                                        coroutineContext.ensureActive()
-                                        val toWrite = if (currentStart + bytesRead > leaderEnd) (leaderEnd - currentStart + 1).toInt() else bytesRead
-                                        channel.write(ByteBuffer.wrap(buffer, 0, toWrite))
-                                        currentStart += toWrite
-                                        
-                                        synchronized(progressMap) {
-                                            progressMap[0] = currentStart
-                                            totalDownloaded = progressMap.values.sum()
-                                            download.update(totalDownloaded, totalSize, false)
-                                        }
-                                        notifier.onProgressChange(download)
-                                        if (toWrite < bytesRead) break
-                                    }
-                                }
-                            }
-                            return@launch
-                        }
-                    } catch (e: Exception) {
-                        if (e is CancellationException) throw e
-                        attempt++
-                        if (attempt >= 5) throw e
-                        delay(1000L * attempt)
-                    }
-                }
-            }
-
-            // Wait for leader to determine size (usually < 500ms)
-            var waitTime = 0
-            while (totalSize <= 0L && leaderJob.isActive && waitTime < 50) {
-                delay(100)
-                waitTime++
-            }
-
-            if (totalSize > 0) {
-                val chunkSize = totalSize / threadCount
-                (1 until threadCount).map { i ->
+        context.contentResolver.openFileDescriptor(videoFile.uri, "rw")?.use { pfd ->
+            java.io.FileOutputStream(pfd.fileDescriptor).channel.use { channel ->
+                coroutineScope {
+                    // Leader Job: Determine size and bootstrap downloading
                     launch(Dispatchers.IO) {
-                        val start = i * chunkSize
-                        val end = if (i == threadCount - 1) totalSize - 1 else (i + 1) * chunkSize - 1
-                        var currentStart = start
-                        var attempt = 0
-                        while (attempt < 5 && currentStart <= end) {
-                            try {
-                                val request = Request.Builder()
-                                    .url(video.videoUrl)
-                                    .headers(headers)
-                                    .addHeader("Range", "bytes=$currentStart-$end")
-                                    .build()
+                        try {
+                            val request = Request.Builder()
+                                .url(video.videoUrl)
+                                .headers(headers)
+                                .header("Range", "bytes=0-")
+                                .build()
 
-                                client.newCall(request).execute().use { response ->
-                                    if (response.code != 206 && response.code != 200) throw IOException("Code: ${response.code}")
-                                    val body = response.body ?: throw IOException("Empty")
-                                    context.contentResolver.openFileDescriptor(videoFile.uri, "rw")?.use { pfd ->
-                                        FileOutputStream(pfd.fileDescriptor).channel.use { channel ->
-                                            channel.position(currentStart)
-                                            val buffer = ByteArray(64 * 1024)
-                                            var bytesRead: Int
+                            client.newCall(request).execute().use { response ->
+                                if (!response.isSuccessful && response.code != 206) {
+                                    sizeDeferred.completeWith(Result.failure(IOException("HTTP ${response.code}")))
+                                    return@use
+                                }
+
+                                val contentRange = response.header("Content-Range")
+                                val size = contentRange?.substringAfterLast("/")?.toLongOrNull() 
+                                    ?: response.header("Content-Length")?.toLongOrNull() 
+                                    ?: -1L
+                                
+                                if (size <= 0) {
+                                    sizeDeferred.completeWith(Result.failure(IOException("Size missing")))
+                                    return@use
+                                }
+                                
+                                totalSize = size
+                                sizeDeferred.complete(size)
+
+                                // Background Truncate
+                                launch(Dispatchers.IO) {
+                                    try {
+                                        android.system.Os.ftruncate(pfd.fileDescriptor, size)
+                                    } catch (e: Exception) {
+                                        logcat(LogPriority.ERROR, throwable = e) { "Truncate failed" }
+                                    }
+                                }
+
+                                // Process first segment immediately using this connection
+                                val body = response.body ?: return@use
+                                val bis = body.byteStream()
+                                val buffer = ByteArray(128 * 1024)
+                                var bytesRead: Int
+                                var currentPos = 0L
+                                while (bis.read(buffer).also { bytesRead = it } != -1 && (currentPos + bytesRead) <= segmentSize) {
+                                    coroutineContext.ensureActive()
+                                    channel.write(java.nio.ByteBuffer.wrap(buffer, 0, bytesRead), currentPos)
+                                    currentPos += bytesRead
+                                    progressMap[0] = currentPos
+                                    val totalDownloaded = progressMap.values.sum()
+                                    download.update(totalDownloaded, size, false)
+                                    notifier.onProgressChange(download)
+                                }
+                            }
+                        } catch (e: Exception) {
+                            sizeDeferred.completeWith(Result.failure(e))
+                        }
+                    }
+
+                    // Wait for size (should be near instant)
+                    val size = try {
+                        sizeDeferred.await()
+                    } catch (e: Exception) {
+                        throw e
+                    }
+
+                    // Worker Pool for Dynamic Segments
+                    val nextSegmentIndex = java.util.concurrent.atomic.AtomicInteger(1)
+                    val totalSegments = (size / segmentSize).toInt() + (if (size % segmentSize > 0L) 1 else 0)
+                    
+                    (1..threadCount).map { workerId ->
+                        launch(Dispatchers.IO) {
+                            while (isActive) {
+                                val segIdx = nextSegmentIndex.getAndIncrement()
+                                if (segIdx >= totalSegments) break
+                                
+                                val start = segIdx * segmentSize
+                                val end = if (segIdx == totalSegments - 1) size - 1 else (segIdx + 1) * segmentSize - 1
+                                
+                                var attempt = 0
+                                var success = false
+                                while (attempt < 5 && !success && isActive) {
+                                    try {
+                                        val request = Request.Builder()
+                                            .url(video.videoUrl)
+                                            .headers(headers)
+                                            .addHeader("Range", "bytes=$start-$end")
+                                            .build()
+
+                                        client.newCall(request).execute().use { response ->
+                                            if (response.code != 206 && response.code != 200) throw IOException("Code: ${response.code}")
+                                            val body = response.body ?: throw IOException("Empty body")
                                             val bis = body.byteStream()
+                                            val buffer = ByteArray(128 * 1024)
+                                            var bytesRead: Int
+                                            var workerPos = start
                                             while (bis.read(buffer).also { bytesRead = it } != -1) {
                                                 coroutineContext.ensureActive()
-                                                val written = channel.write(ByteBuffer.wrap(buffer, 0, bytesRead))
-                                                currentStart += written
-                                                synchronized(progressMap) {
-                                                    progressMap[i] = currentStart - start
-                                                    totalDownloaded = progressMap.values.sum()
-                                                    download.update(totalDownloaded, totalSize, false)
-                                                }
+                                                channel.write(java.nio.ByteBuffer.wrap(buffer, 0, bytesRead), workerPos)
+                                                workerPos += bytesRead
+                                                progressMap[segIdx] = workerPos - start
+                                                
+                                                val totalDownloaded = progressMap.values.sum()
+                                                download.update(totalDownloaded, size, false)
                                                 notifier.onProgressChange(download)
                                             }
+                                            success = true
                                         }
+                                    } catch (e: Exception) {
+                                        if (e is CancellationException) throw e
+                                        attempt++
+                                        if (attempt < 5) delay(500L * attempt)
                                     }
-                                    return@launch
                                 }
-                            } catch (e: Exception) {
-                                if (e is CancellationException) throw e
-                                attempt++
-                                delay(1000L * attempt)
+                                if (!success && isActive) {
+                                    throw IOException("Failed to download segment $segIdx")
+                                }
                             }
                         }
                     }
                 }
+                channel.force(true)
             }
+            pfd.fileDescriptor.sync()
         }
 
         val file = tmpDir.findFile("$filename.tmp")?.apply {
