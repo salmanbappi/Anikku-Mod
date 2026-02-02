@@ -83,7 +83,7 @@ class HosterLoader {
                     hosterList.mapIndexed { hosterIdx, hoster ->
                         async {
                             val hosterState = try {
-                                kotlinx.coroutines.withTimeout(10000) {
+                                kotlinx.coroutines.withTimeout(5000) {
                                     EpisodeLoader.loadHosterVideos(source, hoster)
                                 }
                             } catch (e: Exception) {
@@ -158,7 +158,7 @@ class HosterLoader {
         suspend fun getResolvedVideo(source: AnimeSource?, video: Video): Video? {
             val resolvedVideo = if (source is AnimeHttpSource && !video.initialized) {
                 try {
-                    kotlinx.coroutines.withTimeout(30000) {
+                    kotlinx.coroutines.withTimeout(15000) {
                         source.resolveVideo(video)
                     }
                 } catch (e: Exception) {

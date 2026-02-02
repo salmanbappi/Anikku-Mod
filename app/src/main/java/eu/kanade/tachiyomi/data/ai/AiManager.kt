@@ -165,9 +165,9 @@ class AiManager(
             contents = listOf(GeminiContent(parts = listOf(GeminiPart(text = prompt))))
         )
 
-        // Using gemini-1.5-flash which is stable and fast
+        // Using gemini-3-flash-preview as requested
         val request = Request.Builder()
-            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${'$'}apiKey")
+            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${'$'}apiKey")
             .post(json.encodeToString(GeminiRequest.serializer(), requestBody).toRequestBody(jsonMediaType))
             .build()
 
