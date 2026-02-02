@@ -181,6 +181,7 @@ fun AnimeActionRow(
     onTrackingClicked: () -> Unit,
     onEditIntervalClicked: (() -> Unit)?,
     onEditCategory: (() -> Unit)?,
+    onAiGlossaryClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val defaultActionButtonColor = MaterialTheme.colorScheme.onSurface.copy(alpha = DISABLED_ALPHA)
@@ -241,6 +242,13 @@ fun AnimeActionRow(
                 onLongClick = onWebViewLongClicked,
             )
         }
+
+        AnimeActionButton(
+            title = "AI Guide",
+            icon = Icons.Default.AutoAwesome,
+            color = MaterialTheme.colorScheme.primary,
+            onClick = onAiGlossaryClicked,
+        )
     }
 }
 
