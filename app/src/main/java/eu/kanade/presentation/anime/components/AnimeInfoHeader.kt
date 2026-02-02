@@ -186,6 +186,9 @@ fun AnimeActionRow(
 ) {
     val defaultActionButtonColor = MaterialTheme.colorScheme.onSurface.copy(alpha = DISABLED_ALPHA)
 
+    val aiPreferences = remember { Injekt.get<eu.kanade.domain.ai.AiPreferences>() }
+    val enableAi by aiPreferences.enableAi().collectAsState()
+
     // TODO: show something better when using custom interval
     val nextUpdateDays = remember(nextUpdate) {
         return@remember if (nextUpdate != null) {
@@ -243,12 +246,14 @@ fun AnimeActionRow(
             )
         }
 
-        AnimeActionButton(
-            title = "AI Guide",
-            icon = Icons.Default.AutoAwesome,
-            color = MaterialTheme.colorScheme.primary,
-            onClick = onAiGlossaryClicked,
-        )
+        if (enableAi) {
+            AnimeActionButton(
+                title = "AI Guide",
+                icon = Icons.Default.AutoAwesome,
+                color = MaterialTheme.colorScheme.primary,
+                onClick = onAiGlossaryClicked,
+            )
+        }
     }
 }
 

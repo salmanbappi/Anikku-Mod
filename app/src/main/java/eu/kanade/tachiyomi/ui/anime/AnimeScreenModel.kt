@@ -1226,7 +1226,12 @@ class AnimeScreenModel(
             .find { it.episode.seen } ?: return
 
         screenModelScope.launchIO {
-            val summary = aiManager.getEpisodeSummary(state.anime.title, lastWatchedEpisode.episode.episodeNumber)
+            val summary = aiManager.getEpisodeSummary(
+                animeTitle = state.anime.title,
+                episodeNumber = lastWatchedEpisode.episode.episodeNumber,
+                animeDescription = state.anime.description,
+                animeTags = state.anime.genre
+            )
             updateSuccessState { it.copy(aiEpisodeSummary = summary) }
         }
     }
@@ -1234,7 +1239,12 @@ class AnimeScreenModel(
     fun fetchAIGlossary(query: String) {
         val state = successState ?: return
         screenModelScope.launchIO {
-            val info = aiManager.getGlossaryInfo(state.anime.title, query)
+            val info = aiManager.getGlossaryInfo(
+                animeTitle = state.anime.title,
+                query = query,
+                animeDescription = state.anime.description,
+                animeTags = state.anime.genre
+            )
             updateSuccessState { it.copy(aiGlossaryInfo = info) }
         }
     }
