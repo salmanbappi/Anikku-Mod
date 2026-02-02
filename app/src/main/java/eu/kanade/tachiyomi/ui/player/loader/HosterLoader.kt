@@ -86,7 +86,7 @@ class HosterLoader {
                             semaphore.acquire()
                             try {
                                 val hosterState = try {
-                                    kotlinx.coroutines.withTimeout(5000) {
+                                    kotlinx.coroutines.withTimeout(15000) {
                                         EpisodeLoader.loadHosterVideos(source, hoster)
                                     }
                                 } catch (e: Exception) {
@@ -95,13 +95,13 @@ class HosterLoader {
                                 hosterStates[hosterIdx] = hosterState
 
                                 if (hosterState is HosterState.Ready) {
-                                    // Check for ANY valid video immediately to return fast
-                                    val validIndex = hosterState.videoList.indexOfFirst { it.videoUrl.isNotEmpty() && !it.initialized }
-                                    if (validIndex != -1) {
-                                        val video = hosterState.videoList[validIndex]
+                                    // 1. Priority: Preferred video
+                                    val prefIndex = hosterState.videoList.indexOfFirst { it.preferred && !it.initialized }
+                                    if (prefIndex != -1) {
+                                        val video = hosterState.videoList[prefIndex]
                                         hosterStates[hosterIdx] =
                                             (hosterStates[hosterIdx] as HosterState.Ready).getChangedAt(
-                                                validIndex,
+                                                prefIndex,
                                                 video,
                                                 Video.State.LOAD_VIDEO,
                                             )
@@ -111,13 +111,17 @@ class HosterLoader {
                                             coroutineContext.cancelChildren()
                                             throw EarlyReturnException(resolvedVideo)
                                         }
+                                    }
 
-                                        hosterStates[hosterIdx] =
-                                            (hosterStates[hosterIdx] as HosterState.Ready).getChangedAt(
-                                                validIndex,
-                                                video,
-                                                Video.State.ERROR,
-                                            )
+                                    // 2. Fallback: ANY valid video
+                                    val validIndex = hosterState.videoList.indexOfFirst { it.videoUrl.isNotEmpty() || !it.initialized }
+                                    if (validIndex != -1) {
+                                        val video = hosterState.videoList[validIndex]
+                                        val resolvedVideo = getResolvedVideo(source, video)
+                                        if (resolvedVideo?.videoUrl?.isNotEmpty() == true) {
+                                            coroutineContext.cancelChildren()
+                                            throw EarlyReturnException(resolvedVideo)
+                                        }
                                     }
                                 }
                             } finally {
@@ -126,17 +130,11 @@ class HosterLoader {
                         }
                     }.awaitAll()
 
+                    // Final attempt to find any READY video that might have been loaded but missed the early return
                     var (hosterIdx, videoIdx) = selectBestVideo(hosterStates)
                     while (hosterIdx != -1) {
                         val hosterState = hosterStates[hosterIdx] as HosterState.Ready
                         val video = hosterState.videoList[videoIdx]
-                        hosterStates[hosterIdx] =
-                            (hosterStates[hosterIdx] as HosterState.Ready).getChangedAt(
-                                videoIdx,
-                                video,
-                                Video.State.LOAD_VIDEO,
-                            )
-
                         val resolvedVideo = getResolvedVideo(source, video)
                         if (resolvedVideo?.videoUrl?.isNotEmpty() == true) {
                             coroutineContext.cancelChildren()

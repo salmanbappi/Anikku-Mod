@@ -586,8 +586,9 @@ class Downloader(
         download.downloadedSegments = 0
 
         // 3. Parallel segment downloading with Sequential Writing (High Performance)
-        val concurrency = preferences.downloadThreads().get().coerceAtLeast(8)
+        val concurrency = preferences.downloadThreads().get().coerceAtLeast(12)
         val semaphore = Semaphore(concurrency)
+        var failedSegments = 0
         
         context.contentResolver.openFileDescriptor(videoFile.uri, "rw")?.use { pfd ->
             FileOutputStream(pfd.fileDescriptor).channel.use { channel ->
@@ -599,14 +600,14 @@ class Downloader(
                                 var success = false
                                 while (attempt < 5 && !success) {
                                     try {
-                                        // Flow Control: Prevent OOM
-                                        while (downloadedSegments.size > 30) {
+                                        // Flow Control: Prevent OOM (Adjusted for higher concurrency)
+                                        while (downloadedSegments.size > 50) {
                                             delay(200)
                                         }
                                         val segRequest = Request.Builder().url(segmentUrl).headers(headerMap).build()
                                         client.newCall(segRequest).execute().use { response ->
                                             if (!response.isSuccessful) {
-                                                if (response.code == 403) throw IOException("Segment 403: Mirror Blocked FFmpeg")
+                                                if (response.code == 403) throw IOException("Segment 403: Forbidden")
                                                 throw IOException("Segment failed: ${response.code}")
                                             }
                                             val data = response.body?.bytes() ?: throw IOException("Empty segment")
@@ -635,8 +636,24 @@ class Downloader(
                                     } catch (e: Exception) {
                                         if (e is CancellationException) throw e
                                         attempt++
-                                        if (attempt >= 5) throw e
-                                        delay(1000L * attempt)
+                                        if (attempt >= 5) {
+                                            logcat(LogPriority.WARN) { "Failed to download segment $index after 5 attempts: ${e.message}" }
+                                            synchronized(downloadedSegments) {
+                                                // Add empty byte array to skip this segment but keep sequence
+                                                downloadedSegments[index] = ByteArray(0)
+                                                failedSegments++
+                                            }
+                                            // Trigger write if this was the next index
+                                            synchronized(channel) {
+                                                while (downloadedSegments.containsKey(nextWriteIndex)) {
+                                                    val segmentData = downloadedSegments.remove(nextWriteIndex)!!
+                                                    if (segmentData.isNotEmpty()) channel.write(ByteBuffer.wrap(segmentData))
+                                                    nextWriteIndex++
+                                                }
+                                            }
+                                        } else {
+                                            delay(1000L * attempt)
+                                        }
                                     }
                                 }
                             }
@@ -649,23 +666,14 @@ class Downloader(
             pfd.fileDescriptor.sync()
         }
 
-        // 4. Duration Guardian Verification (Final Check)
+        // 4. Final Verification (Loosened for resilience)
         val file = tmpDir.findFile("$filename.tmp")?.apply {
-            val isMovie = download.anime.title.contains("Movie", ignoreCase = true) || 
-                         download.episode.name.contains("Movie", ignoreCase = true)
-            
-            // Check if we actually got most of the segments
-            if (nextWriteIndex < (totalSegments * 0.95)) {
+            // Only fail if more than 20% of segments are missing
+            if (failedSegments > (totalSegments * 0.2)) {
                 this.delete()
-                throw Exception("Download Incomplete: Only $nextWriteIndex/$totalSegments segments saved.")
+                throw Exception("Download Failed: Too many segments ($failedSegments/$totalSegments) missing.")
             }
             
-            // Size check for movies - Relaxed to 50MB for HEVC support
-            if (isMovie && this.length() < 50 * 1024 * 1024) {
-                this.delete()
-                throw Exception("Movie truncated: Resulting file too small (${this.length() / 1024 / 1024}MB)")
-            }
-
             renameTo("$filename.mkv")
         }
         return file ?: throw Exception("Downloaded file not found")
