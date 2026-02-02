@@ -359,12 +359,16 @@ class Downloader(
     private suspend fun downloadEpisode(download: Download) {
         // This try catch manages errors during download
         try {
+            // Immediate UI feedback
+            download.status = Download.State.DOWNLOADING
+            notifier.onProgressChange(download)
+
             val animeDir = provider.getAnimeDir(download.anime.title, download.source)
 
-            val availSpace = DiskUtil.getAvailableStorageSpace(animeDir)
-            if (availSpace != -1L && availSpace < MIN_DISK_SPACE) {
-                throw Exception(context.stringResource(MR.strings.download_insufficient_space))
-            }
+            // val availSpace = DiskUtil.getAvailableStorageSpace(animeDir)
+            // if (availSpace != -1L && availSpace < MIN_DISK_SPACE) {
+            //    throw Exception(context.stringResource(MR.strings.download_insufficient_space))
+            // }
 
             val episodeDirname = provider.getEpisodeDirName(download.episode.name, download.episode.scanlator)
             val tmpDir = animeDir.createDirectory(episodeDirname + TMP_DIR_SUFFIX)!!
@@ -739,8 +743,8 @@ class Downloader(
                                             synchronized(progressMap) {
                                                 progressMap[i] = currentDownloaded
                                                 totalDownloaded = progressMap.values.sum()
+                                                download.update(totalDownloaded, totalSize, false)
                                             }
-                                            download.progress = (100 * totalDownloaded / totalSize).toInt()
                                             notifier.onProgressChange(download)
                                         }
                                     }
@@ -849,6 +853,7 @@ class Downloader(
             if (duration != 0L && outTime > 0) {
                 download.progress = (100 * outTime / duration).toInt()
             }
+            download.updateSpeed(s.size)
         }
 
         val useExternal = preferences.useExternalDownloader().get() == download.changeDownloader
