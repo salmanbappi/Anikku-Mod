@@ -218,7 +218,6 @@ class Downloader(
             val activeDownloadsFlow = queueState
                 .debounce(100)
                 .transformLatest { queue ->
-                while (true) {
                     val activeDownloads = queue.asSequence()
                         .filter {
                             it.status.value <= Download.State.DOWNLOADING.value
@@ -227,18 +226,8 @@ class Downloader(
                         .toList()
                     emit(activeDownloads)
 
-                    if (activeDownloads.isEmpty()) break
-
-                    // Suspend until a download enters the ERROR state
-                    val activeDownloadsErroredFlow =
-                        combine(activeDownloads.map(Download::statusFlow)) { states ->
-                            states.contains(Download.State.ERROR)
-                        }.filter { it }
-                    activeDownloadsErroredFlow.first()
-                }
-
-                if (areAllDownloadsFinished()) stop()
-            }.distinctUntilChanged()
+                    if (areAllDownloadsFinished()) stop()
+                }.distinctUntilChanged()
 
             // Use supervisorScope to cancel child jobs when the downloader job is cancelled
             supervisorScope {
