@@ -271,20 +271,42 @@ class BrowseSourceScreenModel(
 
     private fun performAiSearch(query: String) {
         val catalogueSource = source as? AnimeCatalogueSource ?: return
+        val currentFilters = catalogueSource.getFilterList()
+        val availableOptions = extractAvailableOptions(currentFilters)
+
         screenModelScope.launchIO {
-            val aiResponse = aiManager.parseSearchQuery(query) ?: return@launchIO
+            val aiResponse = aiManager.parseSearchQuery(query, availableOptions) ?: return@launchIO
             
             val filters = catalogueSource.getFilterList()
             applyAiFilters(filters, aiResponse)
 
+            val finalQuery = aiResponse.query ?: query
+            val listing = Listing.Search(query = finalQuery, filters = filters)
+
             mutableState.update {
                 it.copy(
                     filters = filters,
-                    toolbarQuery = aiResponse.description ?: query,
-                    listing = Listing.Search(query = aiResponse.description ?: query, filters = filters),
+                    toolbarQuery = finalQuery,
+                    listing = listing,
                 )
             }
         }
+    }
+
+    private fun extractAvailableOptions(filters: FilterList): String {
+        val options = StringBuilder()
+        filters.forEach { filter ->
+            when (filter) {
+                is AnimeFilter.Group<*> -> {
+                    options.append("${filter.name}: [${filter.state.joinToString { it.name }}]\n")
+                }
+                is AnimeFilter.Select<*> -> {
+                    options.append("${filter.name}: [${filter.values.joinToString()}]\n")
+                }
+                else -> {}
+            }
+        }
+        return options.toString()
     }
 
     private fun applyAiFilters(filters: FilterList, aiResponse: AiManager.AiSearchResponse) {
@@ -303,6 +325,15 @@ class BrowseSourceScreenModel(
             filters.filterIsInstance<AnimeFilter.Select<*>>().forEach { filter ->
                 val index = filter.values.indexOfFirst { it.toString().equals(genre, ignoreCase = true) }
                 if (index != -1) filter.state = index
+            }
+        }
+        
+        aiResponse.status?.let { status ->
+            filters.filterIsInstance<AnimeFilter.Select<*>>().forEach { filter ->
+                if (filter.name.contains("Status", ignoreCase = true)) {
+                    val index = filter.values.indexOfFirst { it.toString().contains(status, ignoreCase = true) }
+                    if (index != -1) filter.state = index
+                }
             }
         }
     }

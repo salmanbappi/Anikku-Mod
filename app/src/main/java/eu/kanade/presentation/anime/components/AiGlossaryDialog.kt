@@ -36,9 +36,7 @@ fun AiGlossaryDialog(
     var isFetching by remember { mutableStateOf(false) }
 
     LaunchedEffect(glossaryInfo) {
-        if (glossaryInfo != null) {
-            isFetching = false
-        }
+        isFetching = false
     }
 
     AlertDialog(
