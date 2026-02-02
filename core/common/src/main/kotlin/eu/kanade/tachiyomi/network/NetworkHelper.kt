@@ -45,6 +45,22 @@ open /* SY <-- */ class NetworkHelper(
         clientWithTimeOut()
 
     /**
+     * Specialized client for high-performance downloading.
+     * Mimics 1DM+/ADM by allowing many concurrent connections to the same host.
+     */
+    val downloadClient: OkHttpClient by lazy {
+        client.newBuilder()
+            .dispatcher(
+                Dispatcher().apply {
+                    maxRequests = 256
+                    maxRequestsPerHost = 32 // Professional level concurrency
+                },
+            )
+            .connectionPool(ConnectionPool(64, 5, TimeUnit.MINUTES))
+            .build()
+    }
+
+    /**
      * Timeout in unit of seconds.
      */
     fun clientWithTimeOut(

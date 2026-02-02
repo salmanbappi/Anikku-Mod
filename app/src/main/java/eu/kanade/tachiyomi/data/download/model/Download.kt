@@ -48,7 +48,7 @@ data class Download(
     @Transient var downloadedSegments: Int = 0
     @Transient var totalSegments: Int = 0
     
-    private var lastUpdateTime: Long = 0
+    private var lastUpdateTime: Long = System.currentTimeMillis()
     private var lastBytesRead: Long = 0
 
     /**
@@ -67,12 +67,12 @@ data class Download(
         
         // Speed Calculation
         val now = System.currentTimeMillis()
-        if (now - lastUpdateTime > 1000) {
+        if (now - lastUpdateTime > 500) {
             val bytesDiff = bytesRead - lastBytesRead
             val timeDiff = (now - lastUpdateTime) / 1000.0
             val speedBytes = bytesDiff / timeDiff
             speed = when {
-                speedBytes > 1024 * 1024 -> "%.1f MB/s".format(speedBytes / (1024 * 1024))
+                speedBytes > 1024 * 1024 -> "%.2f MB/s".format(speedBytes / (1024 * 1024))
                 speedBytes > 1024 -> "%.1f KB/s".format(speedBytes / 1024)
                 else -> "${speedBytes.toLong()} B/s"
             }
@@ -90,12 +90,12 @@ data class Download(
      */
     fun updateSpeed(bytesRead: Long) {
         val now = System.currentTimeMillis()
-        if (now - lastUpdateTime > 1000) {
+        if (now - lastUpdateTime > 500) { // High frequency updates for smoothness
             val bytesDiff = bytesRead - lastBytesRead
             val timeDiff = (now - lastUpdateTime) / 1000.0
             val speedBytes = bytesDiff / timeDiff
             speed = when {
-                speedBytes > 1024 * 1024 -> "%.1f MB/s".format(speedBytes / (1024 * 1024))
+                speedBytes > 1024 * 1024 -> "%.2f MB/s".format(speedBytes / (1024 * 1024))
                 speedBytes > 1024 -> "%.1f KB/s".format(speedBytes / 1024)
                 else -> "${speedBytes.toLong()} B/s"
             }
