@@ -23,25 +23,31 @@ class AiManager(
         val apiKey = aiPreferences.groqApiKey().get().ifBlank { return null }
         
         val prompt = """
-            You are an AI search assistant for an anime app.
-            Available Filter Options (Genres, Themes, etc.):
+            You are an expert anime librarian.
+            User Query: "$query"
+            
+            Available Filters:
             $availableOptions
             
-            Based on the user's query, output a JSON object with:
-            - genres: list of genre/theme strings that EXACTLY match the available options.
-            - status: "Ongoing" or "Completed" if specified, else null.
-            - query: a refined search text (the anime title or specific keywords) in English. If the input is not in English, translate it.
-            - action: "FILTER" if you set specific filters, "TEXT" if you only refined the query, or "BOTH".
+            Task:
+            1. Analyze the user's intent (e.g., "sad romance anime", "isekai with op mc", "movies from 2020").
+            2. Match intent to the EXACT available filters provided above.
+            3. Refine the text query if needed (e.g., translate to English, remove stop words).
             
-            Query: "$query"
-            
-            Return ONLY the JSON.
+            Output JSON ONLY:
+            {
+              "genres": ["Genre1", "Genre2"], // Exact matches only
+              "themes": ["Theme1", "Theme2"], // Exact matches only
+              "status": "Ongoing" | "Completed" | null,
+              "query": "Refined Text Search",
+              "action": "FILTER" | "TEXT" | "BOTH"
+            }
         """.trimIndent()
 
         val requestBody = ChatCompletionRequest(
             model = "llama-3.3-70b-versatile",
             messages = listOf(
-                ChatMessage(role = "system", content = "You are a specialized anime database query parser."),
+                ChatMessage(role = "system", content = "You are a helpful assistant that outputs only valid JSON."),
                 ChatMessage(role = "user", content = prompt)
             ),
             response_format = ResponseFormat(type = "json_object")
@@ -55,13 +61,17 @@ class AiManager(
 
         return try {
             networkHelper.client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) return null
+                if (!response.isSuccessful) {
+                    println("AI Search Error: ${'$'}{response.code} ${'$'}{response.message}")
+                    return null
+                }
                 val result = response.body.string()
                 val chatResponse = json.decodeFromString(ChatCompletionResponse.serializer(), result)
                 val content = chatResponse.choices.firstOrNull()?.message?.content ?: return null
                 json.decodeFromString(AiSearchResponse.serializer(), content)
             }
         } catch (e: Exception) {
+            e.printStackTrace()
             null
         }
     }
@@ -70,7 +80,7 @@ class AiManager(
         if (!aiPreferences.enableAi().get()) return null
         val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return null }
         
-        val prompt = "Translate the following text to English. If it is already in English, return it exactly as is. Output ONLY the translated text:\n\n$text"
+        val prompt = "Translate the following text to English. If it is already in English, return it as is. Do not add explanations. Text:\n$text"
         return callGemini(prompt, apiKey)
     }
 
@@ -80,17 +90,19 @@ class AiManager(
         animeDescription: String? = null,
         animeTags: List<String>? = null
     ): String? {
-        if (!aiPreferences.enableAi().get() || !aiPreferences.episodeIntelligence().get() || aiPreferences.useLocalOnly().get()) return null
+        if (!aiPreferences.enableAi().get() || !aiPreferences.episodeIntelligence().get()) return null
         
         val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return null }
         
         val context = StringBuilder()
-        animeDescription?.let { context.append("Description: $it\n") }
+        animeDescription?.let { context.append("Anime Description: $it\n") }
         animeTags?.let { context.append("Tags: ${it.joinToString()}\n") }
 
         val prompt = """
             $context
-            Provide a short, spoiler-free summary for episode $episodeNumber of the anime '$animeTitle'. Do not include major plot twists.
+            Task: Write a concise, engaging, and SPOILER-FREE summary for Episode $episodeNumber of '$animeTitle'.
+            Focus on the premise of the episode if specific details are unknown, or summarize the likely events based on the series context.
+            Maximum 3 sentences.
         """.trimIndent()
 
         return callGemini(prompt, apiKey)
@@ -102,20 +114,50 @@ class AiManager(
         animeDescription: String? = null,
         animeTags: List<String>? = null
     ): String? {
-        if (!aiPreferences.enableAi().get() || aiPreferences.useLocalOnly().get()) return null
+        if (!aiPreferences.enableAi().get()) return null
         
         val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return null }
         
+        val context = StringBuilder()
+        animeDescription?.let { context.append("Context: $it\n") }
+
+        val prompt = """
+            $context
+            Question: Explain "$query" in the context of the anime '$animeTitle'.
+            Answer: Provide a short, cultural or plot-relevant explanation. Max 50 words.
+        """.trimIndent()
+
+        return callGemini(prompt, apiKey)
+    }
+
+    suspend fun getRecommendations(
+        animeTitle: String,
+        animeDescription: String? = null,
+        animeTags: List<String>? = null
+    ): List<String> {
+        if (!aiPreferences.enableAi().get() || !aiPreferences.localRecommendations().get()) return emptyList()
+        val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return emptyList() }
+
         val context = StringBuilder()
         animeDescription?.let { context.append("Description: $it\n") }
         animeTags?.let { context.append("Tags: ${it.joinToString()}\n") }
 
         val prompt = """
             $context
-            Explain the following about the anime '$animeTitle': $query. Provide cultural context if relevant. Keep it concise.
+            Task: Recommend 5 anime similar to '$animeTitle'.
+            Output: A JSON list of strings ONLY. Example: ["Anime A", "Anime B"]
+            Do not include explanations or markdown formatting.
         """.trimIndent()
 
-        return callGemini(prompt, apiKey)
+        val jsonString = callGemini(prompt, apiKey) ?: return emptyList()
+        
+        return try {
+            val cleanJson = jsonString.replace("```json", "").replace("```", "").trim()
+            json.decodeFromString<List<String>>(cleanJson)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
     }
 
     private suspend fun callGemini(prompt: String, apiKey: String): String? {
@@ -123,19 +165,24 @@ class AiManager(
             contents = listOf(GeminiContent(parts = listOf(GeminiPart(text = prompt))))
         )
 
+        // Using gemini-1.5-flash which is stable and fast
         val request = Request.Builder()
-            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${'$'}apiKey")
+            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${'$'}apiKey")
             .post(json.encodeToString(GeminiRequest.serializer(), requestBody).toRequestBody(jsonMediaType))
             .build()
 
         return try {
             networkHelper.client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) return null
+                if (!response.isSuccessful) {
+                    println("Gemini Error: ${'$'}{response.code} ${'$'}{response.message}")
+                    return null
+                }
                 val result = response.body.string()
                 val geminiResponse = json.decodeFromString(GeminiResponse.serializer(), result)
                 geminiResponse.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text?.trim()
             }
         } catch (e: Exception) {
+            e.printStackTrace()
             null
         }
     }

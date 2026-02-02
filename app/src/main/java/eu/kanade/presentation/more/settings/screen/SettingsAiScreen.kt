@@ -43,12 +43,6 @@ object SettingsAiScreen : SearchableSettings {
                     title = stringResource(MR.strings.pref_enable_ai),
                     subtitle = stringResource(MR.strings.pref_enable_ai_summary),
                 ),
-                Preference.PreferenceItem.SwitchPreference(
-                    pref = aiPreferences.useLocalOnly(),
-                    title = stringResource(MR.strings.pref_ai_local_only),
-                    subtitle = stringResource(MR.strings.pref_ai_local_only_summary),
-                    enabled = enableAi,
-                ),
             ),
         )
     }
@@ -56,7 +50,6 @@ object SettingsAiScreen : SearchableSettings {
     @Composable
     private fun getFeaturesGroup(aiPreferences: AiPreferences): Preference.PreferenceGroup {
         val enableAi by aiPreferences.enableAi().collectAsState()
-        val localOnly by aiPreferences.useLocalOnly().collectAsState()
 
         return Preference.PreferenceGroup(
             title = "AI Features",
@@ -71,29 +64,11 @@ object SettingsAiScreen : SearchableSettings {
                     pref = aiPreferences.episodeIntelligence(),
                     title = stringResource(MR.strings.pref_ai_episode_intelligence),
                     subtitle = stringResource(MR.strings.pref_ai_episode_intelligence_summary),
-                    enabled = !localOnly,
-                ),
-                Preference.PreferenceItem.SwitchPreference(
-                    pref = aiPreferences.subtitleEnhancer(),
-                    title = stringResource(MR.strings.pref_ai_subtitle_enhancer),
-                    subtitle = stringResource(MR.strings.pref_ai_subtitle_enhancer_summary),
-                    enabled = !localOnly,
                 ),
                 Preference.PreferenceItem.SwitchPreference(
                     pref = aiPreferences.localRecommendations(),
                     title = stringResource(MR.strings.pref_ai_local_recommendations),
                     subtitle = stringResource(MR.strings.pref_ai_local_recommendations_summary),
-                ),
-                Preference.PreferenceItem.SwitchPreference(
-                    pref = aiPreferences.performanceIntelligence(),
-                    title = stringResource(MR.strings.pref_ai_performance_intelligence),
-                    subtitle = stringResource(MR.strings.pref_ai_performance_intelligence_summary),
-                ),
-                Preference.PreferenceItem.SwitchPreference(
-                    pref = aiPreferences.personalAssistant(),
-                    title = stringResource(MR.strings.pref_ai_personal_assistant),
-                    subtitle = stringResource(MR.strings.pref_ai_personal_assistant_summary),
-                    enabled = !localOnly,
                 ),
             ),
         )
@@ -102,11 +77,10 @@ object SettingsAiScreen : SearchableSettings {
     @Composable
     private fun getApiKeysGroup(aiPreferences: AiPreferences): Preference.PreferenceGroup {
         val enableAi by aiPreferences.enableAi().collectAsState()
-        val localOnly by aiPreferences.useLocalOnly().collectAsState()
 
         return Preference.PreferenceGroup(
             title = "Cloud API Keys",
-            enabled = enableAi && !localOnly,
+            enabled = enableAi,
             preferenceItems = persistentListOf(
                 Preference.PreferenceItem.EditTextPreference(
                     pref = aiPreferences.groqApiKey(),

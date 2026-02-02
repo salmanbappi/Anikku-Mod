@@ -565,7 +565,7 @@
     <string name="pref_category_downloads">Downloads</string>
     <string name="pref_category_tracking">Tracking</string>
     <string name="pref_category_ai">Anikku Intelligence</string>
-    <string name="pref_ai_summary">Smart search, summaries, and local assistance</string>
+    <string name="pref_ai_summary">Smart search, summaries, and intelligent recommendations</string>
     <string name="pref_enable_ai">Enable AI features</string>
     <string name="pref_enable_ai_summary">Toggle all smart assistance and AI capabilities</string>
     <string name="pref_ai_local_only">Strictly local AI</string>
@@ -577,7 +577,7 @@
     <string name="pref_ai_subtitle_enhancer">Subtitle Enhancer</string>
     <string name="pref_ai_subtitle_enhancer_summary">Improve grammar and explain cultural context/honorifics</string>
     <string name="pref_ai_local_recommendations">Smart Recommendations</string>
-    <string name="pref_ai_local_recommendations_summary">Local-first suggestions based on your watch history</string>
+    <string name="pref_ai_local_recommendations_summary">Context-aware suggestions powered by Gemini AI</string>
     <string name="pref_ai_performance_intelligence">Performance Intelligence</string>
     <string name="pref_ai_performance_intelligence_summary">Auto-tune quality and interpolation based on battery and heat</string>
     <string name="pref_ai_personal_assistant">Personal Anime Assistant</string>
