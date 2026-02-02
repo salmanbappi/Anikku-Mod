@@ -46,6 +46,8 @@ internal class DownloadNotifier(private val context: Context) {
      * Status of download. Used for correct notification icon.
      */
     private var isDownloading = false
+    
+    private var lastNotificationTime = 0L
 
     /**
      * Shows a notification from this builder.
@@ -70,6 +72,12 @@ internal class DownloadNotifier(private val context: Context) {
      * @param download download object containing download information.
      */
     fun onProgressChange(download: Download) {
+        val now = System.currentTimeMillis()
+        if (now - lastNotificationTime < 500 && download.status == Download.State.DOWNLOADING && download.progress < 100) {
+            return
+        }
+        lastNotificationTime = now
+
         with(progressNotificationBuilder) {
             if (!isDownloading) {
                 setSmallIcon(android.R.drawable.stat_sys_download)
