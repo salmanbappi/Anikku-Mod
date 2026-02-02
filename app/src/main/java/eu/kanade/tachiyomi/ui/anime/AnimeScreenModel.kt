@@ -1231,6 +1231,14 @@ class AnimeScreenModel(
         }
     }
 
+    fun fetchAIGlossary(query: String) {
+        val state = successState ?: return
+        screenModelScope.launchIO {
+            val info = aiManager.getGlossaryInfo(state.anime.title, query)
+            updateSuccessState { it.copy(aiGlossaryInfo = info) }
+        }
+    }
+
     sealed interface Dialog {
         data class ChangeCategory(
             val anime: Anime,
@@ -1250,10 +1258,15 @@ class AnimeScreenModel(
         data object SettingsSheet : Dialog
         data object TrackSheet : Dialog
         data object FullCover : Dialog
+        data object AiGlossary : Dialog
     }
 
     fun dismissDialog() {
-        updateSuccessState { it.copy(dialog = null) }
+        updateSuccessState { it.copy(dialog = null, aiGlossaryInfo = null) }
+    }
+
+    fun showAiGlossary() {
+        updateSuccessState { it.copy(dialog = Dialog.AiGlossary) }
     }
 
     fun showDeleteEpisodeDialog(episodes: List<Episode>) {
@@ -1319,6 +1332,7 @@ class AnimeScreenModel(
                 anime.nextEpisodeAiringAt,
             ),
             val aiEpisodeSummary: String? = null,
+            val aiGlossaryInfo: String? = null,
         ) : State {
 
             val processedEpisodes by lazy {

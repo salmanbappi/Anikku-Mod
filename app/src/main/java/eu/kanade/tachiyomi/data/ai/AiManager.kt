@@ -90,6 +90,34 @@ class AiManager(
         }
     }
 
+    suspend fun getGlossaryInfo(animeTitle: String, query: String): String? {
+        if (!aiPreferences.enableAi().get() || aiPreferences.useLocalOnly().get()) return null
+        
+        val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return null }
+        
+        val prompt = "Explain the following about the anime '${'$'}animeTitle': ${'$'}query. Provide cultural context if relevant. Keep it concise."
+
+        val requestBody = GeminiRequest(
+            contents = listOf(GeminiContent(parts = listOf(GeminiPart(text = prompt))))
+        )
+
+        val request = Request.Builder()
+            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${'$'}apiKey")
+            .post(json.encodeToString(GeminiRequest.serializer(), requestBody).toRequestBody(jsonMediaType))
+            .build()
+
+        return try {
+            networkHelper.client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) return null
+                val result = response.body.string()
+                val geminiResponse = json.decodeFromString(GeminiResponse.serializer(), result)
+                geminiResponse.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     @Serializable
     private data class ChatCompletionRequest(
         val model: String,
