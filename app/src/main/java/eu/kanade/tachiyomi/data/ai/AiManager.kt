@@ -30,7 +30,7 @@ class AiManager(
             Based on the user's query, output a JSON object with:
             - genres: list of genre/theme strings that EXACTLY match the available options.
             - status: "Ongoing" or "Completed" if specified, else null.
-            - query: a refined search text (the anime title or specific keywords) or null.
+            - query: a refined search text (the anime title or specific keywords) in English. If the input is not in English, translate it.
             - action: "FILTER" if you set specific filters, "TEXT" if you only refined the query, or "BOTH".
             
             Query: "$query"
@@ -124,7 +124,7 @@ class AiManager(
         )
 
         val request = Request.Builder()
-            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${'$'}apiKey")
+            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${'$'}apiKey")
             .post(json.encodeToString(GeminiRequest.serializer(), requestBody).toRequestBody(jsonMediaType))
             .build()
 

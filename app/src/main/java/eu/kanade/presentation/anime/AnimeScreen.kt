@@ -157,6 +157,7 @@ fun AnimeScreen(
     onFetchAIEpisodeSummary: () -> Unit,
     onFetchAIGlossary: (String) -> Unit,
     onShowAiGlossary: () -> Unit,
+    isFetchingAiGlossary: Boolean,
 ) {
     val context = LocalContext.current
     val onCopyTagToClipboard: (tag: String) -> Unit = {
@@ -220,6 +221,7 @@ fun AnimeScreen(
             onFetchAIEpisodeSummary = onFetchAIEpisodeSummary,
             onFetchAIGlossary = onFetchAIGlossary,
             onShowAiGlossary = onShowAiGlossary,
+            isFetchingAiGlossary = isFetchingAiGlossary,
         )
     } else {
         AnimeScreenLargeImpl(
@@ -271,6 +273,7 @@ fun AnimeScreen(
             onFetchAIEpisodeSummary = onFetchAIEpisodeSummary,
             onFetchAIGlossary = onFetchAIGlossary,
             onShowAiGlossary = onShowAiGlossary,
+            isFetchingAiGlossary = isFetchingAiGlossary,
         )
     }
 }
@@ -339,6 +342,7 @@ private fun AnimeScreenSmallImpl(
     onFetchAIEpisodeSummary: () -> Unit,
     onFetchAIGlossary: (String) -> Unit,
     onShowAiGlossary: () -> Unit,
+    isFetchingAiGlossary: Boolean,
 ) {
     val episodeListState = rememberLazyListState()
 
@@ -653,6 +657,7 @@ fun AnimeScreenLargeImpl(
     onFetchAIEpisodeSummary: () -> Unit,
     onFetchAIGlossary: (String) -> Unit,
     onShowAiGlossary: () -> Unit,
+    isFetchingAiGlossary: Boolean,
 ) {
     val layoutDirection = LocalLayoutDirection.current
     val density = LocalDensity.current
