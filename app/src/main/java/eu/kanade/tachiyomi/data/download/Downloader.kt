@@ -324,7 +324,7 @@ class Downloader(
             addAllToQueue(episodesToQueue)
 
             // Start downloader if needed
-            if (autoStart && wasEmpty) {
+            if (autoStart && (wasEmpty || !isRunning)) {
                 val queuedDownloads =
                     queueState.value.count { it: Download -> it.source !is UnmeteredSource }
                 val maxDownloadsFromSource = queueState.value
