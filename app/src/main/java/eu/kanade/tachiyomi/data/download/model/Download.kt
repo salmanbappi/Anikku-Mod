@@ -83,6 +83,27 @@ data class Download(
         if (progress != newProgress) progress = newProgress
     }
 
+    /**
+     * Updates only the speed of the download
+     *
+     * @param bytesRead the updated TOTAL number of bytes read
+     */
+    fun updateSpeed(bytesRead: Long) {
+        val now = System.currentTimeMillis()
+        if (now - lastUpdateTime > 1000) {
+            val bytesDiff = bytesRead - lastBytesRead
+            val timeDiff = (now - lastUpdateTime) / 1000.0
+            val speedBytes = bytesDiff / timeDiff
+            speed = when {
+                speedBytes > 1024 * 1024 -> "%.1f MB/s".format(speedBytes / (1024 * 1024))
+                speedBytes > 1024 -> "%.1f KB/s".format(speedBytes / 1024)
+                else -> "${speedBytes.toLong()} B/s"
+            }
+            lastUpdateTime = now
+            lastBytesRead = bytesRead
+        }
+    }
+
     enum class State(val value: Int) {
         NOT_DOWNLOADED(0),
         QUEUE(1),
