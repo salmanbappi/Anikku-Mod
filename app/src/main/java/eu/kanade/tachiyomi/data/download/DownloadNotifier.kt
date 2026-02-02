@@ -104,8 +104,8 @@ internal class DownloadNotifier(private val context: Context) {
                 context.stringResource(MR.strings.update_check_notification_download_in_progress)
             } else {
                 // 1DM+ Style Rich Notification
-                val speed = download.speed // Assuming added speed field
-                val segments = if (download.totalSegments > 0) " | Seg: ${download.downloadedSegments}/${download.totalSegments}" else ""
+                val speed = download.speed
+                val segments = if (download.totalSegments > 0) " | Seg: ${download.downloadedSegments}/${download.totalSegments}" else " | Multi-Thread"
                 val progress = context.stringResource(MR.strings.episode_downloading_progress, download.progress)
                 "$progress | $speed$segments"
             }

@@ -50,13 +50,10 @@ data class Download(
     
     private var lastUpdateTime: Long = System.currentTimeMillis()
     private var lastBytesRead: Long = 0
+    private val speedSamples = mutableListOf<Double>()
 
     /**
      * Updates the status of the download
-     *
-     * @param bytesRead the updated TOTAL number of bytes read (not a partial increment)
-     * @param contentLength the updated content length
-     * @param done whether progress has completed or not
      */
     override fun update(bytesRead: Long, contentLength: Long, done: Boolean) {
         val newProgress = if (contentLength > 0) {
@@ -65,39 +62,34 @@ data class Download(
             -1
         }
         
-        // Speed Calculation
-        val now = System.currentTimeMillis()
-        if (now - lastUpdateTime > 500) {
-            val bytesDiff = bytesRead - lastBytesRead
-            val timeDiff = (now - lastUpdateTime) / 1000.0
-            val speedBytes = bytesDiff / timeDiff
-            speed = when {
-                speedBytes > 1024 * 1024 -> "%.2f MB/s".format(speedBytes / (1024 * 1024))
-                speedBytes > 1024 -> "%.1f KB/s".format(speedBytes / 1024)
-                else -> "${speedBytes.toLong()} B/s"
-            }
-            lastUpdateTime = now
-            lastBytesRead = bytesRead
-        }
+        calculateSpeed(bytesRead)
 
         if (progress != newProgress) progress = newProgress
     }
 
     /**
      * Updates only the speed of the download
-     *
-     * @param bytesRead the updated TOTAL number of bytes read
      */
     fun updateSpeed(bytesRead: Long) {
+        calculateSpeed(bytesRead)
+    }
+
+    private fun calculateSpeed(bytesRead: Long) {
         val now = System.currentTimeMillis()
-        if (now - lastUpdateTime > 500) { // High frequency updates for smoothness
+        val timeDiff = (now - lastUpdateTime) / 1000.0
+        if (timeDiff >= 0.5) { // Update every 500ms for smoothness
             val bytesDiff = bytesRead - lastBytesRead
-            val timeDiff = (now - lastUpdateTime) / 1000.0
-            val speedBytes = bytesDiff / timeDiff
+            val currentSpeed = bytesDiff / timeDiff
+            
+            // Moving Average (Last 5 samples) for 1DM+ style smoothness
+            speedSamples.add(currentSpeed)
+            if (speedSamples.size > 5) speedSamples.removeAt(0)
+            val smoothSpeed = speedSamples.average()
+
             speed = when {
-                speedBytes > 1024 * 1024 -> "%.2f MB/s".format(speedBytes / (1024 * 1024))
-                speedBytes > 1024 -> "%.1f KB/s".format(speedBytes / 1024)
-                else -> "${speedBytes.toLong()} B/s"
+                smoothSpeed > 1024 * 1024 -> "%.2f MB/s".format(smoothSpeed / (1024 * 1024))
+                smoothSpeed > 1024 -> "%.1f KB/s".format(smoothSpeed / 1024)
+                else -> "${smoothSpeed.toLong()} B/s"
             }
             lastUpdateTime = now
             lastBytesRead = bytesRead
