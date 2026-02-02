@@ -600,6 +600,10 @@ class Downloader(
                                 var success = false
                                 while (attempt < 5 && !success) {
                                     try {
+                                        // Flow Control: Prevent OOM
+                                        while (downloadedSegments.size > 30) {
+                                            delay(200)
+                                        }
                                         val segRequest = Request.Builder().url(segmentUrl).headers(headerMap).build()
                                         client.newCall(segRequest).execute().use { response ->
                                             if (!response.isSuccessful) {
@@ -731,7 +735,7 @@ class Downloader(
                                 context.contentResolver.openFileDescriptor(videoFile.uri, "rw")?.use { pfd ->
                                     FileOutputStream(pfd.fileDescriptor).channel.use { channel ->
                                         channel.position(currentStart)
-                                        val buffer = ByteArray(512 * 1024)
+                                        val buffer = ByteArray(1024 * 1024)
                                         var bytesRead: Int
                                         val bis = body.byteStream()
                                         while (bis.read(buffer).also { bytesRead = it } != -1) {
