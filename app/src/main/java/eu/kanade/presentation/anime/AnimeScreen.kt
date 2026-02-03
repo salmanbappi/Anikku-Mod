@@ -133,31 +133,9 @@ fun AnimeScreen(
     onEditCategoryClicked: (() -> Unit)?,
     onEditFetchIntervalClicked: (() -> Unit)?,
     onMigrateClicked: (() -> Unit)?,
-    changeAnimeSkipIntro: (() -> Unit)?,
-    // SY -->
-    onEditInfoClicked: () -> Unit,
-    // SY <--
-
-    // For bottom action menu
-    onMultiBookmarkClicked: (List<Episode>, bookmarked: Boolean) -> Unit,
-    // AM (FILLERMARK) -->
-    onMultiFillermarkClicked: (List<Episode>, fillermarked: Boolean) -> Unit,
-    // <-- AM (FILLERMARK)
-    onMultiMarkAsSeenClicked: (List<Episode>, markAsSeen: Boolean) -> Unit,
-    onMarkPreviousAsSeenClicked: (Episode) -> Unit,
-    onMultiDeleteClicked: (List<Episode>) -> Unit,
-
-    // For episode swipe
-    onEpisodeSwipe: (EpisodeList.Item, LibraryPreferences.EpisodeSwipeAction) -> Unit,
-
-    // Episode selection
     onEpisodeSelected: (EpisodeList.Item, Boolean, Boolean, Boolean) -> Unit,
     onAllEpisodeSelected: (Boolean) -> Unit,
     onInvertSelection: () -> Unit,
-    onFetchAIEpisodeSummary: () -> Unit,
-    onFetchAIGlossary: (String) -> Unit,
-    onShowAiGlossary: () -> Unit,
-    isFetchingAiGlossary: Boolean,
 ) {
     val context = LocalContext.current
     val onCopyTagToClipboard: (tag: String) -> Unit = {
@@ -218,10 +196,6 @@ fun AnimeScreen(
             onAllEpisodeSelected = onAllEpisodeSelected,
             onInvertSelection = onInvertSelection,
             onSettingsClicked = onSettingsClicked,
-            onFetchAIEpisodeSummary = onFetchAIEpisodeSummary,
-            onFetchAIGlossary = onFetchAIGlossary,
-            onShowAiGlossary = onShowAiGlossary,
-            isFetchingAiGlossary = isFetchingAiGlossary,
         )
     } else {
         AnimeScreenLargeImpl(
@@ -270,10 +244,6 @@ fun AnimeScreen(
             onAllEpisodeSelected = onAllEpisodeSelected,
             onInvertSelection = onInvertSelection,
             onSettingsClicked = onSettingsClicked,
-            onFetchAIEpisodeSummary = onFetchAIEpisodeSummary,
-            onFetchAIGlossary = onFetchAIGlossary,
-            onShowAiGlossary = onShowAiGlossary,
-            isFetchingAiGlossary = isFetchingAiGlossary,
         )
     }
 }
@@ -332,17 +302,9 @@ private fun AnimeScreenSmallImpl(
     onMarkPreviousAsSeenClicked: (Episode) -> Unit,
     onMultiDeleteClicked: (List<Episode>) -> Unit,
 
-    // For episode swipe
-    onEpisodeSwipe: (EpisodeList.Item, LibraryPreferences.EpisodeSwipeAction) -> Unit,
-
-    // Episode selection
     onEpisodeSelected: (EpisodeList.Item, Boolean, Boolean, Boolean) -> Unit,
     onAllEpisodeSelected: (Boolean) -> Unit,
     onInvertSelection: () -> Unit,
-    onFetchAIEpisodeSummary: () -> Unit,
-    onFetchAIGlossary: (String) -> Unit,
-    onShowAiGlossary: () -> Unit,
-    isFetchingAiGlossary: Boolean,
 ) {
     val episodeListState = rememberLazyListState()
 
@@ -492,8 +454,6 @@ private fun AnimeScreenSmallImpl(
                             isStubSource = remember { state.source is StubSource },
                             onCoverClick = onCoverClicked,
                             doSearch = onSearch,
-                            onFetchAIEpisodeSummary = onFetchAIEpisodeSummary,
-                            aiEpisodeSummary = state.aiEpisodeSummary,
                         )
                     }
 
@@ -512,7 +472,6 @@ private fun AnimeScreenSmallImpl(
                             onTrackingClicked = onTrackingClicked,
                             onEditIntervalClicked = onEditIntervalClicked,
                             onEditCategory = onEditCategoryClicked,
-                            onAiGlossaryClicked = onShowAiGlossary,
                         )
                     }
 
@@ -654,10 +613,6 @@ fun AnimeScreenLargeImpl(
     onEpisodeSelected: (EpisodeList.Item, Boolean, Boolean, Boolean) -> Unit,
     onAllEpisodeSelected: (Boolean) -> Unit,
     onInvertSelection: () -> Unit,
-    onFetchAIEpisodeSummary: () -> Unit,
-    onFetchAIGlossary: (String) -> Unit,
-    onShowAiGlossary: () -> Unit,
-    isFetchingAiGlossary: Boolean,
 ) {
     val layoutDirection = LocalLayoutDirection.current
     val density = LocalDensity.current
@@ -794,8 +749,6 @@ fun AnimeScreenLargeImpl(
                             isStubSource = remember { state.source is StubSource },
                             onCoverClick = onCoverClicked,
                             doSearch = onSearch,
-                            onFetchAIEpisodeSummary = onFetchAIEpisodeSummary,
-                            aiEpisodeSummary = state.aiEpisodeSummary,
                         )
                         AnimeActionRow(
                             favorite = state.anime.favorite,
@@ -808,7 +761,6 @@ fun AnimeScreenLargeImpl(
                             onTrackingClicked = onTrackingClicked,
                             onEditIntervalClicked = onEditIntervalClicked,
                             onEditCategory = onEditCategoryClicked,
-                            onAiGlossaryClicked = onShowAiGlossary,
                         )
                         ExpandableAnimeDescription(
                             defaultExpandState = true,

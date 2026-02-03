@@ -45,7 +45,6 @@ import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import eu.kanade.core.util.ifSourcesLoaded
-import eu.kanade.domain.ai.AiPreferences
 import eu.kanade.presentation.anime.DuplicateAnimeDialog
 import eu.kanade.presentation.browse.BrowseSourceContent
 import eu.kanade.presentation.browse.MissingSourceScreen
@@ -119,9 +118,6 @@ data class BrowseSourceScreen(
         val haptic = LocalHapticFeedback.current
         val uriHandler = LocalUriHandler.current
         val snackbarHostState = remember { SnackbarHostState() }
-
-        val aiPreferences = remember { Injekt.get<AiPreferences>() }
-        val enableAi by aiPreferences.enableAi().collectAsState()
 
         val onHelpClick = { uriHandler.openUri(LocalSource.HELP_URL) }
         val onWebViewClick = f@{
@@ -221,32 +217,6 @@ data class BrowseSourceScreen(
                                 label = {
                                     Text(text = stringResource(MR.strings.action_filter))
                                 },
-                            )
-                        }
-
-                        if (enableAi && !state.toolbarQuery.isNullOrBlank()) {
-                            FilterChip(
-                                selected = false,
-                                onClick = {
-                                    state.toolbarQuery?.let {
-                                        screenModel.search("ai:$it")
-                                    }
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Default.AutoAwesome,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(FilterChipDefaults.IconSize),
-                                    )
-                                },
-                                label = {
-                                    Text(text = "AI Search")
-                                },
-                                colors = FilterChipDefaults.filterChipColors(
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                    labelColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                                    iconColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                                ),
                             )
                         }
 
