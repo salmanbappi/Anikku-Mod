@@ -111,6 +111,9 @@ fun AnimeInfoBox(
     isStubSource: Boolean,
     onCoverClick: () -> Unit,
     doSearch: (query: String, global: Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    onFetchAIEpisodeSummary: () -> Unit = {},
+    aiEpisodeSummary: String? = null,
 ) {
     Box(modifier = modifier) {
         // Backdrop
@@ -178,8 +181,15 @@ fun AnimeActionRow(
     onTrackingClicked: () -> Unit,
     onEditIntervalClicked: (() -> Unit)?,
     onEditCategory: (() -> Unit)?,
+    modifier: Modifier = Modifier,
 ) {
     val defaultActionButtonColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+
+    val nextUpdateDays = remember(nextUpdate) {
+        nextUpdate?.let {
+            ChronoUnit.DAYS.between(Instant.now(), it).toInt().coerceAtLeast(0)
+        }
+    }
 
     Row(modifier = modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp)) {
         AnimeActionButton(
@@ -401,6 +411,11 @@ private fun AnimeAndSourceTitlesSmall(
                 sourceName = sourceName,
                 isStubSource = isStubSource,
                 doSearch = doSearch,
+            )
+            AiEpisodeIntelligence(
+                summary = aiEpisodeSummary,
+                onFetch = onFetchAIEpisodeSummary,
+                modifier = Modifier.padding(top = 4.dp)
             )
         }
     }
@@ -657,6 +672,57 @@ private fun TagsChip(
             onClick = onClick,
             label = { Text(text = text, style = MaterialTheme.typography.bodySmall) },
         )
+    }
+}
+
+@Composable
+private fun AiEpisodeIntelligence(
+    summary: String?,
+    onFetch: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .background(
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                MaterialTheme.shapes.medium,
+            )
+            .padding(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Default.AutoAwesome,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(18.dp),
+            )
+            Text(
+                text = "Intelligence Summary",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        if (summary != null) {
+            Text(
+                text = summary,
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.fillMaxWidth()
+            )
+        } else {
+            TextButton(onClick = onFetch) {
+                Text(text = "Analyze with AniZen Intelligence")
+            }
+        }
     }
 }
 

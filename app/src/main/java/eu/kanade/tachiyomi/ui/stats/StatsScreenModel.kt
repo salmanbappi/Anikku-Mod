@@ -146,14 +146,14 @@ class StatsScreenModel(
 
         val topDay = history.filter { (it.seenAt?.time ?: 0) > (now - dayMillis) }
             .groupingBy { it.animeId }.eachCount().maxByOrNull { it.value }
-            ?.let { id -> animeList.find { it.id == id }?.anime?.title }
+            ?.let { entry -> animeList.find { it.id == entry.key }?.anime?.title }
 
         val topMonth = history.filter { (it.seenAt?.time ?: 0) > (now - monthMillis) }
             .groupingBy { it.animeId }.eachCount().maxByOrNull { it.value }
-            ?.let { id -> animeList.find { it.id == id }?.anime?.title }
+            ?.let { entry -> animeList.find { it.id == entry.key }?.anime?.title }
 
         // Preferred watch time
-        val hourCounts = history.mapNotNull { it.readAt }.map { 
+        val hourCounts = history.mapNotNull { it.seenAt }.map { 
             Calendar.getInstance().apply { time = it }.get(Calendar.HOUR_OF_DAY)
         }.groupingBy { it }.eachCount()
         
