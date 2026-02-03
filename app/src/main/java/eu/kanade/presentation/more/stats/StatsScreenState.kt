@@ -13,5 +13,10 @@ sealed interface StatsScreenState {
         val titles: StatsData.AnimeTitles,
         val episodes: StatsData.Episodes,
         val trackers: StatsData.Trackers,
+        val extensions: StatsData.ExtensionUsage,
+        val timeDistribution: StatsData.TimeDistribution,
+        val genreAffinity: StatsData.GenreAffinity,
+        val watchHabits: StatsData.WatchHabits,
+        val aiAnalysis: String? = null,
     ) : StatsScreenState
 }

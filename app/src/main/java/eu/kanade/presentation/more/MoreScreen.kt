@@ -37,6 +37,12 @@ import tachiyomi.presentation.core.components.material.Scaffold
 import tachiyomi.presentation.core.i18n.pluralStringResource
 import tachiyomi.presentation.core.i18n.stringResource
 
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Terminal
+import eu.kanade.presentation.more.settings.screen.ai.AiAssistantScreen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+
 @Composable
 fun MoreScreen(
     downloadQueueStateProvider: () -> DownloadQueueState,
@@ -56,6 +62,7 @@ fun MoreScreen(
     onClickAbout: () -> Unit,
 ) {
     val uriHandler = LocalUriHandler.current
+    val navigator = LocalNavigator.currentOrThrow
 
     Scaffold(
         topBar = {
@@ -91,6 +98,17 @@ fun MoreScreen(
                     icon = ImageVector.vectorResource(R.drawable.ic_glasses_24dp),
                     checked = incognitoMode,
                     onCheckedChanged = onIncognitoModeChange,
+                )
+            }
+
+            item { HorizontalDivider() }
+
+            item {
+                TextPreferenceWidget(
+                    title = "AniZen Intelligence OS",
+                    subtitle = "Diagnostics, analysis, and neural core",
+                    icon = Icons.Default.Terminal,
+                    onPreferenceClick = { navigator.push(AiAssistantScreen()) },
                 )
             }
 

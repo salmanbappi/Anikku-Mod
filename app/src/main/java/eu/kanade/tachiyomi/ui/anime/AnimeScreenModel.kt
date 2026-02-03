@@ -26,7 +26,8 @@ import eu.kanade.presentation.anime.DownloadAction
 import eu.kanade.presentation.anime.components.EpisodeDownloadAction
 import eu.kanade.presentation.util.formattedMessage
 import eu.kanade.tachiyomi.animesource.model.Video
-import eu.kanade.tachiyomi.data.ai.AiManager
+import eu.kanade.domain.track.service.TrackPreferences
+import eu.kanade.presentation.anime.EpisodeList
 import eu.kanade.tachiyomi.data.download.DownloadCache
 import eu.kanade.tachiyomi.data.download.DownloadManager
 import eu.kanade.tachiyomi.data.download.model.Download
@@ -134,8 +135,6 @@ class AnimeScreenModel(
     private val setAnimeCategories: SetAnimeCategories = Injekt.get(),
     private val animeRepository: AnimeRepository = Injekt.get(),
     private val filterEpisodesForDownload: FilterEpisodesForDownload = Injekt.get(),
-    private val aiManager: AiManager = Injekt.get(),
-    private val aiPreferences: eu.kanade.domain.ai.AiPreferences = Injekt.get(),
     internal val setAnimeViewerFlags: SetAnimeViewerFlags = Injekt.get(),
     val snackbarHostState: SnackbarHostState = SnackbarHostState(),
     // AM (FILE_SIZE) -->
@@ -1223,59 +1222,6 @@ class AnimeScreenModel(
 
     // Track sheet - end
 
-    fun fetchAIEpisodeSummary() {
-        val state = successState ?: return
-        val lastWatchedEpisode = state.processedEpisodes.sortedByDescending { it.episode.episodeNumber }
-            .find { it.episode.seen } ?: return
-
-        screenModelScope.launchIO {
-            val summary = aiManager.getEpisodeSummary(
-                animeTitle = state.anime.title,
-                episodeNumber = lastWatchedEpisode.episode.episodeNumber,
-                animeDescription = state.anime.description,
-                animeTags = state.anime.genre
-            )
-            updateSuccessState { it.copy(aiEpisodeSummary = summary) }
-        }
-    }
-
-    fun fetchAIGlossary(query: String) {
-        val state = successState ?: return
-        updateSuccessState { it.copy(isFetchingAiGlossary = true, aiGlossaryInfo = null) }
-        screenModelScope.launchIO {
-            val info = aiManager.getGlossaryInfo(
-                animeTitle = state.anime.title,
-                query = query,
-                animeDescription = state.anime.description,
-                animeTags = state.anime.genre
-            )
-            updateSuccessState { it.copy(aiGlossaryInfo = info, isFetchingAiGlossary = false) }
-        }
-    }
-
-    private fun autoTranslate() {
-        if (!aiPreferences.enableAi().get()) return
-        val anime = successState?.anime ?: return
-        
-        screenModelScope.launchIO {
-            val translatedTitle = aiManager.translateToEnglish(anime.title)
-            val translatedDesc = anime.description?.let { aiManager.translateToEnglish(it) }
-            
-            if ((translatedTitle != null && !translatedTitle.equals(anime.title, true)) || 
-                (translatedDesc != null && !translatedDesc.equals(anime.description, true))) {
-                updateAnimeInfo(
-                    title = translatedTitle ?: anime.title,
-                    author = anime.author,
-                    artist = anime.artist,
-                    thumbnailUrl = anime.thumbnailUrl,
-                    description = translatedDesc ?: anime.description,
-                    tags = anime.genre,
-                    status = anime.status,
-                )
-            }
-        }
-    }
-
     sealed interface Dialog {
         data class ChangeCategory(
             val anime: Anime,
@@ -1295,15 +1241,10 @@ class AnimeScreenModel(
         data object SettingsSheet : Dialog
         data object TrackSheet : Dialog
         data object FullCover : Dialog
-        data object AiGlossary : Dialog
     }
 
     fun dismissDialog() {
-        updateSuccessState { it.copy(dialog = null, aiGlossaryInfo = null) }
-    }
-
-    fun showAiGlossary() {
-        updateSuccessState { it.copy(dialog = Dialog.AiGlossary) }
+        updateSuccessState { it.copy(dialog = null) }
     }
 
     fun showDeleteEpisodeDialog(episodes: List<Episode>) {
@@ -1365,13 +1306,10 @@ class AnimeScreenModel(
             val hasPromptedToAddBefore: Boolean = false,
             val trackItems: List<TrackItem> = emptyList(),
             val nextAiringEpisode: Pair<Int, Long> = Pair(
-                anime.nextEpisodeToAir,
-                anime.nextEpisodeAiringAt,
-            ),
-            val aiEpisodeSummary: String? = null,
-            val aiGlossaryInfo: String? = null,
-            val isFetchingAiGlossary: Boolean = false,
-        ) : State {
+            anime.nextEpisodeToAir,
+            anime.nextEpisodeAiringAt,
+        ),
+    ) {
 
             val processedEpisodes by lazy {
                 episodes.applyFilters(anime).toList()

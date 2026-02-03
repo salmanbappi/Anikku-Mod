@@ -20,7 +20,6 @@ import eu.kanade.domain.base.BasePreferences
 import eu.kanade.domain.source.service.SourcePreferences
 import eu.kanade.domain.track.interactor.AddTracks
 import eu.kanade.presentation.util.ioCoroutineScope
-import eu.kanade.tachiyomi.data.ai.AiManager
 import eu.kanade.tachiyomi.data.cache.CoverCache
 import eu.kanade.tachiyomi.animesource.AnimeCatalogueSource
 import eu.kanade.tachiyomi.animesource.model.AnimeFilter
@@ -86,7 +85,6 @@ class BrowseSourceScreenModel(
     private val insertSavedSearch: InsertSavedSearch = Injekt.get(),
     private val deleteSavedSearchById: DeleteSavedSearchById = Injekt.get(),
     private val filterSerializer: FilterSerializer = Injekt.get(),
-    private val aiManager: AiManager = Injekt.get(),
 ) : StateScreenModel<BrowseSourceScreenModel.State>(State(Listing.valueOf(listingQuery))) {
 
     var displayMode by sourcePreferences.sourceDisplayMode().asState(screenModelScope)
@@ -260,84 +258,9 @@ class BrowseSourceScreenModel(
     }
 
     fun search(query: String? = null, filters: FilterList? = null) {
-        if (query?.startsWith("ai:", ignoreCase = true) == true) {
-            performAiSearch(query.substring(3).trim())
-            return
-        }
         val nextListing = Listing.Search(query, filters ?: state.value.filters)
         if (state.value.listing == nextListing) return
         mutableState.update { it.copy(listing = nextListing) }
-    }
-
-    private fun performAiSearch(query: String) {
-        val catalogueSource = source as? AnimeCatalogueSource ?: return
-        val currentFilters = catalogueSource.getFilterList()
-        val availableOptions = extractAvailableOptions(currentFilters)
-
-        screenModelScope.launchIO {
-            val aiResponse = aiManager.parseSearchQuery(query, availableOptions) ?: return@launchIO
-            
-            val filters = catalogueSource.getFilterList()
-            applyAiFilters(filters, aiResponse)
-
-            val finalQuery = aiResponse.query ?: query
-            val listing = Listing.Search(query = finalQuery, filters = filters)
-
-            mutableState.update {
-                it.copy(
-                    filters = filters,
-                    toolbarQuery = finalQuery,
-                    listing = listing,
-                )
-            }
-        }
-    }
-
-    private fun extractAvailableOptions(filters: FilterList): String {
-        val options = StringBuilder()
-        filters.forEach { filter ->
-            when (filter) {
-                is AnimeFilter.Group<*> -> {
-                    val subFilters = filter.state.filterIsInstance<AnimeFilter<*>>()
-                    val names = subFilters.joinToString { (it as AnimeFilter<*>).name }
-                    options.append("${filter.name}: [$names]\n")
-                }
-                is AnimeFilter.Select<*> -> {
-                    options.append("${filter.name}: [${filter.values.joinToString()}]\n")
-                }
-                else -> {}
-            }
-        }
-        return options.toString()
-    }
-
-    private fun applyAiFilters(filters: FilterList, aiResponse: AiManager.AiSearchResponse) {
-        aiResponse.genres.forEach { genre ->
-            filters.filterIsInstance<AnimeFilter.Group<*>>().forEach { group ->
-                group.state.filterIsInstance<AnimeFilter<*>>().forEach { filter ->
-                    if (filter.name.equals(genre, ignoreCase = true)) {
-                        when (filter) {
-                            is AnimeFilter.CheckBox -> filter.state = true
-                            is AnimeFilter.TriState -> filter.state = AnimeFilter.TriState.STATE_INCLUDE
-                            else -> {}
-                        }
-                    }
-                }
-            }
-            filters.filterIsInstance<AnimeFilter.Select<*>>().forEach { filter ->
-                val index = filter.values.indexOfFirst { it.toString().equals(genre, ignoreCase = true) }
-                if (index != -1) filter.state = index
-            }
-        }
-        
-        aiResponse.status?.let { status ->
-            filters.filterIsInstance<AnimeFilter.Select<*>>().forEach { filter ->
-                if (filter.name.contains("Status", ignoreCase = true)) {
-                    val index = filter.values.indexOfFirst { it.toString().contains(status, ignoreCase = true) }
-                    if (index != -1) filter.state = index
-                }
-            }
-        }
     }
 
     fun searchGenre(genreName: String) {

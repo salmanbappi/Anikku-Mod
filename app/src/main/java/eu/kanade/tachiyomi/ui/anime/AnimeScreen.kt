@@ -30,9 +30,8 @@ import eu.kanade.presentation.anime.DuplicateAnimeDialog
 import eu.kanade.presentation.anime.EditCoverAction
 import eu.kanade.presentation.anime.EpisodeOptionsDialogScreen
 import eu.kanade.presentation.anime.EpisodeSettingsDialog
-import eu.kanade.presentation.anime.components.AiGlossaryDialog
 import eu.kanade.presentation.anime.components.AnimeCoverDialog
-import eu.kanade.presentation.anime.components.DeleteEpisodesDialog
+import eu.kanade.presentation.anime.components.AnimeDialogs
 import eu.kanade.presentation.anime.components.SetIntervalDialog
 import eu.kanade.presentation.category.components.ChangeCategoryDialog
 import eu.kanade.presentation.components.NavigatorAdaptiveSheet
@@ -378,14 +377,6 @@ class AnimeScreen(
                         sourceId = dialog.source.id,
                     ),
                     onDismissRequest = onDismissRequest,
-                )
-            }
-            AnimeScreenModel.Dialog.AiGlossary -> {
-                AiGlossaryDialog(
-                    onDismissRequest = onDismissRequest,
-                    onFetch = screenModel::fetchAIGlossary,
-                    glossaryInfo = successState.aiGlossaryInfo,
-                    isFetching = successState.isFetchingAiGlossary,
                 )
             }
         }
