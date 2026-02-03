@@ -19,6 +19,7 @@ CREATE TABLE merged(
 );
 
 CREATE INDEX merged_merge_id_index ON merged(merge_id);
+CREATE INDEX merged_anime_id_index ON merged(anime_id);
 
 selectByMergeId:
 SELECT * FROM merged WHERE merge_id = ?;
