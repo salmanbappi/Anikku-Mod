@@ -51,7 +51,7 @@ if (Config.includeTelemetry && file("google-services.json").exists()) {
         defaultConfig {
 
 
-        applicationId = "app.anikku"
+        applicationId = "app.anizen"
 
         versionCode = 8
         versionName = "0.1.8-MOD"

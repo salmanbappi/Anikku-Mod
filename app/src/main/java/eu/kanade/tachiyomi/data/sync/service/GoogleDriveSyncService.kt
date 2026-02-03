@@ -291,10 +291,15 @@ class GoogleDriveService(private val context: Context) {
      */
     private fun generateAuthorizationUrl(): String {
         val jsonFactory: GsonFactory = GsonFactory.getDefaultInstance()
-        val secrets = GoogleClientSecrets.load(
-            jsonFactory,
-            context.assets.open("client_secrets.json").reader(),
-        )
+        val secrets = try {
+            GoogleClientSecrets.load(
+                jsonFactory,
+                context.assets.open("client_secrets.json").reader(),
+            )
+        } catch (e: Exception) {
+            logcat(LogPriority.ERROR) { "Google Drive client_secrets.json not found in assets" }
+            throw Exception("Google Drive credentials not found. Please add client_secrets.json to assets.", e)
+        }
 
         val flow = GoogleAuthorizationCodeFlow.Builder(
             NetHttpTransport(),
@@ -312,10 +317,15 @@ class GoogleDriveService(private val context: Context) {
         val refreshToken = syncPreferences.googleDriveRefreshToken().get()
 
         val jsonFactory: GsonFactory = GsonFactory.getDefaultInstance()
-        val secrets = GoogleClientSecrets.load(
-            jsonFactory,
-            context.assets.open("client_secrets.json").reader(),
-        )
+        val secrets = try {
+            GoogleClientSecrets.load(
+                jsonFactory,
+                context.assets.open("client_secrets.json").reader(),
+            )
+        } catch (e: Exception) {
+            logcat(LogPriority.ERROR) { "Google Drive client_secrets.json not found in assets during refresh" }
+            return@withIOContext
+        }
 
         val credential = GoogleCredential.Builder()
             .setJsonFactory(jsonFactory)
