@@ -244,7 +244,6 @@ class AnimeScreenModel(
             }
             // Start observe tracking since it only needs animeId
             observeTrackers()
-            autoTranslate()
 
             // Fetch info-episodes when needed
             if (screenModelScope.isActive) {
@@ -284,7 +283,6 @@ class AnimeScreenModel(
             withIOContext {
                 val networkAnime = state.source.getAnimeDetails(state.anime.toSAnime())
                 updateAnime.awaitUpdateFromSource(state.anime, networkAnime, manualFetch)
-                autoTranslate()
             }
         } catch (e: Throwable) {
             // Ignore early hints "errors" that aren't handled by OkHttp
@@ -1304,10 +1302,10 @@ class AnimeScreenModel(
             val hasPromptedToAddBefore: Boolean = false,
             val trackItems: List<TrackItem> = emptyList(),
             val nextAiringEpisode: Pair<Int, Long> = Pair(
-            anime.nextEpisodeToAir,
-            anime.nextEpisodeAiringAt,
-        ),
-    ) {
+                anime.nextEpisodeToAir,
+                anime.nextEpisodeAiringAt,
+            ),
+        ) : State {
 
             val processedEpisodes by lazy {
                 episodes.applyFilters(anime).toList()
