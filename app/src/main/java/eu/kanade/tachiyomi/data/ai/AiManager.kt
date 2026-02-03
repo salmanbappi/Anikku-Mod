@@ -114,7 +114,10 @@ class AiManager(
 
     private suspend fun callGemini(messages: List<ChatMessage>, apiKey: String, systemInstruction: String? = null): String? = withIOContext {
         val geminiContents = messages.map { msg ->
-            GeminiContent(parts = listOf(GeminiPart(text = msg.content)), role = if (msg.role == "user") "user" else "model")
+            GeminiContent(
+                parts = listOf(GeminiPart(text = msg.content)),
+                role = if (msg.role == "user") "user" else "model"
+            )
         }
 
         val requestBody = GeminiRequest(
@@ -126,14 +129,15 @@ class AiManager(
 
         val request = Request.Builder()
             .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$apiKey")
+            .header("Content-Type", "application/json")
             .post(json.encodeToString(GeminiRequest.serializer(), requestBody).toRequestBody(jsonMediaType))
             .build()
 
         try {
             networkHelper.client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) return@withIOContext "Error: ${response.code} ${response.message}"
-                val result = response.body.string()
-                val geminiResponse = json.decodeFromString(GeminiResponse.serializer(), result)
+                val bodyString = response.body.string()
+                if (!response.isSuccessful) return@withIOContext "Error ${response.code}: ${response.message}\n$bodyString"
+                val geminiResponse = json.decodeFromString(GeminiResponse.serializer(), bodyString)
                 geminiResponse.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text?.trim()
             }
         } catch (e: Exception) {
@@ -152,20 +156,21 @@ class AiManager(
 
         val requestBody = GroqRequest(
             messages = groqMessages,
-            model = "llama3-8b-8192"
+            model = "llama-3.3-70b-versatile"
         )
 
         val request = Request.Builder()
             .url("https://api.groq.com/openai/v1/chat/completions")
             .header("Authorization", "Bearer $apiKey")
+            .header("Content-Type", "application/json")
             .post(json.encodeToString(GroqRequest.serializer(), requestBody).toRequestBody(jsonMediaType))
             .build()
 
         try {
             networkHelper.client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) return@withIOContext "Error: ${response.code} ${response.message}"
-                val result = response.body.string()
-                val groqResponse = json.decodeFromString(GroqResponse.serializer(), result)
+                val bodyString = response.body.string()
+                if (!response.isSuccessful) return@withIOContext "Error ${response.code}: ${response.message}\n$bodyString"
+                val groqResponse = json.decodeFromString(GroqResponse.serializer(), bodyString)
                 groqResponse.choices.firstOrNull()?.message?.content?.trim()
             }
         } catch (e: Exception) {
@@ -179,6 +184,7 @@ class AiManager(
     @Serializable
     private data class GeminiRequest(
         val contents: List<GeminiContent>,
+        @kotlinx.serialization.SerialName("system_instruction")
         val systemInstruction: GeminiContent? = null
     )
 
