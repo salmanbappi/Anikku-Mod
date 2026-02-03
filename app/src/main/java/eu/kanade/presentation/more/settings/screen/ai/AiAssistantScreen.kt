@@ -259,17 +259,17 @@ class AiAssistantScreen : Screen() {
 
     @Composable
     private fun UserMessage(content: String) {
-        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+        Box(modifier = Modifier.fillMaxWidth().padding(start = 32.dp), contentAlignment = Alignment.CenterEnd) {
             Surface(
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.primaryContainer,
                 shape = RoundedCornerShape(20.dp, 20.dp, 4.dp, 20.dp),
-                modifier = Modifier.sizeIn(maxWidth = 300.dp)
+                modifier = Modifier.widthIn(min = 50.dp)
             ) {
                 Text(
                     text = content,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.padding(14.dp),
-                    style = MaterialTheme.typography.bodyMedium
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
         }
@@ -277,33 +277,36 @@ class AiAssistantScreen : Screen() {
 
     @Composable
     private fun AssistantMessage(content: String) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.Top,
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = 32.dp, top = 8.dp, bottom = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer)
-                    .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), CircleShape),
-                contentAlignment = Alignment.Center
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.alpha(0.7f)
             ) {
                 Icon(
                     imageVector = Icons.Default.AutoAwesome,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(16.dp)
+                )
+                Text(
+                    text = "AniZen Intelligence",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
                 )
             }
+            
             Surface(
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
-                shape = RoundedCornerShape(4.dp, 20.dp, 20.dp, 20.dp),
-                modifier = Modifier.sizeIn(maxWidth = 300.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+                color = Color.Transparent,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Box(modifier = Modifier.padding(14.dp)) {
+                Box(modifier = Modifier.padding(start = 4.dp)) {
                     MarkdownRender(content = content)
                 }
             }

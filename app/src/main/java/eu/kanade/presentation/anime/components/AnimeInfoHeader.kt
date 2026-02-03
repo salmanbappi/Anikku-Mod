@@ -223,15 +223,34 @@ fun AnimeActionRow(
             } else {
                 pluralStringResource(MR.plurals.num_trackers, count = trackingCount, trackingCount)
             },
-            icon = if (trackingCount == 0 && localScore != null && localScore > 0) {
-                Icons.Default.Star
-            } else if (trackingCount == 0) {
+            icon = if (trackingCount == 0 && (localScore == null || localScore == 0.0)) {
                 Icons.Outlined.Sync
-            } else {
+            } else if (trackingCount > 0) {
                 Icons.Outlined.Done
+            } else {
+                null
             },
             color = if (trackingCount == 0 && localScore == null) defaultActionButtonColor else MaterialTheme.colorScheme.primary,
             onClick = if (trackingCount == 0) (onLocalScoreClicked ?: onTrackingClicked) else onTrackingClicked,
+            iconContent = if (trackingCount == 0 && localScore != null && localScore > 0) {
+                {
+                    Box(
+                        modifier = Modifier
+                            .size(20.dp)
+                            .background(MaterialTheme.colorScheme.primary, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = localScore.toInt().toString(),
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            } else {
+                null
+            }
         )
 
         if (onWebViewClicked != null) {
@@ -687,10 +706,11 @@ private fun TagsChip(
 @Composable
 private fun RowScope.AnimeActionButton(
     title: String,
-    icon: ImageVector,
+    icon: ImageVector? = null,
     color: Color,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
+    iconContent: (@Composable () -> Unit)? = null,
 ) {
     TextButton(
         onClick = onClick,
@@ -698,12 +718,16 @@ private fun RowScope.AnimeActionButton(
         onLongClick = onLongClick,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = color,
-                modifier = Modifier.size(20.dp),
-            )
+            if (iconContent != null) {
+                iconContent()
+            } else if (icon != null) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = color,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
             Spacer(Modifier.height(4.dp))
             Text(
                 text = title,
