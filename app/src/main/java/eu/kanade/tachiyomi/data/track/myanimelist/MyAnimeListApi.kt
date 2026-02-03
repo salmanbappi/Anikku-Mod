@@ -242,19 +242,18 @@ class MyAnimeListApi(
     }
 
     companion object {
-        private const val CLIENT_ID = "61d42169ca1751d2f0677421dec316f7"
+        private const val CLIENT_ID = "18e5087eaeef557833a075a4d30d2afe"
 
-        private const val BASE_OAUTH_URL = "https://myanimelist.net"
+        private const val BASE_OAUTH_URL = "https://myanimelist.net/v1/oauth2"
         private const val BASE_API_URL = "https://api.myanimelist.net/v2"
 
         private const val LIST_PAGINATION_AMOUNT = 250
 
         private var codeVerifier: String = ""
 
-        fun authUrl(): Uri = "$BASE_OAUTH_URL/dialog/authorization".toUri().buildUpon()
+        fun authUrl(): Uri = "$BASE_OAUTH_URL/authorize".toUri().buildUpon()
             .appendQueryParameter("client_id", CLIENT_ID)
             .appendQueryParameter("code_challenge", getPkceChallengeCode())
-            .appendQueryParameter("code_challenge_method", "plain")
             .appendQueryParameter("response_type", "code")
             .build()
 
@@ -274,7 +273,7 @@ class MyAnimeListApi(
                 .add("Authorization", "Bearer ${oauth.accessToken}")
                 .build()
 
-            return POST("https://myanimelist.net/v1/oauth2/token", body = formBody, headers = headers)
+            return POST("$BASE_OAUTH_URL/token", body = formBody, headers = headers)
         }
 
         private fun getPkceChallengeCode(): String {
