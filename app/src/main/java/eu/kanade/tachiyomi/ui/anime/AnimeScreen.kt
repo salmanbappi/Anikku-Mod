@@ -323,6 +323,24 @@ class AnimeScreen(
                     onPositiveClick = screenModel::updateAnimeInfo,
                 )
             }
+            is AnimeScreenModel.Dialog.LocalScorePicker -> {
+                LocalScoreDialog(
+                    anime = dialog.anime,
+                    onDismissRequest = screenModel::dismissDialog,
+                    onConfirm = { newScore ->
+                        screenModel.updateAnimeInfo(
+                            title = null,
+                            author = null,
+                            artist = null,
+                            thumbnailUrl = null,
+                            description = null,
+                            tags = null,
+                            status = null,
+                            score = newScore
+                        )
+                    }
+                )
+            }
             // SY <--
             is AnimeScreenModel.Dialog.SetAnimeFetchInterval -> {
                 SetIntervalDialog(

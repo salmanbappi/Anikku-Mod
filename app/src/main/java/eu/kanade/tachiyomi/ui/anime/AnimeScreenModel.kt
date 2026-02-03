@@ -1233,6 +1233,7 @@ class AnimeScreenModel(
 
         // SY -->
         data class EditAnimeInfo(val anime: Anime) : Dialog
+        data class LocalScorePicker(val anime: Anime) : Dialog
         // SY <--
 
         data object ChangeAnimeSkipIntro : Dialog
@@ -1268,6 +1269,17 @@ class AnimeScreenModel(
                 State.Loading -> state
                 is State.Success -> {
                     state.copy(dialog = Dialog.EditAnimeInfo(state.anime))
+                }
+            }
+        }
+    }
+
+    fun showLocalScoreDialog() {
+        mutableState.update { state ->
+            when (state) {
+                State.Loading -> state
+                is State.Success -> {
+                    state.copy(dialog = Dialog.LocalScorePicker(state.anime))
                 }
             }
         }
