@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.HourglassEmpty
 import androidx.compose.material.icons.filled.PersonOutline
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.AttachMoney
 import androidx.compose.material.icons.outlined.Block
@@ -353,6 +354,7 @@ private fun AnimeAndSourceTitlesLarge(
             author = anime.author,
             artist = anime.artist,
             status = anime.status,
+            score = anime.score,
             sourceName = sourceName,
             isStubSource = isStubSource,
             doSearch = doSearch,
@@ -393,6 +395,7 @@ private fun AnimeAndSourceTitlesSmall(
                 author = anime.author,
                 artist = anime.artist,
                 status = anime.status,
+                score = anime.score,
                 sourceName = sourceName,
                 isStubSource = isStubSource,
                 doSearch = doSearch,
@@ -407,6 +410,7 @@ private fun ColumnScope.AnimeContentInfo(
     author: String?,
     artist: String?,
     status: Long,
+    score: Double?,
     sourceName: String,
     isStubSource: Boolean,
     doSearch: (query: String, global: Boolean) -> Unit,
@@ -521,6 +525,20 @@ private fun ColumnScope.AnimeContentInfo(
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
             )
+            if (score != null && score > 0) {
+                DotSeparatorText()
+                Icon(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = score.toString(),
+                    maxLines = 1,
+                )
+            }
             DotSeparatorText()
             if (isStubSource) {
                 Icon(

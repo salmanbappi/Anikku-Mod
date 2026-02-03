@@ -124,6 +124,25 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+        android:id="@+id/score_outline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:hint="@string/score_hint">
+
+        <eu.kanade.tachiyomi.widget.TachiyomiTextInputEditText
+            android:id="@+id/score"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
     <com.google.android.material.chip.ChipGroup
         android:id="@+id/manga_genres_tags"
         android:layout_width="match_parent"

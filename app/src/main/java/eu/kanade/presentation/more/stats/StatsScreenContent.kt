@@ -470,7 +470,7 @@ private fun HabitItem(label: String, value: String) {
 
 @Composable
 private fun StatusBreakdownSection(statuses: StatsData.StatusBreakdown) {
-    StatsSectionCard(title = "System Equilibrium") {
+    StatsSectionCard(title = stringResource(MR.strings.label_system_equilibrium)) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -523,7 +523,7 @@ private fun StatusLegendItem(color: Color, label: String, count: Int) {
 
 @Composable
 private fun ScoreDistributionSection(scores: StatsData.ScoreDistribution) {
-    StatsSectionCard(title = "Score Resonance") {
+    StatsSectionCard(title = stringResource(MR.strings.label_score_resonance)) {
         Column(modifier = Modifier.padding(MaterialTheme.padding.medium)) {
             val maxCount = scores.distribution.values.maxOrNull() ?: 1
             Row(

@@ -57,7 +57,7 @@ class StatsScreenModel(
             val animeTrackMap = getAnimeTrackMap(distinctLibraryAnime)
             val scoredAnimeTrackerMap = getScoredAnimeTrackMap(animeTrackMap)
 
-            val meanScore = getTrackMeanScore(scoredAnimeTrackerMap)
+            val meanScore = getCombinedMeanScore(distinctLibraryAnime, scoredAnimeTrackerMap)
 
             val overviewStatData = StatsData.AnimeOverview(
                 libraryAnimeCount = distinctLibraryAnime.size,
@@ -80,7 +80,7 @@ class StatsScreenModel(
             )
 
             val trackersStatData = StatsData.Trackers(
-                trackedTitleCount = animeTrackMap.count { it.value.isNotEmpty() },
+                trackedTitleCount = animeTrackMap.count { it.value.isNotEmpty() || distinctLibraryAnime.find { a -> a.id == it.key }?.anime?.score != null },
                 meanScore = meanScore,
                 trackerCount = loggedInTrackers.size,
             )
@@ -110,10 +110,8 @@ class StatsScreenModel(
 
             // Score Distribution
             val scoreDistribution = StatsData.ScoreDistribution(
-                scoredAnimeCount = scoredAnimeTrackerMap.size,
-                distribution = scoredAnimeTrackerMap.values.flatten()
-                    .map { get10PointScore(it).toInt() }
-                    .groupingBy { it }.eachCount()
+                scoredAnimeCount = distinctLibraryAnime.count { it.anime.score != null } + scoredAnimeTrackerMap.size,
+                distribution = getCombinedScoreDistribution(distinctLibraryAnime, scoredAnimeTrackerMap)
             )
 
             // Status Breakdown
@@ -288,6 +286,51 @@ class StatsScreenModel(
             }
             .fastFilter { !it.isNaN() }
             .average()
+    }
+
+    private fun getCombinedMeanScore(
+        libraryAnime: List<LibraryAnime>,
+        scoredTrackMap: Map<Long, List<Track>>
+    ): Double {
+        val scores = mutableListOf<Double>()
+        
+        libraryAnime.forEach { item ->
+            val localScore = item.anime.score
+            if (localScore != null && localScore > 0) {
+                scores.add(localScore)
+            } else {
+                val trackScores = scoredTrackMap[item.id]
+                if (!trackScores.isNullOrEmpty()) {
+                    scores.add(trackScores.map { get10PointScore(it) }.average())
+                }
+            }
+        }
+        
+        return if (scores.isEmpty()) 0.0 else scores.average()
+    }
+
+    private fun getCombinedScoreDistribution(
+        libraryAnime: List<LibraryAnime>,
+        scoredTrackMap: Map<Long, List<Track>>
+    ): Map<Int, Int> {
+        val distribution = mutableMapOf<Int, Int>()
+        
+        libraryAnime.forEach { item ->
+            val localScore = item.anime.score
+            if (localScore != null && localScore > 0) {
+                val scoreInt = localScore.toInt().coerceIn(1, 10)
+                distribution[scoreInt] = (distribution[scoreInt] ?: 0) + 1
+            } else {
+                val trackScores = scoredTrackMap[item.id]
+                if (!trackScores.isNullOrEmpty()) {
+                    val avgScore = trackScores.map { get10PointScore(it) }.average()
+                    val scoreInt = avgScore.toInt().coerceIn(1, 10)
+                    distribution[scoreInt] = (distribution[scoreInt] ?: 0) + 1
+                }
+            }
+        }
+        
+        return distribution
     }
 
     private fun get10PointScore(track: Track): Double {
