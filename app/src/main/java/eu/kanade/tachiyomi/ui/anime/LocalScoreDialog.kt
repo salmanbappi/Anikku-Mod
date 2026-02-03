@@ -7,6 +7,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import eu.kanade.presentation.track.TrackScoreSelector
 import kotlinx.collections.immutable.toImmutableList
@@ -21,15 +25,16 @@ fun LocalScoreDialog(
     onConfirm: (Double) -> Unit,
 ) {
     val scores = List(11) { it.toString() }.toImmutableList()
+    var selectedScore by remember { mutableStateOf(anime.score?.toInt()?.toString() ?: "0") }
     
     TrackScoreSelector(
-        selection = anime.score?.toInt()?.toString() ?: "0",
-        onSelectionChange = {
-            onConfirm(it.toDouble())
+        selection = selectedScore,
+        onSelectionChange = { selectedScore = it },
+        selections = scores,
+        onConfirm = {
+            onConfirm(selectedScore.toDouble())
             onDismissRequest()
         },
-        selections = scores,
-        onConfirm = { },
         onDismissRequest = onDismissRequest,
     )
 }
