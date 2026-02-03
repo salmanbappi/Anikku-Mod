@@ -58,7 +58,7 @@ import eu.kanade.presentation.anime.components.MarkdownRender
 import eu.kanade.presentation.more.stats.components.StatsItem
 import eu.kanade.presentation.more.stats.components.StatsOverviewItem
 import eu.kanade.presentation.more.stats.data.StatsData
-import eu.kanade.presentation.util.secondaryItemAlpha
+import tachiyomi.presentation.core.util.secondaryItemAlpha
 import eu.kanade.presentation.util.toDurationString
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.padding
