@@ -200,7 +200,7 @@ class SyncManager(
     }
 
     private fun writeSyncDataToCache(context: Context, backup: Backup): Uri? {
-        val cacheFile = File(context.cacheDir, "AniZen_sync_data.proto.gz")
+        val cacheFile = File(context.cacheDir, "anikku_sync_data.proto.gz")
         return try {
             cacheFile.outputStream().use { output ->
                 output.write(ProtoBuf.encodeToByteArray(Backup.serializer(), backup))

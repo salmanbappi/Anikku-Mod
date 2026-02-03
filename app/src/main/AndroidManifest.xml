@@ -82,6 +82,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data android:scheme="anizen" />
+                <data android:scheme="anikku" />
                 <data android:host="add-repo" />
             </intent-filter>
 
@@ -183,6 +184,10 @@
             android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
             android:value="eu.kanade.tachiyomi.ui.player.cast.CastOptionsProvider" />
 
+        <meta-data
+            android:name="author"
+            android:value="${author}" />
+
         <activity
             android:name=".ui.security.UnlockActivity"
             android:exported="false"
@@ -216,13 +221,14 @@
                 <data android:host="simkl-auth"/>
             </intent-filter>
 
-            <!-- Secondary filter for anizen scheme -->
+            <!-- Secondary filter for anizen and anikku scheme -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data android:scheme="anizen" />
+                <data android:scheme="anikku" />
                 <data android:host="anilist-auth" />
                 <data android:host="bangumi-auth" />
                 <data android:host="myanimelist-auth" />

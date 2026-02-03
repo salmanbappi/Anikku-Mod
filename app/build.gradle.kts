@@ -51,10 +51,12 @@ if (Config.includeTelemetry && file("google-services.json").exists()) {
         defaultConfig {
 
 
-        applicationId = "app.anizen" // Changed ID so it doesn't conflict with the original app
+        applicationId = "app.anikku"
 
         versionCode = 8
         versionName = "0.1.8-MOD"
+
+        manifestPlaceholders["author"] = "@salmanbappi"
 
         buildConfigField("String", "COMMIT_COUNT", "\"${getCommitCount()}\"")
         buildConfigField("String", "COMMIT_SHA", "\"${getGitSha()}\"")
