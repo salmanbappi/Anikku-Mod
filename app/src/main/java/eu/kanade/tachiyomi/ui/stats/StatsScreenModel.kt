@@ -30,6 +30,7 @@ import uy.kohesive.injekt.api.get
 
 import tachiyomi.domain.history.interactor.GetHistory
 import tachiyomi.domain.source.service.SourceManager
+import kotlinx.coroutines.flow.first
 import java.util.Calendar
 
 class StatsScreenModel(
@@ -49,7 +50,7 @@ class StatsScreenModel(
     init {
         screenModelScope.launchIO {
             val animelibAnime = getAnimelibAnime.await()
-            val history = getHistory.await("") // Get all history
+            val history = getHistory.subscribe("").first()
 
             val distinctLibraryAnime = animelibAnime.fastDistinctBy { it.id }
 
@@ -128,7 +129,7 @@ class StatsScreenModel(
     private fun calculateTimeDistribution(history: List<tachiyomi.domain.history.model.HistoryWithRelations>): StatsData.TimeDistribution {
         val distribution = mutableMapOf<Int, Long>()
         history.forEach { item ->
-            val cal = Calendar.getInstance().apply { time = item.readAt ?: return@forEach }
+            val cal = Calendar.getInstance().apply { time = item.seenAt ?: return@forEach }
             val day = cal.get(Calendar.DAY_OF_WEEK)
             distribution[day] = (distribution[day] ?: 0L) + 1 // Count sessions for now
         }
@@ -143,11 +144,11 @@ class StatsScreenModel(
         val dayMillis = 24 * 60 * 60 * 1000L
         val monthMillis = 30 * dayMillis
 
-        val topDay = history.filter { (it.readAt?.time ?: 0) > (now - dayMillis) }
+        val topDay = history.filter { (it.seenAt?.time ?: 0) > (now - dayMillis) }
             .groupingBy { it.animeId }.eachCount().maxByOrNull { it.value }
             ?.let { id -> animeList.find { it.id == id }?.anime?.title }
 
-        val topMonth = history.filter { (it.readAt?.time ?: 0) > (now - monthMillis) }
+        val topMonth = history.filter { (it.seenAt?.time ?: 0) > (now - monthMillis) }
             .groupingBy { it.animeId }.eachCount().maxByOrNull { it.value }
             ?.let { id -> animeList.find { it.id == id }?.anime?.title }
 
