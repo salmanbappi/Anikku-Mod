@@ -17,6 +17,8 @@ sealed interface StatsScreenState {
         val timeDistribution: StatsData.TimeDistribution,
         val genreAffinity: StatsData.GenreAffinity,
         val watchHabits: StatsData.WatchHabits,
+        val scores: StatsData.ScoreDistribution,
+        val statuses: StatsData.StatusBreakdown,
         val aiAnalysis: String? = null,
     ) : StatsScreenState
 }

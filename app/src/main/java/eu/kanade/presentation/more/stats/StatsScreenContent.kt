@@ -115,6 +115,14 @@ fun StatsScreenContent(
         }
 
         item {
+            StatusBreakdownSection(state.statuses)
+        }
+
+        item {
+            ScoreDistributionSection(state.scores)
+        }
+
+        item {
             GenreAffinitySection(state.genreAffinity)
         }
 
@@ -457,5 +465,118 @@ private fun HabitItem(label: String, value: String) {
     Column {
         Text(text = label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
         Text(text = value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+    }
+}
+
+@Composable
+private fun StatusBreakdownSection(statuses: StatsData.StatusBreakdown) {
+    StatsSectionCard(title = "System Equilibrium") {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(MaterialTheme.padding.medium),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val data = listOf(
+                statuses.completedCount.toFloat(),
+                statuses.ongoingCount.toFloat(),
+                statuses.droppedCount.toFloat(),
+                statuses.onHoldCount.toFloat(),
+                statuses.planToWatchCount.toFloat()
+            )
+            val colors = listOf(
+                MaterialTheme.colorScheme.primary,
+                MaterialTheme.colorScheme.secondary,
+                MaterialTheme.colorScheme.error,
+                MaterialTheme.colorScheme.tertiary,
+                MaterialTheme.colorScheme.outline
+            )
+            
+            PieChart(
+                data = data,
+                colors = colors,
+                modifier = Modifier.size(120.dp)
+            )
+            
+            Spacer(modifier = Modifier.width(24.dp))
+            
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                StatusLegendItem(MaterialTheme.colorScheme.primary, "Completed", statuses.completedCount)
+                StatusLegendItem(MaterialTheme.colorScheme.secondary, "Ongoing", statuses.ongoingCount)
+                StatusLegendItem(MaterialTheme.colorScheme.error, "Dropped", statuses.droppedCount)
+                StatusLegendItem(MaterialTheme.colorScheme.tertiary, "On Hold", statuses.onHoldCount)
+                StatusLegendItem(MaterialTheme.colorScheme.outline, "Planned", statuses.planToWatchCount)
+            }
+        }
+    }
+}
+
+@Composable
+private fun StatusLegendItem(color: Color, label: String, count: Int) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(color))
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = label, style = MaterialTheme.typography.labelMedium, modifier = Modifier.weight(1f))
+        Text(text = count.toString(), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+private fun ScoreDistributionSection(scores: StatsData.ScoreDistribution) {
+    StatsSectionCard(title = "Score Resonance") {
+        Column(modifier = Modifier.padding(MaterialTheme.padding.medium)) {
+            val maxCount = scores.distribution.values.maxOrNull() ?: 1
+            Row(
+                modifier = Modifier.fillMaxWidth().height(150.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.Bottom
+            ) {
+                for (i in 1..10) {
+                    val count = scores.distribution[i] ?: 0
+                    val weight = count.toFloat() / maxCount
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = count.toString(), style = MaterialTheme.typography.labelSmall, fontSize = 8.sp)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight(weight.coerceAtLeast(0.05f))
+                                .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                                .background(MaterialTheme.colorScheme.primary)
+                        )
+                        Text(text = i.toString(), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun PieChart(
+    data: List<Float>,
+    colors: List<Color>,
+    modifier: Modifier = Modifier
+) {
+    val total = data.sum()
+    Canvas(modifier = modifier) {
+        var startAngle = -90f
+        data.forEachIndexed { index, value ->
+            val sweepAngle = (value / total) * 360f
+            drawArc(
+                color = colors[index % colors.size],
+                startAngle = startAngle,
+                sweepAngle = sweepAngle,
+                useCenter = true
+            )
+            startAngle += sweepAngle
+        }
+        // Hollow center for "Donut" style
+        drawCircle(
+            color = Color.Black.copy(alpha = 0.1f), // Shadow
+            radius = size.minDimension / 2 * 0.6f
+        )
     }
 }

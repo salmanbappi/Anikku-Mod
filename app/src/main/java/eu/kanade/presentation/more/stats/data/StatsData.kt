@@ -38,6 +38,19 @@ sealed interface StatsData {
         val genreScores: List<Pair<String, Int>>, // Genre to count
     ) : StatsData
 
+    data class ScoreDistribution(
+        val scoredAnimeCount: Int,
+        val distribution: Map<Int, Int>, // Score (1-10) to count
+    ) : StatsData
+
+    data class StatusBreakdown(
+        val completedCount: Int,
+        val ongoingCount: Int,
+        val droppedCount: Int,
+        val onHoldCount: Int,
+        val planToWatchCount: Int,
+    ) : StatsData
+
     data class WatchHabits(
         val topDayAnime: String?,
         val topMonthAnime: String?,
