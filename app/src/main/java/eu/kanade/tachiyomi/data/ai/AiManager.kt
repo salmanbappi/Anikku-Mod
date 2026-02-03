@@ -24,7 +24,13 @@ class AiManager(
 
     suspend fun chatWithAssistant(query: String, history: List<ChatMessage>): String? {
         if (!aiPreferences.enableAi().get() || !aiPreferences.enableAiAssistant().get()) return null
-        val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return "Please set a Gemini API Key in Settings > AI Intelligence" }
+        
+        val engine = aiPreferences.aiEngine().get()
+        val apiKey = if (engine == "gemini") {
+            aiPreferences.geminiApiKey().get()
+        } else {
+            aiPreferences.groqApiKey().get()
+        }.ifBlank { return "Please set an API Key in Settings > AI Intelligence" }
 
         val logs = if (aiPreferences.aiAssistantLogs().get()) getRecentLogs() else "Logs access disabled by user."
         
@@ -48,12 +54,22 @@ class AiManager(
         val messages = history.toMutableList()
         messages.add(ChatMessage(role = "user", content = query))
 
-        return callGemini(messages, apiKey, systemInstruction)
+        return if (engine == "gemini") {
+            callGemini(messages, apiKey, systemInstruction)
+        } else {
+            callGroq(messages, apiKey, systemInstruction)
+        }
     }
 
     suspend fun getStatisticsAnalysis(statsSummary: String): String? {
         if (!aiPreferences.enableAi().get() || !aiPreferences.enableAiStatistics().get()) return null
-        val apiKey = aiPreferences.geminiApiKey().get().ifBlank { return null }
+        
+        val engine = aiPreferences.aiEngine().get()
+        val apiKey = if (engine == "gemini") {
+            aiPreferences.geminiApiKey().get()
+        } else {
+            aiPreferences.groqApiKey().get()
+        }.ifBlank { return null }
 
         val prompt = """
             Analyze the following user data and generate a 'Taste Profile' and 'Intelligence Report'.
@@ -70,7 +86,11 @@ class AiManager(
             Format with clear Markdown headers and a professional 'Intelligence' tone.
         """.trimIndent()
 
-        return callGemini(listOf(ChatMessage(role = "user", content = prompt)), apiKey, "You are a senior anime data scientist.")
+        return if (engine == "gemini") {
+            callGemini(listOf(ChatMessage(role = "user", content = prompt)), apiKey, "You are a senior anime data scientist.")
+        } else {
+            callGroq(listOf(ChatMessage(role = "user", content = prompt)), apiKey, "You are a senior anime data scientist.")
+        }
     }
 
     private fun getDeviceInfo(): String {
@@ -92,7 +112,7 @@ class AiManager(
         }
     }
 
-    private suspend fun callGemini(messages: List<ChatMessage>, apiKey: String, systemInstruction: String? = null): String? {
+    private suspend fun callGemini(messages: List<ChatMessage>, apiKey: String, systemInstruction: String? = null): String? = withIOContext {
         val geminiContents = messages.map { msg ->
             GeminiContent(parts = listOf(GeminiPart(text = msg.content)), role = if (msg.role == "user") "user" else "model")
         }
@@ -109,9 +129,9 @@ class AiManager(
             .post(json.encodeToString(GeminiRequest.serializer(), requestBody).toRequestBody(jsonMediaType))
             .build()
 
-        return try {
+        try {
             networkHelper.client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) return "Error: ${response.code} ${response.message}"
+                if (!response.isSuccessful) return@withIOContext "Error: ${response.code} ${response.message}"
                 val result = response.body.string()
                 val geminiResponse = json.decodeFromString(GeminiResponse.serializer(), result)
                 geminiResponse.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text?.trim()
@@ -120,6 +140,75 @@ class AiManager(
             "Exception: ${e.message}"
         }
     }
+
+    private suspend fun callGroq(messages: List<ChatMessage>, apiKey: String, systemInstruction: String? = null): String? = withIOContext {
+        val groqMessages = mutableListOf<GroqMessage>()
+        if (systemInstruction != null) {
+            groqMessages.add(GroqMessage(role = "system", content = systemInstruction))
+        }
+        messages.forEach { msg ->
+            groqMessages.add(GroqMessage(role = if (msg.role == "user") "user" else "assistant", content = msg.content))
+        }
+
+        val requestBody = GroqRequest(
+            messages = groqMessages,
+            model = "llama3-8b-8192"
+        )
+
+        val request = Request.Builder()
+            .url("https://api.groq.com/openai/v1/chat/completions")
+            .header("Authorization", "Bearer $apiKey")
+            .post(json.encodeToString(GroqRequest.serializer(), requestBody).toRequestBody(jsonMediaType))
+            .build()
+
+        try {
+            networkHelper.client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) return@withIOContext "Error: ${response.code} ${response.message}"
+                val result = response.body.string()
+                val groqResponse = json.decodeFromString(GroqResponse.serializer(), result)
+                groqResponse.choices.firstOrNull()?.message?.content?.trim()
+            }
+        } catch (e: Exception) {
+            "Exception: ${e.message}"
+        }
+    }
+
+    @Serializable
+    data class ChatMessage(val role: String, val content: String)
+
+    @Serializable
+    private data class GeminiRequest(
+        val contents: List<GeminiContent>,
+        val systemInstruction: GeminiContent? = null
+    )
+
+    @Serializable
+    private data class GeminiContent(val parts: List<GeminiPart>, val role: String? = null)
+
+    @Serializable
+    private data class GeminiPart(val text: String)
+
+    @Serializable
+    private data class GeminiResponse(val candidates: List<GeminiCandidate>)
+
+    @Serializable
+    private data class GeminiCandidate(val content: GeminiContent)
+
+    @Serializable
+    private data class GroqRequest(
+        val messages: List<GroqMessage>,
+        val model: String
+    )
+
+    @Serializable
+    private data class GroqMessage(val role: String, val content: String)
+
+    @Serializable
+    private data class GroqResponse(val choices: List<GroqChoice>)
+
+    @Serializable
+    private data class GroqChoice(val message: GroqMessage)
+}
 
     @Serializable
     data class ChatMessage(val role: String, val content: String)

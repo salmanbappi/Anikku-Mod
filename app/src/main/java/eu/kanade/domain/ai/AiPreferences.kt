@@ -8,7 +8,11 @@ class AiPreferences(
 
     fun enableAi() = preferenceStore.getBoolean("enable_ai", false)
 
+    fun aiEngine() = preferenceStore.getString("ai_engine", "gemini")
+
     fun geminiApiKey() = preferenceStore.getString("gemini_api_key", "")
+
+    fun groqApiKey() = preferenceStore.getString("groq_api_key", "")
 
     // Assistant
     fun enableAiAssistant() = preferenceStore.getBoolean("enable_ai_assistant", true)

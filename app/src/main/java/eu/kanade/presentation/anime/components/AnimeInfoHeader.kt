@@ -112,8 +112,6 @@ fun AnimeInfoBox(
     onCoverClick: () -> Unit,
     doSearch: (query: String, global: Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    onFetchAIEpisodeSummary: () -> Unit = {},
-    aiEpisodeSummary: String? = null,
 ) {
     Box(modifier = modifier) {
         // Backdrop
@@ -150,8 +148,6 @@ fun AnimeInfoBox(
                     isStubSource = isStubSource,
                     onCoverClick = onCoverClick,
                     doSearch = doSearch,
-                    onFetchAIEpisodeSummary = onFetchAIEpisodeSummary,
-                    aiEpisodeSummary = aiEpisodeSummary,
                 )
             } else {
                 AnimeAndSourceTitlesLarge(
@@ -161,8 +157,6 @@ fun AnimeInfoBox(
                     isStubSource = isStubSource,
                     onCoverClick = onCoverClick,
                     doSearch = doSearch,
-                    onFetchAIEpisodeSummary = onFetchAIEpisodeSummary,
-                    aiEpisodeSummary = aiEpisodeSummary,
                 )
             }
         }
@@ -340,8 +334,6 @@ private fun AnimeAndSourceTitlesLarge(
     isStubSource: Boolean,
     onCoverClick: () -> Unit,
     doSearch: (query: String, global: Boolean) -> Unit,
-    onFetchAIEpisodeSummary: () -> Unit,
-    aiEpisodeSummary: String?,
 ) {
     Column(
         modifier = Modifier
@@ -366,11 +358,6 @@ private fun AnimeAndSourceTitlesLarge(
             doSearch = doSearch,
             textAlign = TextAlign.Center,
         )
-        AiEpisodeIntelligence(
-            summary = aiEpisodeSummary,
-            onFetch = onFetchAIEpisodeSummary,
-            modifier = Modifier.padding(top = 8.dp)
-        )
     }
 }
 
@@ -382,8 +369,6 @@ private fun AnimeAndSourceTitlesSmall(
     isStubSource: Boolean,
     onCoverClick: () -> Unit,
     doSearch: (query: String, global: Boolean) -> Unit,
-    onFetchAIEpisodeSummary: () -> Unit,
-    aiEpisodeSummary: String?,
 ) {
     Row(
         modifier = Modifier
@@ -411,11 +396,6 @@ private fun AnimeAndSourceTitlesSmall(
                 sourceName = sourceName,
                 isStubSource = isStubSource,
                 doSearch = doSearch,
-            )
-            AiEpisodeIntelligence(
-                summary = aiEpisodeSummary,
-                onFetch = onFetchAIEpisodeSummary,
-                modifier = Modifier.padding(top = 4.dp)
             )
         }
     }
@@ -672,57 +652,6 @@ private fun TagsChip(
             onClick = onClick,
             label = { Text(text = text, style = MaterialTheme.typography.bodySmall) },
         )
-    }
-}
-
-@Composable
-private fun AiEpisodeIntelligence(
-    summary: String?,
-    onFetch: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .background(
-                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                MaterialTheme.shapes.medium,
-            )
-            .padding(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Icon(
-                imageVector = Icons.Default.AutoAwesome,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(18.dp),
-            )
-            Text(
-                text = "Intelligence Summary",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
-            )
-        }
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        if (summary != null) {
-            Text(
-                text = summary,
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Start,
-                modifier = Modifier.fillMaxWidth()
-            )
-        } else {
-            TextButton(onClick = onFetch) {
-                Text(text = "Analyze with AniZen Intelligence")
-            }
-        }
     }
 }
 
