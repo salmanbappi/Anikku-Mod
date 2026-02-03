@@ -40,6 +40,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -201,11 +203,16 @@ class AiAssistantScreen : Screen() {
         isLoading: Boolean,
         onSend: () -> Unit
     ) {
+        val primaryColor = MaterialTheme.colorScheme.primary
+        val surfaceVariantColor = MaterialTheme.colorScheme.surfaceVariant
+        val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
+        val onSurfaceVariantColor = MaterialTheme.colorScheme.onSurfaceVariant
+
         Surface(
             tonalElevation = 8.dp,
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                .border(1.dp, primaryColor.copy(alpha = 0.1f), RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
         ) {
             Row(
                 modifier = Modifier
@@ -223,8 +230,8 @@ class AiAssistantScreen : Screen() {
                     colors = TextFieldDefaults.colors(
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        focusedContainerColor = surfaceVariantColor.copy(alpha = 0.5f),
+                        unfocusedContainerColor = surfaceVariantColor.copy(alpha = 0.5f),
                     ),
                     maxLines = 5,
                 )
@@ -235,15 +242,15 @@ class AiAssistantScreen : Screen() {
                         .size(48.dp)
                         .clip(CircleShape)
                         .background(
-                            if (value.isNotBlank() && !isLoading) MaterialTheme.colorScheme.primary 
-                            else MaterialTheme.colorScheme.surfaceVariant
+                            if (value.isNotBlank() && !isLoading) primaryColor 
+                            else surfaceVariantColor
                         ),
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.Send,
                         contentDescription = "Send",
-                        tint = if (value.isNotBlank() && !isLoading) MaterialTheme.colorScheme.onPrimary 
-                               else MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = if (value.isNotBlank() && !isLoading) onPrimaryColor 
+                               else onSurfaceVariantColor,
                     )
                 }
             }

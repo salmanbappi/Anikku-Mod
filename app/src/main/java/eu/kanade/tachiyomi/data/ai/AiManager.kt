@@ -209,25 +209,3 @@ class AiManager(
     @Serializable
     private data class GroqChoice(val message: GroqMessage)
 }
-
-    @Serializable
-    data class ChatMessage(val role: String, val content: String)
-
-    @Serializable
-    private data class GeminiRequest(
-        val contents: List<GeminiContent>,
-        val systemInstruction: GeminiContent? = null
-    )
-
-    @Serializable
-    private data class GeminiContent(val parts: List<GeminiPart>, val role: String? = null)
-
-    @Serializable
-    private data class GeminiPart(val text: String)
-
-    @Serializable
-    private data class GeminiResponse(val candidates: List<GeminiCandidate>)
-
-    @Serializable
-    private data class GeminiCandidate(val content: GeminiContent)
-}
