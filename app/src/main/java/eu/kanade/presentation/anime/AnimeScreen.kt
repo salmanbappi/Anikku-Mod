@@ -204,6 +204,7 @@ fun AnimeScreen(
             onAllEpisodeSelected = onAllEpisodeSelected,
             onInvertSelection = onInvertSelection,
             onSettingsClicked = onSettingsClicked,
+            onLocalScoreClicked = { screenModel.showLocalScoreDialog() },
         )
     } else {
         AnimeScreenLargeImpl(
@@ -252,6 +253,7 @@ fun AnimeScreen(
             onAllEpisodeSelected = onAllEpisodeSelected,
             onInvertSelection = onInvertSelection,
             onSettingsClicked = onSettingsClicked,
+            onLocalScoreClicked = { screenModel.showLocalScoreDialog() },
         )
     }
 }
@@ -316,6 +318,7 @@ private fun AnimeScreenSmallImpl(
     onEpisodeSelected: (EpisodeList.Item, Boolean, Boolean, Boolean) -> Unit,
     onAllEpisodeSelected: (Boolean) -> Unit,
     onInvertSelection: () -> Unit,
+    onLocalScoreClicked: () -> Unit,
 ) {
     val episodeListState = rememberLazyListState()
 
@@ -484,7 +487,7 @@ private fun AnimeScreenSmallImpl(
                             onEditIntervalClicked = onEditIntervalClicked,
                             onEditCategory = onEditCategoryClicked,
                             localScore = state.anime.score,
-                            onLocalScoreClicked = screenModel::showLocalScoreDialog,
+                            onLocalScoreClicked = onLocalScoreClicked,
                         )
                     }
 
@@ -626,6 +629,7 @@ fun AnimeScreenLargeImpl(
     onEpisodeSelected: (EpisodeList.Item, Boolean, Boolean, Boolean) -> Unit,
     onAllEpisodeSelected: (Boolean) -> Unit,
     onInvertSelection: () -> Unit,
+    onLocalScoreClicked: () -> Unit,
 ) {
     val layoutDirection = LocalLayoutDirection.current
     val density = LocalDensity.current
@@ -775,7 +779,7 @@ fun AnimeScreenLargeImpl(
                             onEditIntervalClicked = onEditIntervalClicked,
                             onEditCategory = onEditCategoryClicked,
                             localScore = state.anime.score,
-                            onLocalScoreClicked = screenModel::showLocalScoreDialog,
+                            onLocalScoreClicked = onLocalScoreClicked,
                         )
                         ExpandableAnimeDescription(
                             defaultExpandState = true,
