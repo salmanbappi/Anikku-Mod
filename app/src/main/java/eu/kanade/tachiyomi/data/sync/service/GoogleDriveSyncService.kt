@@ -309,7 +309,6 @@ class GoogleDriveService(private val context: Context) {
         ).setAccessType("offline").build()
 
         return flow.newAuthorizationUrl()
-            .setRedirectUri(REDIRECT_URI)
             .setApprovalPrompt("force")
             .build()
     }
