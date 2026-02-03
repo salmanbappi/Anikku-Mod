@@ -108,7 +108,32 @@ class StatsScreenModel(
             // Watch Habits
             val watchHabits = calculateWatchHabits(history, distinctLibraryAnime)
 
-            val aiAnalysis = fetchAiAnalysis(distinctLibraryAnime, chaptersStatData, trackersStatData, extensionUsage, genreAffinity)
+            // Score Distribution
+            val scoreDistribution = StatsData.ScoreDistribution(
+                scoredAnimeCount = scoredAnimeTrackerMap.size,
+                distribution = scoredAnimeTrackerMap.values.flatten()
+                    .map { get10PointScore(it).toInt() }
+                    .groupingBy { it }.eachCount()
+            )
+
+            // Status Breakdown
+            val statusBreakdown = StatsData.StatusBreakdown(
+                completedCount = distinctLibraryAnime.count { it.anime.status.toInt() == SAnime.COMPLETED },
+                ongoingCount = distinctLibraryAnime.count { it.anime.status.toInt() == SAnime.ONGOING },
+                droppedCount = animeTrackMap.values.flatten().count { it.status == 4L }, // 4L is DROPPED in AniList/MAL usually
+                onHoldCount = animeTrackMap.values.flatten().count { it.status == 3L }, // 3L is ON_HOLD
+                planToWatchCount = distinctLibraryAnime.count { !it.hasStarted },
+            )
+
+            val aiAnalysis = fetchAiAnalysis(
+                distinctLibraryAnime, 
+                chaptersStatData, 
+                trackersStatData, 
+                extensionUsage, 
+                genreAffinity,
+                scoreDistribution,
+                statusBreakdown
+            )
 
             mutableState.update {
                 StatsScreenState.SuccessAnime(
@@ -120,6 +145,8 @@ class StatsScreenModel(
                     timeDistribution = timeDistribution,
                     genreAffinity = genreAffinity,
                     watchHabits = watchHabits,
+                    scores = scoreDistribution,
+                    statuses = statusBreakdown,
                     aiAnalysis = aiAnalysis,
                 )
             }
@@ -173,10 +200,14 @@ class StatsScreenModel(
         episodes: StatsData.Episodes,
         trackers: StatsData.Trackers,
         extensions: StatsData.ExtensionUsage,
-        genres: StatsData.GenreAffinity
+        genres: StatsData.GenreAffinity,
+        scores: StatsData.ScoreDistribution,
+        statuses: StatsData.StatusBreakdown,
     ): String? {
         val summary = StringBuilder()
         summary.append("Total Anime: ${animeList.size}\n")
+        summary.append("Status Breakdown: Completed=${statuses.completedCount}, Ongoing=${statuses.ongoingCount}, Dropped=${statuses.droppedCount}\n")
+        summary.append("Score Distribution: ${scores.distribution.entries.joinToString { "${it.key}: ${it.value}" }}\n")
         summary.append("Total Episodes Watched: ${episodes.readEpisodeCount}\n")
         summary.append("Top Extensions: ${extensions.topExtensions.joinToString { it.first }}\n")
         summary.append("Favorite Genres: ${genres.genreScores.joinToString { it.first }}\n")
