@@ -564,7 +564,7 @@
     <string name="pref_category_reader">Reader</string>
     <string name="pref_category_downloads">Downloads</string>
     <string name="pref_category_tracking">Tracking</string>
-    <string name="pref_category_ai">Anikku Intelligence</string>
+    <string name="pref_category_ai">AniZen Intelligence</string>
     <string name="pref_ai_summary">Smart search, summaries, and intelligent recommendations</string>
     <string name="pref_enable_ai">Enable AI features</string>
     <string name="pref_enable_ai_summary">Toggle all smart assistance and AI capabilities</string>

@@ -57,9 +57,7 @@ class GoogleDriveSyncService(context: Context, json: Json, syncPreferences: Sync
         ERROR,
     }
 
-    private val appName = context.stringResource(MR.strings.app_name)
-
-    private val remoteFileName = "${appName}_sync.proto.gz"
+    private val remoteFileName = "Anikku_sync.proto.gz"
 
     private val googleDriveService = GoogleDriveService(context)
 
