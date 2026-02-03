@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -44,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -59,7 +61,6 @@ import eu.kanade.presentation.more.stats.data.StatsData
 import eu.kanade.presentation.util.secondaryItemAlpha
 import eu.kanade.presentation.util.toDurationString
 import tachiyomi.i18n.MR
-import tachiyomi.presentation.core.components.SectionCard
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
 import java.util.Locale
@@ -121,11 +122,40 @@ fun StatsScreenContent(
     }
 }
 
+import androidx.compose.material3.ElevatedCard
+
+@Composable
+private fun StatsSectionCard(
+    title: String,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    Text(
+        modifier = Modifier.padding(horizontal = MaterialTheme.padding.extraLarge),
+        text = title,
+        style = MaterialTheme.typography.titleSmall,
+    )
+
+    ElevatedCard(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = MaterialTheme.padding.medium,
+                vertical = MaterialTheme.padding.small,
+            ),
+        shape = MaterialTheme.shapes.extraLarge,
+    ) {
+        Column(modifier = Modifier.padding(MaterialTheme.padding.medium)) {
+            content()
+        }
+    }
+}
+
 @Composable
 private fun GenreRadarSection(genreAffinity: StatsData.GenreAffinity) {
     if (genreAffinity.genreScores.size < 3) return
     
-    SectionCard(title = "Neural Affinity Map") {
+    StatsSectionCard(title = "Neural Affinity Map") {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -264,7 +294,7 @@ private fun ProfileHeaderSection(state: StatsScreenState.SuccessAnime) {
 @Composable
 private fun AiIntelligenceSection(analysis: String) {
     var expanded by remember { mutableStateOf(false) }
-    SectionCard(
+    StatsSectionCard(
         title = "Neural Intelligence Report",
         modifier = Modifier.clickable { expanded = !expanded }
     ) {
@@ -303,13 +333,13 @@ private fun OverviewGridSection(state: StatsScreenState.SuccessAnime) {
         .toDuration(DurationUnit.MILLISECONDS)
         .toDurationString(context, fallback = "0m")
 
-    SectionCard(title = "Core Metrics") {
+    StatsSectionCard(title = "Core Metrics") {
         Column(modifier = Modifier.padding(MaterialTheme.padding.medium)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 MetricItem(Icons.Outlined.Schedule, "Watch Time", watchTime)
                 MetricItem(Icons.Outlined.Star, "Mean Score", "%.2f".format(state.trackers.meanScore))
             }
-            HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), alpha = 0.5f)
+            HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp).alpha(0.5f))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 MetricItem(Icons.Outlined.History, "Episodes", state.episodes.readEpisodeCount.toString())
                 MetricItem(Icons.Outlined.Extension, "Sources", state.trackers.trackerCount.toString())
@@ -332,7 +362,7 @@ private fun MetricItem(icon: ImageVector, label: String, value: String) {
 
 @Composable
 private fun GenreAffinitySection(genreAffinity: StatsData.GenreAffinity) {
-    SectionCard(title = "Genre Signature") {
+    StatsSectionCard(title = "Genre Signature") {
         Column(modifier = Modifier.padding(MaterialTheme.padding.medium)) {
             val maxCount = genreAffinity.genreScores.firstOrNull()?.second ?: 1
             genreAffinity.genreScores.take(5).forEach { (genre, count) ->
@@ -371,7 +401,7 @@ private fun GenreBar(genre: String, count: Int, maxCount: Int) {
 
 @Composable
 private fun ExtensionUsageSection(extensions: StatsData.ExtensionUsage) {
-    SectionCard(title = "Primary Gateways") {
+    StatsSectionCard(title = "Primary Gateways") {
         Column(modifier = Modifier.padding(MaterialTheme.padding.medium)) {
             extensions.topExtensions.forEachIndexed { index, (name, count) ->
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
@@ -392,7 +422,7 @@ private fun ExtensionUsageSection(extensions: StatsData.ExtensionUsage) {
 
 @Composable
 private fun WatchHabitsSection(habits: StatsData.WatchHabits) {
-    SectionCard(title = "Neural Patterns") {
+    StatsSectionCard(title = "Neural Patterns") {
         Column(modifier = Modifier.padding(MaterialTheme.padding.medium), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             HabitItem("Preferred Cycle", habits.preferredWatchTime)
             if (habits.topDayAnime != null) {

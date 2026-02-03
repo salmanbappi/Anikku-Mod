@@ -211,10 +211,6 @@ class AnimeScreen(
             onEpisodeSelected = screenModel::toggleSelection,
             onAllEpisodeSelected = screenModel::toggleAllSelection,
             onInvertSelection = screenModel::invertSelection,
-            onFetchAIEpisodeSummary = screenModel::fetchAIEpisodeSummary,
-            onFetchAIGlossary = screenModel::fetchAIGlossary,
-            onShowAiGlossary = screenModel::showAiGlossary,
-            isFetchingAiGlossary = successState.isFetchingAiGlossary,
         )
 
         val onDismissRequest = {
