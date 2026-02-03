@@ -69,6 +69,9 @@ data class Anime(
 
     val status: Long
         get() = customAnimeInfo?.status ?: ogStatus
+
+    val score: Double?
+        get() = customAnimeInfo?.score
     // SY <--
 
     val expectedNextUpdate: Instant?

@@ -1072,6 +1072,7 @@
     <string name="on_hold_list">On Hold List</string>
     <string name="unfinished_list">Unfinished List</string>
     <string name="score">Score</string>
+    <string name="score_hint">Local Score (0-10)</string>
     <string name="title">Title</string>
     <string name="status">Status</string>
     <string name="track_status">Status</string>
@@ -1151,6 +1152,8 @@
     <string name="label_tracked_titles">Tracked entries</string>
     <string name="label_mean_score">Mean score</string>
     <string name="label_used">Used</string>
+    <string name="label_system_equilibrium">System Equilibrium</string>
+    <string name="label_score_resonance">Score Resonance</string>
     <string name="not_applicable">N/A</string>
     <string name="day_short">%dd</string>
     <string name="hour_short">%dh</string>

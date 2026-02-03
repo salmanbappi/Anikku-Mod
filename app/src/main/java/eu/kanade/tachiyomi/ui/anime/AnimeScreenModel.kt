@@ -304,6 +304,7 @@ class AnimeScreenModel(
         description: String?,
         tags: List<String>?,
         status: Long?,
+        score: Double?,
     ) {
         val state = successState ?: return
         var anime = state.anime
@@ -353,6 +354,7 @@ class AnimeScreenModel(
                     description?.trimOrNull(),
                     genre,
                     status.takeUnless { it == state.anime.ogStatus },
+                    score,
                 ),
             )
             anime = anime.copy(lastUpdate = anime.lastUpdate + 1)
