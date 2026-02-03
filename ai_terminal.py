@@ -39,7 +39,7 @@ def call_groq(messages, api_key, system_instruction):
         groq_messages.append({"role": "user" if msg["role"] == "user" else "assistant", "content": msg["content"]})
         
     payload = {
-        "model": "llama-3.3-70b-versatile",
+        "model": "groq/compound-mini",
         "messages": groq_messages
     }
     

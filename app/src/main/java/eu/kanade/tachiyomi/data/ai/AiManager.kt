@@ -156,7 +156,7 @@ class AiManager(
 
         val requestBody = GroqRequest(
             messages = groqMessages,
-            model = "llama-3.3-70b-versatile"
+            model = "groq/compound-mini"
         )
 
         val request = Request.Builder()
