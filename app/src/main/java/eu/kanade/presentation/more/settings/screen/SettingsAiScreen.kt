@@ -12,6 +12,7 @@ import eu.kanade.domain.ai.AiPreferences
 import eu.kanade.presentation.more.settings.Preference
 import eu.kanade.presentation.more.settings.screen.ai.AiAssistantScreen
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.collectAsState
@@ -40,6 +41,7 @@ object SettingsAiScreen : SearchableSettings {
     private fun getMainGroup(aiPreferences: AiPreferences, navigator: cafe.adriel.voyager.navigator.Navigator): Preference.PreferenceGroup {
         val enableAiPref = aiPreferences.enableAi()
         val enableAi by enableAiPref.collectAsState()
+        val aiEngine by aiPreferences.aiEngine().collectAsState()
 
         return Preference.PreferenceGroup(
             title = stringResource(MR.strings.pref_category_ai),
@@ -49,11 +51,27 @@ object SettingsAiScreen : SearchableSettings {
                     title = stringResource(MR.strings.pref_enable_ai),
                     subtitle = stringResource(MR.strings.pref_enable_ai_summary),
                 ),
+                Preference.PreferenceItem.ListPreference(
+                    pref = aiPreferences.aiEngine(),
+                    title = "AI Engine",
+                    subtitle = "Select which AI backend to use",
+                    entries = persistentMapOf(
+                        "gemini" to "Google Gemini (Intelligence)",
+                        "groq" to "Groq (High Speed)",
+                    ),
+                    enabled = enableAi,
+                ),
                 Preference.PreferenceItem.EditTextPreference(
                     pref = aiPreferences.geminiApiKey(),
                     title = stringResource(MR.strings.pref_ai_gemini_api_key),
                     subtitle = stringResource(MR.strings.pref_ai_gemini_api_key_summary),
-                    enabled = enableAi,
+                    enabled = enableAi && aiEngine == "gemini",
+                ),
+                Preference.PreferenceItem.EditTextPreference(
+                    pref = aiPreferences.groqApiKey(),
+                    title = "Groq API Key",
+                    subtitle = "Used for high-speed LLama-3 analysis",
+                    enabled = enableAi && aiEngine == "groq",
                 )
             ),
         )
