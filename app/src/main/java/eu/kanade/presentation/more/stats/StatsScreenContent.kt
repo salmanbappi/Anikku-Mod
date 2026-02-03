@@ -77,6 +77,7 @@ import kotlin.math.sin
 
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.material3.ElevatedCard
 
 @Composable
 fun StatsScreenContent(
@@ -121,8 +122,6 @@ fun StatsScreenContent(
         }
     }
 }
-
-import androidx.compose.material3.ElevatedCard
 
 @Composable
 private fun StatsSectionCard(
