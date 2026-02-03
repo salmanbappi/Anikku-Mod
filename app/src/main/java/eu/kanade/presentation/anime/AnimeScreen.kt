@@ -144,6 +144,7 @@ fun AnimeScreen(
     onEpisodeSelected: (EpisodeList.Item, Boolean, Boolean, Boolean) -> Unit,
     onAllEpisodeSelected: (Boolean) -> Unit,
     onInvertSelection: () -> Unit,
+    onLocalScoreClicked: () -> Unit,
 ) {
     val context = LocalContext.current
     val onCopyTagToClipboard: (tag: String) -> Unit = {
@@ -204,7 +205,7 @@ fun AnimeScreen(
             onAllEpisodeSelected = onAllEpisodeSelected,
             onInvertSelection = onInvertSelection,
             onSettingsClicked = onSettingsClicked,
-            onLocalScoreClicked = { screenModel.showLocalScoreDialog() },
+            onLocalScoreClicked = onLocalScoreClicked,
         )
     } else {
         AnimeScreenLargeImpl(
@@ -253,7 +254,7 @@ fun AnimeScreen(
             onAllEpisodeSelected = onAllEpisodeSelected,
             onInvertSelection = onInvertSelection,
             onSettingsClicked = onSettingsClicked,
-            onLocalScoreClicked = { screenModel.showLocalScoreDialog() },
+            onLocalScoreClicked = onLocalScoreClicked,
         )
     }
 }
