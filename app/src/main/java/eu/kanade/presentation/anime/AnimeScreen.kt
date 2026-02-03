@@ -483,6 +483,8 @@ private fun AnimeScreenSmallImpl(
                             onTrackingClicked = onTrackingClicked,
                             onEditIntervalClicked = onEditIntervalClicked,
                             onEditCategory = onEditCategoryClicked,
+                            localScore = state.anime.score,
+                            onLocalScoreClicked = screenModel::showLocalScoreDialog,
                         )
                     }
 
@@ -772,6 +774,8 @@ fun AnimeScreenLargeImpl(
                             onTrackingClicked = onTrackingClicked,
                             onEditIntervalClicked = onEditIntervalClicked,
                             onEditCategory = onEditCategoryClicked,
+                            localScore = state.anime.score,
+                            onLocalScoreClicked = screenModel::showLocalScoreDialog,
                         )
                         ExpandableAnimeDescription(
                             defaultExpandState = true,

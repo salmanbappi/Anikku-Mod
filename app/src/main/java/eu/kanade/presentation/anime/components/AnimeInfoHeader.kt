@@ -176,6 +176,8 @@ fun AnimeActionRow(
     onTrackingClicked: () -> Unit,
     onEditIntervalClicked: (() -> Unit)?,
     onEditCategory: (() -> Unit)?,
+    localScore: Double? = null,
+    onLocalScoreClicked: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val defaultActionButtonColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
@@ -213,14 +215,22 @@ fun AnimeActionRow(
             onClick = { onEditIntervalClicked?.invoke() },
         )
         AnimeActionButton(
-            title = if (trackingCount == 0) {
+            title = if (trackingCount == 0 && localScore != null && localScore > 0) {
+                "Rated: ${localScore.toInt()}"
+            } else if (trackingCount == 0) {
                 stringResource(MR.strings.manga_tracking_tab)
             } else {
                 pluralStringResource(MR.plurals.num_trackers, count = trackingCount, trackingCount)
             },
-            icon = if (trackingCount == 0) Icons.Outlined.Sync else Icons.Outlined.Done,
-            color = if (trackingCount == 0) defaultActionButtonColor else MaterialTheme.colorScheme.primary,
-            onClick = onTrackingClicked,
+            icon = if (trackingCount == 0 && localScore != null && localScore > 0) {
+                Icons.Default.Star
+            } else if (trackingCount == 0) {
+                Icons.Outlined.Sync
+            } else {
+                Icons.Outlined.Done
+            },
+            color = if (trackingCount == 0 && localScore == null) defaultActionButtonColor else MaterialTheme.colorScheme.primary,
+            onClick = if (trackingCount == 0) (onLocalScoreClicked ?: onTrackingClicked) else onTrackingClicked,
         )
 
         if (onWebViewClicked != null) {
