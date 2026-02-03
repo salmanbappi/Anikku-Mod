@@ -67,11 +67,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.kanade.presentation.anime.components.MarkdownRender
+import eu.kanade.presentation.components.AppBar
 import eu.kanade.presentation.util.Screen
 import eu.kanade.tachiyomi.data.ai.AiManager
 import kotlinx.coroutines.launch
 import tachiyomi.presentation.core.components.material.Scaffold
-import tachiyomi.presentation.core.components.material.TopAppBar
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
@@ -94,7 +94,7 @@ class AiAssistantScreen : Screen() {
 
         Scaffold(
             topBar = {
-                TopAppBar(
+                AppBar(
                     title = "AniZen Intelligence OS",
                     navigateUp = { /* Pop handled by Voyager */ },
                 )
@@ -227,7 +227,8 @@ class AiAssistantScreen : Screen() {
                     colors = TextFieldDefaults.colors(
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
                     ),
                     maxLines = 5,
                 )
