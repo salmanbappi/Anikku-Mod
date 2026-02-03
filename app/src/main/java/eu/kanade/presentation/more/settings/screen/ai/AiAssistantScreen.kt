@@ -261,16 +261,16 @@ class AiAssistantScreen : Screen() {
 
     @Composable
     private fun UserMessage(content: String) {
-        Box(modifier = Modifier.fillMaxWidth().padding(start = 32.dp), contentAlignment = Alignment.CenterEnd) {
+        Box(modifier = Modifier.fillMaxWidth().padding(start = 48.dp, bottom = 8.dp), contentAlignment = Alignment.CenterEnd) {
             Surface(
-                color = MaterialTheme.colorScheme.primaryContainer,
-                shape = RoundedCornerShape(20.dp, 20.dp, 4.dp, 20.dp),
-                modifier = Modifier.widthIn(min = 50.dp)
+                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f),
+                shape = RoundedCornerShape(24.dp, 24.dp, 4.dp, 24.dp),
+                modifier = Modifier.widthIn(min = 40.dp)
             ) {
                 Text(
                     text = content,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
@@ -282,25 +282,26 @@ class AiAssistantScreen : Screen() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(end = 32.dp, top = 8.dp, bottom = 8.dp),
+                .padding(vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.alpha(0.7f)
+                modifier = Modifier.alpha(0.6f).padding(horizontal = 4.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.AutoAwesome,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(14.dp)
                 )
                 Text(
                     text = "AniZen Intelligence",
-                    style = MaterialTheme.typography.labelMedium,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = 0.5.sp
                 )
             }
             
@@ -308,7 +309,7 @@ class AiAssistantScreen : Screen() {
                 color = Color.Transparent,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Box(modifier = Modifier.padding(start = 4.dp)) {
+                Box(modifier = Modifier.padding(start = 4.dp, end = 8.dp)) {
                     MarkdownRender(content = content)
                 }
             }
