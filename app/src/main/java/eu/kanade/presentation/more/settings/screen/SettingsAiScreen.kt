@@ -1,11 +1,17 @@
 package eu.kanade.presentation.more.settings.screen
 
+import android.content.Intent
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import eu.kanade.domain.ai.AiPreferences
@@ -32,8 +38,48 @@ object SettingsAiScreen : SearchableSettings {
 
         return listOf(
             getMainGroup(aiPreferences, navigator),
+            getIdentityGroup(aiPreferences),
             getAssistantGroup(aiPreferences),
             getStatisticsGroup(aiPreferences),
+        )
+    }
+
+    @Composable
+    private fun getIdentityGroup(aiPreferences: AiPreferences): Preference.PreferenceGroup {
+        val context = LocalContext.current
+        val scope = rememberCoroutineScope()
+        
+        val pickImage = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent()
+        ) { uri: Uri? ->
+            if (uri != null) {
+                // Take persistable URI permission if possible
+                try {
+                    context.contentResolver.takePersistableUriPermission(
+                        uri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                } catch (e: Exception) {
+                    // Ignore if not supported
+                }
+                aiPreferences.profilePhotoUri().set(uri.toString())
+            }
+        }
+
+        return Preference.PreferenceGroup(
+            title = "Identity",
+            preferenceItems = persistentListOf(
+                Preference.PreferenceItem.EditTextPreference(
+                    pref = aiPreferences.displayName(),
+                    title = "Display Name",
+                    subtitle = "Your name in Intelligence reports",
+                ),
+                Preference.PreferenceItem.TextPreference(
+                    title = "Profile Photo",
+                    subtitle = "Set your personal avatar",
+                    onClick = { pickImage.launch("image/*") }
+                ),
+            ),
         )
     }
 

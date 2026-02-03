@@ -78,6 +78,11 @@ import kotlin.math.sin
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.material3.ElevatedCard
+import coil3.compose.AsyncImage
+import eu.kanade.domain.ai.AiPreferences
+import tachiyomi.presentation.core.util.collectAsState
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
 
 @Composable
 fun StatsScreenContent(
@@ -246,6 +251,10 @@ fun RadarChart(
 
 @Composable
 private fun ProfileHeaderSection(state: StatsScreenState.SuccessAnime) {
+    val aiPreferences = remember { Injekt.get<AiPreferences>() }
+    val displayName by aiPreferences.displayName().collectAsState()
+    val profilePhotoUri by aiPreferences.profilePhotoUri().collectAsState()
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -268,16 +277,25 @@ private fun ProfileHeaderSection(state: StatsScreenState.SuccessAnime) {
                     .background(MaterialTheme.colorScheme.primary),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.LocalLibrary,
-                    contentDescription = null,
-                    modifier = Modifier.size(40.dp),
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
+                if (profilePhotoUri.isNotEmpty()) {
+                    AsyncImage(
+                        model = profilePhotoUri,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Outlined.LocalLibrary,
+                        contentDescription = null,
+                        modifier = Modifier.size(40.dp),
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Anime Explorer",
+                text = displayName,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )

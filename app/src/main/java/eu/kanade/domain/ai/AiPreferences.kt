@@ -21,4 +21,8 @@ class AiPreferences(
 
     // Statistics
     fun enableAiStatistics() = preferenceStore.getBoolean("enable_ai_statistics", true)
+
+    // Profile
+    fun profilePhotoUri() = preferenceStore.getString("profile_photo_uri", "")
+    fun displayName() = preferenceStore.getString("display_name", "Anime Explorer")
 }
