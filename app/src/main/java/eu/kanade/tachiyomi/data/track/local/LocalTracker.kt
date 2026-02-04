@@ -5,7 +5,7 @@ import eu.kanade.tachiyomi.data.track.AnimeTracker
 import eu.kanade.tachiyomi.data.track.BaseTracker
 import eu.kanade.tachiyomi.data.track.model.TrackSearch
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import tachiyomi.domain.track.model.Track as DomainAnimeTrack
@@ -15,19 +15,19 @@ class LocalTracker(id: Long) : BaseTracker(id, "Local Metadata"), AnimeTracker {
     override val isLoggedIn: Boolean = true
     override val isLoggedInFlow: Flow<Boolean> = flowOf(true)
 
-    override suspend fun search(query: String, isManga: Boolean): List<TrackSearch> = emptyList()
+    override suspend fun search(query: String): List<TrackSearch> = emptyList()
 
     override suspend fun refresh(track: Track): Track = track
 
     override suspend fun update(track: Track, didWatchEpisode: Boolean): Track = track
 
-    override fun getStatusList(): List<Long> = listOf(
+    override fun getStatusList(): ImmutableList<Long> = listOf(
         WATCHING,
         COMPLETED,
         ON_HOLD,
         DROPPED,
         PLAN_TO_WATCH,
-    )
+    ).toImmutableList()
 
     override fun getStatusListAnime(): List<Long> = getStatusList()
 
