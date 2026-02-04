@@ -2,6 +2,7 @@ package eu.kanade.tachiyomi.ui.stats
 
 import cafe.adriel.voyager.core.model.StateScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import eu.kanade.domain.source.service.SourcePreferences
 import eu.kanade.tachiyomi.network.model.*
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.network.NetworkHelper
@@ -19,6 +20,7 @@ import okhttp3.Request
 import tachiyomi.core.common.util.lang.launchIO
 import tachiyomi.domain.source.service.SourceHealthCache
 import tachiyomi.domain.source.service.SourceManager
+import tachiyomi.source.local.isLocal
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import java.net.InetAddress
@@ -28,25 +30,16 @@ import kotlin.system.measureTimeMillis
 class InfrastructureScreenModel(
     private val sourceManager: SourceManager = Injekt.get(),
     private val networkHelper: NetworkHelper = Injekt.get(),
+    private val sourcePreferences: SourcePreferences = Injekt.get(),
 ) : StateScreenModel<InfrastructureState>(InfrastructureState.Loading) {
 
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
-    // Limit concurrent pings to avoid network congestion
     private val semaphore = Semaphore(5)
 
     init {
-        // Initial state load from cache if exists
-        loadFromCache()
         runDiagnostics()
-    }
-
-    private fun loadFromCache() {
-        val cachedHealth = SourceHealthCache.healthMap.value
-        if (cachedHealth.isNotEmpty()) {
-            // We'll run a fresh diagnostic anyway, but this allows instant UI load
-        }
     }
 
     fun runDiagnostics() {
@@ -54,31 +47,25 @@ class InfrastructureScreenModel(
         _isRefreshing.value = true
         
         screenModelScope.launchIO {
+            val disabledSourceIds = sourcePreferences.disabledSources().get()
             val sources = sourceManager.getOnlineSources()
+                .filter { !it.isLocal() }
+                .filter { it.id.toString() !in disabledSourceIds }
             
-            // Start with "Probing" placeholders for instant UI feedback
+            // Initial state load
             val initialNodes = sources.map { source ->
-                SourceNode(
-                    name = source.name,
-                    pkgName = source::class.java.`package`?.name ?: "ext",
-                    version = "Checking...",
-                    status = NodeStatus.OPERATIONAL, // Placeholder
-                    network = NetworkDiagnostics(0, "Scanning...", "...", "...", false),
-                    capabilities = SourceCapabilities(false, true, source.supportsLatest, true),
-                    uptimeScore = 1.0
-                )
+                createPlaceholderNode(source)
             }
             
             mutableState.update { 
                 InfrastructureState.Success(InfrastructureReport(initialNodes, generateEmptyMetrics(initialNodes.size), emptyList()))
             }
 
-            // Run probes in parallel with concurrency limit
+            // Run parallel probes
             val nodes = sources.map { source ->
                 async {
                     semaphore.withPermit {
                         probeNode(source).also { finishedNode ->
-                            // Update individual node in the state immediately for "static holder" feel
                             updateNodeInState(finishedNode)
                             SourceHealthCache.updateStatus(source.id, finishedNode.status, finishedNode.network.latency)
                         }
@@ -86,28 +73,42 @@ class InfrastructureScreenModel(
                 }
             }.awaitAll()
 
+            // Final state with full metrics and ranking
+            val sortedNodes = nodes.sortedWith(compareByDescending<SourceNode> { it.status == NodeStatus.OPERATIONAL }
+                .thenBy { it.network.latency })
+
             val logs = nodes.filter { it.status != NodeStatus.OPERATIONAL }.map { node ->
                 SystemLogEntry(
                     timestamp = System.currentTimeMillis(),
                     level = if (node.status == NodeStatus.OFFLINE) LogLevel.ERROR else LogLevel.WARN,
                     source = node.name,
-                    message = "Telemetry Alert: Node ${node.status}. Response: ${node.network.latency}ms"
+                    message = "Alert: ${node.status}. Response: ${node.network.latency}ms"
                 )
             }
 
             val metrics = GlobalNetworkMetrics(
                 bdixSaturation = if (nodes.isNotEmpty()) (nodes.count { it.network.topology == "BDIX" }.toDouble() / nodes.size * 100).toInt() else 0,
                 totalDataConsumed = 0,
-                avgLatency = if (nodes.isNotEmpty()) nodes.map { it.network.latency }.average().toInt() else 0,
+                avgLatency = if (nodes.isNotEmpty()) nodes.filter { it.status == NodeStatus.OPERATIONAL }.map { it.network.latency }.average().toInt() else 0,
                 activeNodeCount = nodes.count { it.status == NodeStatus.OPERATIONAL }
             )
 
             mutableState.update {
-                InfrastructureState.Success(InfrastructureReport(nodes, metrics, logs))
+                InfrastructureState.Success(InfrastructureReport(sortedNodes, metrics, logs))
             }
             _isRefreshing.value = false
         }
     }
+
+    private fun createPlaceholderNode(source: HttpSource) = SourceNode(
+        name = source.name,
+        pkgName = source::class.java.`package`?.name ?: "ext",
+        version = "...",
+        status = NodeStatus.OPERATIONAL,
+        network = NetworkDiagnostics(0, "Scanning", "...", "...", false),
+        capabilities = SourceCapabilities(false, false, source.supportsLatest, true),
+        uptimeScore = 1.0
+    )
 
     private fun updateNodeInState(node: SourceNode) {
         mutableState.update { state ->
@@ -123,33 +124,32 @@ class InfrastructureScreenModel(
     private suspend fun probeNode(source: HttpSource): SourceNode {
         var latency = 999
         var resolved = false
-        var ip = "Pending"
+        var ip = "Offline"
         var tls = "Unknown"
         var status = NodeStatus.OFFLINE
-        var errorLog: String? = null
 
         try {
-            // Use the source's OWN client and headers for absolute accuracy
             val probeClient = source.client.newBuilder()
-                .connectTimeout(5, TimeUnit.SECONDS)
-                .readTimeout(5, TimeUnit.SECONDS)
+                .connectTimeout(8, TimeUnit.SECONDS)
+                .readTimeout(8, TimeUnit.SECONDS)
+                .followRedirects(true)
                 .build()
 
+            // Try standard request with headers to avoid being blocked
             val request = Request.Builder()
                 .url(source.baseUrl)
                 .headers(source.headers)
-                .header("X-Anikku-Probe", "Telemetry-v2")
+                .header("X-Anikku-Probe", "CommandCenter-v2")
                 .build()
 
             measureTimeMillis {
                 probeClient.newCall(request).execute().use { response ->
                     resolved = true
                     tls = response.handshake?.tlsVersion?.javaName ?: "TLS v1.3"
-                    if (response.isSuccessful) {
+                    if (response.isSuccessful || response.code < 500) {
                         status = NodeStatus.OPERATIONAL
                     } else {
                         status = NodeStatus.DEGRADED
-                        errorLog = "HTTP ${response.code}"
                     }
                 }
             }.let { latency = it.toInt() }
@@ -159,7 +159,6 @@ class InfrastructureScreenModel(
 
         } catch (e: Exception) {
             status = NodeStatus.OFFLINE
-            errorLog = e.message?.take(30) ?: "Timeout/SSL Error"
         }
 
         val name = source.name.lowercase()
@@ -167,11 +166,17 @@ class InfrastructureScreenModel(
                      name.contains("ftp") || name.contains("sam") || name.contains("bijoy") ||
                      name.contains("icc") || name.contains("fanush") || name.contains("nagordola")
 
+        // Enhanced API detection: Audit class names and typical API server patterns
+        val className = source::class.java.simpleName
+        val isApi = className.contains("Api", ignoreCase = true) || 
+                    className.contains("Json", ignoreCase = true) ||
+                    name.contains("api") || name.contains("json")
+
         return SourceNode(
             name = source.name,
-            pkgName = source::class.java.`package`?.name ?: "ext",
-            version = "PROBED",
-            status = if (status == NodeStatus.OPERATIONAL && latency > 1500) NodeStatus.DEGRADED else status,
+            pkgName = source::class.java.name.substringBeforeLast("."),
+            version = "Node Probed",
+            status = if (status == NodeStatus.OPERATIONAL && latency > 2000) NodeStatus.DEGRADED else status,
             network = NetworkDiagnostics(
                 latency = latency,
                 topology = if (isBdix) "BDIX" else "Global CDN",
@@ -180,8 +185,8 @@ class InfrastructureScreenModel(
                 dnsResolved = resolved
             ),
             capabilities = SourceCapabilities(
-                isApi = name.contains("api") || name.contains("json") || source::class.java.simpleName.contains("Api"),
-                mtSupport = true,
+                isApi = isApi,
+                mtSupport = false, // Requested to remove MT
                 latestSupport = source.supportsLatest,
                 searchSupport = true
             ),

@@ -97,10 +97,12 @@ private val defaultContent: @Composable RowScope.(Source, String?) -> Unit = { s
             if (isBdix) {
                 StatusBadge("BDIX", Color(0xFF1E88E5))
             }
-            if (name.contains("api") || name.contains("jellyfin") || name.contains("json")) {
+            
+            // Smarter API detection for badges
+            val sourceClass = source::class.java.simpleName
+            if (name.contains("api") || name.contains("json") || sourceClass.contains("Api") || sourceClass.contains("Json")) {
                 StatusBadge("API", Color(0xFF43A047))
             }
-            StatusBadge("MT", Color(0xFFE53935))
         }
 
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
