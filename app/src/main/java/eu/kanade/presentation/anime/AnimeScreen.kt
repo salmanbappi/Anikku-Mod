@@ -472,37 +472,59 @@ private fun AnimeScreenSmallImpl(
                         )
                     }
 
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+
                     item(
                         key = AnimeScreenItem.ACTION_ROW,
                         contentType = AnimeScreenItem.ACTION_ROW,
                     ) {
-                        AnimeActionRow(
-                            favorite = state.anime.favorite,
-                            trackingCount = state.trackingCount,
-                            nextUpdate = nextUpdate,
-                            isUserIntervalMode = state.anime.fetchInterval < 0,
-                            onAddToLibraryClicked = onAddToLibraryClicked,
-                            onWebViewClicked = onWebViewClicked,
-                            onWebViewLongClicked = onWebViewLongClicked,
-                            onTrackingClicked = onTrackingClicked,
-                            onEditIntervalClicked = onEditIntervalClicked,
-                            onEditCategory = onEditCategoryClicked,
-                            localScore = state.anime.score,
-                            onLocalScoreClicked = onLocalScoreClicked,
-                        )
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            tonalElevation = 2.dp
+                        ) {
+                            AnimeActionRow(
+                                favorite = state.anime.favorite,
+                                trackingCount = state.trackingCount,
+                                nextUpdate = nextUpdate,
+                                isUserIntervalMode = state.anime.fetchInterval < 0,
+                                onAddToLibraryClicked = onAddToLibraryClicked,
+                                onWebViewClicked = onWebViewClicked,
+                                onWebViewLongClicked = onWebViewLongClicked,
+                                onTrackingClicked = onTrackingClicked,
+                                onEditIntervalClicked = onEditIntervalClicked,
+                                onEditCategory = onEditCategoryClicked,
+                                localScore = state.anime.score,
+                                onLocalScoreClicked = onLocalScoreClicked,
+                            )
+                        }
                     }
 
                     item(
                         key = AnimeScreenItem.DESCRIPTION_WITH_TAG,
                         contentType = AnimeScreenItem.DESCRIPTION_WITH_TAG,
                     ) {
-                        ExpandableAnimeDescription(
-                            defaultExpandState = state.isFromSource,
-                            description = state.anime.description,
-                            tagsProvider = { state.anime.genre },
-                            onTagSearch = onTagSearch,
-                            onCopyTagToClipboard = onCopyTagToClipboard,
-                        )
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            tonalElevation = 2.dp
+                        ) {
+                            ExpandableAnimeDescription(
+                                defaultExpandState = state.isFromSource,
+                                description = state.anime.description,
+                                tagsProvider = { state.anime.genre },
+                                onTagSearch = onTagSearch,
+                                onCopyTagToClipboard = onCopyTagToClipboard,
+                            )
+                        }
                     }
 
                     item(
@@ -548,23 +570,128 @@ private fun AnimeScreenSmallImpl(
                         }
                     }
 
-                    sharedEpisodeItems(
-                        anime = state.anime,
-                        // AM (FILE_SIZE) -->
-                        source = state.source,
-                        showFileSize = showFileSize,
-                        // <-- AM (FILE_SIZE)
-                        episodes = listItem,
-                        isAnyEpisodeSelected = episodes.fastAny { it.selected },
-                        episodeSwipeStartAction = episodeSwipeStartAction,
-                        episodeSwipeEndAction = episodeSwipeEndAction,
-                        onEpisodeClicked = onEpisodeClicked,
-                        onDownloadEpisode = onDownloadEpisode,
-                        onEpisodeSelected = onEpisodeSelected,
-                        onEpisodeSwipe = onEpisodeSwipe,
-                    )
+                    item(key = "episodes-island") {
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            tonalElevation = 2.dp
+                        ) {
+                            Column {
+                                listItem.forEach { item ->
+                                    EpisodeItemWrapper(
+                                        item = item,
+                                        anime = state.anime,
+                                        source = state.source,
+                                        showFileSize = showFileSize,
+                                        isAnyEpisodeSelected = episodes.fastAny { it.selected },
+                                        episodeSwipeStartAction = episodeSwipeStartAction,
+                                        episodeSwipeEndAction = episodeSwipeEndAction,
+                                        onEpisodeClicked = onEpisodeClicked,
+                                        onDownloadEpisode = onDownloadEpisode,
+                                        onEpisodeSelected = onEpisodeSelected,
+                                        onEpisodeSwipe = onEpisodeSwipe,
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun EpisodeItemWrapper(
+    item: EpisodeList,
+    anime: Anime,
+    source: Source,
+    showFileSize: Boolean,
+    isAnyEpisodeSelected: Boolean,
+    episodeSwipeStartAction: LibraryPreferences.EpisodeSwipeAction,
+    episodeSwipeEndAction: LibraryPreferences.EpisodeSwipeAction,
+    onEpisodeClicked: (Episode, Boolean) -> Unit,
+    onDownloadEpisode: ((List<EpisodeList.Item>, EpisodeDownloadAction) -> Unit)?,
+    onEpisodeSelected: (EpisodeList.Item, Boolean, Boolean, Boolean) -> Unit,
+    onEpisodeSwipe: (EpisodeList.Item, LibraryPreferences.EpisodeSwipeAction) -> Unit,
+) {
+    val haptic = LocalHapticFeedback.current
+
+    when (item) {
+        is EpisodeList.MissingCount -> {
+            MissingEpisodeCountListItem(count = item.count)
+        }
+        is EpisodeList.Item -> {
+            var fileSizeAsync: Long? by remember { mutableStateOf(item.fileSize) }
+            val isEpisodeDownloaded = item.downloadState == Download.State.DOWNLOADED
+            if (isEpisodeDownloaded && showFileSize && fileSizeAsync == null) {
+                LaunchedEffect(item, Unit) {
+                    fileSizeAsync = withIOContext {
+                        downloadProvider.getEpisodeFileSize(
+                            item.episode.name,
+                            item.episode.url,
+                            item.episode.scanlator,
+                            anime.ogTitle,
+                            source,
+                        )
+                    }
+                    item.fileSize = fileSizeAsync
+                }
+            }
+            AnimeEpisodeListItem(
+                title = if (anime.displayMode == Anime.EPISODE_DISPLAY_NUMBER) {
+                    stringResource(
+                        MR.strings.display_mode_episode,
+                        formatEpisodeNumber(item.episode.episodeNumber),
+                    )
+                } else {
+                    item.episode.name
+                },
+                date = relativeDateTimeText(item.episode.dateUpload),
+                watchProgress = item.episode.lastSecondSeen
+                    .takeIf { !item.episode.seen && it > 0L }
+                    ?.let {
+                        stringResource(
+                            MR.strings.episode_progress,
+                            formatTime(it),
+                            formatTime(item.episode.totalSeconds),
+                        )
+                    },
+                scanlator = item.episode.scanlator.takeIf { !it.isNullOrBlank() },
+                seen = item.episode.seen,
+                bookmark = item.episode.bookmark,
+                fillermark = item.episode.fillermark,
+                selected = item.selected,
+                downloadIndicatorEnabled = !isAnyEpisodeSelected && !anime.isLocal(),
+                downloadStateProvider = { item.downloadState },
+                downloadProgressProvider = { item.downloadProgress },
+                episodeSwipeStartAction = episodeSwipeStartAction,
+                episodeSwipeEndAction = episodeSwipeEndAction,
+                onLongClick = {
+                    onEpisodeSelected(item, !item.selected, true, true)
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                },
+                onClick = {
+                    onEpisodeItemClick(
+                        episodeItem = item,
+                        isAnyEpisodeSelected = isAnyEpisodeSelected,
+                        onToggleSelection = { onEpisodeSelected(item, !item.selected, true, false) },
+                        onEpisodeClicked = onEpisodeClicked,
+                    )
+                },
+                onDownloadClick = if (onDownloadEpisode != null) {
+                    { onDownloadEpisode(listOf(item), it) }
+                } else {
+                    null
+                },
+                onEpisodeSwipe = {
+                    onEpisodeSwipe(item, it)
+                },
+                fileSize = fileSizeAsync,
+            )
         }
     }
 }
@@ -929,118 +1056,6 @@ private fun SharedAnimeBottomActionMenu(
             onEpisodeClicked(selected.fastMap { it.episode }.first(), true)
         }.takeIf { alwaysUseExternalPlayer && selected.size == 1 },
     )
-}
-
-private fun LazyListScope.sharedEpisodeItems(
-    anime: Anime,
-    // AM (FILE_SIZE) -->
-    source: Source,
-    showFileSize: Boolean,
-    // <-- AM (FILE_SIZE)
-    episodes: List<EpisodeList>,
-    isAnyEpisodeSelected: Boolean,
-    episodeSwipeStartAction: LibraryPreferences.EpisodeSwipeAction,
-    episodeSwipeEndAction: LibraryPreferences.EpisodeSwipeAction,
-    onEpisodeClicked: (Episode, Boolean) -> Unit,
-    onDownloadEpisode: ((List<EpisodeList.Item>, EpisodeDownloadAction) -> Unit)?,
-    onEpisodeSelected: (EpisodeList.Item, Boolean, Boolean, Boolean) -> Unit,
-    onEpisodeSwipe: (EpisodeList.Item, LibraryPreferences.EpisodeSwipeAction) -> Unit,
-) {
-    items(
-        items = episodes,
-        key = { item ->
-            when (item) {
-                is EpisodeList.MissingCount -> "missing-count-${item.hashCode()}"
-                is EpisodeList.Item -> "episode-${item.id}"
-            }
-        },
-        contentType = { AnimeScreenItem.EPISODE },
-    ) { item ->
-        val haptic = LocalHapticFeedback.current
-
-        when (item) {
-            is EpisodeList.MissingCount -> {
-                MissingEpisodeCountListItem(count = item.count)
-            }
-            is EpisodeList.Item -> {
-                // AM (FILE_SIZE) -->
-                var fileSizeAsync: Long? by remember { mutableStateOf(item.fileSize) }
-                val isEpisodeDownloaded = item.downloadState == Download.State.DOWNLOADED
-                if (isEpisodeDownloaded && showFileSize && fileSizeAsync == null) {
-                    LaunchedEffect(item, Unit) {
-                        fileSizeAsync = withIOContext {
-                            downloadProvider.getEpisodeFileSize(
-                                item.episode.name,
-                                item.episode.url,
-                                item.episode.scanlator,
-                                // AM (CUSTOM_INFORMATION) -->
-                                anime.ogTitle,
-                                // <-- AM (CUSTOM_INFORMATION)
-                                source,
-                            )
-                        }
-                        item.fileSize = fileSizeAsync
-                    }
-                }
-                // <-- AM (FILE_SIZE)
-                AnimeEpisodeListItem(
-                    title = if (anime.displayMode == Anime.EPISODE_DISPLAY_NUMBER) {
-                        stringResource(
-                            MR.strings.display_mode_episode,
-                            formatEpisodeNumber(item.episode.episodeNumber),
-                        )
-                    } else {
-                        item.episode.name
-                    },
-                    date = relativeDateTimeText(item.episode.dateUpload),
-                    watchProgress = item.episode.lastSecondSeen
-                        .takeIf { !item.episode.seen && it > 0L }
-                        ?.let {
-                            stringResource(
-                                MR.strings.episode_progress,
-                                formatTime(it),
-                                formatTime(item.episode.totalSeconds),
-                            )
-                        },
-                    scanlator = item.episode.scanlator.takeIf { !it.isNullOrBlank() },
-                    seen = item.episode.seen,
-                    bookmark = item.episode.bookmark,
-                    // AM (FILLERMARK) -->
-                    fillermark = item.episode.fillermark,
-                    // <-- AM (FILLERMARK)
-                    selected = item.selected,
-                    downloadIndicatorEnabled = !isAnyEpisodeSelected && !anime.isLocal(),
-                    downloadStateProvider = { item.downloadState },
-                    downloadProgressProvider = { item.downloadProgress },
-                    episodeSwipeStartAction = episodeSwipeStartAction,
-                    episodeSwipeEndAction = episodeSwipeEndAction,
-                    onLongClick = {
-                        onEpisodeSelected(item, !item.selected, true, true)
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    },
-                    onClick = {
-                        onEpisodeItemClick(
-                            episodeItem = item,
-                            isAnyEpisodeSelected = isAnyEpisodeSelected,
-                            onToggleSelection = { onEpisodeSelected(item, !item.selected, true, false) },
-                            onEpisodeClicked = onEpisodeClicked,
-                        )
-                    },
-                    onDownloadClick = if (onDownloadEpisode != null) {
-                        { onDownloadEpisode(listOf(item), it) }
-                    } else {
-                        null
-                    },
-                    onEpisodeSwipe = {
-                        onEpisodeSwipe(item, it)
-                    },
-                    // AM (FILE_SIZE) -->
-                    fileSize = fileSizeAsync,
-                    // <-- AM (FILE_SIZE)
-                )
-            }
-        }
-    }
 }
 
 private fun onEpisodeItemClick(

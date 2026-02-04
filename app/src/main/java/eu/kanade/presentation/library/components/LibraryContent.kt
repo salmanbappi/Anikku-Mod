@@ -81,6 +81,12 @@ fun LibraryContent(
             }
         }
 
+import androidx.compose.material3.Surface
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+
         PullRefresh(
             refreshing = isRefreshing,
             onRefresh = {
@@ -95,20 +101,29 @@ fun LibraryContent(
             },
             enabled = notSelectionMode,
         ) {
-            LibraryPager(
-                state = pagerState,
-                contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding()),
-                hasActiveFilters = hasActiveFilters,
-                selectedAnime = selection,
-                searchQuery = searchQuery,
-                onGlobalSearchClicked = onGlobalSearchClicked,
-                getDisplayMode = getDisplayMode,
-                getColumnsForOrientation = getColumnsForOrientation,
-                getLibraryForPage = getAnimeLibraryForPage,
-                onClickAnime = onClickAnime,
-                onLongClickAnime = onToggleRangeSelection,
-                onClickContinueWatching = onContinueWatchingClicked,
-            )
+            Surface(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                tonalElevation = 2.dp
+            ) {
+                LibraryPager(
+                    state = pagerState,
+                    contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding()),
+                    hasActiveFilters = hasActiveFilters,
+                    selectedAnime = selection,
+                    searchQuery = searchQuery,
+                    onGlobalSearchClicked = onGlobalSearchClicked,
+                    getDisplayMode = getDisplayMode,
+                    getColumnsForOrientation = getColumnsForOrientation,
+                    getLibraryForPage = getAnimeLibraryForPage,
+                    onClickAnime = onClickAnime,
+                    onLongClickAnime = onToggleRangeSelection,
+                    onClickContinueWatching = onContinueWatchingClicked,
+                )
+            }
         }
 
         LaunchedEffect(pagerState.currentPage) {

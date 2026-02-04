@@ -62,6 +62,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 
+import androidx.compose.material3.MaterialTheme
 import eu.kanade.presentation.more.components.MoreItem
 import eu.kanade.presentation.more.components.MoreSection
 import androidx.compose.foundation.layout.Spacer

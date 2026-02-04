@@ -132,6 +132,10 @@ fun ExtensionScreen(
     }
 }
 
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.util.fastForEach
+
 @Composable
 private fun ExtensionContent(
     state: ExtensionsScreenModel.State,
@@ -151,7 +155,12 @@ private fun ExtensionContent(
     val installGranted = rememberRequestPackageInstallsPermissionState(initialValue = true)
 
     FastScrollLazyColumn(
-        contentPadding = contentPadding + topSmallPaddingValues,
+        contentPadding = PaddingValues(
+            start = contentPadding.calculateStartPadding(androidx.compose.ui.unit.LayoutDirection.Ltr),
+            end = contentPadding.calculateEndPadding(androidx.compose.ui.unit.LayoutDirection.Ltr),
+            top = contentPadding.calculateTopPadding() + 8.dp,
+            bottom = contentPadding.calculateBottomPadding() + 8.dp
+        ),
     ) {
         if (!installGranted && state.installer?.requiresSystemPermission == true) {
             item(key = "extension-permissions-warning") {
@@ -201,54 +210,57 @@ private fun ExtensionContent(
                 }
             }
 
-            items(
-                items = items,
-                contentType = { "item" },
-                key = { item ->
-                    when (item.extension) {
-                        is Extension.Untrusted -> "extension-untrusted-${item.hashCode()}"
-                        is Extension.Installed -> "extension-installed-${item.hashCode()}"
-                        is Extension.Available -> "extension-available-${item.hashCode()}"
+            item(key = "extension-island-${header.hashCode()}") {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 4.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    tonalElevation = 2.dp
+                ) {
+                    Column {
+                        items.forEach { item ->
+                            ExtensionItem(
+                                modifier = Modifier.animateItemFastScroll(),
+                                item = item,
+                                onClickItem = {
+                                    when (it) {
+                                        is Extension.Available -> onInstallExtension(it)
+                                        is Extension.Installed -> onOpenExtension(it)
+                                        is Extension.Untrusted -> {
+                                            trustState = it
+                                        }
+                                    }
+                                },
+                                onLongClickItem = onLongClickItem,
+                                onClickItemSecondaryAction = {
+                                    when (it) {
+                                        is Extension.Available -> onOpenWebView(it)
+                                        is Extension.Installed -> onOpenExtension(it)
+                                        else -> {}
+                                    }
+                                },
+                                onClickItemCancel = onClickItemCancel,
+                                onClickItemAction = {
+                                    when (it) {
+                                        is Extension.Available -> onInstallExtension(it)
+                                        is Extension.Installed -> {
+                                            if (it.hasUpdate) {
+                                                onUpdateExtension(it)
+                                            } else {
+                                                onOpenExtension(it)
+                                            }
+                                        }
+                                        is Extension.Untrusted -> {
+                                            trustState = it
+                                        }
+                                    }
+                                },
+                            )
+                        }
                     }
-                },
-            ) { item ->
-                ExtensionItem(
-                    modifier = Modifier.animateItemFastScroll(),
-                    item = item,
-                    onClickItem = {
-                        when (it) {
-                            is Extension.Available -> onInstallExtension(it)
-                            is Extension.Installed -> onOpenExtension(it)
-                            is Extension.Untrusted -> {
-                                trustState = it
-                            }
-                        }
-                    },
-                    onLongClickItem = onLongClickItem,
-                    onClickItemSecondaryAction = {
-                        when (it) {
-                            is Extension.Available -> onOpenWebView(it)
-                            is Extension.Installed -> onOpenExtension(it)
-                            else -> {}
-                        }
-                    },
-                    onClickItemCancel = onClickItemCancel,
-                    onClickItemAction = {
-                        when (it) {
-                            is Extension.Available -> onInstallExtension(it)
-                            is Extension.Installed -> {
-                                if (it.hasUpdate) {
-                                    onUpdateExtension(it)
-                                } else {
-                                    onOpenExtension(it)
-                                }
-                            }
-                            is Extension.Untrusted -> {
-                                trustState = it
-                            }
-                        }
-                    },
-                )
+                }
             }
         }
     }
