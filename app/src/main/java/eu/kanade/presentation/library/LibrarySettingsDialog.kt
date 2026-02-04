@@ -296,14 +296,42 @@ private fun ColumnScope.DisplayPage(
     }
 
     val columns by columnPreference.collectAsState()
-    SliderItem(
-        label = if (displayMode == LibraryDisplayMode.List) stringResource(MR.strings.pref_library_rows) else stringResource(MR.strings.pref_library_columns),
-        value = columns,
-        valueText = if (columns > 0) columns.toString() else stringResource(MR.strings.label_default),
-        min = 0,
-        max = 10,
-        onChange = columnPreference::set,
-    )
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(end = MaterialTheme.padding.medium),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = if (displayMode == LibraryDisplayMode.List) stringResource(MR.strings.pref_library_rows) else stringResource(MR.strings.pref_library_columns),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(start = MaterialTheme.padding.medium)
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = { columnPreference.set(columns - 1) }, enabled = columns > 0) {
+                    Icon(Icons.Outlined.RemoveCircle, null)
+                }
+                Text(
+                    text = if (columns > 0) columns.toString() else stringResource(MR.strings.label_default),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontFamily = FontFamily.Monospace,
+                    modifier = Modifier.width(32.dp),
+                    textAlign = TextAlign.Center
+                )
+                IconButton(onClick = { columnPreference.set(columns + 1) }, enabled = columns < 10) {
+                    Icon(Icons.Outlined.AddCircle, null)
+                }
+            }
+        }
+        SliderItem(
+            label = "",
+            value = columns,
+            valueText = "",
+            min = 0,
+            max = 10,
+            onChange = columnPreference::set,
+        )
+    }
 
     HeadingItem(MR.strings.overlay_header)
     CheckboxItem(
