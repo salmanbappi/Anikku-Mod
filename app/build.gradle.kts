@@ -211,6 +211,7 @@ if (Config.includeTelemetry && file("google-services.json").exists()) {
 kotlin {
     compilerOptions {
         freeCompilerArgs.addAll(
+            "-P=plugin:androidx.compose.compiler.plugins.kotlin:strongSkipping=true",
             "-opt-in=androidx.compose.animation.ExperimentalAnimationApi",
             "-opt-in=androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi",
             "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi",

@@ -94,7 +94,13 @@ class CastManager(
     private val _castState = MutableStateFlow(CastState.DISCONNECTED)
     val castState: StateFlow<CastState> = _castState.asStateFlow()
 
-    private var castContext: CastContext? = null
+    private var _castContext: CastContext? = null
+    private val castContext: CastContext?
+        get() {
+            if (_castContext == null) initializeCast()
+            return _castContext
+        }
+
     var castSession: CastSession? = null
     private var sessionListener: CastSessionListener? = null
     private var castProgressJob: Job? = null
@@ -102,7 +108,11 @@ class CastManager(
     private var mediaRouterCallback: androidx.mediarouter.media.MediaRouter.Callback? = null
 
     private val isCastApiAvailable: Boolean
-        get() = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS
+        get() = try {
+            GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS
+        } catch (e: Exception) {
+            false
+        }
 
     private val mediaQueue = LinkedList<MediaQueueItem>()
     private var isLoadingMedia = false
@@ -126,13 +136,15 @@ class CastManager(
     val volume: StateFlow<Float> = _volume.asStateFlow()
 
     init {
-        initializeCast()
+        // Optimization: Do not initialize CastContext here as it blocks the UI thread.
+        // It will be initialized on first use or in startDeviceDiscovery/reconnect.
     }
 
+    @Synchronized
     private fun initializeCast() {
-        if (!isCastApiAvailable) return
+        if (_castContext != null || !isCastApiAvailable) return
         try {
-            castContext = CastContext.getSharedInstance(context.applicationContext)
+            _castContext = CastContext.getSharedInstance(context.applicationContext)
             sessionListener = CastSessionListener(this)
             registerSessionListener()
         } catch (e: Exception) {
@@ -143,13 +155,13 @@ class CastManager(
     // Session Management
     fun registerSessionListener() {
         sessionListener?.let { listener ->
-            castContext?.sessionManager?.addSessionManagerListener(listener, CastSession::class.java)
+            _castContext?.sessionManager?.addSessionManagerListener(listener, CastSession::class.java)
         }
     }
 
     fun unregisterSessionListener() {
         sessionListener?.let { listener ->
-            castContext?.sessionManager?.removeSessionManagerListener(listener, CastSession::class.java)
+            _castContext?.sessionManager?.removeSessionManagerListener(listener, CastSession::class.java)
         }
     }
 

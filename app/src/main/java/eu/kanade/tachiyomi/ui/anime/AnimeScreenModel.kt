@@ -222,9 +222,6 @@ class AnimeScreenModel(
                 setAnimeDefaultEpisodeFlags.await(anime)
             }
 
-            val needRefreshInfo = !anime.initialized
-            val needRefreshEpisode = episodes.isEmpty()
-
             val animeSource = Injekt.get<SourceManager>().getOrStub(anime.source)
             // --> (Torrent)
             if (animeSource.isSourceForTorrents()) {
@@ -241,20 +238,26 @@ class AnimeScreenModel(
                     source = animeSource,
                     isFromSource = isFromSource,
                     episodes = episodes,
-                    isRefreshingData = needRefreshInfo || needRefreshEpisode,
+                    isRefreshingData = !anime.initialized || episodes.isEmpty(),
                     dialog = null,
                 )
             }
+            
             // Start observe tracking since it only needs animeId
             observeTrackers()
 
             // Fetch info-episodes when needed
             if (screenModelScope.isActive) {
-                val fetchFromSourceTasks = listOf(
-                    async { if (needRefreshInfo) fetchAnimeFromSource() },
-                    async { if (needRefreshEpisode) fetchEpisodesFromSource() },
-                )
-                fetchFromSourceTasks.awaitAll()
+                val needRefreshInfo = !anime.initialized
+                val needRefreshEpisode = episodes.isEmpty()
+                
+                if (needRefreshInfo || needRefreshEpisode) {
+                    val fetchFromSourceTasks = listOf(
+                        async { if (needRefreshInfo) fetchAnimeFromSource() },
+                        async { if (needRefreshEpisode) fetchEpisodesFromSource() },
+                    )
+                    fetchFromSourceTasks.awaitAll()
+                }
             }
 
             // Initial loading finished
