@@ -192,5 +192,33 @@ data class Anime(
         // SY <--
 
         fun create() = Anime(
+            id = -1L,
+            url = "",
+            // Sy -->
+            ogTitle = "",
+            // SY <--
+            source = -1L,
+            favorite = false,
+            lastUpdate = 0L,
+            nextUpdate = 0L,
+            fetchInterval = 0,
+            dateAdded = 0L,
+            viewerFlags = 0L,
+            episodeFlags = 0L,
+            coverLastModified = 0L,
+            // SY -->
+            ogArtist = null,
+            ogAuthor = null,
+            ogThumbnailUrl = null,
+            ogDescription = null,
+            ogGenre = null,
+            ogStatus = 0L,
+            // SY <--
+            updateStrategy = UpdateStrategy.ALWAYS_UPDATE,
+            initialized = false,
+            lastModifiedAt = 0L,
+            favoriteModifiedAt = null,
+            version = 0L,
+        )
     }
 }
