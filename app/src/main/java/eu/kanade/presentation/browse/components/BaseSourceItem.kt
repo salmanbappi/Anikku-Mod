@@ -74,13 +74,26 @@ private val defaultContent: @Composable RowScope.(Source, String?) -> Unit = { s
 
             // Technical Badges
             val name = source.name.lowercase()
-            if (name.contains("dflix") || name.contains("dhaka") || name.contains("bdix") || name.contains("ftp")) {
+            val isBdix = name.contains("dflix") || 
+                         name.contains("dhaka") || 
+                         name.contains("bdix") || 
+                         name.contains("ftp") ||
+                         name.contains("cineplex") ||
+                         name.contains("sam") ||
+                         name.contains("bijoy") ||
+                         name.contains("bas play") ||
+                         name.contains("fanush") ||
+                         name.contains("icc") ||
+                         name.contains("nagordola") ||
+                         name.contains("roarzone") ||
+                         name.contains("infomedia")
+
+            if (isBdix) {
                 StatusBadge("BDIX", Color(0xFF1E88E5))
             }
-            if (name.contains("api") || name.contains("jellyfin")) {
+            if (name.contains("api") || name.contains("jellyfin") || name.contains("json")) {
                 StatusBadge("API", Color(0xFF43A047))
             }
-            // All modern Anikku sources are MT-Ready
             StatusBadge("MT", Color(0xFFE53935))
         }
 

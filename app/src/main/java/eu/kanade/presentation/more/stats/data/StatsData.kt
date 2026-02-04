@@ -60,11 +60,20 @@ sealed interface StatsData {
     ) : StatsData
 
     data class InfrastructureAnalytics(
-        val latencyMatrix: List<Pair<String, Int>>, // Name to ms
-        val throughputDistribution: List<Pair<String, Long>>, // Name to MiB
-        val reliabilityIndex: List<Pair<String, Double>>, // Name to SuccessRate
-        val topologyBreakdown: Map<String, Int>, // BDIX vs CDN etc
+        val latencyMatrix: List<Pair<String, Int>>,
+        val throughputDistribution: List<Pair<String, Long>>,
+        val reliabilityIndex: List<Pair<String, Double>>,
+        val topologyBreakdown: Map<String, Int>,
+        val healthReport: List<ExtensionHealth>,
     ) : StatsData
+
+    data class ExtensionHealth(
+        val name: String,
+        val isOnline: Boolean,
+        val latency: Int,
+        val type: String, // BDIX, API, SCRAPE
+        val issue: String? = null,
+    )
 }
 
 data class ExtensionInfo(
