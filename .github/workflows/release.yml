@@ -24,7 +24,7 @@ jobs:
       - name: Clone repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
 
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -38,36 +38,40 @@ jobs:
       - name: Run Code Analysis (Detekt)
         run: ./gradlew detekt --no-daemon
 
+      - name: Bump Version
+        run: ./scripts/bump_version.sh
+
+      - name: Commit and Push Version Bump
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/build.gradle.kts
+          git commit -m "chore: bump version to ${{ env.NEW_VN }}"
+          git push origin master
+
       - name: Build Release APK
         run: ./gradlew assembleRelease -Pinclude-telemetry=false -Penable-updater=false --no-daemon
 
       - name: Rename APK
         run: |
-          VERSION="${{ github.ref_name }}"
-          VERSION=${VERSION//\//-}
+          VERSION="${{ env.NEW_VN }}"
           cd app/build/outputs/apk/release/
           for f in *.apk; do
-            mv "$f" "AniZen-Mod-Release-$VERSION-$f"
+            mv "$f" "AniZen-v$VERSION-$f"
           done
-
-      - name: Get Version
-        id: get_version
-        run: |
-          V_NAME=$(grep 'versionName = "' app/build.gradle.kts | cut -d'"' -f2)
-          echo "version=$V_NAME" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ steps.get_version.outputs.version }}-b${{ github.run_number }}
-          name: Official Release v${{ steps.get_version.outputs.version }}
+          tag_name: v${{ env.NEW_VN }}
+          name: AniZen Release v${{ env.NEW_VN }}
           files: app/build/outputs/apk/release/*.apk
           draft: false
           prerelease: false
           body: |
-            ## 🚀 AniZen Mod - Official Public Release
+            ## 🚀 AniZen v${{ env.NEW_VN }}
             
-            This is an optimized, multi-threaded release build.
+            Automatic release with updated versioning.
             
             ### ✨ Features
             - **2x Speed Toggle**: Long-press in player.

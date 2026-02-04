@@ -1,55 +1,30 @@
 #!/bin/bash
 
-# Usage: ./scripts/bump_version.sh [patch|minor|major] OR ./scripts/bump_version.sh 1.2.3
-
-TYPE=$1
-if [ -z "$TYPE" ]; then
-  TYPE="patch"
-fi
-
 GRADLE_FILE="app/build.gradle.kts"
 
-# Extract current version
-CURRENT_VERSION=$(grep 'versionName = "' $GRADLE_FILE | cut -d'"' -f2)
-CURRENT_CODE=$(grep 'versionCode =' $GRADLE_FILE | awk '{print $3}')
+# Extract current versionCode and increment
+CURRENT_VC=$(grep "versionCode =" $GRADLE_FILE | sed 's/[^0-9]*//g')
+NEW_VC=$((CURRENT_VC + 1))
 
-echo "Current Version: $CURRENT_VERSION ($CURRENT_CODE)"
+# Extract current versionName (e.g., 0.1.8-MOD)
+CURRENT_VN=$(grep "versionName =" $GRADLE_FILE | cut -d'"' -f2)
 
-if [[ "$TYPE" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-  NEW_VERSION=$TYPE
-else
-  # Split version into parts
-  IFS='.' read -r -a PARTS <<< "$CURRENT_VERSION"
-  MAJOR=${PARTS[0]}
-  MINOR=${PARTS[1]}
-  PATCH=${PARTS[2]}
+# Logic to bump versionName: increment the last digit of the semantic version part
+# Assumes format like X.Y.Z-MOD
+BASE_VN=$(echo $CURRENT_VN | cut -d'-' -f1)
+SUFFIX=$(echo $CURRENT_VN | cut -d'-' -f2-)
 
-  if [ "$TYPE" == "major" ]; then
-    MAJOR=$((MAJOR + 1))
-    MINOR=0
-    PATCH=0
-  elif [ "$TYPE" == "minor" ]; then
-    MINOR=$((MINOR + 1))
-    PATCH=0
-  else
-    PATCH=$((PATCH + 1))
-  fi
-  NEW_VERSION="$MAJOR.$MINOR.$PATCH"
-fi
+MAJOR=$(echo $BASE_VN | cut -d'.' -f1)
+MINOR=$(echo $BASE_VN | cut -d'.' -f2)
+PATCH=$(echo $BASE_VN | cut -d'.' -f3)
 
-NEW_CODE=$((CURRENT_CODE + 1))
+NEW_PATCH=$((PATCH + 1))
+NEW_VN="${MAJOR}.${MINOR}.${NEW_PATCH}-${SUFFIX}"
 
-echo "🚀 Bumping to: $NEW_VERSION ($NEW_CODE)"
+# Update the file
+sed -i "s/versionCode = $CURRENT_VC/versionCode = $NEW_VC/" $GRADLE_FILE
+sed -i "s/versionName = \"$CURRENT_VN\"/versionName = \"$NEW_VN\"/" $GRADLE_FILE
 
-# Update gradle file using sed (compatible with Linux/Termux)
-sed -i "s/versionName = \"$CURRENT_VERSION\"/versionName = \"$NEW_VERSION\"/" $GRADLE_FILE
-sed -i "s/versionCode = $CURRENT_CODE/versionCode = $NEW_CODE/" $GRADLE_FILE
-
-echo "✅ Updated $GRADLE_FILE"
-
-# Git commit and tag
-git add $GRADLE_FILE
-git commit -m "chore: Bump version to v$NEW_VERSION"
-git tag "v$NEW_VERSION"
-
-echo "🎉 Ready to push! Run: git push && git push --tags"
+echo "Bumped versionCode from $CURRENT_VC to $NEW_VC"
+echo "Bumped versionName from $CURRENT_VN to $NEW_VN"
+echo "NEW_VN=$NEW_VN" >> $GITHUB_ENV
