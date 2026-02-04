@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.ErrorOutline
-import androidx.compose.material.icons.outlined.NetworkCheck
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
@@ -28,17 +27,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import eu.kanade.presentation.more.stats.data.ExtensionHealth
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.kanade.presentation.more.stats.data.ExtensionHealth
-import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.util.secondaryItemAlpha
 
 @Composable
@@ -48,8 +46,8 @@ fun ExtensionReportScreen(
 ) {
     LazyColumn(
         contentPadding = contentPadding,
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.medium),
-        modifier = Modifier.padding(horizontal = MaterialTheme.padding.medium),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.padding(horizontal = 16.dp),
     ) {
         item {
             ExtensionSummaryHeader(healthReport)
@@ -132,7 +130,7 @@ private fun ExtensionDetailCard(health: ExtensionHealth) {
             }
 
             Spacer(modifier = Modifier.height(12.dp))
-            HorizontalDivider(modifier = Modifier.secondaryItemAlpha().padding(vertical = 4.dp))
+            HorizontalDivider(modifier = Modifier.alpha(0.2f).padding(vertical = 4.dp))
             
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 DetailMetric(Icons.Outlined.Speed, "Latency", "${health.latency}ms")
@@ -162,7 +160,7 @@ private fun ExtensionDetailCard(health: ExtensionHealth) {
 }
 
 @Composable
-private fun DetailMetric(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, value: String) {
+private fun DetailMetric(icon: ImageVector, label: String, value: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(icon, null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.width(6.dp))

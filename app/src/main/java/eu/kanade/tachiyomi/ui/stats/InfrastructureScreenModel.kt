@@ -4,7 +4,6 @@ import cafe.adriel.voyager.core.model.StateScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import eu.kanade.presentation.more.stats.data.*
 import eu.kanade.tachiyomi.network.NetworkHelper
-import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.source.online.HttpSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -50,9 +49,9 @@ class InfrastructureScreenModel(
             }
 
             val metrics = GlobalNetworkMetrics(
-                bdixSaturation = (nodes.count { it.network.topology == "BDIX" }.toDouble() / nodes.size * 100).toInt(),
-                totalDataConsumed = 0, // Placeholder
-                avgLatency = nodes.map { it.network.latency }.average().toInt(),
+                bdixSaturation = if (nodes.isNotEmpty()) (nodes.count { it.network.topology == "BDIX" }.toDouble() / nodes.size * 100).toInt() else 0,
+                totalDataConsumed = 0,
+                avgLatency = if (nodes.isNotEmpty()) nodes.map { it.network.latency }.average().toInt() else 0,
                 activeNodeCount = nodes.count { it.status == NodeStatus.OPERATIONAL }
             )
 
@@ -80,14 +79,12 @@ class InfrastructureScreenModel(
 
             measureTimeMillis {
                 networkHelper.client.newCall(request).execute().use { response ->
-                    latency = 0 // Will be set by time elapsed
                     resolved = true
                     tls = response.handshake?.tlsVersion?.javaName ?: "TLS v1.2"
                     if (response.isSuccessful) status = NodeStatus.OPERATIONAL
                 }
             }.let { latency = it.toInt() }
 
-            // IP Heuristic
             val domain = source.baseUrl.substringAfter("://").substringBefore("/")
             ip = InetAddress.getByName(domain).hostAddress ?: "0.0.0.0"
 
@@ -114,7 +111,7 @@ class InfrastructureScreenModel(
             ),
             capabilities = SourceCapabilities(
                 isApi = name.contains("api") || name.contains("json") || source::class.java.simpleName.contains("Api"),
-                mtSupport = true, // Anikku Engine capability
+                mtSupport = true,
                 latestSupport = source.supportsLatest,
                 searchSupport = true
             ),

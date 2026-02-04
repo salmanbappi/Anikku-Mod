@@ -12,6 +12,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import eu.kanade.presentation.components.AppBar
 import eu.kanade.presentation.more.stats.StatsScreenContent
 import eu.kanade.presentation.more.stats.StatsScreenState
+import eu.kanade.presentation.more.stats.data.ExtensionHealth
 import eu.kanade.tachiyomi.ui.main.MainActivity
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.Scaffold
@@ -24,15 +25,9 @@ object StatsScreen : Screen {
     @Composable
     override fun Content() {
         val context = LocalContext.current
-
         val navigator = LocalNavigator.currentOrThrow
-
         val animeScreenModel = rememberScreenModel { StatsScreenModel() }
         val state by animeScreenModel.state.collectAsState()
-
-        if (state is StatsScreenState.Loading) {
-            LoadingScreen()
-        }
 
         Scaffold(
             topBar = {
@@ -65,12 +60,28 @@ object StatsScreen : Screen {
     }
 }
 
-import eu.kanade.presentation.more.stats.data.*
----
 data class ExtensionReportScreen(
     private val healthReport: List<ExtensionHealth>,
 ) : Screen {
----
+    @Composable
+    override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+        Scaffold(
+            topBar = {
+                AppBar(
+                    title = "Infrastructure Health Report",
+                    navigateUp = navigator::pop,
+                )
+            },
+        ) { contentPadding ->
+            eu.kanade.presentation.more.stats.ExtensionReportScreen(
+                healthReport = healthReport,
+                contentPadding = contentPadding
+            )
+        }
+    }
+}
+
 object InfrastructureScreen : Screen {
     @Composable
     override fun Content() {
