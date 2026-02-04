@@ -60,6 +60,7 @@ import tachiyomi.domain.anime.interactor.GetLibraryAnime
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.anime.model.AnimeUpdate
 import tachiyomi.domain.anime.model.applyFilter
+import tachiyomi.domain.anime.model.toAnimeUpdate
 import tachiyomi.domain.category.interactor.GetCategories
 import tachiyomi.domain.category.interactor.SetAnimeCategories
 import tachiyomi.domain.category.model.Category
@@ -627,7 +628,7 @@ class LibraryScreenModel(
 
     fun toggleFavoriteSelection() {
         val selection = state.value.selection
-        val allFavorite = selection.fastAll { it.anime.favorite }
+        val allFavorite = selection.all { it.anime.favorite }
         val newFavorite = !allFavorite
         screenModelScope.launchNonCancellable {
             val animeUpdates = selection.map {

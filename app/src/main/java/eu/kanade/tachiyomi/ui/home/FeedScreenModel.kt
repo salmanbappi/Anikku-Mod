@@ -12,6 +12,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tachiyomi.core.common.util.lang.launchIO
@@ -45,43 +46,44 @@ class FeedScreenModel(
             val feedSavedSearches = getFeedSavedSearchGlobal.await()
             val savedSearches = getSavedSearchGlobalFeed.await()
             
-            val feedItems = feedSavedSearches.map { feed ->
-                async {
-                    val source = sourceManager.get(feed.source) as? AnimeCatalogueSource
-                    if (source != null) {
-                        val results = try {
-                            if (feed.savedSearch == null) {
-                                source.getLatestUpdates(1).anime
-                            } else {
-                                val savedSearch = savedSearches.find { it.id == feed.savedSearch }
-                                if (savedSearch != null) {
-                                    val filters = source.getFilterList()
-                                    // Serialize/Deserialize if needed, but for feed we might just use query
-                                    source.getSearchAnime(1, savedSearch.query ?: "", filters).anime
+            val feedItems = coroutineScope {
+                feedSavedSearches.map { feed ->
+                    async {
+                        val source = sourceManager.get(feed.source) as? AnimeCatalogueSource
+                        if (source != null) {
+                            val results = try {
+                                if (feed.savedSearch == null) {
+                                    source.getLatestUpdates(1).animes
                                 } else {
-                                    emptyList()
+                                    val savedSearch = savedSearches.find { it.id == feed.savedSearch }
+                                    if (savedSearch != null) {
+                                        val filters = source.getFilterList()
+                                        source.getSearchAnime(1, savedSearch.query ?: "", filters).animes
+                                    } else {
+                                        emptyList()
+                                    }
                                 }
+                            } catch (e: Exception) {
+                                emptyList()
                             }
-                        } catch (e: Exception) {
-                            emptyList()
+                            
+                            val animeList = results.map {
+                                val domainAnime = it.toDomainAnime(source.id)
+                                networkToLocalAnime.await(domainAnime)
+                            }
+                            
+                            FeedItem(
+                                feed = feed,
+                                source = source,
+                                savedSearch = savedSearches.find { it.id == feed.savedSearch },
+                                animeList = animeList.toImmutableList(),
+                            )
+                        } else {
+                            null
                         }
-                        
-                        val animeList = results.map {
-                            val domainAnime = it.toDomainAnime(source.id)
-                            networkToLocalAnime.await(domainAnime)
-                        }
-                        
-                        FeedItem(
-                            feed = feed,
-                            source = source,
-                            savedSearch = savedSearches.find { it.id == feed.savedSearch },
-                            animeList = animeList.toImmutableList(),
-                        )
-                    } else {
-                        null
                     }
-                }
-            }.awaitAll().filterNotNull()
+                }.awaitAll().filterNotNull()
+            }
 
             mutableState.update {
                 it.copy(
@@ -91,6 +93,7 @@ class FeedScreenModel(
             }
         }
     }
+
 
     @Immutable
     data class State(

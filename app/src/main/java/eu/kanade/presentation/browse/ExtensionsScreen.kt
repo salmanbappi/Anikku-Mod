@@ -1,5 +1,11 @@
 package eu.kanade.presentation.browse
 
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -132,10 +138,6 @@ fun ExtensionScreen(
     }
 }
 
-import androidx.compose.material3.Surface
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.util.fastForEach
-
 @Composable
 private fun ExtensionContent(
     state: ExtensionsScreenModel.State,
@@ -156,8 +158,8 @@ private fun ExtensionContent(
 
     FastScrollLazyColumn(
         contentPadding = PaddingValues(
-            start = contentPadding.calculateStartPadding(androidx.compose.ui.unit.LayoutDirection.Ltr),
-            end = contentPadding.calculateEndPadding(androidx.compose.ui.unit.LayoutDirection.Ltr),
+            start = contentPadding.calculateStartPadding(LayoutDirection.Ltr),
+            end = contentPadding.calculateEndPadding(LayoutDirection.Ltr),
             top = contentPadding.calculateTopPadding() + 8.dp,
             bottom = contentPadding.calculateBottomPadding() + 8.dp
         ),
