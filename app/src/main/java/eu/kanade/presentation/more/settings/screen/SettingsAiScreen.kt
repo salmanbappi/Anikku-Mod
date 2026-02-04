@@ -107,7 +107,22 @@ object SettingsAiScreen : SearchableSettings {
                     ),
                     enabled = enableAi,
                 ),
---- (This section is intentionally left as is in the replace string, as per instructions to not modify replace unless it's the source of error)
+                Preference.PreferenceItem.EditTextPreference(
+                    pref = aiPreferences.geminiApiKey(),
+                    title = stringResource(MR.strings.pref_ai_gemini_api_key),
+                    subtitle = stringResource(MR.strings.pref_ai_gemini_api_key_summary),
+                    enabled = enableAi && aiEngine == "gemini",
+                ),
+                Preference.PreferenceItem.EditTextPreference(
+                    pref = aiPreferences.groqApiKey(),
+                    title = "Groq API Key",
+                    subtitle = "Used for high-speed inference",
+                    enabled = enableAi && aiEngine == "groq",
+                )
+            ),
+        )
+    }
+
     @Composable
     private fun getAssistantGroup(aiPreferences: AiPreferences): Preference.PreferenceGroup {
         val enableAi by aiPreferences.enableAi().collectAsState()
