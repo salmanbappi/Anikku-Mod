@@ -88,7 +88,10 @@ fun StatsScreenContent(
         state = statListState,
         contentPadding = paddingValues,
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.medium),
-        modifier = Modifier.padding(horizontal = MaterialTheme.padding.medium),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface) // 60% Dominant
+            .padding(horizontal = MaterialTheme.padding.medium),
     ) {
         item {
             ProfileHeaderSection(state)
@@ -147,7 +150,7 @@ private fun ProfileHeaderSection(state: StatsScreenState.SuccessAnime) {
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        MaterialTheme.colorScheme.primaryContainer,
+                        MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
                         MaterialTheme.colorScheme.surface,
                     )
                 )
@@ -224,7 +227,7 @@ private fun AiIntelligenceSection(
                 Icon(
                     imageVector = Icons.Outlined.AutoAwesome,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -236,7 +239,7 @@ private fun AiIntelligenceSection(
                             else -> "Generate behavioral insight"
                         },
                         style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary
+                        color = if (analysis != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                     )
                     if (analysis == null && !isLoading) {
                         Text(
@@ -303,14 +306,15 @@ private fun OverviewGridSection(state: StatsScreenState.SuccessAnime) {
 @Composable
 private fun MetricItem(icon: ImageVector, label: String, value: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+        Icon(icon, null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.tertiary)
         Spacer(modifier = Modifier.width(8.dp))
         Column {
             Text(
                 text = value,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily.Monospace
+                fontFamily = FontFamily.Monospace,
+                color = MaterialTheme.colorScheme.primary // 10% Accent
             )
             Text(text = label, style = MaterialTheme.typography.labelSmall, modifier = Modifier.secondaryItemAlpha())
         }
@@ -743,6 +747,9 @@ private fun StatsSectionCard(
         ElevatedCard(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
+            colors = androidx.compose.material3.CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow // 30% Secondary
+            )
         ) {
             content()
         }
