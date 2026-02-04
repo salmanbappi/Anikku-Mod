@@ -202,16 +202,31 @@ open /* SY <-- */ class NetworkHelper(
     }
 
     // Helper function to calculate exponential backoff with jitter
-    private fun calculateExponentialBackoff(attempt: Int, baseDelay: Long = 1000L, maxDelay: Long = 32000L): Long {
+    internal fun calculateExponentialBackoff(attempt: Int, baseDelay: Long = 1000L, maxDelay: Long = 32000L): Long {
         // Calculate the exponential delay
         val delay = baseDelay * 2.0.pow(attempt).toLong()
-        android.util.Log.e("NetworkHelper", "Exponential backoff delay: $delay ms")
         // Apply jitter by adding a random value to avoid synchronized retries in distributed systems
         return (delay + Random.nextLong(0, 1000)).coerceAtMost(maxDelay)
     }
 
+    data class DownloadChunk(val start: Long, val end: Long)
+
+    internal fun calculateChunks(totalSize: Long, threadCount: Int): List<DownloadChunk> {
+        val chunkSize = totalSize / threadCount
+        return (0 until threadCount).map { i ->
+            val start = i * chunkSize
+            val end = if (i == threadCount - 1) totalSize - 1 else (i + 1) * chunkSize - 1
+            DownloadChunk(start, end)
+        }
+    }
+
     /**
      * Downloads a file using multiple threads/connections in parallel.
+     * 
+     * Rationale: Standard sequential downloads often fail to saturate bandwidth on high-latency 
+     * or throttled connections (common in BDIX environments). This implementation employs 
+     * HTTP Range requests to divide the file into independent chunks, allowing for parallel 
+     * I/O and exponential backoff on a per-chunk basis to ensure resilience.
      */
     suspend fun multiThreadedDownload(
         url: String,
@@ -236,24 +251,21 @@ open /* SY <-- */ class NetworkHelper(
         randomAccessFile.setLength(totalSize)
         randomAccessFile.close()
 
-        val chunkSize = totalSize / threadCount
+        val chunks = calculateChunks(totalSize, threadCount)
         val progressMap = mutableMapOf<Int, Long>()
         var totalDownloaded = 0L
 
         coroutineScope {
-            (0 until threadCount).map { i ->
-                val start = i * chunkSize
-                val end = if (i == threadCount - 1) totalSize - 1 else (i + 1) * chunkSize - 1
-
+            chunks.forEachIndexed { i, chunk ->
                 launch(Dispatchers.IO) {
                     var attempt = 0
-                    var currentStart = start
-                    while (attempt < MAX_RETRY && currentStart <= end) {
+                    var currentStart = chunk.start
+                    while (attempt < MAX_RETRY && currentStart <= chunk.end) {
                         try {
                             val request = Request.Builder()
                                 .url(url)
                                 .headers(headers)
-                                .addHeader("Range", "bytes=$currentStart-$end")
+                                .addHeader("Range", "bytes=$currentStart-${chunk.end}")
                                 .build()
 
                             client.newCall(request).execute().use { response ->

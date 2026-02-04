@@ -308,9 +308,43 @@ private fun ProfileHeaderSection(state: StatsScreenState.SuccessAnime) {
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "${state.overview.libraryAnimeCount} Titles in DNA",
-                style = MaterialTheme.typography.bodyMedium,
+                text = "${state.overview.libraryAnimeCount} Titles in Collection",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                ),
                 modifier = Modifier.secondaryItemAlpha()
+            )
+        }
+    }
+}
+
+@Composable
+private fun GenreBar(genre: String, count: Int, maxCount: Int) {
+    val progress = count.toFloat() / maxCount
+    Column {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(text = genre, style = MaterialTheme.typography.bodySmall)
+            Text(
+                text = count.toString(),
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                ),
+                modifier = Modifier.secondaryItemAlpha()
+            )
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(6.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(progress)
+                    .fillMaxHeight()
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary)
             )
         }
     }
@@ -320,16 +354,18 @@ private fun ProfileHeaderSection(state: StatsScreenState.SuccessAnime) {
 private fun AiIntelligenceSection(analysis: String) {
     var expanded by remember { mutableStateOf(false) }
     StatsSectionCard(
-        title = "Neural Intelligence Report",
+        title = "Behavioral Analytics",
         modifier = Modifier.clickable { expanded = !expanded }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(MaterialTheme.padding.medium)
                 .animateContentSize()
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(MaterialTheme.padding.medium)
+            ) {
                 Icon(
                     imageVector = Icons.Outlined.AutoAwesome,
                     contentDescription = null,
@@ -338,14 +374,19 @@ private fun AiIntelligenceSection(analysis: String) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = if (expanded) "Full Report" else "Tap to read intelligence insight",
+                    text = if (expanded) "Analytical Summary" else "Generate behavioral insight",
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary
                 )
             }
             if (expanded) {
-                Spacer(modifier = Modifier.height(12.dp))
-                MarkdownRender(content = analysis)
+                HorizontalDivider(modifier = Modifier.alpha(0.2f))
+                Box(modifier = Modifier.fillMaxWidth().padding(MaterialTheme.padding.small)) {
+                    MarkdownRender(
+                        content = analysis,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         }
     }
@@ -379,7 +420,12 @@ private fun MetricItem(icon: ImageVector, label: String, value: String) {
         Icon(icon, null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.width(8.dp))
         Column {
-            Text(text = value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+            )
             Text(text = label, style = MaterialTheme.typography.labelSmall, modifier = Modifier.secondaryItemAlpha())
         }
     }
@@ -387,13 +433,93 @@ private fun MetricItem(icon: ImageVector, label: String, value: String) {
 
 @Composable
 private fun GenreAffinitySection(genreAffinity: StatsData.GenreAffinity) {
-    StatsSectionCard(title = "Genre Signature") {
-        Column(modifier = Modifier.padding(MaterialTheme.padding.medium)) {
-            val maxCount = genreAffinity.genreScores.firstOrNull()?.second ?: 1
-            genreAffinity.genreScores.take(5).forEach { (genre, count) ->
-                GenreBar(genre, count, maxCount)
-                Spacer(modifier = Modifier.height(8.dp))
+    StatsSectionCard(title = "Genre Distribution") {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(MaterialTheme.padding.medium),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            val genres = genreAffinity.genreScores.take(6)
+            if (genres.size >= 3) {
+                RadarChart(
+                    data = genres.map { it.second.toFloat() },
+                    labels = genres.map { it.first },
+                    modifier = Modifier
+                        .size(240.dp)
+                        .padding(MaterialTheme.padding.large)
+                )
+            } else {
+                genres.forEach { (genre, count) ->
+                    GenreBar(genre, count, genres.first().second)
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
             }
+        }
+    }
+}
+
+@Composable
+private fun RadarChart(
+    data: List<Float>,
+    labels: List<String>,
+    modifier: Modifier = Modifier,
+) {
+    val maxValue = data.maxOrNull() ?: 1f
+    val color = MaterialTheme.colorScheme.primary
+    val gridColor = MaterialTheme.colorScheme.outlineVariant
+    val textColor = MaterialTheme.colorScheme.onSurface.toArgb()
+    val density = LocalDensity.current
+
+    Canvas(modifier = modifier) {
+        val center = Offset(size.width / 2, size.height / 2)
+        val radius = size.minDimension / 2
+        val angleStep = (2 * Math.PI / data.size).toFloat()
+
+        // Draw grid
+        for (i in 1..4) {
+            val gridRadius = radius * (i / 4f)
+            val path = Path()
+            for (j in data.indices) {
+                val angle = j * angleStep - Math.PI.toFloat() / 2
+                val x = center.x + gridRadius * cos(angle)
+                val y = center.y + gridRadius * sin(angle)
+                if (j == 0) path.moveTo(x, y) else path.lineTo(x, y)
+            }
+            path.close()
+            drawPath(path, gridColor, style = Stroke(width = 1.dp.toPx()))
+        }
+
+        // Draw data path
+        val dataPath = Path()
+        for (i in data.indices) {
+            val angle = i * angleStep - Math.PI.toFloat() / 2
+            val dataRadius = radius * (data[i] / maxValue)
+            val x = center.x + dataRadius * cos(angle)
+            val y = center.y + dataRadius * sin(angle)
+            if (i == 0) dataPath.moveTo(x, y) else dataPath.lineTo(x, y)
+        }
+        dataPath.close()
+        drawPath(dataPath, color.copy(alpha = 0.3f))
+        drawPath(dataPath, color, style = Stroke(width = 2.dp.toPx()))
+
+        // Draw labels
+        for (i in labels.indices) {
+            val angle = i * angleStep - Math.PI.toFloat() / 2
+            val labelRadius = radius + 20.dp.toPx()
+            val x = center.x + labelRadius * cos(angle)
+            val y = center.y + labelRadius * sin(angle)
+
+            drawContext.canvas.nativeCanvas.drawText(
+                labels[i].take(8),
+                x,
+                y,
+                android.graphics.Paint().apply {
+                    this.color = textColor
+                    this.textSize = with(density) { 10.sp.toPx() }
+                    this.textAlign = android.graphics.Paint.Align.CENTER
+                }
+            )
         }
     }
 }
@@ -426,7 +552,7 @@ private fun GenreBar(genre: String, count: Int, maxCount: Int) {
 
 @Composable
 private fun ExtensionUsageSection(extensions: StatsData.ExtensionUsage) {
-    StatsSectionCard(title = "Primary Gateways") {
+    StatsSectionCard(title = "Source Distribution") {
         Column(modifier = Modifier.padding(MaterialTheme.padding.medium)) {
             extensions.topExtensions.forEachIndexed { index, (name, count) ->
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
@@ -447,7 +573,7 @@ private fun ExtensionUsageSection(extensions: StatsData.ExtensionUsage) {
 
 @Composable
 private fun WatchHabitsSection(habits: StatsData.WatchHabits) {
-    StatsSectionCard(title = "Neural Patterns") {
+    StatsSectionCard(title = "Temporal Patterns") {
         Column(modifier = Modifier.padding(MaterialTheme.padding.medium), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             HabitItem("Preferred Cycle", habits.preferredWatchTime)
             if (habits.topDayAnime != null) {
@@ -470,7 +596,7 @@ private fun HabitItem(label: String, value: String) {
 
 @Composable
 private fun StatusBreakdownSection(statuses: StatsData.StatusBreakdown) {
-    StatsSectionCard(title = stringResource(MR.strings.label_system_equilibrium)) {
+    StatsSectionCard(title = "Collection Status") {
         Row(
             modifier = Modifier
                 .fillMaxWidth()

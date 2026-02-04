@@ -30,8 +30,14 @@
     - [x] Smart Font Caching (Startup optimization)
     - [ ] Optimize Compose LazyGrid keys (Reduce recomposition)
     - [x] Optimize Video Sync (Fix playback lag)
-
-## Context
-- Project: AniZen
+    
+    ## Engineering Statistics (Ongoing)
+    - [ ] **Stability**: Increase Unit Test coverage for Network & Download modules (Target: 25%)
+    - [ ] **Performance**: Establish Frame Timing Benchmarks for Library/History screens (Target: <2% Janky Frames)
+    - [ ] **Hygiene**: Enforce zero-warning builds using strict Detekt configuration
+    - [x] **Efficiency**: Implemented Semaphore-based Memory Flow Control for 30-thread downloading (Zero-Delay logic)
+    - [x] **UI Rigor**: Overhauled Statistics page (Radar Charts, Monospaced Data, Technical Rationale) to eliminate "AI slop" perception.
+    
+    ## Context- Project: AniZen
 - Platform: Android (Kotlin/Compose)
 - Focus: Performance, Tactile Feedback, Speed.

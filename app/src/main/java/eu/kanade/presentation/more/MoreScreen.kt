@@ -105,8 +105,8 @@ fun MoreScreen(
 
             item {
                 TextPreferenceWidget(
-                    title = "AniZen Intelligence OS",
-                    subtitle = "Diagnostics, analysis, and neural core",
+                    title = "System Diagnostics & Analytics",
+                    subtitle = "Automated troubleshooting and behavioral insights",
                     icon = Icons.Default.Terminal,
                     onPreferenceClick = { navigator.push(AiAssistantScreen()) },
                 )

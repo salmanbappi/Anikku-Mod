@@ -146,6 +146,9 @@ fun VideoTimer(
         text = Utils.prettyTime(value.toInt(), isInverted),
         color = Color.White,
         textAlign = TextAlign.Center,
+        style = MaterialTheme.typography.labelLarge.copy(
+            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+        )
     )
 }
 
