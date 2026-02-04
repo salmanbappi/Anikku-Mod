@@ -6,27 +6,31 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.kanade.tachiyomi.network.model.*
 import eu.kanade.tachiyomi.ui.stats.InfrastructureState
+import kotlinx.coroutines.launch
 import tachiyomi.presentation.core.util.secondaryItemAlpha
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InfrastructureScreen(
     state: InfrastructureState,
@@ -42,49 +46,79 @@ fun InfrastructureScreen(
     }
 
     val report = (state as InfrastructureState.Success).report
-    var selectedTab by remember { mutableIntStateOf(0) }
+    val pagerState = rememberPagerState(pageCount = { 3 })
+    val scope = rememberCoroutineScope()
+    val refreshState = rememberPullToRefreshState()
 
-    Column(modifier = Modifier.fillMaxSize().padding(contentPadding)) {
+    Column(modifier = Modifier.fillMaxSize().padding(top = contentPadding.calculateTopPadding())) {
         PrimaryTabRow(
-            selectedTabIndex = selectedTab,
+            selectedTabIndex = pagerState.currentPage,
             containerColor = Color.Transparent,
             divider = {}
         ) {
-            Tab(selected = selectedTab == 0, onClick = { selectedTab = 0 }) {
-                Text("BDIX NODES", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelLarge)
-            }
-            Tab(selected = selectedTab == 1, onClick = { selectedTab = 1 }) {
-                Text("GLOBAL CDN", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelLarge)
-            }
-            Tab(selected = selectedTab == 2, onClick = { selectedTab = 2 }) {
-                Text("SYSTEM LOGS", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelLarge)
+            listOf("BDIX NODES", "GLOBAL CDN", "SYSTEM LOGS").forEachIndexed { index, title ->
+                Tab(
+                    selected = pagerState.currentPage == index,
+                    onClick = { scope.launch { pagerState.animateScrollToPage(index) } }
+                ) {
+                    Text(title, modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelLarge)
+                }
             }
         }
 
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh,
+            state = refreshState,
+            modifier = Modifier.fillMaxSize()
         ) {
-            when (selectedTab) {
-                0 -> {
-                    item { GlobalTelemetryHeader(report.globalMetrics) }
-                    items(report.nodes.filter { it.network.topology == "BDIX" }) { node ->
-                        SourceNodeAuditCard(node)
-                    }
-                }
-                1 -> {
-                    item { InfrastructureHealthBoard(report.nodes) }
-                    items(report.nodes.filter { it.network.topology != "BDIX" }) { node ->
-                        SourceNodeAuditCard(node)
-                    }
-                }
-                2 -> {
-                    items(report.systemLogs) { log ->
-                        LogEntryRow(log)
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize(),
+                beyondViewportPageCount = 1
+            ) { pageIndex ->
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 8.dp),
+                    contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding() + 16.dp)
+                ) {
+                    when (pageIndex) {
+                        0 -> {
+                            item { GlobalTelemetryHeader(report.globalMetrics) }
+                            val bdixNodes = report.nodes.filter { it.network.topology == "BDIX" }
+                            if (bdixNodes.isEmpty()) {
+                                item { EmptyState("No BDIX Nodes detected in your active extensions.") }
+                            }
+                            items(bdixNodes) { node ->
+                                SourceNodeAuditCard(node)
+                            }
+                        }
+                        1 -> {
+                            item { InfrastructureHealthBoard(report.nodes) }
+                            val globalNodes = report.nodes.filter { it.network.topology != "BDIX" }
+                            items(globalNodes) { node ->
+                                SourceNodeAuditCard(node)
+                            }
+                        }
+                        2 -> {
+                            if (report.systemLogs.isEmpty()) {
+                                item { EmptyState("System is nominal. No alerts generated.") }
+                            }
+                            items(report.systemLogs) { log ->
+                                LogEntryRow(log)
+                            }
+                        }
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun EmptyState(message: String) {
+    Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+        Text(text = message, style = MaterialTheme.typography.bodySmall, modifier = Modifier.secondaryItemAlpha())
     }
 }
 
@@ -231,7 +265,6 @@ private fun SourceNodeAuditCard(node: SourceNode) {
             if (expanded) {
                 HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp).alpha(0.1f))
                 
-                // Developer / Info Section
                 Text("NODE TELEMETRY", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.ExtraBold)
                 Spacer(modifier = Modifier.height(8.dp))
                 
