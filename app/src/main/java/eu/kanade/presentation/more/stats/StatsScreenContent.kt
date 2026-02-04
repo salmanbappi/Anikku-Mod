@@ -77,6 +77,7 @@ import kotlin.time.toDuration
 fun StatsScreenContent(
     state: StatsScreenState.SuccessAnime,
     paddingValues: PaddingValues,
+    onGenerateAiAnalysis: () -> Unit,
 ) {
     val statListState = rememberLazyListState()
     LazyColumn(
@@ -89,10 +90,12 @@ fun StatsScreenContent(
             ProfileHeaderSection(state)
         }
 
-        if (state.aiAnalysis != null) {
-            item {
-                AiIntelligenceSection(state.aiAnalysis)
-            }
+        item {
+            AiIntelligenceSection(
+                analysis = state.aiAnalysis,
+                isLoading = state.isAiLoading,
+                onGenerate = onGenerateAiAnalysis
+            )
         }
 
         item {
@@ -183,11 +186,21 @@ private fun ProfileHeaderSection(state: StatsScreenState.SuccessAnime) {
 }
 
 @Composable
-private fun AiIntelligenceSection(analysis: String) {
+private fun AiIntelligenceSection(
+    analysis: String?,
+    isLoading: Boolean,
+    onGenerate: () -> Unit,
+) {
     var expanded by remember { mutableStateOf(false) }
+    
+    // Auto-expand when analysis is received
+    LaunchedEffect(analysis) {
+        if (analysis != null) expanded = true
+    }
+
     StatsSectionCard(
         title = "Behavioral Analytics",
-        modifier = Modifier.clickable { expanded = !expanded }
+        modifier = Modifier.clickable(enabled = analysis != null) { expanded = !expanded }
     ) {
         Column(
             modifier = Modifier
@@ -205,13 +218,44 @@ private fun AiIntelligenceSection(analysis: String) {
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = if (expanded) "Analytical Summary" else "Generate behavioral insight",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = when {
+                            isLoading -> "Processing system data..."
+                            analysis != null -> "Analytical Summary"
+                            else -> "Generate behavioral insight"
+                        },
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    if (analysis == null && !isLoading) {
+                        Text(
+                            text = "AI will analyze your watch patterns",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.secondaryItemAlpha()
+                        )
+                    }
+                }
+                
+                if (analysis == null) {
+                    androidx.compose.material3.TextButton(
+                        onClick = onGenerate,
+                        enabled = !isLoading,
+                        modifier = Modifier.padding(start = 8.dp)
+                    ) {
+                        if (isLoading) {
+                            androidx.compose.material3.CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        } else {
+                            Text("Generate")
+                        }
+                    }
+                }
             }
-            if (expanded) {
+            if (expanded && analysis != null) {
                 HorizontalDivider(modifier = Modifier.alpha(0.2f))
                 Box(modifier = Modifier.fillMaxWidth().padding(MaterialTheme.padding.small)) {
                     MarkdownRender(
