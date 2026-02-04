@@ -296,21 +296,51 @@ private fun ColumnScope.DisplayPage(
     }
 
     val columns by columnPreference.collectAsState()
-    if (displayMode == LibraryDisplayMode.List) {
-        ColumnItem(
-            label = stringResource(MR.strings.pref_library_rows),
+    val isList = displayMode == LibraryDisplayMode.List
+    
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MaterialTheme.padding.medium, vertical = MaterialTheme.padding.small)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                text = if (isList) stringResource(MR.strings.pref_library_rows) else stringResource(MR.strings.pref_library_columns),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(
+                    onClick = { columnPreference.set(columns - 1) },
+                    enabled = columns > 0,
+                ) {
+                    Icon(Icons.Outlined.RemoveCircle, contentDescription = null)
+                }
+                Text(
+                    text = if (columns > 0) columns.toString() else stringResource(MR.strings.label_default),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontFamily = FontFamily.Monospace,
+                    modifier = Modifier.width(48.dp),
+                    textAlign = TextAlign.Center,
+                )
+                IconButton(
+                    onClick = { columnPreference.set(columns + 1) },
+                    enabled = columns < 10,
+                ) {
+                    Icon(Icons.Outlined.AddCircle, contentDescription = null)
+                }
+            }
+        }
+        
+        SliderItem(
+            label = "",
             value = columns,
             min = 0,
             max = 10,
-            onClick = columnPreference::set,
-        )
-    } else {
-        ColumnItem(
-            label = stringResource(MR.strings.pref_library_columns),
-            value = columns,
-            min = 0,
-            max = 10,
-            onClick = columnPreference::set,
+            onValueChanged = columnPreference::set
         )
     }
 
@@ -348,49 +378,6 @@ data class GroupMode(
     val nameRes: Int,
     val drawableRes: Int,
 )
-
-@Composable
-private fun ColumnItem(
-    label: String,
-    value: Int,
-    min: Int,
-    max: Int,
-    onClick: (Int) -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = MaterialTheme.padding.medium, vertical = MaterialTheme.padding.small),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-        )
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(
-                onClick = { onClick(value - 1) },
-                enabled = value > min,
-            ) {
-                Icon(Icons.Outlined.RemoveCircle, contentDescription = null)
-            }
-            Text(
-                text = if (value > 0) value.toString() else stringResource(MR.strings.label_default),
-                style = MaterialTheme.typography.titleMedium,
-                fontFamily = FontFamily.Monospace,
-                modifier = Modifier.width(48.dp),
-                textAlign = TextAlign.Center,
-            )
-            IconButton(
-                onClick = { onClick(value + 1) },
-                enabled = value < max,
-            ) {
-                Icon(Icons.Outlined.AddCircle, contentDescription = null)
-            }
-        }
-    }
-}
 
 private fun groupTypeDrawableRes(type: Int): Int {
     return when (type) {
