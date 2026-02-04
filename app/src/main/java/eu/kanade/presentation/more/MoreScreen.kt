@@ -1,6 +1,5 @@
 package eu.kanade.presentation.more
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -11,7 +10,9 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.automirrored.outlined.Label
+import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material.icons.outlined.CloudOff
+import androidx.compose.material.icons.outlined.DynamicForm
 import androidx.compose.material.icons.outlined.GetApp
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.QueryStats
@@ -24,24 +25,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.vectorResource
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import eu.kanade.domain.ui.model.NavStyle
-import eu.kanade.presentation.components.WarningBanner
+import eu.kanade.presentation.more.settings.screen.ai.AiAssistantScreen
 import eu.kanade.presentation.more.settings.widget.SwitchPreferenceWidget
 import eu.kanade.presentation.more.settings.widget.TextPreferenceWidget
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.ui.more.DownloadQueueState
+import eu.kanade.tachiyomi.ui.stats.InfrastructureScreen
 import tachiyomi.core.common.Constants
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.ScrollbarLazyColumn
 import tachiyomi.presentation.core.components.material.Scaffold
 import tachiyomi.presentation.core.i18n.pluralStringResource
 import tachiyomi.presentation.core.i18n.stringResource
-
-import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.Terminal
-import eu.kanade.presentation.more.settings.screen.ai.AiAssistantScreen
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 
 @Composable
 fun MoreScreen(
@@ -165,9 +163,6 @@ fun MoreScreen(
                     onPreferenceClick = onClickCategories,
                 )
             }
-import androidx.compose.material.icons.outlined.DynamicForm
-import eu.kanade.tachiyomi.ui.stats.InfrastructureScreen
----
             item {
                 TextPreferenceWidget(
                     title = stringResource(MR.strings.label_stats),

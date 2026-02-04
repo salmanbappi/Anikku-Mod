@@ -65,28 +65,12 @@ object StatsScreen : Screen {
     }
 }
 
+import eu.kanade.presentation.more.stats.data.*
+---
 data class ExtensionReportScreen(
-    private val healthReport: List<eu.kanade.presentation.more.stats.data.ExtensionHealth>,
+    private val healthReport: List<ExtensionHealth>,
 ) : Screen {
-    @Composable
-    override fun Content() {
-        val navigator = LocalNavigator.currentOrThrow
-        Scaffold(
-            topBar = {
-                AppBar(
-                    title = "Infrastructure Health Report",
-                    navigateUp = navigator::pop,
-                )
-            },
-        ) { contentPadding ->
-            eu.kanade.presentation.more.stats.ExtensionReportScreen(
-                healthReport = healthReport,
-                contentPadding = contentPadding
-            )
-        }
-    }
-}
-
+---
 object InfrastructureScreen : Screen {
     @Composable
     override fun Content() {

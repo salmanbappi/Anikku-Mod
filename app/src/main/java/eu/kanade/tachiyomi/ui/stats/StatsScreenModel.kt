@@ -250,6 +250,8 @@ class StatsScreenModel(
         )
     }
 
+import eu.kanade.presentation.more.stats.data.*
+---
     fun generateAiAnalysis() {
         val currentState = state.value as? StatsScreenState.SuccessAnime ?: return
         if (currentState.aiAnalysis != null || currentState.isAiLoading) return
@@ -260,8 +262,9 @@ class StatsScreenModel(
 
         screenModelScope.launchIO {
             val animelibAnime = getAnimelibAnime.await()
+            val distinctLibraryAnime = animelibAnime.fastDistinctBy { it.id }
             val analysis = fetchAiAnalysis(
-                animelibAnime,
+                distinctLibraryAnime,
                 currentState.episodes,
                 currentState.trackers,
                 currentState.extensions,
