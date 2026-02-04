@@ -53,8 +53,8 @@ if (Config.includeTelemetry && file("google-services.json").exists()) {
 
         applicationId = "app.anizen"
 
-        versionCode = 12
-        versionName = "0.1.12-MOD"
+        versionCode = 13
+        versionName = "0.1.13-MOD"
 
         manifestPlaceholders["author"] = "@salmanbappi"
 
