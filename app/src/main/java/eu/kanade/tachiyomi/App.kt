@@ -82,6 +82,7 @@ import tachiyomi.core.common.preference.Preference
 import tachiyomi.core.common.preference.PreferenceStore
 import tachiyomi.core.common.util.system.logcat
 import tachiyomi.domain.storage.service.StorageManager
+import tachiyomi.domain.anime.repository.CustomAnimeRepository
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.widget.WidgetManager
 import timber.log.Timber
@@ -121,6 +122,13 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
                 WorkManager.initialize(this@App, Configuration.Builder().build())
             }
             initializeMigrator()
+
+            // Eagerly initialize expensive singletons on background thread
+            Injekt.get<NetworkHelper>()
+            Injekt.get<SourceManager>()
+            Injekt.get<Database>()
+            Injekt.get<DownloadManager>()
+            Injekt.get<CustomAnimeRepository>()
             
             val syncPreferences: SyncPreferences = Injekt.get()
             val syncTriggerOpt = syncPreferences.getSyncTriggerOptions()
@@ -232,8 +240,8 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
             allowRgb565(DeviceUtil.isLowRamDevice(this@App))
             if (networkPreferences.verboseLogging().get()) logger(DebugLogger())
 
-            fetcherCoroutineContext(Dispatchers.IO.limitedParallelism(8))
-            decoderCoroutineContext(Dispatchers.IO.limitedParallelism(8)) // Maximize CPU usage for smooth scrolling
+            fetcherCoroutineContext(Dispatchers.IO.limitedParallelism(4))
+            decoderCoroutineContext(Dispatchers.IO.limitedParallelism(4)) // Optimized for mid-range CPU cores
         }
             .build()
     }

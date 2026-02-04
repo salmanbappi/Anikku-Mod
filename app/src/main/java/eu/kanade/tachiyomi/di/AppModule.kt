@@ -152,26 +152,6 @@ class AppModule(val app: Application) : InjektModule {
 
         addSingletonFactory { Anime4KManager(app) }
 
-        addSingletonFactory { AiManager(app, get(), get(), get()) }
-
-        // AM (CONNECTIONS) -->
-        addSingletonFactory { ConnectionsManager() }
-        // <-- AM (CONNECTIONS)
-
-        // Asynchronously init expensive components for a faster cold start
-        ContextCompat.getMainExecutor(app).execute {
-            get<NetworkHelper>()
-
-            get<SourceManager>()
-
-            get<Database>()
-
-            get<DownloadManager>()
-
-            // get<GetCustomAnimeInfo>()
-            // get<GetCustomAnimeInfo>()
-        }
-
         addSingletonFactory { GoogleDriveService(app) }
     }
 }

@@ -122,7 +122,7 @@ class LibraryScreenModel(
                 getTracksPerAnime.subscribe(),
                 combine(
                     getTrackingFilterFlow(),
-                    downloadCache.changes,
+                    downloadCache.changes.debounce(500L),
                     ::Pair,
                 ),
                 // SY -->
