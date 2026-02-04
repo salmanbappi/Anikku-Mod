@@ -57,7 +57,15 @@ private val defaultIcon: @Composable RowScope.(Source) -> Unit = { source ->
     SourceIcon(source = source)
 }
 
+import androidx.compose.runtime.getValue
+import tachiyomi.domain.source.service.SourceHealthCache
+import tachiyomi.presentation.core.util.collectAsState
+import eu.kanade.presentation.more.stats.data.NodeStatus
+---
 private val defaultContent: @Composable RowScope.(Source, String?) -> Unit = { source, sourceLangString ->
+    val healthMap by SourceHealthCache.healthMap.collectAsState()
+    val sourceStatus = healthMap[source.id] ?: NodeStatus.OPERATIONAL
+
     Column(
         modifier = Modifier
             .padding(horizontal = MaterialTheme.padding.medium)
@@ -108,12 +116,18 @@ private val defaultContent: @Composable RowScope.(Source, String?) -> Unit = { s
                 )
             }
 
-            // Health Pulse
+            // Health Pulse linked to cache
             Box(
                 modifier = Modifier
                     .size(6.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF4CAF50)) // Default to healthy
+                    .background(
+                        when (sourceStatus) {
+                            NodeStatus.OPERATIONAL -> Color(0xFF4CAF50)
+                            NodeStatus.DEGRADED -> Color(0xFFFFC107)
+                            else -> Color(0xFFF44336)
+                        }
+                    )
             )
         }
     }
