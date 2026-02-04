@@ -34,9 +34,13 @@ class LocalTracker(id: Long) : BaseTracker(id, "Local Metadata"), AnimeTracker {
 
     override fun getWatchingStatus(): Long = WATCHING
 
+    override fun getRewatchingStatus(): Long = WATCHING
+
     override fun getCompletionStatus(): Long = COMPLETED
 
     override fun getScoreList(): ImmutableList<String> = persistentListOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
+
+    override fun displayScore(track: DomainAnimeTrack): String = track.score.toString()
 
     override fun getStatus(status: Long): Int? = null
 
