@@ -48,10 +48,11 @@ class AiManager(
             RECENT ERROR LOGS:
             $logs
             
-            OPERATIONAL PROTOCOLS:
-            1. NAVIGATION: Direct users to specific settings (e.g., "Settings > Player > Shaders").
-            2. TROUBLESHOOTING: Analyze logs for HTTP codes (403: Forbidden, 404: Not Found, 503: Source Down).
-            3. FEATURES: Explain engineering details like the Semaphore-based chunked downloader and Anime4K upscaling.
+            STRICT OUTPUT RULES:
+            1. NO TABLES: Never use Markdown tables. They are difficult to read on mobile screens. 
+               Use bulleted lists or bold key-value pairs instead.
+            2. NAVIGATION: Direct users to specific settings using the "Settings > [Category] > [Setting]" format.
+            3. TROUBLESHOOTING: Analyze logs for HTTP codes (403: Forbidden, 404: Not Found, 503: Source Down).
             4. TONE: Senior Technical Engineer. Precise, helpful, and concise. No fluff or generic AI marketing.
         """.trimIndent()
 
@@ -103,45 +104,44 @@ class AiManager(
 
     private fun getAppKnowledgeBase(): String {
         return """
-            DETAILED SYSTEM & SETTINGS MAP:
+            COMPLETE SETTINGS & NAVIGATION MAP:
             
-            1. **UI & Appearance (UiPreferences)**:
-                - Themes: `pref_theme_mode_key` (System/Light/Dark), `pref_app_theme` (Monet, Nord, Doom, etc.).
-                - AMOLED: `pref_theme_dark_amoled_key` for pure black dark mode.
-                - Navigation: `bottom_rail_nav_style` (Show All, Small, Lean), `pref_show_bottom_bar_labels`.
-                - Layout: `tablet_ui_mode` (Automatic/Landscape/Never), `start_screen` (Library/Updates/History/Browse).
+            1. **General (Settings > General)**:
+                - App language, Locale selection.
+                - Installer settings: APK installation method.
                 
-            2. **Library & Metadata (LibraryPreferences)**:
-                - Updates: `pref_library_update_interval_key` (Off to 48h), `auto_update_metadata`.
-                - Restrictions: `library_update_restriction` (WiFi only, Charging, Not metered).
-                - Logic: Fetch Interval exponential backoff logic (doubles interval if updates are missed for 10 consecutive cycles).
-                - Display: `pref_display_mode_library` (Compact Grid, Comfortable Grid, List, Cover Only), `pref_animelib_columns_portrait_key`.
-                - Filtering: `pref_filter_animelib_downloaded_v2`, `pref_filter_animelib_unread_v2`, `pref_filter_animelib_started_v2`.
-                - Interaction: `pref_episode_swipe_start_action` (Toggle Seen/Bookmark/Fillermark/Download).
+            2. **Appearance (Settings > Appearance)**:
+                - Theme: `pref_theme_mode_key` (System/Light/Dark), `pref_app_theme` (Monet, Nord, Doom, etc.).
+                - AMOLED: `pref_theme_dark_amoled_key` for pure black.
+                - Navigation: `bottom_rail_nav_style` (Show All, Small, Lean).
+                - Labels: `pref_show_bottom_bar_labels` (Toggle tab text).
+                - Layout: `tablet_ui_mode`, `start_screen`.
                 
-            3. **High-Performance Player (PlayerPreferences)**:
-                - Orientation: `pref_default_player_orientation_type_key` (Sensor Landscape, Locked, etc.).
-                - Precision: `pref_progress_preference` (Mark as seen at % threshold, default 85%).
-                - Controls: `pref_allow_gestures_in_panels`, `pref_show_loading`, `pref_player_time_to_disappear` (default 4000ms).
-                - Memory: `pref_panel_opacity`, `pref_reduce_motion`.
-                - Automation: `pref_enable_skip_intro`, `pref_enable_auto_skip_ani_skip`, `pref_waiting_time_aniskip` (default 5s).
-                - Upscaling (Anime4K): Real-time CNN upscaling profiles (Settings > Player > Shaders).
-                - Gestures: Left side (Brightness), Right side (Volume), Center (Seek/2x Speed Long-press).
+            3. **Library (Settings > Library)**:
+                - Updates: `pref_library_update_interval_key` (None to 48h), `auto_update_metadata`.
+                - Display: `pref_display_mode_library` (Grid types/List).
+                - Columns: `pref_animelib_columns_portrait_key` (Slider in Library > Display Settings).
+                - Fetch Logic: Exponential backoff (Doubles every 10 cycles if updates fail).
                 
-            4. **Multi-threaded Downloader (DownloadPreferences)**:
-                - Threads: `download_threads` (Max 30, memory-aware semaphore bounds RAM to ~80MB).
-                - Logic: Chunked multi-threading for BDIX saturation; parallel segment fetching with sequential disk channel writing.
-                - Cache: `auto_clear_chapter_cache` to manage storage pressure.
+            4. **Player (Settings > Player)**:
+                - Orientation: `pref_default_player_orientation_type_key`.
+                - Controls: `pref_show_loading`, `pref_player_time_to_disappear` (Control timeout).
+                - Performance: `pref_panel_opacity`, `pref_reduce_motion`.
+                - Shaders (Anime4K): Real-time CNN upscaling profiles.
+                - Gestures: Left (Brightness), Right (Volume), Center (Seek/2x Speed).
+                - Automation: Skip intro (`pref_enable_skip_intro`), Auto-skip (`pref_enable_auto_skip_ani_skip`).
                 
-            5. **Advanced Analytics & Core Engine**:
-                - Architecture: Clean Architecture, DI (Injekt), DB (SQLDelight), Media (MPV via JNI).
-                - BDIX optimization: Network stack prioritizes peering bandwidth for low-latency streaming.
-                - Diagnostics: `AiAssistantScreen` integrates Logcat extraction for troubleshooting stack traces.
+            5. **Downloads (Settings > Downloads)**:
+                - Concurrency: `download_threads` (Max 30, Semaphore-managed).
+                - Logic: Multi-threaded chunked downloader for BDIX optimization.
                 
-            INTERNAL KEYS & VALUES:
-            - `pref_preserve_watching_position`: Ensures resume accuracy across sessions.
-            - `pref_display_vol_as_per`: Controls whether volume is shown as a percentage overlay.
-            - `pref_enable_netflixStyle_aniskip`: Changes the skip UI to a modern Netflix-style overlay.
+            6. **Advanced Analytics & Diagnostics (Settings > Advanced Analytics)**:
+                - Engine: LLM Backend (Gemini/Groq API Keys).
+                - Support: Diagnostic Assistant, Data Summarization.
+                - Logs: Logcat integration for troubleshooting.
+                
+            7. **Advanced (Settings > Advanced)**:
+                - Log Viewer (Extract logs here), Clear Database, Manage Cache.
         """.trimIndent()
     }
 
