@@ -282,8 +282,8 @@ private fun GenreAffinitySection(genreAffinity: StatsData.GenreAffinity) {
                         .padding(MaterialTheme.padding.large)
                 )
             } else {
-                genres.forEach { (genre, count) ->
-                    GenreBar(genre, count, genres.firstOrNull()?.second ?: 1)
+                genres.forEach { pair ->
+                    GenreBar(pair.first, pair.second, genres.firstOrNull()?.second ?: 1)
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }

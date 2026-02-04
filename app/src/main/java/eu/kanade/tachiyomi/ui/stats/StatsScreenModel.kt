@@ -96,7 +96,7 @@ class StatsScreenModel(
                     .map { entry ->
                         val source = sourceManager.getOrStub(entry.key)
                         val ext = installedExtensions.find { it.sources.any { s -> s.id == entry.key } }
-                        StatsData.ExtensionUsage.ExtensionInfo(
+                        eu.kanade.presentation.more.stats.data.ExtensionInfo(
                             name = source.name,
                             count = entry.value,
                             repo = ext?.repoUrl?.substringAfter("github.com/")?.substringBefore("/raw")
