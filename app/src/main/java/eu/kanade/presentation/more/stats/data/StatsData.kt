@@ -23,37 +23,28 @@ sealed interface StatsData {
     data class Trackers(
         val trackedTitleCount: Int,
         val meanScore: Double,
-        val trackerCount: Int,
+        val sourceCount: Int,
     ) : StatsData
 
     data class ExtensionUsage(
-        val topExtensions: List<Pair<String, Int>>,
-    ) : StatsData
+        val topExtensions: List<ExtensionInfo>,
+    ) : StatsData {
+        data class ExtensionInfo(
+            val name: String,
+            val count: Int,
+            val repo: String?,
+        )
+    }
 
     data class TimeDistribution(
-        val daysDistribution: Map<Int, Long>, // DayOfWeek to Milliseconds
-    ) : StatsData
-
-    data class GenreAffinity(
-        val genreScores: List<Pair<String, Int>>, // Genre to count
-    ) : StatsData
-
-    data class ScoreDistribution(
-        val scoredAnimeCount: Int,
-        val distribution: Map<Int, Int>, // Score (1-10) to count
-    ) : StatsData
-
-    data class StatusBreakdown(
-        val completedCount: Int,
-        val ongoingCount: Int,
-        val droppedCount: Int,
-        val onHoldCount: Int,
-        val planToWatchCount: Int,
+        val daysDistribution: Map<Int, Long>, // DayOfWeek to session count
+        val weeklyHeatmap: Map<Int, Int>, // Hour of day to total frequency
     ) : StatsData
 
     data class WatchHabits(
         val topDayAnime: String?,
         val topMonthAnime: String?,
-        val preferredWatchTime: String, // e.g., "Late Night"
+        val preferredWatchTime: String,
+        val avgSessionsPerWeek: Double,
     ) : StatsData
 }

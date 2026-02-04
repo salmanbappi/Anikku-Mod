@@ -42,6 +42,7 @@ class StatsScreenModel(
     private val preferences: LibraryPreferences = Injekt.get(),
     private val trackerManager: TrackerManager = Injekt.get(),
     private val sourceManager: SourceManager = Injekt.get(),
+    private val extensionManager: eu.kanade.tachiyomi.extension.ExtensionManager = Injekt.get(),
     private val aiManager: eu.kanade.tachiyomi.data.ai.AiManager = Injekt.get(),
 ) : StateScreenModel<StatsScreenState>(StatsScreenState.Loading) {
 
@@ -62,7 +63,7 @@ class StatsScreenModel(
             val overviewStatData = StatsData.AnimeOverview(
                 libraryAnimeCount = distinctLibraryAnime.size,
                 completedAnimeCount = distinctLibraryAnime.count {
-                    it.anime.status.toInt() == SAnime.COMPLETED && it.unseenCount == 0L
+                    it.hasStarted && it.unseenCount == 0L && it.totalEpisodes > 0
                 },
                 totalSeenDuration = getWatchTime(distinctLibraryAnime),
             )
@@ -82,16 +83,25 @@ class StatsScreenModel(
             val trackersStatData = StatsData.Trackers(
                 trackedTitleCount = animeTrackMap.count { it.value.isNotEmpty() || distinctLibraryAnime.find { a -> a.id == it.key }?.anime?.score != null },
                 meanScore = meanScore,
-                trackerCount = loggedInTrackers.size,
+                sourceCount = sourceManager.getOnlineSources().size,
             )
 
-            // Extension Usage
+            // Extension Usage with Repo mapping
+            val installedExtensions = extensionManager.installedExtensionsFlow.first()
             val extensionUsage = StatsData.ExtensionUsage(
                 topExtensions = distinctLibraryAnime
-                    .map { sourceManager.getOrStub(it.anime.source).name }
+                    .map { it.anime.source }
                     .groupingBy { it }.eachCount().entries
                     .sortedByDescending { it.value }.take(5)
-                    .map { it.toPair() }
+                    .map { entry ->
+                        val source = sourceManager.getOrStub(entry.key)
+                        val ext = installedExtensions.find { it.sources.any { s -> s.id == entry.key } }
+                        StatsData.ExtensionUsage.ExtensionInfo(
+                            name = source.name,
+                            count = entry.value,
+                            repo = ext?.repoUrl?.substringAfter("github.com/")?.substringBefore("/raw")
+                        )
+                    }
             )
 
             // Genre Affinity
@@ -116,10 +126,10 @@ class StatsScreenModel(
 
             // Status Breakdown
             val statusBreakdown = StatsData.StatusBreakdown(
-                completedCount = distinctLibraryAnime.count { it.anime.status.toInt() == SAnime.COMPLETED },
-                ongoingCount = distinctLibraryAnime.count { it.anime.status.toInt() == SAnime.ONGOING },
-                droppedCount = animeTrackMap.values.flatten().count { it.status == 4L }, // 4L is DROPPED in AniList/MAL usually
-                onHoldCount = animeTrackMap.values.flatten().count { it.status == 3L }, // 3L is ON_HOLD
+                completedCount = distinctLibraryAnime.count { it.hasStarted && it.unseenCount == 0L && it.totalEpisodes > 0 },
+                ongoingCount = distinctLibraryAnime.count { it.hasStarted && it.unseenCount > 0L && it.anime.status.toInt() == SAnime.ONGOING },
+                droppedCount = animeTrackMap.values.flatten().count { it.status == 4L },
+                onHoldCount = animeTrackMap.values.flatten().count { it.status == 3L },
                 planToWatchCount = distinctLibraryAnime.count { !it.hasStarted },
             )
 
@@ -152,13 +162,18 @@ class StatsScreenModel(
     }
 
     private fun calculateTimeDistribution(history: List<tachiyomi.domain.history.model.HistoryWithRelations>): StatsData.TimeDistribution {
-        val distribution = mutableMapOf<Int, Long>()
+        val daysDistribution = mutableMapOf<Int, Long>()
+        val weeklyHeatmap = mutableMapOf<Int, Int>()
+
         history.forEach { item ->
             val cal = Calendar.getInstance().apply { time = item.seenAt ?: return@forEach }
             val day = cal.get(Calendar.DAY_OF_WEEK)
-            distribution[day] = (distribution[day] ?: 0L) + 1 // Count sessions for now
+            val hour = cal.get(Calendar.HOUR_OF_DAY)
+            
+            daysDistribution[day] = (daysDistribution[day] ?: 0L) + 1
+            weeklyHeatmap[hour] = (weeklyHeatmap[hour] ?: 0) + 1
         }
-        return StatsData.TimeDistribution(distribution)
+        return StatsData.TimeDistribution(daysDistribution, weeklyHeatmap)
     }
 
     private fun calculateWatchHabits(
@@ -166,10 +181,18 @@ class StatsScreenModel(
         animeList: List<LibraryAnime>
     ): StatsData.WatchHabits {
         val now = System.currentTimeMillis()
-        val dayMillis = 24 * 60 * 60 * 1000L
-        val monthMillis = 30 * dayMillis
+        val weekMillis = 7 * 24 * 60 * 60 * 1000L
+        val monthMillis = 30 * 24 * 60 * 60 * 1000L
 
-        val topDay = history.filter { (it.seenAt?.time ?: 0) > (now - dayMillis) }
+        val recentHistory = history.filter { (it.seenAt?.time ?: 0) > (now - monthMillis) }
+        val sessionsByWeek = recentHistory.groupBy {
+            val cal = Calendar.getInstance().apply { time = it.seenAt!! }
+            cal.get(Calendar.WEEK_OF_YEAR)
+        }.size
+        
+        val avgSessions = if (sessionsByWeek > 0) recentHistory.size.toDouble() / 4.0 else 0.0
+
+        val topDay = history.filter { (it.seenAt?.time ?: 0) > (now - (24 * 60 * 60 * 1000L)) }
             .groupingBy { it.animeId }.eachCount().maxByOrNull { it.value }
             ?.let { entry -> animeList.find { it.id == entry.key }?.anime?.title }
 
@@ -177,7 +200,6 @@ class StatsScreenModel(
             .groupingBy { it.animeId }.eachCount().maxByOrNull { it.value }
             ?.let { entry -> animeList.find { it.id == entry.key }?.anime?.title }
 
-        // Preferred watch time
         val hourCounts = history.mapNotNull { it.seenAt }.map { 
             Calendar.getInstance().apply { time = it }.get(Calendar.HOUR_OF_DAY)
         }.groupingBy { it }.eachCount()
@@ -190,7 +212,7 @@ class StatsScreenModel(
             else -> "Late Night"
         }
 
-        return StatsData.WatchHabits(topDay, topMonth, preferredTime)
+        return StatsData.WatchHabits(topDay, topMonth, preferredTime, avgSessions)
     }
 
     private suspend fun fetchAiAnalysis(
@@ -204,10 +226,11 @@ class StatsScreenModel(
     ): String? {
         val summary = StringBuilder()
         summary.append("Total Anime: ${animeList.size}\n")
-        summary.append("Status Breakdown: Completed=${statuses.completedCount}, Ongoing=${statuses.ongoingCount}, Dropped=${statuses.droppedCount}\n")
+        summary.append("Sources Count: ${trackers.sourceCount}\n")
+        summary.append("Status Breakdown: Completed=${statuses.completedCount}, Ongoing=${statuses.ongoingCount}, Dropped=${statuses.droppedCount}, OnHold=${statuses.onHoldCount}\n")
         summary.append("Score Distribution: ${scores.distribution.entries.joinToString { "${it.key}: ${it.value}" }}\n")
         summary.append("Total Episodes Watched: ${episodes.readEpisodeCount}\n")
-        summary.append("Top Extensions: ${extensions.topExtensions.joinToString { it.first }}\n")
+        summary.append("Top Extensions (with repos): ${extensions.topExtensions.joinToString { "${it.name} (${it.repo ?: "Unknown Repo"})" }}\n")
         summary.append("Favorite Genres: ${genres.genreScores.joinToString { it.first }}\n")
         
         val recentTitles = animeList.take(10).joinToString { it.anime.title }
