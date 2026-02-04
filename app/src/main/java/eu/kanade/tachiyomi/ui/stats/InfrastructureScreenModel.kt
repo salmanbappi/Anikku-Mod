@@ -52,7 +52,7 @@ class InfrastructureScreenModel(
                 .filter { !it.isLocal() }
                 .filter { it.id.toString() !in disabledSourceIds }
             
-            // Initial state load
+            // 1. INSTANT LOAD: Populate state with ALL sources immediately
             val initialNodes = sources.map { source ->
                 createPlaceholderNode(source)
             }
@@ -61,11 +61,12 @@ class InfrastructureScreenModel(
                 InfrastructureState.Success(InfrastructureReport(initialNodes, generateEmptyMetrics(initialNodes.size), emptyList()))
             }
 
-            // Run parallel probes
+            // 2. PARALLEL UPDATE: Update telemetry in-place
             val nodes = sources.map { source ->
                 async {
                     semaphore.withPermit {
                         probeNode(source).also { finishedNode ->
+                            // Update the specific item in the list immediately
                             updateNodeInState(finishedNode)
                             SourceHealthCache.updateStatus(source.id, finishedNode.status, finishedNode.network.latency)
                         }
@@ -73,7 +74,7 @@ class InfrastructureScreenModel(
                 }
             }.awaitAll()
 
-            // Final state with full metrics and ranking
+            // 3. FINAL SORTING: Only sort once everything is finished
             val sortedNodes = nodes.sortedWith(compareByDescending<SourceNode> { it.status == NodeStatus.OPERATIONAL }
                 .thenBy { it.network.latency })
 
@@ -100,15 +101,24 @@ class InfrastructureScreenModel(
         }
     }
 
-    private fun createPlaceholderNode(source: HttpSource) = SourceNode(
-        name = source.name,
-        pkgName = source::class.java.`package`?.name ?: "ext",
-        version = "...",
-        status = NodeStatus.OPERATIONAL,
-        network = NetworkDiagnostics(0, "Scanning", "...", "...", false),
-        capabilities = SourceCapabilities(false, false, source.supportsLatest, true),
-        uptimeScore = 1.0
-    )
+    private fun createPlaceholderNode(source: HttpSource): SourceNode {
+        val name = source.name.lowercase()
+        val isBdix = name.contains("dflix") || name.contains("dhaka") || name.contains("bdix") || 
+                     name.contains("ftp") || name.contains("sam") || name.contains("bijoy") ||
+                     name.contains("icc") || name.contains("fanush") || name.contains("nagordola") ||
+                     name.contains("amader") || name.contains("cineplex") || name.contains("roarzone") ||
+                     name.contains("infomedia") || name.contains("fm ftp") || name.contains("bas play")
+
+        return SourceNode(
+            name = source.name,
+            pkgName = source::class.java.name.substringBeforeLast("."),
+            version = "Scanning...",
+            status = NodeStatus.OPERATIONAL,
+            network = NetworkDiagnostics(0, if (isBdix) "BDIX" else "Global", "...", "...", false),
+            capabilities = SourceCapabilities(detectIsApi(source), false, source.supportsLatest, true),
+            uptimeScore = 1.0
+        )
+    }
 
     private fun updateNodeInState(node: SourceNode) {
         mutableState.update { state ->
@@ -120,6 +130,21 @@ class InfrastructureScreenModel(
     }
 
     private fun generateEmptyMetrics(count: Int) = GlobalNetworkMetrics(0, 0, 0, count)
+
+    private fun detectIsApi(source: HttpSource): Boolean {
+        val name = source.name.lowercase()
+        val className = source::class.java.simpleName.lowercase()
+        val pkg = source::class.java.name.lowercase()
+        
+        // Deep heuristic audit for API usage
+        return className.contains("api") || 
+               className.contains("json") || 
+               className.contains("graphql") ||
+               name.contains("api") || 
+               name.contains("json") ||
+               pkg.contains("api") ||
+               pkg.contains("json")
+    }
 
     private suspend fun probeNode(source: HttpSource): SourceNode {
         var latency = 999
@@ -138,19 +163,21 @@ class InfrastructureScreenModel(
             val request = Request.Builder()
                 .url(source.baseUrl)
                 .headers(source.headers)
-                .header("X-Anikku-Probe", "CommandCenter-v2.1")
+                .header("X-Anikku-Probe", "CommandCenter-v2.2")
                 .build()
 
             measureTimeMillis {
                 probeClient.newCall(request).execute().use { response ->
                     resolved = true
                     tls = response.handshake?.tlsVersion?.javaName ?: "v1.3"
-                    // If we get ANY response from the server, it's NOT offline
-                    // 401/403/404/500 all mean the server is technically ALIVE
+                    // If we get ANY response, it's NOT offline. 
+                    // Extensions like Amader/Fanush might return 401/403 if pined at root, but they are ALIVE.
                     if (response.code in 200..499) {
                         status = NodeStatus.OPERATIONAL
-                    } else {
+                    } else if (response.code >= 500) {
                         status = NodeStatus.DEGRADED
+                    } else {
+                        status = NodeStatus.OPERATIONAL // Auth required etc still means operational server
                     }
                 }
             }.let { latency = it.toInt() }
@@ -170,11 +197,6 @@ class InfrastructureScreenModel(
                      name.contains("amader") || name.contains("cineplex") || name.contains("roarzone") ||
                      name.contains("infomedia") || name.contains("fm ftp") || name.contains("bas play")
 
-        val className = source::class.java.simpleName
-        val isApi = className.contains("Api", ignoreCase = true) || 
-                    className.contains("Json", ignoreCase = true) ||
-                    name.contains("api") || name.contains("json")
-
         return SourceNode(
             name = source.name,
             pkgName = source::class.java.name.substringBeforeLast("."),
@@ -188,7 +210,7 @@ class InfrastructureScreenModel(
                 dnsResolved = resolved
             ),
             capabilities = SourceCapabilities(
-                isApi = isApi,
+                isApi = detectIsApi(source),
                 mtSupport = false,
                 latestSupport = source.supportsLatest,
                 searchSupport = true
