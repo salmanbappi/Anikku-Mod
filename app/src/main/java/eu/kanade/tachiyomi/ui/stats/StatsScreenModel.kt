@@ -9,6 +9,7 @@ import eu.kanade.core.util.fastCountNot
 import eu.kanade.core.util.fastFilterNot
 import eu.kanade.presentation.more.stats.StatsScreenState
 import eu.kanade.presentation.more.stats.data.*
+import eu.kanade.tachiyomi.network.model.*
 import eu.kanade.tachiyomi.data.download.DownloadManager
 import eu.kanade.tachiyomi.data.track.AnimeTracker
 import eu.kanade.tachiyomi.data.track.TrackerManager
@@ -97,7 +98,6 @@ class StatsScreenModel(
                         val source = sourceManager.getOrStub(entry.key)
                         val ext = installedExtensions.find { it.sources.any { s -> s.id == entry.key } }
                         
-                        // Robust repo parsing
                         val repoName = when {
                             ext?.repoUrl == null -> null
                             ext.repoUrl.contains("github.com/") -> ext.repoUrl.substringAfter("github.com/").substringBefore("/raw")
@@ -229,7 +229,7 @@ class StatsScreenModel(
             val name = sourceManager.getOrStub(sourceId).name.lowercase()
             val isBdix = name.contains("dflix") || name.contains("dhaka") || name.contains("bdix") || 
                          name.contains("ftp") || name.contains("sam") || name.contains("bijoy") ||
-                         name.contains("icc") || name.contains("fanush")
+                         name.contains("icc") || name.contains("fanush") || name.contains("nagordola")
 
             when {
                 isBdix -> {
@@ -285,7 +285,6 @@ class StatsScreenModel(
         animeList: List<LibraryAnime>
     ): StatsData.WatchHabits {
         val now = System.currentTimeMillis()
-        val weekMillis = 7 * 24 * 60 * 60 * 1000L
         val monthMillis = 30 * 24 * 60 * 60 * 1000L
 
         val recentHistory = history.filter { (it.seenAt?.time ?: 0) > (now - monthMillis) }
@@ -304,7 +303,7 @@ class StatsScreenModel(
             .groupingBy { it.animeId }.eachCount().maxByOrNull { it.value }
             ?.let { entry -> animeList.find { it.id == entry.key }?.anime?.title }
 
-        val hourCounts = history.mapNotNull { it.seenAt }.map {
+        val hourCounts = history.mapNotNull { it.seenAt }.map { 
             Calendar.getInstance().apply { time = it }.get(Calendar.HOUR_OF_DAY)
         }.groupingBy { it }.eachCount()
         
@@ -332,10 +331,13 @@ class StatsScreenModel(
         summary.append("Total Anime: ${animeList.size}\n")
         summary.append("Sources Count: ${trackers.sourceCount}\n")
         summary.append("Status Breakdown: Completed=${statuses.completedCount}, Ongoing=${statuses.ongoingCount}, Dropped=${statuses.droppedCount}, OnHold=${statuses.onHoldCount}\n")
-        summary.append("Score Distribution: ${scores.distribution.entries.joinToString { "${it.key}: ${it.value}" }}\n")
+        summary.append("Score Distribution: ${scores.distribution.entries.joinToString { "${it.key}: ${it.value}" }}
+")
         summary.append("Total Episodes Watched: ${episodes.readEpisodeCount}\n")
-        summary.append("Top Extensions (with repos): ${extensions.topExtensions.joinToString { "${it.name} (${it.repo ?: "Unknown Repo"})" }}\n")
-        summary.append("Favorite Genres: ${genres.genreScores.joinToString { it.first }}\n")
+        summary.append("Top Extensions (with repos): ${extensions.topExtensions.joinToString { "${it.name} (${it.repo ?: \"Unknown Repo\"})" }}
+")
+        summary.append("Favorite Genres: ${genres.genreScores.joinToString { it.first }}
+")
         
         val recentTitles = animeList.take(10).joinToString { it.anime.title }
         summary.append("Recent Highlights: $recentTitles\n")
@@ -373,11 +375,11 @@ class StatsScreenModel(
 
     private suspend fun getAnimeTrackMap(libraryAnime: List<LibraryAnime>): Map<Long, List<Track>> {
         val loggedInTrackerIds = loggedInTrackers.map { it.id }.toHashSet()
-        return libraryAnime.associate {
-            val tracks = getTracks.await(it.id)
+        return libraryAnime.associate { anime ->
+            val tracks = getTracks.await(anime.id)
                 .fastFilter { it.trackerId in loggedInTrackerIds }
 
-            it.id to tracks
+            anime.id to tracks
         }
     }
 
