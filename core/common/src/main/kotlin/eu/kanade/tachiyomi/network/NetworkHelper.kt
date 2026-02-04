@@ -284,7 +284,7 @@ open /* SY <-- */ class NetworkHelper(
                                         file.write(buffer, 0, bytesRead)
                                         currentStart += bytesRead
                                         
-                                        val currentDownloaded = currentStart - start
+                                        val currentDownloaded = currentStart - chunk.start
                                         synchronized(progressMap) {
                                             progressMap[i] = currentDownloaded
                                             totalDownloaded = progressMap.values.sum()
