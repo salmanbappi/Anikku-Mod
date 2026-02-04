@@ -362,7 +362,6 @@ class CastManager(
     fun reconnect() {
         if (!isCastApiAvailable) return
         try {
-            castContext = CastContext.getSharedInstance(context.applicationContext)
             castSession = castContext?.sessionManager?.currentCastSession
             if (castSession?.isConnected == true) {
                 updateCastState(CastState.CONNECTED)
