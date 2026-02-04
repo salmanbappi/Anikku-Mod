@@ -152,6 +152,12 @@ class AppModule(val app: Application) : InjektModule {
 
         addSingletonFactory { Anime4KManager(app) }
 
+        addSingletonFactory { AiManager(app, get(), get(), get()) }
+
+        // AM (CONNECTIONS) -->
+        addSingletonFactory { ConnectionsManager() }
+        // <-- AM (CONNECTIONS)
+
         addSingletonFactory { GoogleDriveService(app) }
     }
 }
