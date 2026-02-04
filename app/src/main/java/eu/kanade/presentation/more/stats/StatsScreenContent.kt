@@ -81,6 +81,7 @@ fun StatsScreenContent(
     state: StatsScreenState.SuccessAnime,
     paddingValues: PaddingValues,
     onGenerateAiAnalysis: () -> Unit,
+    onClickExtensionReport: () -> Unit,
 ) {
     val statListState = rememberLazyListState()
     LazyColumn(
@@ -123,7 +124,7 @@ fun StatsScreenContent(
 
         if (state.infrastructure != null) {
             item {
-                InfrastructureSection(state.infrastructure)
+                InfrastructureSection(state.infrastructure, onClickExtensionReport)
             }
         }
 
@@ -475,8 +476,11 @@ private fun ExtensionUsageSection(extensions: StatsData.ExtensionUsage) {
 }
 
 @Composable
-private fun InfrastructureSection(infra: StatsData.InfrastructureAnalytics) {
-    StatsSectionCard(title = "Extension Infrastructure Analytics") {
+private fun InfrastructureSection(infra: StatsData.InfrastructureAnalytics, onClickReport: () -> Unit) {
+    StatsSectionCard(
+        title = "Extension Infrastructure Analytics",
+        modifier = Modifier.clickable { onClickReport() }
+    ) {
         Column(modifier = Modifier.padding(MaterialTheme.padding.medium), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             // Topology
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {

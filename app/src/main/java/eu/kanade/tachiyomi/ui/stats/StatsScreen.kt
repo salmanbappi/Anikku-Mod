@@ -49,12 +49,40 @@ object StatsScreen : Screen {
                     state = state as StatsScreenState.SuccessAnime,
                     paddingValues = contentPadding,
                     onGenerateAiAnalysis = animeScreenModel::generateAiAnalysis,
+                    onClickExtensionReport = {
+                        val report = (state as? StatsScreenState.SuccessAnime)?.infrastructure?.healthReport
+                        if (report != null) {
+                            navigator.push(ExtensionReportScreen(report))
+                        }
+                    },
                 )
             }
         }
 
         LaunchedEffect(Unit) {
             (context as? MainActivity)?.ready = true
+        }
+    }
+}
+
+data class ExtensionReportScreen(
+    private val healthReport: List<eu.kanade.presentation.more.stats.data.ExtensionHealth>,
+) : Screen {
+    @Composable
+    override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+        Scaffold(
+            topBar = {
+                AppBar(
+                    title = "Infrastructure Health Report",
+                    navigateUp = navigator::pop,
+                )
+            },
+        ) { contentPadding ->
+            eu.kanade.presentation.more.stats.ExtensionReportScreen(
+                healthReport = healthReport,
+                contentPadding = contentPadding
+            )
         }
     }
 }
