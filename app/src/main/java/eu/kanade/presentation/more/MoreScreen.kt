@@ -360,7 +360,7 @@ private fun MoreItem(
                 }
             }
             Icon(
-                imageVector = Icons.AutoMirrored.Outlined.ChevronRight,
+                imageVector = androidx.compose.material.icons.Icons.AutoMirrored.Outlined.ChevronRight,
                 contentDescription = null,
                 tint = Color.White.copy(alpha = 0.3f)
             )
