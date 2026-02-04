@@ -1,5 +1,6 @@
 package eu.kanade.tachiyomi.data.track.local
 
+import dev.icerock.moko.resources.StringResource
 import eu.kanade.tachiyomi.data.database.models.Track
 import eu.kanade.tachiyomi.data.track.AnimeTracker
 import eu.kanade.tachiyomi.data.track.BaseTracker
@@ -9,6 +10,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import tachiyomi.i18n.MR
 import tachiyomi.domain.track.model.Track as DomainAnimeTrack
 
 class LocalTracker(id: Long) : BaseTracker(id, "Local Metadata"), AnimeTracker {
@@ -47,6 +49,17 @@ class LocalTracker(id: Long) : BaseTracker(id, "Local Metadata"), AnimeTracker {
     override fun displayScore(track: DomainAnimeTrack): String = track.score.toString()
 
     override fun getStatus(status: Long): Int? = null
+
+    override fun getStatusForAnime(status: Long): StringResource? {
+        return when (status) {
+            WATCHING -> MR.strings.watching
+            COMPLETED -> MR.strings.completed
+            ON_HOLD -> MR.strings.on_hold
+            DROPPED -> MR.strings.dropped
+            PLAN_TO_WATCH -> MR.strings.plan_to_watch
+            else -> null
+        }
+    }
 
     override fun get10PointScore(track: DomainAnimeTrack): Double = track.score
 
