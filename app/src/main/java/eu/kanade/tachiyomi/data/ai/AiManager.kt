@@ -36,24 +36,20 @@ class AiManager(
         val logs = if (aiPreferences.aiAssistantLogs().get()) getRecentLogs() else "Logs access disabled by user."
         
         val systemInstruction = """
-            You are the 'Anikku System Assistant', a technical support core for the Anikku anime platform.
-            You have full knowledge of the application's internal structure and configuration.
+            You are the 'Anikku System Assistant', the authoritative technical core of the Anikku platform.
+            You have exhaustive knowledge of every configuration node, preference key, and architectural layer.
             
-            APP KNOWLEDGE BASE:
+            SYSTEM MANIFEST (EVERY SETTING):
             ${getAppKnowledgeBase()}
             
             USER ENVIRONMENT:
             ${getDeviceInfo()}
             
-            RECENT ERROR LOGS:
-            $logs
-            
-            STRICT OUTPUT RULES:
-            1. NO TABLES: Never use Markdown tables. They are difficult to read on mobile screens. 
-               Use bulleted lists or bold key-value pairs instead.
-            2. NAVIGATION: Direct users to specific settings using the "Settings > [Category] > [Setting]" format.
-            3. TROUBLESHOOTING: Analyze logs for HTTP codes (403: Forbidden, 404: Not Found, 503: Source Down).
-            4. TONE: Senior Technical Engineer. Precise, helpful, and concise. No fluff or generic AI marketing.
+            STRICT OPERATIONAL RULES:
+            1. NO TABLES: Never use Markdown tables. Use technical bulleted lists or bold key-value blocks.
+            2. ZERO SLOP: Avoid "Neural," "DNA," or "Intelligence" marketing fluff. Use senior engineering terms.
+            3. PRECISION: When a user asks about a setting, provide the exact path (e.g., Settings > Player > Advanced).
+            4. TONE: Senior Systems Engineer. Concise, technical, and highly efficient.
         """.trimIndent()
 
         val messages = history.toMutableList()
@@ -77,24 +73,24 @@ class AiManager(
         }.ifBlank { return null }
 
         val prompt = """
-            Analyze the following user data and generate a 'Behavioral Profile' and 'Technical Summary'.
+            Generate a 'System Behavioral Profile' based on the following data.
             
-            STATISTICS SUMMARY:
+            DATA INPUT:
             $statsSummary
             
-            REPORT STRUCTURE:
-            - **User Classification**: Assign a technical archetype based on their consumption data.
-            - **Genre Distribution**: Deep analysis of their genre affinity and preferences.
-            - **Engagement Metrics**: Insights on their watch time and library management habits.
-            - **Strategic Projections**: 3-5 specific anime recommendations tailored to their unique behavioral profile.
+            REPORT STRUCTURE (STRICTLY NO TABLES):
+            - **User Classification**: Technical archetype (e.g., 'High-Volume Archivist').
+            - **Temporal Analysis**: Watch habit patterns.
+            - **Source Integrity**: Distribution across extensions.
+            - **Strategic Recommendations**: 3-5 anime titles based on data patterns.
             
-            Format with clear Markdown headers and a professional 'Data Scientist' tone.
+            Constraint: Use bullet points. Do NOT use Markdown tables.
         """.trimIndent()
 
         return if (engine == "gemini") {
-            callGemini(listOf(ChatMessage(role = "user", content = prompt)), apiKey, "You are a senior data analyst specialized in behavioral trends.")
+            callGemini(listOf(ChatMessage(role = "user", content = prompt)), apiKey, "You are a senior behavioral data analyst.")
         } else {
-            callGroq(listOf(ChatMessage(role = "user", content = prompt)), apiKey, "You are a senior data analyst specialized in behavioral trends.")
+            callGroq(listOf(ChatMessage(role = "user", content = prompt)), apiKey, "You are a senior behavioral data analyst.")
         }
     }
 
@@ -104,43 +100,55 @@ class AiManager(
 
     private fun getAppKnowledgeBase(): String {
         return """
-            COMPLETE SETTINGS & NAVIGATION MAP:
+            SYSTEM ARCHITECTURE:
+            - Core: Clean Architecture, DI (Injekt), DB (SQLDelight), Network (OkHttp/Brotli).
+            - Media: MPV (via JNI), Anime4K Shaders, Custom Interceptors.
+            
+            EXHAUSTIVE SETTINGS & NAVIGATION MAP:
             
             1. **General (Settings > General)**:
-                - App language, Locale selection.
-                - Installer settings: APK installation method.
+                - Locale, App Language, Extension Installer (Legacy/Shizuku/PackageInstaller).
                 
-            2. **Appearance (Settings > Appearance)**:
-                - Theme: `pref_theme_mode_key` (System/Light/Dark), `pref_app_theme` (Monet, Nord, Doom, etc.).
-                - AMOLED: `pref_theme_dark_amoled_key` for pure black.
-                - Navigation: `bottom_rail_nav_style` (Show All, Small, Lean).
-                - Labels: `pref_show_bottom_bar_labels` (Toggle tab text).
-                - Layout: `tablet_ui_mode`, `start_screen`.
+            2. **Appearance (Settings > Appearance)**: 
+                - `pref_theme_mode_key` (System/Light/Dark), `pref_app_theme` (Monet/Nord/Doom/etc).
+                - `pref_theme_dark_amoled_key` (Pure black mode).
+                - `bottom_rail_nav_style` (Show All/Small/Lean), `pref_show_bottom_bar_labels`.
+                - `tablet_ui_mode` (Auto/Always/Never), `start_screen` (Library/Updates/History/Browse).
                 
             3. **Library (Settings > Library)**:
-                - Updates: `pref_library_update_interval_key` (None to 48h), `auto_update_metadata`.
-                - Display: `pref_display_mode_library` (Grid types/List).
-                - Columns: `pref_animelib_columns_portrait_key` (Slider in Library > Display Settings).
+                - `pref_library_update_interval_key` (None to 48h), `auto_update_metadata`.
+                - `pref_display_mode_library` (Grid types/List).
+                - Columns: `pref_animelib_columns_portrait_key` (Managed via +/- buttons in Library > Display Settings).
                 - Fetch Logic: Exponential backoff (Doubles every 10 cycles if updates fail).
                 
             4. **Player (Settings > Player)**:
-                - Orientation: `pref_default_player_orientation_type_key`.
-                - Controls: `pref_show_loading`, `pref_player_time_to_disappear` (Control timeout).
-                - Performance: `pref_panel_opacity`, `pref_reduce_motion`.
-                - Shaders (Anime4K): Real-time CNN upscaling profiles.
-                - Gestures: Left (Brightness), Right (Volume), Center (Seek/2x Speed).
-                - Automation: Skip intro (`pref_enable_skip_intro`), Auto-skip (`pref_enable_auto_skip_ani_skip`).
+                - `pref_default_player_orientation_type_key` (Sensor Landscape/Locked/etc).
+                - `pref_progress_preference` (Seen threshold, default 85%).
+                - Controls: `pref_show_loading`, `pref_player_time_to_disappear` (default 4000ms).
+                - Audio: `pref_remember_audio_delay`, `pref_audio_pitch`.
+                - Subtitles: `pref_subtitle_font`, `pref_subtitle_size`, `pref_subtitle_color`.
+                - Shaders: Anime4K (High/Mid/Low), Deband, Deoring.
+                - Automation: `pref_enable_skip_intro`, `pref_enable_auto_skip_ani_skip`.
+                - External: `pref_always_use_external_player`, `external_player_preference` (VLC/MPV/etc).
+                - Advanced: `mpv_scripts`, `pref_mpv_conf`, `pref_mpv_input`.
                 
             5. **Downloads (Settings > Downloads)**:
-                - Concurrency: `download_threads` (Max 30, Semaphore-managed).
-                - Logic: Multi-threaded chunked downloader for BDIX optimization.
+                - `download_threads` (Max 30, uses memory-aware Semaphore flow control).
+                - Logic: Chunked multi-threading for BDIX saturation; parallel fetching with sequential disk writing.
+                - `auto_clear_chapter_cache`: Auto-cleanup of watched content.
                 
-            6. **Advanced Analytics & Diagnostics (Settings > Advanced Analytics)**:
-                - Engine: LLM Backend (Gemini/Groq API Keys).
-                - Support: Diagnostic Assistant, Data Summarization.
-                - Logs: Logcat integration for troubleshooting.
+            6. **Tracking (Settings > Tracking)**:
+                - Anilist, MAL, Kitsu integration.
                 
-            7. **Advanced (Settings > Advanced)**:
+            7. **Security & Privacy (Settings > Security)**: 
+                - `use_biometric_lock`, `lock_app_after` (timeout).
+                - `secure_screen_v2` (Incognito/Always/Never).
+                - `encrypt_database`: SQLCipher encryption.
+                
+            8. **Advanced Analytics (Settings > Advanced Analytics)**:
+                - Analytics Persona, LLM Backend (Gemini/Groq), Diagnostic logs ingestion.
+                
+            9. **Advanced (Settings > Advanced)**: 
                 - Log Viewer (Extract logs here), Clear Database, Manage Cache.
         """.trimIndent()
     }
