@@ -4,10 +4,13 @@ import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -29,6 +32,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
@@ -296,41 +300,27 @@ private fun ColumnScope.DisplayPage(
     }
 
     val columns by columnPreference.collectAsState()
-    Column {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(end = MaterialTheme.padding.medium),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = if (displayMode == LibraryDisplayMode.List) stringResource(MR.strings.pref_library_rows) else stringResource(MR.strings.pref_library_columns),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(start = MaterialTheme.padding.medium)
+    val isList = displayMode == LibraryDisplayMode.List
+    HeadingItem(if (isList) MR.strings.pref_library_rows else MR.strings.pref_library_columns)
+    
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
+        contentPadding = PaddingValues(horizontal = MaterialTheme.padding.medium)
+    ) {
+        items(11) { i ->
+            FilterChip(
+                selected = columns == i,
+                onClick = { columnPreference.set(i) },
+                label = { 
+                    Text(
+                        text = if (i == 0) stringResource(MR.strings.label_default) else i.toString(),
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = if (columns == i) FontWeight.Black else FontWeight.Medium
+                    ) 
+                }
             )
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = { columnPreference.set(columns - 1) }, enabled = columns > 0) {
-                    Icon(Icons.Outlined.RemoveCircle, null)
-                }
-                Text(
-                    text = if (columns > 0) columns.toString() else stringResource(MR.strings.label_default),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontFamily = FontFamily.Monospace,
-                    modifier = Modifier.width(32.dp),
-                    textAlign = TextAlign.Center
-                )
-                IconButton(onClick = { columnPreference.set(columns + 1) }, enabled = columns < 10) {
-                    Icon(Icons.Outlined.AddCircle, null)
-                }
-            }
         }
-        SliderItem(
-            label = "",
-            value = columns,
-            valueText = "",
-            min = 0,
-            max = 10,
-            onChange = columnPreference::set,
-        )
     }
 
     HeadingItem(MR.strings.overlay_header)
