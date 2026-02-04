@@ -83,6 +83,9 @@ import tachiyomi.core.common.preference.PreferenceStore
 import tachiyomi.core.common.util.system.logcat
 import tachiyomi.domain.storage.service.StorageManager
 import tachiyomi.domain.anime.repository.CustomAnimeRepository
+import tachiyomi.domain.source.service.SourceManager
+import tachiyomi.data.Database
+import eu.kanade.tachiyomi.data.download.DownloadManager
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.widget.WidgetManager
 import timber.log.Timber
