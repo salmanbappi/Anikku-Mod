@@ -133,16 +133,6 @@ class StatsScreenModel(
                 planToWatchCount = distinctLibraryAnime.count { !it.hasStarted },
             )
 
-            val aiAnalysis = fetchAiAnalysis(
-                distinctLibraryAnime, 
-                chaptersStatData, 
-                trackersStatData, 
-                extensionUsage, 
-                genreAffinity,
-                scoreDistribution,
-                statusBreakdown
-            )
-
             mutableState.update {
                 StatsScreenState.SuccessAnime(
                     overview = overviewStatData,
@@ -155,8 +145,34 @@ class StatsScreenModel(
                     watchHabits = watchHabits,
                     scores = scoreDistribution,
                     statuses = statusBreakdown,
-                    aiAnalysis = aiAnalysis,
+                    aiAnalysis = null,
+                    isAiLoading = false,
                 )
+            }
+        }
+    }
+
+    fun generateAiAnalysis() {
+        val currentState = state.value as? StatsScreenState.SuccessAnime ?: return
+        if (currentState.aiAnalysis != null || currentState.isAiLoading) return
+
+        mutableState.update {
+            if (it is StatsScreenState.SuccessAnime) it.copy(isAiLoading = true) else it
+        }
+
+        screenModelScope.launchIO {
+            val animelibAnime = getAnimelibAnime.await()
+            val analysis = fetchAiAnalysis(
+                animelibAnime,
+                currentState.episodes,
+                currentState.trackers,
+                currentState.extensions,
+                currentState.genreAffinity,
+                currentState.scores,
+                currentState.statuses
+            )
+            mutableState.update {
+                if (it is StatsScreenState.SuccessAnime) it.copy(aiAnalysis = analysis, isAiLoading = false) else it
             }
         }
     }

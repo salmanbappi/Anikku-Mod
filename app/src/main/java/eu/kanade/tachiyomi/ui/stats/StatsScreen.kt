@@ -48,6 +48,7 @@ object StatsScreen : Screen {
                 StatsScreenContent(
                     state = state as StatsScreenState.SuccessAnime,
                     paddingValues = contentPadding,
+                    onGenerateAiAnalysis = animeScreenModel::generateAiAnalysis,
                 )
             }
         }
