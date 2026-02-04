@@ -575,21 +575,19 @@ private fun AnimeScreenSmallImpl(
                         }
                     }
 
-                            sharedEpisodeItems(
-                                anime = state.anime,
-                                source = state.source,
-                                showFileSize = showFileSize,
-                                episodes = listItem,
-                                isAnyEpisodeSelected = episodes.fastAny { it.selected },
-                                episodeSwipeStartAction = episodeSwipeStartAction,
-                                episodeSwipeEndAction = episodeSwipeEndAction,
-                                onEpisodeClicked = onEpisodeClicked,
-                                onDownloadEpisode = onDownloadEpisode,
-                                onEpisodeSelected = onEpisodeSelected,
-                                onEpisodeSwipe = onEpisodeSwipe,
-                            )
-                        }
-                    }
+                    sharedEpisodeItems(
+                        anime = state.anime,
+                        source = state.source,
+                        showFileSize = showFileSize,
+                        episodes = listItem,
+                        isAnyEpisodeSelected = episodes.fastAny { it.selected },
+                        episodeSwipeStartAction = episodeSwipeStartAction,
+                        episodeSwipeEndAction = episodeSwipeEndAction,
+                        onEpisodeClicked = onEpisodeClicked,
+                        onDownloadEpisode = onDownloadEpisode,
+                        onEpisodeSelected = onEpisodeSelected,
+                        onEpisodeSwipe = onEpisodeSwipe,
+                    )
                 }
             }
         }

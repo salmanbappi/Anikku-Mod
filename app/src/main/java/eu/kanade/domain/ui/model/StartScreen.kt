@@ -9,7 +9,6 @@ import eu.kanade.tachiyomi.ui.library.LibraryTab
 import eu.kanade.tachiyomi.ui.updates.UpdatesTab
 import tachiyomi.i18n.MR
 
-import eu.kanade.tachiyomi.ui.home.FeedTab
 import tachiyomi.i18n.sy.SYMR
 
 enum class StartScreen(val titleRes: StringResource, val tab: Tab) {
