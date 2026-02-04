@@ -8,6 +8,7 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import eu.kanade.core.util.fastCountNot
 import eu.kanade.core.util.fastFilterNot
 import eu.kanade.presentation.more.stats.StatsScreenState
+import eu.kanade.presentation.more.stats.data.ExtensionInfo
 import eu.kanade.presentation.more.stats.data.StatsData
 import eu.kanade.tachiyomi.data.download.DownloadManager
 import eu.kanade.tachiyomi.data.track.AnimeTracker

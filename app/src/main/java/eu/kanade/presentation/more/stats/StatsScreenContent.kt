@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import eu.kanade.domain.ai.AiPreferences
 import eu.kanade.presentation.anime.components.MarkdownRender
+import eu.kanade.presentation.more.stats.data.ExtensionInfo
 import eu.kanade.presentation.more.stats.data.StatsData
 import eu.kanade.presentation.util.toDurationString
 import tachiyomi.i18n.MR
