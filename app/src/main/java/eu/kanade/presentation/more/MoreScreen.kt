@@ -56,24 +56,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-coil3.compose.AsyncImage
-eu.kanade.domain.ai.AiPreferences
-eu.kanade.domain.ui.model.NavStyle
-eu.kanade.presentation.more.settings.screen.ai.AiAssistantScreen
-eu.kanade.presentation.more.settings.widget.SwitchPreferenceWidget
-eu.kanade.presentation.more.settings.widget.TextPreferenceWidget
-eu.kanade.tachiyomi.R
-eu.kanade.tachiyomi.ui.more.DownloadQueueState
-eu.kanade.tachiyomi.ui.stats.InfrastructureScreen
-tachiyomi.core.common.Constants
-tachiyomi.i18n.MR
-tachiyomi.presentation.core.components.ScrollbarLazyColumn
-tachiyomi.presentation.core.components.material.Scaffold
-tachiyomi.presentation.core.i18n.pluralStringResource
-tachiyomi.presentation.core.i18n.stringResource
-tachiyomi.presentation.core.util.collectAsState
-uy.kohesive.injekt.Injekt
-uy.kohesive.injekt.api.get
+import coil3.compose.AsyncImage
+import eu.kanade.domain.ai.AiPreferences
+import eu.kanade.domain.ui.model.NavStyle
+import eu.kanade.presentation.more.settings.screen.ai.AiAssistantScreen
+import eu.kanade.presentation.more.settings.widget.SwitchPreferenceWidget
+import eu.kanade.presentation.more.settings.widget.TextPreferenceWidget
+import eu.kanade.tachiyomi.R
+import eu.kanade.tachiyomi.ui.more.DownloadQueueState
+import eu.kanade.tachiyomi.ui.stats.InfrastructureScreen
+import tachiyomi.core.common.Constants
+import tachiyomi.i18n.MR
+import tachiyomi.presentation.core.components.ScrollbarLazyColumn
+import tachiyomi.presentation.core.components.material.Scaffold
+import tachiyomi.presentation.core.i18n.pluralStringResource
+import tachiyomi.presentation.core.i18n.stringResource
+import tachiyomi.presentation.core.util.collectAsState
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
 
 private val BackgroundColor = Color(0xFF121212)
 private val SectionColor = Color(0xFF1E1E1E)
@@ -207,7 +207,7 @@ fun MoreScreen(
             item {
                 MoreSection(title = "General") {
                     if (navStyle != NavStyle.SHOW_ALL) {
-                        MoreItem(
+                         MoreItem(
                             title = navStyle.moreTab.options.title,
                             icon = navStyle.moreIcon,
                             onClick = onClickAlt
