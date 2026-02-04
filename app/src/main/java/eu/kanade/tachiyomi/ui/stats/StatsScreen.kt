@@ -86,3 +86,29 @@ data class ExtensionReportScreen(
         }
     }
 }
+
+object InfrastructureScreen : Screen {
+    @Composable
+    override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+        val screenModel = rememberScreenModel { InfrastructureScreenModel() }
+        val state by screenModel.state.collectAsState()
+        val isRefreshing by screenModel.isRefreshing.collectAsState()
+
+        Scaffold(
+            topBar = {
+                AppBar(
+                    title = "Infrastructure Command Center",
+                    navigateUp = navigator::pop,
+                )
+            },
+        ) { contentPadding ->
+            eu.kanade.presentation.more.stats.InfrastructureScreen(
+                state = state,
+                isRefreshing = isRefreshing,
+                onRefresh = screenModel::runDiagnostics,
+                contentPadding = contentPadding
+            )
+        }
+    }
+}
