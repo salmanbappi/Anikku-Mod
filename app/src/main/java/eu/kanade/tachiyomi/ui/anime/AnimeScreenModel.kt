@@ -131,6 +131,7 @@ class AnimeScreenModel(
     private val syncEpisodesWithSource: SyncEpisodesWithSource = Injekt.get(),
     private val getCategories: GetCategories = Injekt.get(),
     private val getTracks: GetTracks = Injekt.get(),
+    private val insertTrack: InsertTrack = Injekt.get(),
     private val addTracks: AddTracks = Injekt.get(),
     private val setAnimeCategories: SetAnimeCategories = Injekt.get(),
     private val animeRepository: AnimeRepository = Injekt.get(),
