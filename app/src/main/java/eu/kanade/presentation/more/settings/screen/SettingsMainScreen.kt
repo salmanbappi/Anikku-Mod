@@ -55,6 +55,7 @@ import cafe.adriel.voyager.core.screen.Screen as VoyagerScreen
 import eu.kanade.presentation.more.components.MoreItem
 import eu.kanade.presentation.more.components.MoreSection
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.util.fastForEach
 
