@@ -45,6 +45,9 @@ class AiManager(
             USER ENVIRONMENT:
             ${getDeviceInfo()}
             
+            RECENT SYSTEM LOGS:
+            $logs
+            
             STRICT OPERATIONAL RULES:
             1. NO TABLES: Never use Markdown tables. Use technical bulleted lists or bold key-value blocks.
             2. ZERO SLOP: Avoid "Neural," "DNA," or "Intelligence" marketing fluff. Use senior engineering terms.
@@ -151,6 +154,20 @@ class AiManager(
             9. **Advanced (Settings > Advanced)**: 
                 - Log Viewer (Extract logs here), Clear Database, Manage Cache.
         """.trimIndent()
+    }
+
+    suspend fun getErrorCount(): Int = withIOContext {
+        try {
+            val process = Runtime.getRuntime().exec("logcat -d -t 100 *:E")
+            val reader = BufferedReader(InputStreamReader(process.inputStream))
+            var count = 0
+            while (reader.readLine() != null) {
+                count++
+            }
+            count
+        } catch (e: Exception) {
+            0
+        }
     }
 
     private suspend fun getRecentLogs(): String = withIOContext {
