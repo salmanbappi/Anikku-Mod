@@ -1,4 +1,4 @@
-package eu.kanade.presentation.more.stats.data
+package eu.kanade.tachiyomi.network.model
 
 import androidx.compose.runtime.Immutable
 
@@ -36,7 +36,7 @@ data class NetworkDiagnostics(
 @Immutable
 data class SourceCapabilities(
     val isApi: Boolean,
-    val mtSupport: Boolean, // Multi-threaded protocol support
+    val mtSupport: Boolean,
     val latestSupport: Boolean,
     val searchSupport: Boolean,
 )

@@ -1,5 +1,7 @@
 package eu.kanade.presentation.more.stats.data
 
+import eu.kanade.tachiyomi.network.model.ExtensionHealth
+
 sealed interface StatsData {
 
     data class AnimeOverview(

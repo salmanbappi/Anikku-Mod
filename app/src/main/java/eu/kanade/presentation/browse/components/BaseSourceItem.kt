@@ -60,7 +60,7 @@ private val defaultIcon: @Composable RowScope.(Source) -> Unit = { source ->
 import androidx.compose.runtime.getValue
 import tachiyomi.domain.source.service.SourceHealthCache
 import tachiyomi.presentation.core.util.collectAsState
-import eu.kanade.presentation.more.stats.data.NodeStatus
+import eu.kanade.tachiyomi.network.model.NodeStatus
 ---
 private val defaultContent: @Composable RowScope.(Source, String?) -> Unit = { source, sourceLangString ->
     val healthMap by SourceHealthCache.healthMap.collectAsState()

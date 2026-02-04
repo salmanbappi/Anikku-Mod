@@ -37,7 +37,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import eu.kanade.presentation.more.stats.data.ExtensionHealth
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import eu.kanade.tachiyomi.network.model.ExtensionHealth
+import androidx.compose.ui.Alignment
 import tachiyomi.presentation.core.util.secondaryItemAlpha
 
 @Composable
