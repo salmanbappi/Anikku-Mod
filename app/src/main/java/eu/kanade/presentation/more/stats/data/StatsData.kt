@@ -66,14 +66,6 @@ sealed interface StatsData {
         val topologyBreakdown: Map<String, Int>,
         val healthReport: List<ExtensionHealth>,
     ) : StatsData
-
-    data class ExtensionHealth(
-        val name: String,
-        val isOnline: Boolean,
-        val latency: Int,
-        val type: String, // BDIX, API, SCRAPE
-        val issue: String? = null,
-    )
 }
 
 data class ExtensionInfo(

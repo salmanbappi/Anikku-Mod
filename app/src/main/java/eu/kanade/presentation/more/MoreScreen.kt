@@ -165,11 +165,22 @@ fun MoreScreen(
                     onPreferenceClick = onClickCategories,
                 )
             }
+import androidx.compose.material.icons.outlined.DynamicForm
+import eu.kanade.tachiyomi.ui.stats.InfrastructureScreen
+---
             item {
                 TextPreferenceWidget(
                     title = stringResource(MR.strings.label_stats),
                     icon = Icons.Outlined.QueryStats,
                     onPreferenceClick = onClickStats,
+                )
+            }
+            item {
+                TextPreferenceWidget(
+                    title = "Infrastructure Command Center",
+                    subtitle = "Real-time extension telemetry & health",
+                    icon = Icons.Outlined.DynamicForm,
+                    onPreferenceClick = { navigator.push(InfrastructureScreen) },
                 )
             }
             item {
