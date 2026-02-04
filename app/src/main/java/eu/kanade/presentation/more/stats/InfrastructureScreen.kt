@@ -16,7 +16,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -40,66 +42,71 @@ fun InfrastructureScreen(
     }
 
     val report = (state as InfrastructureState.Success).report
+    var selectedTab by remember { mutableIntStateOf(0) }
 
-    LazyColumn(
-        contentPadding = contentPadding,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier.padding(horizontal = 16.dp)
-    ) {
-        item {
-            GlobalTelemetryHeader(report.globalMetrics)
+    Column(modifier = Modifier.fillMaxSize().padding(contentPadding)) {
+        PrimaryTabRow(
+            selectedTabIndex = selectedTab,
+            containerColor = Color.Transparent,
+            divider = {}
+        ) {
+            Tab(selected = selectedTab == 0, onClick = { selectedTab = 0 }) {
+                Text("BDIX NODES", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelLarge)
+            }
+            Tab(selected = selectedTab == 1, onClick = { selectedTab = 1 }) {
+                Text("GLOBAL CDN", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelLarge)
+            }
+            Tab(selected = selectedTab == 2, onClick = { selectedTab = 2 }) {
+                Text("SYSTEM LOGS", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.labelLarge)
+            }
         }
 
-        item {
-            InfrastructureHealthBoard(report.nodes)
-        }
-
-        item {
-            Text(
-                text = "SYSTEM TELEMETRY LOGS",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        items(report.systemLogs.take(5)) { log ->
-            LogEntryRow(log)
-        }
-
-        item {
-            Text(
-                text = "NODE CAPABILITY AUDIT",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        items(report.nodes) { node ->
-            SourceNodeAuditCard(node)
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            when (selectedTab) {
+                0 -> {
+                    item { GlobalTelemetryHeader(report.globalMetrics) }
+                    items(report.nodes.filter { it.network.topology == "BDIX" }) { node ->
+                        SourceNodeAuditCard(node)
+                    }
+                }
+                1 -> {
+                    item { InfrastructureHealthBoard(report.nodes) }
+                    items(report.nodes.filter { it.network.topology != "BDIX" }) { node ->
+                        SourceNodeAuditCard(node)
+                    }
+                }
+                2 -> {
+                    items(report.systemLogs) { log ->
+                        LogEntryRow(log)
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
 private fun GlobalTelemetryHeader(metrics: GlobalNetworkMetrics) {
-    ElevatedCard(
+    Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
     ) {
         Column(modifier = Modifier.padding(24.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Outlined.Analytics, null, tint = MaterialTheme.colorScheme.primary)
+                Icon(Icons.Outlined.Analytics, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(12.dp))
-                Text("NETWORK COMMAND CENTER", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.ExtraBold)
+                Text("NETWORK COMMAND CENTER", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.ExtraBold, letterSpacing = 1.sp)
             }
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                MetricSquare("BDIX SAT", "${metrics.bdixSaturation}%", Color(0xFF1E88E5))
-                MetricSquare("ACTIVE", "${metrics.activeNodeCount}", Color(0xFF4CAF50))
-                MetricSquare("LATENCY", "${metrics.avgLatency}ms", Color(0xFFFFC107))
+                MetricSquare("LOCAL SATURATION", "${metrics.bdixSaturation}%", Color(0xFF1E88E5))
+                MetricSquare("NODES ACTIVE", "${metrics.activeNodeCount}", Color(0xFF4CAF50))
+                MetricSquare("SYS LATENCY", "${metrics.avgLatency}ms", Color(0xFFFFC107))
             }
         }
     }
@@ -115,39 +122,44 @@ private fun MetricSquare(label: String, value: String, color: Color) {
             color = color,
             fontFamily = FontFamily.Monospace
         )
-        Text(text = label, style = MaterialTheme.typography.labelSmall, modifier = Modifier.secondaryItemAlpha())
+        Text(text = label, style = MaterialTheme.typography.labelSmall, modifier = Modifier.secondaryItemAlpha(), fontSize = 8.sp)
     }
 }
 
 @Composable
 private fun InfrastructureHealthBoard(nodes: List<SourceNode>) {
-    Column {
-        Text(
-            text = "ENDPOINT HEALTH PULSE",
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            nodes.forEach { node ->
-                Box(
-                    modifier = Modifier
-                        .height(32.dp)
-                        .weight(1f)
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(
-                            when (node.status) {
-                                NodeStatus.OPERATIONAL -> Color(0xFF4CAF50)
-                                NodeStatus.DEGRADED -> Color(0xFFFFC107)
-                                NodeStatus.CRITICAL -> Color(0xFFFF9800)
-                                NodeStatus.OFFLINE -> Color(0xFFF44336)
-                            }
-                        )
-                )
+    Surface(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "REAL-TIME ENDPOINT CLUSTER",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                nodes.forEach { node ->
+                    Box(
+                        modifier = Modifier
+                            .size(12.dp)
+                            .clip(RoundedCornerShape(2.dp))
+                            .background(
+                                when (node.status) {
+                                    NodeStatus.OPERATIONAL -> Color(0xFF4CAF50)
+                                    NodeStatus.DEGRADED -> Color(0xFFFFC107)
+                                    else -> Color(0xFFF44336)
+                                }
+                            )
+                    )
+                }
             }
         }
     }
@@ -158,7 +170,7 @@ private fun LogEntryRow(log: SystemLogEntry) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 6.dp),
         verticalAlignment = Alignment.Top
     ) {
         Text(
@@ -169,9 +181,10 @@ private fun LogEntryRow(log: SystemLogEntry) {
                 else -> Color.Green
             },
             style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
-            fontSize = 10.sp
+            fontSize = 9.sp,
+            modifier = Modifier.width(50.dp)
         )
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(12.dp))
         Column {
             Text(text = log.source, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
             Text(text = log.message, style = MaterialTheme.typography.bodySmall, modifier = Modifier.secondaryItemAlpha())
@@ -183,54 +196,55 @@ private fun LogEntryRow(log: SystemLogEntry) {
 private fun SourceNodeAuditCard(node: SourceNode) {
     var expanded by remember { mutableStateOf(false) }
     
-    ElevatedCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { expanded = !expanded },
-        shape = RoundedCornerShape(12.dp)
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 2.dp,
+        border = if (expanded) androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)) else null
     ) {
-        Column(modifier = Modifier.padding(16.dp).animateContentSize()) {
+        Column(modifier = Modifier.clickable { expanded = !expanded }.padding(16.dp).animateContentSize()) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 StatusIndicator(node.status)
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(16.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(text = node.name, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
+                    Text(text = node.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     Text(
-                        text = "${node.network.topology} • ${node.network.ipAddress}",
+                        text = node.network.topology,
                         style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.secondaryItemAlpha(),
-                        fontFamily = FontFamily.Monospace
+                        color = if (node.network.topology == "BDIX") Color(0xFF1E88E5) else MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
                     )
                 }
-                Text(
-                    text = "${node.network.latency}ms",
-                    style = MaterialTheme.typography.bodySmall,
-                    fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.Bold,
-                    color = if (node.network.latency < 100) Color(0xFF4CAF50) else Color.Unspecified
-                )
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = "${node.network.latency}ms",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Bold,
+                        color = if (node.network.latency < 100) Color(0xFF4CAF50) else Color.Unspecified
+                    )
+                    Text("LATENCY", style = MaterialTheme.typography.labelSmall, fontSize = 7.sp, modifier = Modifier.secondaryItemAlpha())
+                }
             }
             
             if (expanded) {
-                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp).alpha(0.2f))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp).alpha(0.1f))
                 
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    CapabilityBadge("API", node.capabilities.isApi)
-                    CapabilityBadge("MT", node.capabilities.mtSupport)
-                    CapabilityBadge("SEARCH", node.capabilities.searchSupport)
-                    CapabilityBadge("LATEST", node.capabilities.latestSupport)
-                }
+                // Developer / Info Section
+                Text("NODE TELEMETRY", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.ExtraBold)
+                Spacer(modifier = Modifier.height(8.dp))
                 
-                Spacer(modifier = Modifier.height(12.dp))
+                InfoRow("Package", node.pkgName)
+                InfoRow("IPv4", node.network.ipAddress)
+                InfoRow("TLS", node.network.tlsVersion)
                 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Outlined.Security, null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.primary)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Encrypted via ${node.network.tlsVersion}",
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.secondaryItemAlpha()
-                    )
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    CapabilityBadge("API SOURCE", node.capabilities.isApi)
+                    CapabilityBadge("INDEXING", node.capabilities.latestSupport)
+                    CapabilityBadge("QUERYING", node.capabilities.searchSupport)
                 }
             }
         }
@@ -238,34 +252,53 @@ private fun SourceNodeAuditCard(node: SourceNode) {
 }
 
 @Composable
+private fun InfoRow(label: String, value: String) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(text = label, style = MaterialTheme.typography.bodySmall, modifier = Modifier.secondaryItemAlpha())
+        Text(text = value, style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Medium)
+    }
+}
+
+@Composable
 private fun StatusIndicator(status: NodeStatus) {
-    Box(
-        modifier = Modifier
-            .size(10.dp)
-            .clip(CircleShape)
-            .background(
-                when (status) {
-                    NodeStatus.OPERATIONAL -> Color(0xFF4CAF50)
-                    NodeStatus.DEGRADED -> Color(0xFFFFC107)
-                    else -> Color(0xFFF44336)
-                }
-            )
-    )
+    val color = when (status) {
+        NodeStatus.OPERATIONAL -> Color(0xFF4CAF50)
+        NodeStatus.DEGRADED -> Color(0xFFFFC107)
+        else -> Color(0xFFF44336)
+    }
+    Box(contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier
+                .size(14.dp)
+                .clip(CircleShape)
+                .background(color.copy(alpha = 0.2f))
+        )
+        Box(
+            modifier = Modifier
+                .size(8.dp)
+                .clip(CircleShape)
+                .background(color)
+        )
+    }
 }
 
 @Composable
 private fun CapabilityBadge(label: String, active: Boolean) {
     Surface(
         shape = RoundedCornerShape(4.dp),
-        color = if (active) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
-        modifier = Modifier.alpha(if (active) 1f else 0.4f)
+        color = if (active) Color(0xFF4CAF50).copy(alpha = 0.1f) else MaterialTheme.colorScheme.surfaceVariant,
+        modifier = Modifier.alpha(if (active) 1f else 0.5f)
     ) {
-        Text(
-            text = label,
-            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.ExtraBold,
-            fontFamily = FontFamily.Monospace
-        )
+        Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            if (active) Icon(Icons.Outlined.Check, null, modifier = Modifier.size(10.dp), tint = Color(0xFF4CAF50))
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.ExtraBold,
+                fontFamily = FontFamily.Monospace,
+                color = if (active) Color(0xFF4CAF50) else Color.Unspecified
+            )
+        }
     }
 }
