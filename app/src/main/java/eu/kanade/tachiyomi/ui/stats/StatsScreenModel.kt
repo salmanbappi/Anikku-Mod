@@ -336,7 +336,8 @@ class StatsScreenModel(
         summary.append("Total Episodes Watched: ${episodes.readEpisodeCount}\n")
         summary.append("Top Extensions (with repos): ${extensions.topExtensions.joinToString { "${it.name} (${it.repo ?: "Unknown Repo"})" }}
 ")
-        summary.append("Favorite Genres: ${genres.genreScores.joinToString { it.first }}\n")
+        summary.append("Favorite Genres: ${genres.genreScores.joinToString { it.first }}
+")
         
         val recentTitles = animeList.take(10).joinToString { it.anime.title }
         summary.append("Recent Highlights: $recentTitles\n")
@@ -374,11 +375,11 @@ class StatsScreenModel(
 
     private suspend fun getAnimeTrackMap(libraryAnime: List<LibraryAnime>): Map<Long, List<Track>> {
         val loggedInTrackerIds = loggedInTrackers.map { it.id }.toHashSet()
-        return libraryAnime.associate {
-            val tracks = getTracks.await(it.id)
+        return libraryAnime.associate { anime ->
+            val tracks = getTracks.await(anime.id)
                 .fastFilter { it.trackerId in loggedInTrackerIds }
 
-            it.id to tracks
+            anime.id to tracks
         }
     }
 
