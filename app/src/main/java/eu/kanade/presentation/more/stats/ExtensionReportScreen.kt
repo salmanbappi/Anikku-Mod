@@ -37,10 +37,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import eu.kanade.tachiyomi.network.model.ExtensionHealth
-import androidx.compose.ui.Alignment
 import tachiyomi.presentation.core.util.secondaryItemAlpha
 
 @Composable
@@ -145,7 +142,8 @@ private fun ExtensionDetailCard(health: ExtensionHealth) {
                 )
             }
 
-            if (health.issue != null) {
+            val currentIssue = health.issue
+            if (currentIssue != null) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Surface(
                     color = MaterialTheme.colorScheme.errorContainer,
@@ -155,7 +153,7 @@ private fun ExtensionDetailCard(health: ExtensionHealth) {
                     Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Outlined.ErrorOutline, null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.error)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = health.issue, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
+                        Text(text = currentIssue, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
                     }
                 }
             }
