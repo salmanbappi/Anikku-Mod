@@ -36,6 +36,7 @@ object StatsScreen : Screen {
                     navigateUp = navigator::pop,
                 )
             },
+            containerColor = MaterialTheme.colorScheme.background
         ) { contentPadding ->
             if (state is StatsScreenState.Loading) {
                 LoadingScreen()
@@ -73,6 +74,7 @@ data class ExtensionReportScreen(
                     navigateUp = navigator::pop,
                 )
             },
+            containerColor = MaterialTheme.colorScheme.background
         ) { contentPadding ->
             eu.kanade.presentation.more.stats.ExtensionReportScreen(
                 healthReport = healthReport,
@@ -97,6 +99,7 @@ object InfrastructureScreen : Screen {
                     navigateUp = navigator::pop,
                 )
             },
+            containerColor = MaterialTheme.colorScheme.background
         ) { contentPadding ->
             eu.kanade.presentation.more.stats.InfrastructureScreen(
                 state = state,

@@ -22,6 +22,11 @@ import kotlin.time.Duration.Companion.seconds
  * @param items [Preference] items which should be displayed on the preference screen. An item can be a single [PreferenceItem] or a group ([Preference.PreferenceGroup])
  * @param modifier [Modifier] to be applied to the preferenceScreen layout
  */
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+
 @Composable
 fun PreferenceScreen(
     items: List<Preference>,
@@ -53,15 +58,26 @@ fun PreferenceScreen(
                     if (!preference.enabled) return@fastForEachIndexed
 
                     item {
-                        Column {
-                            PreferenceGroupHeader(title = preference.title)
-                        }
+                        PreferenceGroupHeader(title = preference.title)
                     }
-                    items(preference.preferenceItems) { item ->
-                        PreferenceItem(
-                            item = item,
-                            highlightKey = highlightKey,
-                        )
+                    item {
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            tonalElevation = 2.dp
+                        ) {
+                            Column {
+                                preference.preferenceItems.forEach { item ->
+                                    PreferenceItem(
+                                        item = item,
+                                        highlightKey = highlightKey,
+                                    )
+                                }
+                            }
+                        }
                     }
                     item {
                         if (i < items.lastIndex) {

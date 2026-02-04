@@ -38,6 +38,9 @@ import tachiyomi.presentation.core.util.secondaryItemAlpha
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.CircleShape
+
 @Composable
 fun LogoHeader() {
     val context = LocalContext.current
@@ -54,9 +57,11 @@ fun LogoHeader() {
     ) {
         Box(
             modifier = Modifier
-                .size(80.dp)
-                .clip(androidx.compose.foundation.shape.CircleShape)
-                .background(MaterialTheme.colorScheme.primaryContainer)
+                .size(100.dp)
+                .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                .padding(4.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
                 .clickable {
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     context.toast("User: $displayName")
@@ -80,20 +85,23 @@ fun LogoHeader() {
             }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Text(
             text = displayName,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
+            style = MaterialTheme.typography.headlineMedium.copy(
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp,
+                letterSpacing = 0.5.sp
+            ),
+            color = MaterialTheme.colorScheme.onBackground
         )
         Text(
             text = "AniZen v${BuildConfig.VERSION_NAME}",
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+            ),
             modifier = Modifier.secondaryItemAlpha()
         )
-
-        Spacer(modifier = Modifier.height(24.dp))
-        HorizontalDivider()
     }
 }
