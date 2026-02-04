@@ -303,7 +303,7 @@ class StatsScreenModel(
             .groupingBy { it.animeId }.eachCount().maxByOrNull { it.value }
             ?.let { entry -> animeList.find { it.id == entry.key }?.anime?.title }
 
-        val hourCounts = history.mapNotNull { it.seenAt }.map { 
+        val hourCounts = history.mapNotNull { it.seenAt }.map {
             Calendar.getInstance().apply { time = it }.get(Calendar.HOUR_OF_DAY)
         }.groupingBy { it }.eachCount()
         
@@ -375,11 +375,11 @@ class StatsScreenModel(
 
     private suspend fun getAnimeTrackMap(libraryAnime: List<LibraryAnime>): Map<Long, List<Track>> {
         val loggedInTrackerIds = loggedInTrackers.map { it.id }.toHashSet()
-        return libraryAnime.associate { anime ->
-            val tracks = getTracks.await(anime.id)
+        return libraryAnime.associate {
+            val tracks = getTracks.await(it.id)
                 .fastFilter { it.trackerId in loggedInTrackerIds }
 
-            anime.id to tracks
+            it.id to tracks
         }
     }
 
@@ -406,15 +406,6 @@ class StatsScreenModel(
             if (trackList.isEmpty()) return@mapNotNull null
             animeId to trackList
         }.toMap()
-    }
-
-    private fun getTrackMeanScore(scoredTrackMap: Map<Long, List<Track>>): Double {
-        return scoredTrackMap
-            .map { (_, tracks) ->
-                tracks.map(::get10PointScore).average()
-            }
-            .fastFilter { !it.isNaN() }
-            .average()
     }
 
     private fun getCombinedMeanScore(
