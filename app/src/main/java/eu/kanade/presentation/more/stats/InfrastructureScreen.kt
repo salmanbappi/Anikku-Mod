@@ -16,15 +16,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.kanade.presentation.more.stats.data.*
-import tachiyomi.presentation.core.components.material.padding
+import eu.kanade.tachiyomi.ui.stats.InfrastructureState
 import tachiyomi.presentation.core.util.secondaryItemAlpha
 
 @Composable
