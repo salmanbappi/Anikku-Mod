@@ -375,11 +375,11 @@ class StatsScreenModel(
 
     private suspend fun getAnimeTrackMap(libraryAnime: List<LibraryAnime>): Map<Long, List<Track>> {
         val loggedInTrackerIds = loggedInTrackers.map { it.id }.toHashSet()
-        return libraryAnime.associate {
-            val tracks = getTracks.await(it.id)
+        return libraryAnime.associate { anime ->
+            val tracks = getTracks.await(anime.id)
                 .fastFilter { it.trackerId in loggedInTrackerIds }
 
-            it.id to tracks
+            anime.id to tracks
         }
     }
 
