@@ -338,9 +338,10 @@ private fun ColumnScope.DisplayPage(
         SliderItem(
             label = "",
             value = columns,
+            valueText = if (columns > 0) columns.toString() else stringResource(MR.strings.label_default),
             min = 0,
             max = 10,
-            onValueChanged = columnPreference::set
+            onChange = columnPreference::set
         )
     }
 
