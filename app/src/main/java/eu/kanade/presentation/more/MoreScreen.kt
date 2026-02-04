@@ -75,9 +75,8 @@ import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
-private val BackgroundColor = Color(0xFF121212)
-private val SectionColor = Color(0xFF1E1E1E)
-private val AccentGreen = Color(0xFF4CAF50)
+import eu.kanade.presentation.more.components.MoreItem
+import eu.kanade.presentation.more.components.MoreSection
 
 @Composable
 fun MoreScreen(
@@ -111,7 +110,7 @@ fun MoreScreen(
             ) {
             }
         },
-        containerColor = BackgroundColor
+        containerColor = MaterialTheme.colorScheme.background
     ) { contentPadding ->
         ScrollbarLazyColumn(
             modifier = Modifier.fillMaxSize().padding(contentPadding),
@@ -261,10 +260,10 @@ private fun ProfileHeader(name: String) {
         Box(
             modifier = Modifier
                 .size(100.dp)
-                .border(2.dp, AccentGreen, CircleShape)
+                .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
                 .padding(4.dp)
                 .clip(CircleShape)
-                .background(SectionColor)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
         ) {
             if (profilePhotoUri.isNotEmpty()) {
                 AsyncImage(
@@ -278,7 +277,7 @@ private fun ProfileHeader(name: String) {
                     imageVector = Icons.Outlined.LocalLibrary,
                     contentDescription = null,
                     modifier = Modifier.size(48.dp).align(Alignment.Center),
-                    tint = AccentGreen
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
@@ -290,80 +289,7 @@ private fun ProfileHeader(name: String) {
                 fontSize = 24.sp,
                 letterSpacing = 0.5.sp
             ),
-            color = Color.White
+            color = MaterialTheme.colorScheme.onBackground
         )
-    }
-}
-
-@Composable
-private fun MoreSection(
-    title: String,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    Column {
-        Text(
-            text = title.uppercase(),
-            style = MaterialTheme.typography.labelMedium.copy(
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.sp
-            ),
-            color = AccentGreen,
-            modifier = Modifier.padding(start = 12.dp, bottom = 8.dp)
-        )
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            color = SectionColor,
-            tonalElevation = 2.dp
-        ) {
-            Column {
-                content()
-            }
-        }
-    }
-}
-
-@Composable
-private fun MoreItem(
-    title: String,
-    subtitle: String? = null,
-    icon: ImageVector,
-    onClick: () -> Unit
-) {
-    Surface(
-        onClick = onClick,
-        color = Color.Transparent
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = AccentGreen,
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.White
-                )
-                if (subtitle != null) {
-                    Text(
-                        text = subtitle,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White.copy(alpha = 0.6f)
-                    )
-                }
-            }
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = null,
-                tint = Color.White.copy(alpha = 0.3f)
-            )
-        }
     }
 }

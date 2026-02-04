@@ -7,6 +7,8 @@ import eu.kanade.presentation.components.AppBar
 import tachiyomi.presentation.core.components.material.Scaffold
 import tachiyomi.presentation.core.i18n.stringResource
 
+import androidx.compose.ui.graphics.Color
+
 @Composable
 fun PreferenceScaffold(
     titleRes: StringResource,
@@ -23,6 +25,7 @@ fun PreferenceScaffold(
                 scrollBehavior = it,
             )
         },
+        containerColor = MaterialTheme.colorScheme.background,
         content = { contentPadding ->
             PreferenceScreen(
                 items = itemsProvider(),

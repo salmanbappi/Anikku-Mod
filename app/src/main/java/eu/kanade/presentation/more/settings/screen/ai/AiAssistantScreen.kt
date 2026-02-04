@@ -98,13 +98,13 @@ class AiAssistantScreen : Screen() {
                     navigateUp = { /* Pop handled by Voyager */ },
                 )
             },
+            containerColor = MaterialTheme.colorScheme.background
         ) { padding ->
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
                     .imePadding()
-                    .background(MaterialTheme.colorScheme.surface)
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     DiagnosticHUD()
@@ -173,7 +173,7 @@ class AiAssistantScreen : Screen() {
         )
 
         Surface(
-            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(
@@ -184,7 +184,7 @@ class AiAssistantScreen : Screen() {
                     modifier = Modifier
                         .size(8.dp)
                         .clip(CircleShape)
-                        .background(Color.Green.copy(alpha = alpha))
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = alpha))
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
