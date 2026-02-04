@@ -1,5 +1,6 @@
 package eu.kanade.domain.ui.model
 
+import eu.kanade.tachiyomi.ui.home.FeedTab
 import dev.icerock.moko.resources.StringResource
 import eu.kanade.presentation.util.Tab
 import eu.kanade.tachiyomi.ui.browse.BrowseTab

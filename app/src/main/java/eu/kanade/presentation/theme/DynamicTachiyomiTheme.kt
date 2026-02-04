@@ -25,17 +25,16 @@ fun DynamicTachiyomiTheme(
     val isAmoled = uiPreferences.themeDarkAmoled().get()
     val isDark = isSystemInDarkTheme()
 
-    val colorScheme = if (colorSeed != null) {
-        rememberDynamicColorScheme(colorSeed, isDark, isAmoled)
+    if (colorSeed != null) {
+        val colorScheme = rememberDynamicColorScheme(colorSeed, isDark, isAmoled)
+        MaterialTheme(
+            colorScheme = colorScheme,
+            content = content,
+        )
     } else {
         // Fallback to standard theme
-        getThemeColorScheme(uiPreferences.appTheme().get(), isAmoled)
+        TachiyomiTheme(content = content)
     }
-
-    MaterialTheme(
-        colorScheme = colorScheme,
-        content = content,
-    )
 }
 
 @Composable

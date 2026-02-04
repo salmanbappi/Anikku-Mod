@@ -38,6 +38,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -53,6 +54,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastMap
@@ -572,32 +575,19 @@ private fun AnimeScreenSmallImpl(
                         }
                     }
 
-                    item(key = "episodes-island") {
-                        Surface(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 12.dp, vertical = 8.dp),
-                            shape = RoundedCornerShape(16.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            tonalElevation = 2.dp
-                        ) {
-                            Column {
-                                listItem.forEach { item ->
-                                    EpisodeItemWrapper(
-                                        item = item,
-                                        anime = state.anime,
-                                        source = state.source,
-                                        showFileSize = showFileSize,
-                                        isAnyEpisodeSelected = episodes.fastAny { it.selected },
-                                        episodeSwipeStartAction = episodeSwipeStartAction,
-                                        episodeSwipeEndAction = episodeSwipeEndAction,
-                                        onEpisodeClicked = onEpisodeClicked,
-                                        onDownloadEpisode = onDownloadEpisode,
-                                        onEpisodeSelected = onEpisodeSelected,
-                                        onEpisodeSwipe = onEpisodeSwipe,
-                                    )
-                                }
-                            }
+                            sharedEpisodeItems(
+                                anime = state.anime,
+                                source = state.source,
+                                showFileSize = showFileSize,
+                                episodes = listItem,
+                                isAnyEpisodeSelected = episodes.fastAny { it.selected },
+                                episodeSwipeStartAction = episodeSwipeStartAction,
+                                episodeSwipeEndAction = episodeSwipeEndAction,
+                                onEpisodeClicked = onEpisodeClicked,
+                                onDownloadEpisode = onDownloadEpisode,
+                                onEpisodeSelected = onEpisodeSelected,
+                                onEpisodeSwipe = onEpisodeSwipe,
+                            )
                         }
                     }
                 }
@@ -1133,19 +1123,21 @@ private fun LazyListScope.sharedEpisodeItems(
         ) {
             Column {
                 episodes.forEach { item ->
-                    EpisodeItemWrapper(
-                        item = item,
-                        anime = anime,
-                        source = source,
-                        showFileSize = showFileSize,
-                        isAnyEpisodeSelected = isAnyEpisodeSelected,
-                        episodeSwipeStartAction = episodeSwipeStartAction,
-                        episodeSwipeEndAction = episodeSwipeEndAction,
-                        onEpisodeClicked = onEpisodeClicked,
-                        onDownloadEpisode = onDownloadEpisode,
-                        onEpisodeSelected = onEpisodeSelected,
-                        onEpisodeSwipe = onEpisodeSwipe,
-                    )
+                    key(item) {
+                        EpisodeItemWrapper(
+                            item = item,
+                            anime = anime,
+                            source = source,
+                            showFileSize = showFileSize,
+                            isAnyEpisodeSelected = isAnyEpisodeSelected,
+                            episodeSwipeStartAction = episodeSwipeStartAction,
+                            episodeSwipeEndAction = episodeSwipeEndAction,
+                            onEpisodeClicked = onEpisodeClicked,
+                            onDownloadEpisode = onDownloadEpisode,
+                            onEpisodeSelected = onEpisodeSelected,
+                            onEpisodeSwipe = onEpisodeSwipe,
+                        )
+                    }
                 }
             }
         }

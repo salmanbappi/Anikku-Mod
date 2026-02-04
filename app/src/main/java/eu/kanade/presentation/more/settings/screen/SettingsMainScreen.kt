@@ -87,71 +87,7 @@ object SettingsMainScreen : Screen() {
         val containerColor = if (twoPane) getPalerSurface() else MaterialTheme.colorScheme.background
         val topBarState = rememberTopAppBarState()
 
-        Scaffold(
-            topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState),
-            topBar = { scrollBehavior ->
-                AppBar(
-                    title = stringResource(MR.strings.label_settings),
-                    navigateUp = backPress::invoke,
-                    actions = {
-                        AppBarActions(
-                            persistentListOf(
-                                AppBar.Action(
-                                    title = stringResource(MR.strings.action_search),
-                                    icon = Icons.Outlined.Search,
-                                    onClick = { navigator.navigate(SettingsSearchScreen(), twoPane) },
-                                ),
-                            ),
-                        )
-                    },
-                    scrollBehavior = scrollBehavior,
-                )
-            },
-            containerColor = containerColor,
-            content = { contentPadding ->
-                val state = rememberLazyListState()
-                
-                LazyColumn(
-                    state = state,
-                    contentPadding = PaddingValues(16.dp),
-                    modifier = Modifier.padding(top = contentPadding.calculateTopPadding()),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(
-                        items = groupedItems.toList(),
-                        key = { it.first }
-                    ) { (category, items) ->
-                        MoreSection(title = category) {
-                            items.forEach { item ->
-                                MoreItem(
-                                    title = stringResource(item.titleRes),
-                                    subtitle = item.formatSubtitle(),
-                                    icon = item.icon,
-                                    onClick = { navigator.navigate(item.screen, twoPane) }
-                                )
-                            }
-                        }
-                    }
-                }
-            },
-        )
-    }
-
-    private fun Navigator.navigate(screen: VoyagerScreen, twoPane: Boolean) {
-        if (twoPane) replaceAll(screen) else push(screen)
-    }
-
-    private data class Item(
-        val titleRes: StringResource,
-        val subtitleRes: StringResource? = null,
-        val formatSubtitle: @Composable () -> String? = { subtitleRes?.let { stringResource(it) } },
-        val icon: ImageVector,
-        val screen: VoyagerScreen,
-    )
-
-    private val groupedItems: Map<String, List<Item>>
-        @Composable
-        get() = mapOf(
+        val groupedItems = mapOf(
             "User Interface" to listOf(
                 Item(
                     titleRes = MR.strings.pref_category_appearance,
@@ -233,4 +169,67 @@ object SettingsMainScreen : Screen() {
                 ),
             )
         )
+
+        Scaffold(
+            topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState),
+            topBar = { scrollBehavior ->
+                AppBar(
+                    title = stringResource(MR.strings.label_settings),
+                    navigateUp = backPress::invoke,
+                    actions = {
+                        AppBarActions(
+                            persistentListOf(
+                                AppBar.Action(
+                                    title = stringResource(MR.strings.action_search),
+                                    icon = Icons.Outlined.Search,
+                                    onClick = { navigator.navigate(SettingsSearchScreen(), twoPane) },
+                                ),
+                            ),
+                        )
+                    },
+                    scrollBehavior = scrollBehavior,
+                )
+            },
+            containerColor = containerColor,
+            content = { contentPadding ->
+                val state = rememberLazyListState()
+                
+                LazyColumn(
+                    state = state,
+                    contentPadding = PaddingValues(16.dp),
+                    modifier = Modifier.padding(top = contentPadding.calculateTopPadding()),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    groupedItems.forEach { (category, items) ->
+                        item(key = category) {
+                            MoreSection(title = category) {
+                                Column {
+                                    items.forEach { item ->
+                                        MoreItem(
+                                            title = stringResource(item.titleRes),
+                                            subtitle = item.formatSubtitle(),
+                                            icon = item.icon,
+                                            onClick = { navigator.navigate(item.screen, twoPane) }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+        )
+    }
+
+    private fun Navigator.navigate(screen: VoyagerScreen, twoPane: Boolean) {
+        if (twoPane) replaceAll(screen) else push(screen)
+    }
+
+    private data class Item(
+        val titleRes: StringResource,
+        val subtitleRes: StringResource? = null,
+        val formatSubtitle: @Composable () -> String? = { subtitleRes?.let { stringResource(it) } },
+        val icon: ImageVector,
+        val screen: VoyagerScreen,
+    )
 }
