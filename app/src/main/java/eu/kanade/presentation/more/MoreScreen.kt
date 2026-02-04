@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ChevronRight
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.automirrored.outlined.Label
 import androidx.compose.material.icons.filled.Terminal
@@ -360,7 +359,7 @@ private fun MoreItem(
                 }
             }
             Icon(
-                imageVector = androidx.compose.material.icons.Icons.AutoMirrored.Outlined.ChevronRight,
+                imageVector = androidx.compose.material.icons.automirrored.Icons.Outlined.ChevronRight,
                 contentDescription = null,
                 tint = Color.White.copy(alpha = 0.3f)
             )
