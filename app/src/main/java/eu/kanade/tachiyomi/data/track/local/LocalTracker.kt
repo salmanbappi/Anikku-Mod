@@ -15,13 +15,13 @@ class LocalTracker(id: Long) : BaseTracker(id, "Local Metadata"), AnimeTracker {
     override val isLoggedIn: Boolean = true
     override val isLoggedInFlow: Flow<Boolean> = flowOf(true)
 
-    override suspend fun search(query: String): List<TrackSearch> = emptyList()
+    override suspend fun search(query: String, isManga: Boolean): List<TrackSearch> = emptyList()
 
     override suspend fun refresh(track: Track): Track = track
 
-    override suspend fun update(track: Track): Track = track
+    override suspend fun update(track: Track, didWatchEpisode: Boolean): Track = track
 
-    override fun getStatusList(): ImmutableList<Long> = persistentListOf(
+    override fun getStatusList(): List<Long> = listOf(
         WATCHING,
         COMPLETED,
         ON_HOLD,
@@ -29,9 +29,21 @@ class LocalTracker(id: Long) : BaseTracker(id, "Local Metadata"), AnimeTracker {
         PLAN_TO_WATCH,
     )
 
+    override fun getStatusListAnime(): List<Long> = getStatusList()
+
+    override fun getWatchingStatus(): Long = WATCHING
+
     override fun getStatus(status: Long): Int? = null
 
     override fun get10PointScore(track: DomainAnimeTrack): Double = track.score
+
+    override fun getLogo(): Int = eu.kanade.tachiyomi.R.drawable.ic_glasses_24dp
+
+    override fun getLogoColor(): Int = 0xFF000000.toInt()
+
+    override suspend fun login(username: String, password: String) {
+        // Always logged in
+    }
 
     companion object {
         const val WATCHING = 1L
