@@ -68,9 +68,11 @@ class FeedScreenModel(
                             }
                             
                             val animeList = results.map {
-                                val domainAnime = it.toDomainAnime(source.id)
-                                networkToLocalAnime.await(domainAnime)
-                            }
+                                async {
+                                    val domainAnime = it.toDomainAnime(source.id)
+                                    networkToLocalAnime.await(domainAnime)
+                                }
+                            }.awaitAll()
                             
                             FeedItem(
                                 feed = feed,
