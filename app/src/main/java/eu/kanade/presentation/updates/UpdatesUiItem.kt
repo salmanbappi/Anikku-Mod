@@ -1,4 +1,6 @@
 package eu.kanade.presentation.updates
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -75,10 +77,6 @@ internal fun LazyListScope.updatesLastUpdatedItem(
         }
     }
 }
-
-import androidx.compose.material3.Surface
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.layout.fillMaxWidth
 
 internal fun LazyListScope.updatesUiItems(
     uiModels: List<UpdatesUiModel>,

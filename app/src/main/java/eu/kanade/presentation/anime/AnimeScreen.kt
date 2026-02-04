@@ -1,5 +1,9 @@
 package eu.kanade.presentation.anime
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.shape.RoundedCornerShape
+import tachiyomi.domain.anime.model.asAnimeCover
 import eu.kanade.presentation.theme.DynamicTachiyomiTheme
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -473,10 +477,6 @@ private fun AnimeScreenSmallImpl(
                             doSearch = onSearch,
                         )
                     }
-
-import androidx.compose.material3.Surface
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 
                     item(
                         key = AnimeScreenItem.ACTION_ROW,
@@ -1108,3 +1108,46 @@ private fun formatTime(milliseconds: Long, useDayFormat: Boolean = false): Strin
 // AM (FILE_SIZE) -->
 private val downloadProvider: DownloadProvider by injectLazy()
 // <-- AM (FILE_SIZE)
+
+private fun LazyListScope.sharedEpisodeItems(
+    anime: Anime,
+    source: Source,
+    showFileSize: Boolean,
+    episodes: List<EpisodeList>,
+    isAnyEpisodeSelected: Boolean,
+    episodeSwipeStartAction: LibraryPreferences.EpisodeSwipeAction,
+    episodeSwipeEndAction: LibraryPreferences.EpisodeSwipeAction,
+    onEpisodeClicked: (Episode, Boolean) -> Unit,
+    onDownloadEpisode: ((List<EpisodeList.Item>, EpisodeDownloadAction) -> Unit)?,
+    onEpisodeSelected: (EpisodeList.Item, Boolean, Boolean, Boolean) -> Unit,
+    onEpisodeSwipe: (EpisodeList.Item, LibraryPreferences.EpisodeSwipeAction) -> Unit,
+) {
+    item(key = "episodes-island") {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            shape = RoundedCornerShape(16.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            tonalElevation = 2.dp
+        ) {
+            Column {
+                episodes.forEach { item ->
+                    EpisodeItemWrapper(
+                        item = item,
+                        anime = anime,
+                        source = source,
+                        showFileSize = showFileSize,
+                        isAnyEpisodeSelected = isAnyEpisodeSelected,
+                        episodeSwipeStartAction = episodeSwipeStartAction,
+                        episodeSwipeEndAction = episodeSwipeEndAction,
+                        onEpisodeClicked = onEpisodeClicked,
+                        onDownloadEpisode = onDownloadEpisode,
+                        onEpisodeSelected = onEpisodeSelected,
+                        onEpisodeSwipe = onEpisodeSwipe,
+                    )
+                }
+            }
+        }
+    }
+}

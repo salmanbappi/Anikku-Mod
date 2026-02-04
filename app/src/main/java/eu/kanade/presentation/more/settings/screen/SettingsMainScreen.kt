@@ -117,17 +117,18 @@ object SettingsMainScreen : Screen() {
                     modifier = Modifier.padding(top = contentPadding.calculateTopPadding()),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    groupedItems.forEach { (category, items) ->
-                        item(key = category) {
-                            MoreSection(title = category) {
-                                items.forEach { item ->
-                                    MoreItem(
-                                        title = stringResource(item.titleRes),
-                                        subtitle = item.formatSubtitle(),
-                                        icon = item.icon,
-                                        onClick = { navigator.navigate(item.screen, twoPane) }
-                                    )
-                                }
+                    items(
+                        items = groupedItems.toList(),
+                        key = { it.first }
+                    ) { (category, items) ->
+                        MoreSection(title = category) {
+                            items.forEach { item ->
+                                MoreItem(
+                                    title = stringResource(item.titleRes),
+                                    subtitle = item.formatSubtitle(),
+                                    icon = item.icon,
+                                    onClick = { navigator.navigate(item.screen, twoPane) }
+                                )
                             }
                         }
                     }
