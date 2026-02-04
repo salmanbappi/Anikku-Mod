@@ -317,6 +317,7 @@ class AnimeScreenModel(
             screenModelScope.launchIO {
                 val dbTrack = eu.kanade.tachiyomi.data.database.models.Track.create(TrackerManager.LOCAL).apply {
                     anime_id = anime.id
+                    this.title = anime.title
                     this.status = status ?: anime.ogStatus
                     this.score = score ?: (anime.score ?: 0.0)
                 }
