@@ -240,7 +240,7 @@ private fun OverviewGridSection(state: StatsScreenState.SuccessAnime) {
             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp).alpha(0.5f))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 MetricItem(Icons.Outlined.History, "Episodes", state.episodes.readEpisodeCount.toString())
-                MetricItem(Icons.Outlined.Extension, "Sources", state.trackers.trackerCount.toString())
+                MetricItem(Icons.Outlined.Extension, "Sources", state.trackers.sourceCount.toString())
             }
         }
     }
@@ -390,7 +390,7 @@ private fun GenreBar(genre: String, count: Int, maxCount: Int) {
 private fun ExtensionUsageSection(extensions: StatsData.ExtensionUsage) {
     StatsSectionCard(title = "Source Distribution") {
         Column(modifier = Modifier.padding(MaterialTheme.padding.medium)) {
-            extensions.topExtensions.forEachIndexed { index, (name, count) ->
+            extensions.topExtensions.forEachIndexed { index, info ->
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
                     Text(
                         text = "${index + 1}.",
@@ -399,9 +399,19 @@ private fun ExtensionUsageSection(extensions: StatsData.ExtensionUsage) {
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.width(24.dp)
                     )
-                    Text(text = name, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(text = info.name, style = MaterialTheme.typography.bodyMedium)
+                        if (info.repo != null) {
+                            Text(
+                                text = info.repo,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.alpha(0.7f)
+                            )
+                        }
+                    }
                     Text(
-                        text = "$count titles", 
+                        text = "${info.count} titles", 
                         style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace), 
                         modifier = Modifier.secondaryItemAlpha()
                     )
@@ -415,7 +425,11 @@ private fun ExtensionUsageSection(extensions: StatsData.ExtensionUsage) {
 private fun WatchHabitsSection(habits: StatsData.WatchHabits) {
     StatsSectionCard(title = "Temporal Patterns") {
         Column(modifier = Modifier.padding(MaterialTheme.padding.medium), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            HabitItem("Preferred Cycle", habits.preferredWatchTime)
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                HabitItem("Preferred Cycle", habits.preferredWatchTime)
+                HabitItem("Intensity", "%.1f sessions/week".format(habits.avgSessionsPerWeek))
+            }
+            HorizontalDivider(modifier = Modifier.alpha(0.3f))
             if (habits.topDayAnime != null) {
                 HabitItem("Peak Focus (24h)", habits.topDayAnime)
             }
@@ -469,8 +483,8 @@ private fun StatusBreakdownSection(statuses: StatsData.StatusBreakdown) {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 StatusLegendItem(MaterialTheme.colorScheme.primary, "Completed", statuses.completedCount)
                 StatusLegendItem(MaterialTheme.colorScheme.secondary, "Ongoing", statuses.ongoingCount)
-                StatusLegendItem(MaterialTheme.colorScheme.error, "Dropped", statuses.droppedCount)
                 StatusLegendItem(MaterialTheme.colorScheme.tertiary, "On Hold", statuses.onHoldCount)
+                StatusLegendItem(MaterialTheme.colorScheme.error, "Dropped", statuses.droppedCount)
                 StatusLegendItem(MaterialTheme.colorScheme.outline, "Planned", statuses.planToWatchCount)
             }
         }
@@ -494,11 +508,18 @@ private fun StatusLegendItem(color: Color, label: String, count: Int) {
 @Composable
 private fun ScoreDistributionSection(scores: StatsData.ScoreDistribution) {
     StatsSectionCard(title = "Score Distribution") {
-        Column(modifier = Modifier.padding(MaterialTheme.padding.medium)) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(MaterialTheme.padding.medium)
+        ) {
             val maxCount = scores.distribution.values.maxOrNull() ?: 1
             Row(
-                modifier = Modifier.fillMaxWidth().height(150.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(160.dp)
+                    .padding(top = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.Bottom
             ) {
                 for (i in 1..10) {
@@ -508,22 +529,48 @@ private fun ScoreDistributionSection(scores: StatsData.ScoreDistribution) {
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(
-                            text = count.toString(), 
-                            style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace), 
-                            fontSize = 8.sp
-                        )
+                        if (count > 0) {
+                            Text(
+                                text = count.toString(),
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontFamily = FontFamily.Monospace,
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                fontSize = 9.sp,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .fillMaxHeight(weight.coerceAtLeast(0.05f))
-                                .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                                .background(MaterialTheme.colorScheme.primary)
+                                .fillMaxHeight(weight.coerceAtLeast(0.02f))
+                                .clip(RoundedCornerShape(topStart = 6.dp, topEnd = 6.dp))
+                                .background(
+                                    Brush.verticalGradient(
+                                        colors = listOf(
+                                            MaterialTheme.colorScheme.primary,
+                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+                                        )
+                                    )
+                                )
                         )
-                        Text(text = i.toString(), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                        HorizontalDivider(thickness = 2.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                        Text(
+                            text = i.toString(),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = if (count > 0) FontWeight.ExtraBold else FontWeight.Normal,
+                            color = if (count > 0) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Based on ${scores.scoredAnimeCount} rated titles",
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier.secondaryItemAlpha().align(Alignment.CenterHorizontally)
+            )
         }
     }
 }
