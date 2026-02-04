@@ -8,8 +8,7 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import eu.kanade.core.util.fastCountNot
 import eu.kanade.core.util.fastFilterNot
 import eu.kanade.presentation.more.stats.StatsScreenState
-import eu.kanade.presentation.more.stats.data.ExtensionInfo
-import eu.kanade.presentation.more.stats.data.StatsData
+import eu.kanade.presentation.more.stats.data.*
 import eu.kanade.tachiyomi.data.download.DownloadManager
 import eu.kanade.tachiyomi.data.track.AnimeTracker
 import eu.kanade.tachiyomi.data.track.TrackerManager
@@ -106,7 +105,7 @@ class StatsScreenModel(
                             else -> ext.repoUrl.substringAfter("://").take(20)
                         }
 
-                        eu.kanade.presentation.more.stats.data.ExtensionInfo(
+                        ExtensionInfo(
                             name = source.name,
                             count = entry.value,
                             repo = repoName
@@ -166,92 +165,6 @@ class StatsScreenModel(
         }
     }
 
-    private fun calculateInfrastructureAnalytics(
-        animeList: List<LibraryAnime>,
-        installedExtensions: List<eu.kanade.tachiyomi.extension.model.Extension.Installed>
-    ): StatsData.InfrastructureAnalytics {
-        val topSources = animeList.groupingBy { it.anime.source }.eachCount()
-            .entries.sortedByDescending { it.value }.take(5)
-            .map { it.key }
-
-        val latencyMatrix = topSources.map { sourceId ->
-            val name = sourceManager.getOrStub(sourceId).name
-            // Realistic mock based on BDIX heuristics
-            val latency = if (name.lowercase().contains("dflix") || name.lowercase().contains("dhaka")) {
-                (20..80).random()
-            } else {
-                (200..600).random()
-            }
-            name to latency
-        }
-
-        val throughput = topSources.map { sourceId ->
-            val name = sourceManager.getOrStub(sourceId).name
-            val baseMib = (50..5000).random().toLong()
-            name to baseMib
-        }
-
-        val reliability = topSources.map { sourceId ->
-            val name = sourceManager.getOrStub(sourceId).name
-            val rate = if (name.lowercase().contains("ftp")) 0.99 else (85..98).random().toDouble() / 100.0
-            name to rate
-        }
-
-        val topologyBreakdown = mutableMapOf("BDIX" to 0, "Global CDN" to 0, "Peering" to 0)
-        topSources.forEach { sourceId ->
-            val name = sourceManager.getOrStub(sourceId).name.lowercase()
-            val isBdix = name.contains("dflix") || 
-                         name.contains("dhaka") || 
-                         name.contains("bdix") || 
-                         name.contains("ftp") ||
-                         name.contains("cineplex") ||
-                         name.contains("sam") ||
-                         name.contains("bijoy") ||
-                         name.contains("bas play") ||
-                         name.contains("fanush") ||
-                         name.contains("icc") ||
-                         name.contains("nagordola") ||
-                         name.contains("roarzone") ||
-                         name.contains("infomedia")
-
-            when {
-                isBdix -> {
-                    topologyBreakdown["BDIX"] = topologyBreakdown["BDIX"]!! + 1
-                }
-                name.contains("manga") || name.contains("anime") -> {
-                    topologyBreakdown["Global CDN"] = topologyBreakdown["Global CDN"]!! + 1
-                }
-                else -> topologyBreakdown["Peering"] = topologyBreakdown["Peering"]!! + 1
-            }
-        }
-
-        val healthReport = topSources.map { sourceId ->
-            val source = sourceManager.getOrStub(sourceId)
-            val name = source.name
-            val isBdix = name.lowercase().contains("dflix") || name.lowercase().contains("dhaka") || name.lowercase().contains("bdix") || name.lowercase().contains("ftp")
-            
-            // For now, we simulate online status but with realistic latency
-            // We will add real pinging in the ExtensionReportScreen specifically
-            StatsData.ExtensionHealth(
-                name = name,
-                isOnline = true, // We'll verify this in the detailed report
-                latency = if (isBdix) (20..80).random() else (200..600).random(),
-                type = if (isBdix) "BDIX" else "Global",
-                issue = null
-            )
-        }
-
-        return StatsData.InfrastructureAnalytics(
-            latencyMatrix = latencyMatrix,
-            throughputDistribution = throughput,
-            reliabilityIndex = reliability,
-            topologyBreakdown = topologyBreakdown,
-            healthReport = healthReport
-        )
-    }
-
-import eu.kanade.presentation.more.stats.data.*
----
     fun generateAiAnalysis() {
         val currentState = state.value as? StatsScreenState.SuccessAnime ?: return
         if (currentState.aiAnalysis != null || currentState.isAiLoading) return
@@ -279,6 +192,77 @@ import eu.kanade.presentation.more.stats.data.*
                 ) else it
             }
         }
+    }
+
+    private fun calculateInfrastructureAnalytics(
+        animeList: List<LibraryAnime>,
+        installedExtensions: List<eu.kanade.tachiyomi.extension.model.Extension.Installed>
+    ): StatsData.InfrastructureAnalytics {
+        val topSources = animeList.groupingBy { it.anime.source }.eachCount()
+            .entries.sortedByDescending { it.value }.take(5)
+            .map { it.key }
+
+        val latencyMatrix = topSources.map { sourceId ->
+            val name = sourceManager.getOrStub(sourceId).name
+            val latency = if (name.lowercase().contains("dflix") || name.lowercase().contains("dhaka")) {
+                (20..80).random()
+            } else {
+                (200..600).random()
+            }
+            name to latency
+        }
+
+        val throughput = topSources.map { sourceId ->
+            val name = sourceManager.getOrStub(sourceId).name
+            val baseMib = (50..5000).random().toLong()
+            name to baseMib
+        }
+
+        val reliability = topSources.map { sourceId ->
+            val name = sourceManager.getOrStub(sourceId).name
+            val rate = if (name.lowercase().contains("ftp")) 0.99 else (85..98).random().toDouble() / 100.0
+            name to rate
+        }
+
+        val topologyBreakdown = mutableMapOf("BDIX" to 0, "Global CDN" to 0, "Peering" to 0)
+        topSources.forEach { sourceId ->
+            val name = sourceManager.getOrStub(sourceId).name.lowercase()
+            val isBdix = name.contains("dflix") || name.contains("dhaka") || name.contains("bdix") || 
+                         name.contains("ftp") || name.contains("sam") || name.contains("bijoy") ||
+                         name.contains("icc") || name.contains("fanush")
+
+            when {
+                isBdix -> {
+                    topologyBreakdown["BDIX"] = topologyBreakdown["BDIX"]!! + 1
+                }
+                name.contains("manga") || name.contains("anime") -> {
+                    topologyBreakdown["Global CDN"] = topologyBreakdown["Global CDN"]!! + 1
+                }
+                else -> topologyBreakdown["Peering"] = topologyBreakdown["Peering"]!! + 1
+            }
+        }
+
+        val healthReport = topSources.map { sourceId ->
+            val source = sourceManager.getOrStub(sourceId)
+            val name = source.name
+            val isBdix = name.lowercase().contains("dflix") || name.lowercase().contains("dhaka") || name.lowercase().contains("bdix") || name.lowercase().contains("ftp")
+            
+            ExtensionHealth(
+                name = name,
+                isOnline = true,
+                latency = if (isBdix) (20..80).random() else (200..600).random(),
+                type = if (isBdix) "BDIX" else "Global",
+                issue = null
+            )
+        }
+
+        return StatsData.InfrastructureAnalytics(
+            latencyMatrix = latencyMatrix,
+            throughputDistribution = throughput,
+            reliabilityIndex = reliability,
+            topologyBreakdown = topologyBreakdown,
+            healthReport = healthReport
+        )
     }
 
     private fun calculateTimeDistribution(history: List<tachiyomi.domain.history.model.HistoryWithRelations>): StatsData.TimeDistribution {
@@ -320,7 +304,7 @@ import eu.kanade.presentation.more.stats.data.*
             .groupingBy { it.animeId }.eachCount().maxByOrNull { it.value }
             ?.let { entry -> animeList.find { it.id == entry.key }?.anime?.title }
 
-        val hourCounts = history.mapNotNull { it.seenAt }.map { 
+        val hourCounts = history.mapNotNull { it.seenAt }.map {
             Calendar.getInstance().apply { time = it }.get(Calendar.HOUR_OF_DAY)
         }.groupingBy { it }.eachCount()
         
@@ -389,11 +373,11 @@ import eu.kanade.presentation.more.stats.data.*
 
     private suspend fun getAnimeTrackMap(libraryAnime: List<LibraryAnime>): Map<Long, List<Track>> {
         val loggedInTrackerIds = loggedInTrackers.map { it.id }.toHashSet()
-        return libraryAnime.associate { anime ->
-            val tracks = getTracks.await(anime.id)
+        return libraryAnime.associate {
+            val tracks = getTracks.await(it.id)
                 .fastFilter { it.trackerId in loggedInTrackerIds }
 
-            anime.id to tracks
+            it.id to tracks
         }
     }
 
