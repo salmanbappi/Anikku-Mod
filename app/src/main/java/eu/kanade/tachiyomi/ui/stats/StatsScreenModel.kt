@@ -328,19 +328,30 @@ class StatsScreenModel(
         statuses: StatsData.StatusBreakdown,
     ): String? {
         val summary = StringBuilder()
-        summary.append("Total Anime: ${animeList.size}\n")
-        summary.append("Sources Count: ${trackers.sourceCount}\n")
-        summary.append("Status Breakdown: Completed=${statuses.completedCount}, Ongoing=${statuses.ongoingCount}, Dropped=${statuses.droppedCount}, OnHold=${statuses.onHoldCount}\n")
-        summary.append("Score Distribution: ${scores.distribution.entries.joinToString { "${it.key}: ${it.value}" }}
-")
-        summary.append("Total Episodes Watched: ${episodes.readEpisodeCount}\n")
-        summary.append("Top Extensions (with repos): ${extensions.topExtensions.joinToString { "${it.name} (${it.repo ?: "Unknown Repo"})" }}
-")
-        summary.append("Favorite Genres: ${genres.genreScores.joinToString { it.first }}
-")
+        summary.append("Total Anime: ").append(animeList.size).append("\n")
+        summary.append("Sources Count: ").append(trackers.sourceCount).append("\n")
+        summary.append("Status Breakdown: Completed=").append(statuses.completedCount)
+            .append(", Ongoing=").append(statuses.ongoingCount)
+            .append(", Dropped=").append(statuses.droppedCount)
+            .append(", OnHold=").append(statuses.onHoldCount).append("\n")
+        
+        val scoreDist = scores.distribution.entries.joinToString { entry -> 
+            entry.key.toString() + ": " + entry.value.toString() 
+        }
+        summary.append("Score Distribution: ").append(scoreDist).append("\n")
+        
+        summary.append("Total Episodes Watched: ").append(episodes.readEpisodeCount).append("\n")
+        
+        val extUsage = extensions.topExtensions.joinToString { info ->
+            info.name + " (" + (info.repo ?: "Unknown Repo") + ")"
+        }
+        summary.append("Top Extensions (with repos): ").append(extUsage).append("\n")
+        
+        val favGenres = genres.genreScores.joinToString { it.first }
+        summary.append("Favorite Genres: ").append(favGenres).append("\n")
         
         val recentTitles = animeList.take(10).joinToString { it.anime.title }
-        summary.append("Recent Highlights: $recentTitles\n")
+        summary.append("Recent Highlights: ").append(recentTitles).append("\n")
 
         return aiManager.getStatisticsAnalysis(summary.toString())
     }
