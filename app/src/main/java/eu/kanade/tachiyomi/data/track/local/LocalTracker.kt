@@ -16,19 +16,23 @@ class LocalTracker(id: Long) : BaseTracker(id, "Local Metadata"), AnimeTracker {
     override val isLoggedIn: Boolean = true
     override val isLoggedInFlow: Flow<Boolean> = flowOf(true)
 
-    override suspend fun search(query: String, isManga: Boolean): List<TrackSearch> = emptyList()
+    override suspend fun search(query: String): List<TrackSearch> = emptyList()
+
+    override suspend fun searchAnime(query: String): List<TrackSearch> = emptyList()
 
     override suspend fun refresh(track: Track): Track = track
 
     override suspend fun update(track: Track, didWatchEpisode: Boolean): Track = track
 
-    override fun getStatusList(): List<Long> = listOf(
+    override suspend fun bind(track: Track, hasSeenEpisodes: Boolean): Track = track
+
+    override fun getStatusList(): ImmutableList<Long> = listOf(
         WATCHING,
         COMPLETED,
         ON_HOLD,
         DROPPED,
         PLAN_TO_WATCH,
-    )
+    ).toImmutableList()
 
     override fun getStatusListAnime(): List<Long> = getStatusList()
 
