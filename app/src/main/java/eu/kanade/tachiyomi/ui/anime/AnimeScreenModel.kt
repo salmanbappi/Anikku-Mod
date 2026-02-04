@@ -308,6 +308,19 @@ class AnimeScreenModel(
     ) {
         val state = successState ?: return
         var anime = state.anime
+        
+        // Sync to Local Metadata tracker for statistics
+        if (status != null || score != null) {
+            screenModelScope.launchIO {
+                val dbTrack = eu.kanade.tachiyomi.data.database.models.Track.create(TrackerManager.LOCAL).apply {
+                    anime_id = anime.id
+                    this.status = status ?: anime.ogStatus
+                    this.score = score ?: (anime.score ?: 0.0)
+                }
+                insertTrack.await(dbTrack.toDomainTrack(idRequired = false)!!)
+            }
+        }
+
         if (state.anime.isLocal()) {
             val newTitle = if (title.isNullOrBlank()) anime.url else title.trim()
             val newAuthor = author?.trimOrNull()
