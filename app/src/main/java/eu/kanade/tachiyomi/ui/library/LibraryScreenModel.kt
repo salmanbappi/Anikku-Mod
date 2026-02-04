@@ -625,6 +625,22 @@ class LibraryScreenModel(
         clearSelection()
     }
 
+    fun toggleFavoriteSelection() {
+        val selection = state.value.selection
+        val allFavorite = selection.fastAll { it.anime.favorite }
+        val newFavorite = !allFavorite
+        screenModelScope.launchNonCancellable {
+            val animeUpdates = selection.map {
+                it.anime.copy(
+                    favorite = newFavorite,
+                    dateAdded = if (newFavorite) java.time.Instant.now().toEpochMilli() else 0,
+                ).toAnimeUpdate()
+            }
+            updateAnime.awaitAll(animeUpdates)
+        }
+        clearSelection()
+    }
+
     /**
      * Remove the selected anime.
      *

@@ -16,6 +16,8 @@ import eu.kanade.tachiyomi.ui.more.MoreTab
 import eu.kanade.tachiyomi.ui.updates.UpdatesTab
 import tachiyomi.i18n.MR
 
+import eu.kanade.tachiyomi.ui.home.FeedTab
+
 enum class NavStyle(
     val titleRes: StringResource,
     val moreTab: Tab,
@@ -39,6 +41,7 @@ enum class NavStyle(
         get() {
             val tabs = mutableListOf(
                 LibraryTab,
+                FeedTab,
                 UpdatesTab,
                 HistoryTab,
                 BrowseTab,

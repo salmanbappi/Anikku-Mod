@@ -200,6 +200,7 @@ data object LibraryTab : Tab {
                     onChangeCategoryClicked = screenModel::openChangeCategoryDialog,
                     onMarkAsSeenClicked = { screenModel.markSeenSelection(true) },
                     onMarkAsUnseenClicked = { screenModel.markSeenSelection(false) },
+                    onFavoriteClicked = { screenModel.toggleFavoriteSelection() },
                     onDownloadClicked = screenModel::runDownloadActionSelection
                         .takeIf { state.selection.fastAll { !it.anime.isLocal() } },
                     onDeleteClicked = screenModel::openDeleteAnimeDialog,

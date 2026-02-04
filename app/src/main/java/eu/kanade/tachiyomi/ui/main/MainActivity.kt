@@ -160,9 +160,14 @@ class MainActivity : BaseActivity() {
             val incognito by preferences.incognitoMode().collectAsState()
             val downloadOnly by preferences.downloadedOnly().collectAsState()
             val indexingAnime by downloadCache.isInitializing.collectAsState()
+            
+            val libraryUpdateProgress by remember {
+                eu.kanade.tachiyomi.data.library.LibraryUpdateProgress.getProgress(context)
+            }.collectAsState(initial = null)
 
             val isSystemInDarkTheme = isSystemInDarkTheme()
             val statusBarBackgroundColor = when {
+                libraryUpdateProgress != null -> MaterialTheme.colorScheme.primary
                 indexingAnime -> IndexingBannerBackgroundColor
                 downloadOnly -> DownloadedOnlyBannerBackgroundColor
                 incognito -> IncognitoModeBannerBackgroundColor
@@ -205,6 +210,7 @@ class MainActivity : BaseActivity() {
                             downloadedOnlyMode = downloadOnly,
                             incognitoMode = incognito,
                             indexing = indexingAnime,
+                            libraryUpdateProgress = libraryUpdateProgress,
                             modifier = Modifier.windowInsetsPadding(scaffoldInsets),
                         )
                     },

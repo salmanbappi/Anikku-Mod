@@ -224,6 +224,7 @@ object HomeScreen : Screen() {
                     openTabEvent.receiveAsFlow().collectLatest {
                         tabNavigator.current = when (it) {
                             is Tab.AnimeLib -> LibraryTab
+                            is Tab.Feed -> FeedTab
                             is Tab.Updates -> UpdatesTab
                             is Tab.History -> HistoryTab
                             is Tab.Browse -> {
@@ -390,6 +391,7 @@ object HomeScreen : Screen() {
 
     sealed interface Tab {
         data class AnimeLib(val animeIdToOpen: Long? = null) : Tab
+        data object Feed : Tab
         data object Updates : Tab
         data object History : Tab
         data class Browse(val toExtensions: Boolean = false, val anime: Boolean = false) : Tab

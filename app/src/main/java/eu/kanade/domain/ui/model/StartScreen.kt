@@ -8,8 +8,12 @@ import eu.kanade.tachiyomi.ui.library.LibraryTab
 import eu.kanade.tachiyomi.ui.updates.UpdatesTab
 import tachiyomi.i18n.MR
 
+import eu.kanade.tachiyomi.ui.home.FeedTab
+import tachiyomi.i18n.sy.SYMR
+
 enum class StartScreen(val titleRes: StringResource, val tab: Tab) {
     ANIME(MR.strings.label_anime, LibraryTab),
+    FEED(SYMR.strings.feed, FeedTab),
     UPDATES(MR.strings.label_recent_updates, UpdatesTab),
     HISTORY(MR.strings.label_recent_manga, HistoryTab),
     BROWSE(MR.strings.browse, BrowseTab),
