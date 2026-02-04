@@ -132,6 +132,7 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
             Injekt.get<Database>()
             Injekt.get<DownloadManager>()
             Injekt.get<CustomAnimeRepository>()
+            Injekt.get<eu.kanade.tachiyomi.data.ai.AiManager>()
             
             val syncPreferences: SyncPreferences = Injekt.get()
             val syncTriggerOpt = syncPreferences.getSyncTriggerOptions()

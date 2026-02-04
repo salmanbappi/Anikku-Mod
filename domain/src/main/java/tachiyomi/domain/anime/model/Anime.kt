@@ -187,38 +187,10 @@ data class Anime(
         const val ANIME_AIRING_TIME_MASK = 0x0FFFFFFFF000000L
         const val ANIME_INTRO_DISABLE_MASK = 0x100000000000000L
 
-        fun create() = Anime(
-            id = -1L,
-            url = "",
-            // Sy -->
-            ogTitle = "",
-            // SY <--
-            source = -1L,
-            favorite = false,
-            lastUpdate = 0L,
-            nextUpdate = 0L,
-            fetchInterval = 0,
-            dateAdded = 0L,
-            viewerFlags = 0L,
-            episodeFlags = 0L,
-            coverLastModified = 0L,
-            // SY -->
-            ogArtist = null,
-            ogAuthor = null,
-            ogThumbnailUrl = null,
-            ogDescription = null,
-            ogGenre = null,
-            ogStatus = 0L,
-            // SY <--
-            updateStrategy = UpdateStrategy.ALWAYS_UPDATE,
-            initialized = false,
-            lastModifiedAt = 0L,
-            favoriteModifiedAt = null,
-            version = 0L,
-        )
-
         // SY -->
         private val getCustomAnimeInfo: GetCustomAnimeInfo by injectLazy()
         // SY <--
+
+        fun create() = Anime(
     }
 }
