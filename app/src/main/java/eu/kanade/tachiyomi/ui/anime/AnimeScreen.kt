@@ -328,7 +328,7 @@ class AnimeScreen(
                 LocalScoreDialog(
                     anime = dialog.anime,
                     onDismissRequest = screenModel::dismissDialog,
-                    onConfirm = { newScore ->
+                    onConfirm = { newScore, newStatus ->
                         screenModel.updateAnimeInfo(
                             title = null,
                             author = null,
@@ -336,7 +336,7 @@ class AnimeScreen(
                             thumbnailUrl = null,
                             description = null,
                             tags = null,
-                            status = null,
+                            status = newStatus,
                             score = newScore
                         )
                     }
