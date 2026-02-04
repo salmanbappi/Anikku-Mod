@@ -1,16 +1,12 @@
 package eu.kanade.presentation.more.stats
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,18 +18,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AutoAwesome
-import androidx.compose.material.icons.outlined.CollectionsBookmark
 import androidx.compose.material.icons.outlined.Extension
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.LocalLibrary
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -47,42 +42,36 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
+import eu.kanade.domain.ai.AiPreferences
 import eu.kanade.presentation.anime.components.MarkdownRender
-import eu.kanade.presentation.more.stats.components.StatsItem
-import eu.kanade.presentation.more.stats.components.StatsOverviewItem
 import eu.kanade.presentation.more.stats.data.StatsData
-import tachiyomi.presentation.core.util.secondaryItemAlpha
 import eu.kanade.presentation.util.toDurationString
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
-import java.util.Locale
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
-
-import androidx.compose.foundation.Canvas
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.nativeCanvas
-import kotlin.math.cos
-import kotlin.math.sin
-
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.material3.ElevatedCard
-import coil3.compose.AsyncImage
-import eu.kanade.domain.ai.AiPreferences
 import tachiyomi.presentation.core.util.collectAsState
+import tachiyomi.presentation.core.util.secondaryItemAlpha
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 @Composable
 fun StatsScreenContent(
@@ -107,7 +96,7 @@ fun StatsScreenContent(
         }
 
         item {
-            GenreRadarSection(state.genreAffinity)
+            GenreAffinitySection(state.genreAffinity)
         }
 
         item {
@@ -123,137 +112,12 @@ fun StatsScreenContent(
         }
 
         item {
-            GenreAffinitySection(state.genreAffinity)
-        }
-
-        item {
             ExtensionUsageSection(state.extensions)
         }
 
         item {
             WatchHabitsSection(state.watchHabits)
         }
-    }
-}
-
-@Composable
-private fun StatsSectionCard(
-    title: String,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    Text(
-        modifier = Modifier.padding(horizontal = MaterialTheme.padding.extraLarge),
-        text = title,
-        style = MaterialTheme.typography.titleSmall,
-    )
-
-    ElevatedCard(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(
-                horizontal = MaterialTheme.padding.medium,
-                vertical = MaterialTheme.padding.small,
-            ),
-        shape = MaterialTheme.shapes.extraLarge,
-    ) {
-        Column(modifier = Modifier.padding(MaterialTheme.padding.medium)) {
-            content()
-        }
-    }
-}
-
-@Composable
-private fun GenreRadarSection(genreAffinity: StatsData.GenreAffinity) {
-    if (genreAffinity.genreScores.size < 3) return
-    
-    StatsSectionCard(title = "Neural Affinity Map") {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp)
-                .padding(MaterialTheme.padding.medium),
-            contentAlignment = Alignment.Center
-        ) {
-            val labels = genreAffinity.genreScores.take(6).map { it.first }
-            val values = genreAffinity.genreScores.take(6).map { it.second.toFloat() }
-            val max = values.maxOrNull() ?: 1f
-            
-            RadarChart(
-                labels = labels,
-                data = values.map { it / max },
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-    }
-}
-
-@Composable
-fun RadarChart(
-    labels: List<String>,
-    data: List<Float>,
-    modifier: Modifier = Modifier
-) {
-    val primaryColor = MaterialTheme.colorScheme.primary
-    val gridColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
-    val textColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-
-    Canvas(modifier = modifier) {
-        val center = Offset(size.width / 2, size.height / 2)
-        val radius = size.minDimension / 2 * 0.7f
-        val angleStep = (2 * Math.PI / labels.size).toFloat()
-
-        // Draw Web Grid
-        for (i in 1..4) {
-            val currentRadius = radius * (i / 4f)
-            val path = Path()
-            for (j in labels.indices) {
-                val angle = j * angleStep - Math.PI.toFloat() / 2
-                val x = center.x + currentRadius * cos(angle)
-                val y = center.y + currentRadius * sin(angle)
-                if (j == 0) path.moveTo(x, y) else path.lineTo(x, y)
-            }
-            path.close()
-            drawPath(path, gridColor, style = Stroke(width = 1.dp.toPx()))
-        }
-
-        // Draw Axes and Labels
-        labels.forEachIndexed { i, label ->
-            val angle = i * angleStep - Math.PI.toFloat() / 2
-            val x = center.x + radius * cos(angle)
-            val y = center.y + radius * sin(angle)
-            drawLine(gridColor, center, Offset(x, y), strokeWidth = 1.dp.toPx())
-
-            // Draw Label
-            val labelRadius = radius + 20.dp.toPx()
-            val lx = center.x + labelRadius * cos(angle)
-            val ly = center.y + labelRadius * sin(angle)
-            
-            drawContext.canvas.nativeCanvas.drawText(
-                label.take(10),
-                lx,
-                ly,
-                android.graphics.Paint().apply {
-                    color = textColor.toArgb()
-                    textSize = 10.sp.toPx()
-                    textAlign = android.graphics.Paint.Align.CENTER
-                }
-            )
-        }
-
-        // Draw Data Path
-        val dataPath = Path()
-        data.forEachIndexed { i, value ->
-            val angle = i * angleStep - Math.PI.toFloat() / 2
-            val currentRadius = radius * value
-            val x = center.x + currentRadius * cos(angle)
-            val y = center.y + currentRadius * sin(angle)
-            if (i == 0) dataPath.moveTo(x, y) else dataPath.lineTo(x, y)
-        }
-        dataPath.close()
-        
-        drawPath(dataPath, primaryColor.copy(alpha = 0.3f))
-        drawPath(dataPath, primaryColor, style = Stroke(width = 2.dp.toPx()))
     }
 }
 
@@ -310,41 +174,9 @@ private fun ProfileHeaderSection(state: StatsScreenState.SuccessAnime) {
             Text(
                 text = "${state.overview.libraryAnimeCount} Titles in Collection",
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                    fontFamily = FontFamily.Monospace
                 ),
                 modifier = Modifier.secondaryItemAlpha()
-            )
-        }
-    }
-}
-
-@Composable
-private fun GenreBar(genre: String, count: Int, maxCount: Int) {
-    val progress = count.toFloat() / maxCount
-    Column {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(text = genre, style = MaterialTheme.typography.bodySmall)
-            Text(
-                text = count.toString(),
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
-                ),
-                modifier = Modifier.secondaryItemAlpha()
-            )
-        }
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(6.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(progress)
-                    .fillMaxHeight()
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary)
             )
         }
     }
@@ -424,7 +256,7 @@ private fun MetricItem(icon: ImageVector, label: String, value: String) {
                 text = value,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                fontFamily = FontFamily.Monospace
             )
             Text(text = label, style = MaterialTheme.typography.labelSmall, modifier = Modifier.secondaryItemAlpha())
         }
@@ -451,7 +283,7 @@ private fun GenreAffinitySection(genreAffinity: StatsData.GenreAffinity) {
                 )
             } else {
                 genres.forEach { (genre, count) ->
-                    GenreBar(genre, count, genres.first().second)
+                    GenreBar(genre, count, genres.firstOrNull()?.second ?: 1)
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
@@ -530,7 +362,11 @@ private fun GenreBar(genre: String, count: Int, maxCount: Int) {
     Column {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(text = genre, style = MaterialTheme.typography.bodySmall)
-            Text(text = count.toString(), style = MaterialTheme.typography.bodySmall, modifier = Modifier.secondaryItemAlpha())
+            Text(
+                text = count.toString(), 
+                style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace), 
+                modifier = Modifier.secondaryItemAlpha()
+            )
         }
         Box(
             modifier = Modifier
@@ -564,7 +400,11 @@ private fun ExtensionUsageSection(extensions: StatsData.ExtensionUsage) {
                         modifier = Modifier.width(24.dp)
                     )
                     Text(text = name, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
-                    Text(text = "$count titles", style = MaterialTheme.typography.bodySmall, modifier = Modifier.secondaryItemAlpha())
+                    Text(
+                        text = "$count titles", 
+                        style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace), 
+                        modifier = Modifier.secondaryItemAlpha()
+                    )
                 }
             }
         }
@@ -643,13 +483,17 @@ private fun StatusLegendItem(color: Color, label: String, count: Int) {
         Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(color))
         Spacer(modifier = Modifier.width(8.dp))
         Text(text = label, style = MaterialTheme.typography.labelMedium, modifier = Modifier.weight(1f))
-        Text(text = count.toString(), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+        Text(
+            text = count.toString(), 
+            style = MaterialTheme.typography.labelMedium.copy(fontFamily = FontFamily.Monospace), 
+            fontWeight = FontWeight.Bold
+        )
     }
 }
 
 @Composable
 private fun ScoreDistributionSection(scores: StatsData.ScoreDistribution) {
-    StatsSectionCard(title = stringResource(MR.strings.label_score_resonance)) {
+    StatsSectionCard(title = "Score Distribution") {
         Column(modifier = Modifier.padding(MaterialTheme.padding.medium)) {
             val maxCount = scores.distribution.values.maxOrNull() ?: 1
             Row(
@@ -664,7 +508,11 @@ private fun ScoreDistributionSection(scores: StatsData.ScoreDistribution) {
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(text = count.toString(), style = MaterialTheme.typography.labelSmall, fontSize = 8.sp)
+                        Text(
+                            text = count.toString(), 
+                            style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace), 
+                            fontSize = 8.sp
+                        )
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -681,7 +529,7 @@ private fun ScoreDistributionSection(scores: StatsData.ScoreDistribution) {
 }
 
 @Composable
-fun PieChart(
+private fun PieChart(
     data: List<Float>,
     colors: List<Color>,
     modifier: Modifier = Modifier
@@ -690,7 +538,7 @@ fun PieChart(
     Canvas(modifier = modifier) {
         var startAngle = -90f
         data.forEachIndexed { index, value ->
-            val sweepAngle = (value / total) * 360f
+            val sweepAngle = if (total > 0) (value / total) * 360f else 0f
             drawArc(
                 color = colors[index % colors.size],
                 startAngle = startAngle,
@@ -699,10 +547,26 @@ fun PieChart(
             )
             startAngle += sweepAngle
         }
-        // Hollow center for "Donut" style
-        drawCircle(
-            color = Color.Black.copy(alpha = 0.1f), // Shadow
-            radius = size.minDimension / 2 * 0.6f
+    }
+}
+
+@Composable
+private fun StatsSectionCard(
+    title: String,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(horizontal = MaterialTheme.padding.medium, vertical = MaterialTheme.padding.small)
         )
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            content()
+        }
     }
 }
