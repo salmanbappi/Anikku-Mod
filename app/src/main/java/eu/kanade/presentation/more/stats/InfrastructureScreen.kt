@@ -20,7 +20,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -89,14 +91,20 @@ fun InfrastructureScreen(
                             if (bdixNodes.isEmpty()) {
                                 item { EmptyState("No BDIX Nodes detected in your active extensions.") }
                             }
-                            items(bdixNodes) { node ->
+                            items(
+                                items = bdixNodes,
+                                key = { it.name } // Stable keys prevent jumping
+                            ) { node ->
                                 SourceNodeAuditCard(node)
                             }
                         }
                         1 -> {
                             item { InfrastructureHealthBoard(report.nodes) }
                             val globalNodes = report.nodes.filter { it.network.topology != "BDIX" }
-                            items(globalNodes) { node ->
+                            items(
+                                items = globalNodes,
+                                key = { it.name }
+                            ) { node ->
                                 SourceNodeAuditCard(node)
                             }
                         }
@@ -243,20 +251,36 @@ private fun SourceNodeAuditCard(node: SourceNode) {
                 Spacer(modifier = Modifier.width(16.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(text = node.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Text(
-                        text = node.network.topology,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = if (node.network.topology == "BDIX") Color(0xFF1E88E5) else MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            text = node.network.topology,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (node.network.topology == "BDIX") Color(0xFF1E88E5) else MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold
+                        )
+                        if (node.capabilities.isApi) {
+                            Surface(
+                                shape = RoundedCornerShape(4.dp),
+                                color = Color(0xFF4CAF50).copy(alpha = 0.1f)
+                            ) {
+                                Text(
+                                    text = "API",
+                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color(0xFF4CAF50),
+                                    fontWeight = FontWeight.Black
+                                )
+                            }
+                        }
+                    }
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = "${node.network.latency}ms",
+                        text = if (node.version == "Scanning...") "..." else "${node.network.latency}ms",
                         style = MaterialTheme.typography.titleSmall,
                         fontFamily = FontFamily.Monospace,
                         fontWeight = FontWeight.Bold,
-                        color = if (node.network.latency < 100) Color(0xFF4CAF50) else Color.Unspecified
+                        color = if (node.network.latency < 100 && node.network.latency > 0) Color(0xFF4CAF50) else Color.Unspecified
                     )
                     Text("LATENCY", style = MaterialTheme.typography.labelSmall, fontSize = 7.sp, modifier = Modifier.secondaryItemAlpha())
                 }
@@ -265,12 +289,12 @@ private fun SourceNodeAuditCard(node: SourceNode) {
             if (expanded) {
                 HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp).alpha(0.1f))
                 
-                Text("NODE TELEMETRY", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.ExtraBold)
+                Text("DEVELOPER TELEMETRY", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.ExtraBold)
                 Spacer(modifier = Modifier.height(8.dp))
                 
-                InfoRow("Package", node.pkgName)
-                InfoRow("IPv4", node.network.ipAddress)
-                InfoRow("TLS", node.network.tlsVersion)
+                InfoRow("Endpoint ID", node.pkgName)
+                InfoRow("IPv4 Address", node.network.ipAddress)
+                InfoRow("Security", "Encrypted via ${node.network.tlsVersion}")
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
