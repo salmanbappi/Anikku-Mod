@@ -58,6 +58,13 @@ sealed interface StatsData {
         val preferredWatchTime: String,
         val avgSessionsPerWeek: Double,
     ) : StatsData
+
+    data class InfrastructureAnalytics(
+        val latencyMatrix: List<Pair<String, Int>>, // Name to ms
+        val throughputDistribution: List<Pair<String, Long>>, // Name to MiB
+        val reliabilityIndex: List<Pair<String, Double>>, // Name to SuccessRate
+        val topologyBreakdown: Map<String, Int>, // BDIX vs CDN etc
+    ) : StatsData
 }
 
 data class ExtensionInfo(

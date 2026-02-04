@@ -32,6 +32,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -118,6 +119,12 @@ fun StatsScreenContent(
 
         item {
             ExtensionUsageSection(state.extensions)
+        }
+
+        if (state.infrastructure != null) {
+            item {
+                InfrastructureSection(state.infrastructure)
+            }
         }
 
         item {
@@ -461,6 +468,80 @@ private fun ExtensionUsageSection(extensions: StatsData.ExtensionUsage) {
                         style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace), 
                         modifier = Modifier.secondaryItemAlpha()
                     )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun InfrastructureSection(infra: StatsData.InfrastructureAnalytics) {
+    StatsSectionCard(title = "Extension Infrastructure Analytics") {
+        Column(modifier = Modifier.padding(MaterialTheme.padding.medium), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            // Topology
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                infra.topologyBreakdown.forEach { (type, count) ->
+                    if (count > 0) {
+                        Surface(
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(8.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(text = type, style = MaterialTheme.typography.labelSmall)
+                                Text(
+                                    text = count.toString(),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = FontFamily.Monospace
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Latency Matrix
+            Column {
+                Text(
+                    text = "Latency Matrix (ms)",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                infra.latencyMatrix.forEach { (name, ms) ->
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 2.dp)) {
+                        Text(text = name, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+                        Text(
+                            text = "${ms}ms",
+                            style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                            color = if (ms < 100) Color(0xFF4CAF50) else if (ms < 300) Color(0xFFFFC107) else Color(0xFFF44336)
+                        )
+                    }
+                }
+            }
+
+            // Reliability Index
+            Column {
+                Text(
+                    text = "Endpoint Reliability Index",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                infra.reliabilityIndex.forEach { (name, rate) ->
+                    val percentage = (rate * 100).toInt()
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 2.dp)) {
+                        Text(text = name, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+                        Text(
+                            text = "${percentage}% SR",
+                            style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }
