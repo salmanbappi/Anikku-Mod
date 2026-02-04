@@ -2,7 +2,7 @@ package eu.kanade.tachiyomi.ui.stats
 
 import cafe.adriel.voyager.core.model.StateScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import eu.kanade.presentation.more.stats.data.*
+import eu.kanade.tachiyomi.network.model.*
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.network.NetworkHelper
 import eu.kanade.tachiyomi.source.online.HttpSource

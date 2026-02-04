@@ -1,6 +1,6 @@
 package tachiyomi.domain.source.service
 
-import eu.kanade.presentation.more.stats.data.NodeStatus
+import eu.kanade.tachiyomi.network.model.NodeStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
