@@ -31,6 +31,13 @@ import tachiyomi.presentation.core.screens.EmptyScreen
 import tachiyomi.presentation.core.screens.LoadingScreen
 import java.time.LocalDate
 
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.unit.dp
+
 @Composable
 fun HistoryScreen(
     state: HistoryScreenModel.State,
@@ -73,6 +80,7 @@ fun HistoryScreen(
                 scrollBehavior = scrollBehavior,
             )
         },
+        containerColor = MaterialTheme.colorScheme.background,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     ) { contentPadding ->
         state.list.let {
@@ -112,33 +120,65 @@ private fun HistoryScreenContent(
     FastScrollLazyColumn(
         contentPadding = contentPadding,
     ) {
-        items(
-            items = history,
-            key = { "history-${it.hashCode()}" },
-            contentType = {
-                when (it) {
-                    is HistoryUiModel.Header -> "header"
-                    is HistoryUiModel.Item -> "item"
-                }
-            },
-        ) { item ->
-            when (item) {
-                is HistoryUiModel.Header -> {
+        var i = 0
+        while (i < history.size) {
+            val model = history[i]
+            if (model is HistoryUiModel.Header) {
+                item(key = "historyHeader-${model.hashCode()}") {
                     ListGroupHeader(
                         modifier = Modifier.animateItemFastScroll(),
-                        text = relativeDateText(item.date),
+                        text = relativeDateText(model.date),
                     )
                 }
-                is HistoryUiModel.Item -> {
-                    val value = item.item
-                    HistoryItem(
-                        modifier = Modifier.animateItemFastScroll(),
-                        history = value,
-                        onClickCover = { onClickCover(value) },
-                        onClickResume = { onClickResume(value) },
-                        onClickDelete = { onClickDelete(value) },
-                    )
+                i++
+                val groupItems = mutableListOf<HistoryWithRelations>()
+                while (i < history.size && history[i] is HistoryUiModel.Item) {
+                    groupItems.add((history[i] as HistoryUiModel.Item).item)
+                    i++
                 }
+                item(key = "historyIsland-${model.hashCode()}") {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 4.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        tonalElevation = 2.dp
+                    ) {
+                        Column {
+                            groupItems.forEach { historyItem ->
+                                HistoryItem(
+                                    modifier = Modifier.animateItemFastScroll(),
+                                    history = historyItem,
+                                    onClickCover = { onClickCover(historyItem) },
+                                    onClickResume = { onClickResume(historyItem) },
+                                    onClickDelete = { onClickDelete(historyItem) },
+                                )
+                            }
+                        }
+                    }
+                }
+            } else if (model is HistoryUiModel.Item) {
+                val value = model.item
+                item(key = "history-${value.hashCode()}") {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 4.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        tonalElevation = 2.dp
+                    ) {
+                        HistoryItem(
+                            modifier = Modifier.animateItemFastScroll(),
+                            history = value,
+                            onClickCover = { onClickCover(value) },
+                            onClickResume = { onClickResume(value) },
+                            onClickDelete = { onClickDelete(value) },
+                        )
+                    }
+                }
+                i++
             }
         }
     }

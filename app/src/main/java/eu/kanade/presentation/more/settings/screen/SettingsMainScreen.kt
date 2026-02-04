@@ -118,7 +118,7 @@ object SettingsMainScreen : Screen() {
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     groupedItems.forEach { (category, items) ->
-                        item {
+                        item(key = category) {
                             MoreSection(title = category) {
                                 items.forEach { item ->
                                     MoreItem(

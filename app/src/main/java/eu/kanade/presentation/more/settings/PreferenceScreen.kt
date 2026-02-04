@@ -22,6 +22,7 @@ import kotlin.time.Duration.Companion.seconds
  * @param items [Preference] items which should be displayed on the preference screen. An item can be a single [PreferenceItem] or a group ([Preference.PreferenceGroup])
  * @param modifier [Modifier] to be applied to the preferenceScreen layout
  */
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme

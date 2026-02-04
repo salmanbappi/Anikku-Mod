@@ -38,6 +38,11 @@ import tachiyomi.presentation.core.theme.header
 import tachiyomi.presentation.core.util.plus
 import tachiyomi.source.local.isLocal
 
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.util.fastForEach
+
 @Composable
 fun SourcesScreen(
     state: SourcesScreenModel.State,
@@ -54,37 +59,74 @@ fun SourcesScreen(
         )
         else -> {
             ScrollbarLazyColumn(
-                contentPadding = contentPadding + topSmallPaddingValues,
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    start = contentPadding.calculateStartPadding(androidx.compose.ui.unit.LayoutDirection.Ltr),
+                    end = contentPadding.calculateEndPadding(androidx.compose.ui.unit.LayoutDirection.Ltr),
+                    top = contentPadding.calculateTopPadding() + 8.dp,
+                    bottom = contentPadding.calculateBottomPadding() + 8.dp
+                ),
             ) {
-                items(
-                    items = state.items,
-                    contentType = {
-                        when (it) {
-                            is SourceUiModel.Header -> "header"
-                            is SourceUiModel.Item -> "item"
-                        }
-                    },
-                    key = {
-                        when (it) {
-                            is SourceUiModel.Header -> it.hashCode()
-                            is SourceUiModel.Item -> "source-${it.source.key()}"
-                        }
-                    },
-                ) { model ->
-                    when (model) {
-                        is SourceUiModel.Header -> {
+                val items = state.items
+                var i = 0
+                while (i < items.size) {
+                    val model = items[i]
+                    if (model is SourceUiModel.Header) {
+                        item(key = "header-${model.language}") {
                             SourceHeader(
-                                modifier = Modifier.animateItem(),
                                 language = model.language,
+                                modifier = Modifier.animateItem()
                             )
                         }
-                        is SourceUiModel.Item -> SourceItem(
-                            modifier = Modifier.animateItem(),
-                            source = model.source,
-                            onClickItem = onClickItem,
-                            onLongClickItem = onLongClickItem,
-                            onClickPin = onClickPin,
-                        )
+                        i++
+                        val groupItems = mutableListOf<SourceUiModel.Item>()
+                        while (i < items.size && items[i] is SourceUiModel.Item) {
+                            groupItems.add(items[i] as SourceUiModel.Item)
+                            i++
+                        }
+                        item(key = "island-${model.language}") {
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 12.dp, vertical = 4.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                tonalElevation = 2.dp
+                            ) {
+                                Column {
+                                    groupItems.forEach { item ->
+                                        SourceItem(
+                                            source = item.source,
+                                            onClickItem = onClickItem,
+                                            onLongClickItem = onLongClickItem,
+                                            onClickPin = onClickPin,
+                                            modifier = Modifier.animateItem()
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    } else if (model is SourceUiModel.Item) {
+                        // Handle cases where items might appear before a header (e.g. pinned)
+                        item(key = "source-${model.source.key()}") {
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 12.dp, vertical = 4.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                tonalElevation = 2.dp
+                            ) {
+                                SourceItem(
+                                    source = model.source,
+                                    onClickItem = onClickItem,
+                                    onLongClickItem = onLongClickItem,
+                                    onClickPin = onClickPin,
+                                    modifier = Modifier.animateItem()
+                                )
+                            }
+                        }
+                        i++
                     }
                 }
             }

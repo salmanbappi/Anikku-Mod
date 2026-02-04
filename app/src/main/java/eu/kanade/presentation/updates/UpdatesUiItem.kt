@@ -76,6 +76,10 @@ internal fun LazyListScope.updatesLastUpdatedItem(
     }
 }
 
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.fillMaxWidth
+
 internal fun LazyListScope.updatesUiItems(
     uiModels: List<UpdatesUiModel>,
     selectionMode: Boolean,
@@ -84,68 +88,121 @@ internal fun LazyListScope.updatesUiItems(
     onClickUpdate: (UpdatesItem, altPlayer: Boolean) -> Unit,
     onDownloadEpisode: (List<UpdatesItem>, EpisodeDownloadAction) -> Unit,
 ) {
-    items(
-        items = uiModels,
-        contentType = {
-            when (it) {
-                is UpdatesUiModel.Header -> "header"
-                is UpdatesUiModel.Item -> "item"
-            }
-        },
-        key = {
-            when (it) {
-                is UpdatesUiModel.Header -> "animeUpdatesHeader-${it.hashCode()}"
-                is UpdatesUiModel.Item -> "animeUpdates-${it.item.update.animeId}-${it.item.update.episodeId}"
-            }
-        },
-    ) { item ->
-        when (item) {
-            is UpdatesUiModel.Header -> {
+    var i = 0
+    while (i < uiModels.size) {
+        val model = uiModels[i]
+        if (model is UpdatesUiModel.Header) {
+            item(key = "animeUpdatesHeader-${model.hashCode()}") {
                 ListGroupHeader(
                     modifier = Modifier.animateItemFastScroll(),
-                    text = relativeDateText(item.date),
+                    text = relativeDateText(model.date),
                 )
             }
-            is UpdatesUiModel.Item -> {
-                val updatesItem = item.item
-                UpdatesUiItem(
-                    modifier = Modifier.animateItemFastScroll(),
-                    update = updatesItem.update,
-                    selected = updatesItem.selected,
-                    watchProgress = updatesItem.update.lastSecondSeen
-                        .takeIf { !updatesItem.update.seen && it > 0L }
-                        ?.let {
-                            stringResource(
-                                MR.strings.episode_progress,
-                                formatProgress(it),
-                                formatProgress(updatesItem.update.totalSeconds),
+            i++
+            val groupItems = mutableListOf<UpdatesItem>()
+            while (i < uiModels.size && uiModels[i] is UpdatesUiModel.Item) {
+                groupItems.add((uiModels[i] as UpdatesUiModel.Item).item)
+                i++
+            }
+            item(key = "animeUpdatesIsland-${model.hashCode()}") {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 4.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    tonalElevation = 2.dp
+                ) {
+                    Column {
+                        groupItems.forEach { updatesItem ->
+                            UpdatesUiItem(
+                                modifier = Modifier.animateItemFastScroll(),
+                                update = updatesItem.update,
+                                selected = updatesItem.selected,
+                                watchProgress = updatesItem.update.lastSecondSeen
+                                    .takeIf { !updatesItem.update.seen && it > 0L }
+                                    ?.let {
+                                        stringResource(
+                                            MR.strings.episode_progress,
+                                            formatProgress(it),
+                                            formatProgress(updatesItem.update.totalSeconds),
+                                        )
+                                    },
+                                onLongClick = {
+                                    onUpdateSelected(updatesItem, !updatesItem.selected, true, true)
+                                },
+                                onClick = {
+                                    when {
+                                        selectionMode -> onUpdateSelected(
+                                            updatesItem,
+                                            !updatesItem.selected,
+                                            true,
+                                            false,
+                                        )
+                                        else -> onClickUpdate(updatesItem, false)
+                                    }
+                                },
+                                onClickCover = { onClickCover(updatesItem) }.takeIf { !selectionMode },
+                                onDownloadEpisode = { action: EpisodeDownloadAction ->
+                                    onDownloadEpisode(listOf(updatesItem), action)
+                                }.takeIf { !selectionMode },
+                                downloadStateProvider = updatesItem.downloadStateProvider,
+                                downloadProgressProvider = updatesItem.downloadProgressProvider,
+                                updatesItem = updatesItem,
                             )
-                        },
-                    onLongClick = {
-                        onUpdateSelected(updatesItem, !updatesItem.selected, true, true)
-                    },
-                    onClick = {
-                        when {
-                            selectionMode -> onUpdateSelected(
-                                updatesItem,
-                                !updatesItem.selected,
-                                true,
-                                false,
-                            )
-                            else -> onClickUpdate(updatesItem, false)
                         }
-                    },
-                    onClickCover = { onClickCover(updatesItem) }.takeIf { !selectionMode },
-                    onDownloadEpisode = { action: EpisodeDownloadAction ->
-                        onDownloadEpisode(listOf(updatesItem), action)
-                    }.takeIf { !selectionMode },
-                    downloadStateProvider = updatesItem.downloadStateProvider,
-                    downloadProgressProvider = updatesItem.downloadProgressProvider,
-                    // AM (FILE_SIZE) -->
-                    updatesItem = updatesItem,
-                    // <-- AM (FILE_SIZE)
-                )
+                    }
+                }
             }
+        } else if (model is UpdatesUiModel.Item) {
+            val updatesItem = model.item
+            item(key = "animeUpdates-${updatesItem.update.animeId}-${updatesItem.update.episodeId}") {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 4.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    tonalElevation = 2.dp
+                ) {
+                    UpdatesUiItem(
+                        modifier = Modifier.animateItemFastScroll(),
+                        update = updatesItem.update,
+                        selected = updatesItem.selected,
+                        watchProgress = updatesItem.update.lastSecondSeen
+                            .takeIf { !updatesItem.update.seen && it > 0L }
+                            ?.let {
+                                stringResource(
+                                    MR.strings.episode_progress,
+                                    formatProgress(it),
+                                    formatProgress(updatesItem.update.totalSeconds),
+                                )
+                            },
+                        onLongClick = {
+                            onUpdateSelected(updatesItem, !updatesItem.selected, true, true)
+                        },
+                        onClick = {
+                            when {
+                                selectionMode -> onUpdateSelected(
+                                    updatesItem,
+                                    !updatesItem.selected,
+                                    true,
+                                    false,
+                                )
+                                else -> onClickUpdate(updatesItem, false)
+                            }
+                        },
+                        onClickCover = { onClickCover(updatesItem) }.takeIf { !selectionMode },
+                        onDownloadEpisode = { action: EpisodeDownloadAction ->
+                            onDownloadEpisode(listOf(updatesItem), action)
+                        }.takeIf { !selectionMode },
+                        downloadStateProvider = updatesItem.downloadStateProvider,
+                        downloadProgressProvider = updatesItem.downloadProgressProvider,
+                        updatesItem = updatesItem,
+                    )
+                }
+            }
+            i++
         }
     }
 }
