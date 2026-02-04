@@ -296,54 +296,14 @@ private fun ColumnScope.DisplayPage(
     }
 
     val columns by columnPreference.collectAsState()
-    val isList = displayMode == LibraryDisplayMode.List
-    
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = MaterialTheme.padding.medium, vertical = MaterialTheme.padding.small)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Text(
-                text = if (isList) stringResource(MR.strings.pref_library_rows) else stringResource(MR.strings.pref_library_columns),
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(
-                    onClick = { columnPreference.set(columns - 1) },
-                    enabled = columns > 0,
-                ) {
-                    Icon(Icons.Outlined.RemoveCircle, contentDescription = null)
-                }
-                Text(
-                    text = if (columns > 0) columns.toString() else stringResource(MR.strings.label_default),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontFamily = FontFamily.Monospace,
-                    modifier = Modifier.width(48.dp),
-                    textAlign = TextAlign.Center,
-                )
-                IconButton(
-                    onClick = { columnPreference.set(columns + 1) },
-                    enabled = columns < 10,
-                ) {
-                    Icon(Icons.Outlined.AddCircle, contentDescription = null)
-                }
-            }
-        }
-        
-        SliderItem(
-            label = "",
-            value = columns,
-            valueText = if (columns > 0) columns.toString() else stringResource(MR.strings.label_default),
-            min = 0,
-            max = 10,
-            onChange = columnPreference::set
-        )
-    }
+    SliderItem(
+        label = if (displayMode == LibraryDisplayMode.List) stringResource(MR.strings.pref_library_rows) else stringResource(MR.strings.pref_library_columns),
+        value = columns,
+        valueText = if (columns > 0) columns.toString() else stringResource(MR.strings.label_default),
+        min = 0,
+        max = 10,
+        onChange = columnPreference::set,
+    )
 
     HeadingItem(MR.strings.overlay_header)
     CheckboxItem(
