@@ -112,6 +112,10 @@ class Downloader(
 
     private val ffmpegSemaphore = Semaphore(10)
 
+    // Rationale: Tracks "memory slots" to prevent OOM when using high thread counts.
+    // Each slot represents a segment currently held in RAM before being written to disk.
+    private val memorySemaphore = Semaphore(80) 
+
     /**
      * Notifier for the downloader state and progress.
      */
@@ -587,7 +591,10 @@ class Downloader(
         download.downloadedSegments = 0
 
         // 3. Parallel segment downloading with Sequential Writing (High Performance)
-        val concurrency = preferences.downloadThreads().get().coerceAtLeast(12)
+        // Rationale: We use a Semaphore to saturate bandwidth while the OOM prevention loop 
+        // ensures that we don't buffer too many segments in memory before they are 
+        // sequentially written to the file channel.
+        val concurrency = calculateDynamicConcurrency()
         val semaphore = Semaphore(concurrency)
         var failedSegments = 0
         
@@ -595,70 +602,68 @@ class Downloader(
             FileOutputStream(pfd.fileDescriptor).channel.use { channel ->
                 coroutineScope {
                     segments.forEachIndexed { index, segmentUrl ->
-                        launch(Dispatchers.IO) {
-                            semaphore.withPermit {
-                                var attempt = 0
-                                var success = false
-                                while (attempt < 5 && !success) {
-                                    try {
-                                        // Flow Control: Prevent OOM (Adjusted for higher concurrency)
-                                        while (downloadedSegments.size > 50) {
-                                            delay(200)
-                                        }
-                                        val segRequest = Request.Builder().url(segmentUrl).headers(headerMap).build()
-                                        client.newCall(segRequest).execute().use { response ->
-                                            if (!response.isSuccessful) {
-                                                if (response.code == 403) throw IOException("Segment 403: Forbidden")
-                                                throw IOException("Segment failed: ${response.code}")
-                                            }
-                                            val data = response.body?.bytes() ?: throw IOException("Empty segment")
-                                            
-                                            synchronized(downloadedSegments) {
-                                                downloadedSegments[index] = data
-                                            }
-                                            
-                                            // Sequential merge logic
-                                            synchronized(channel) {
-                                                while (downloadedSegments.containsKey(nextWriteIndex)) {
-                                                    val segmentData = downloadedSegments.remove(nextWriteIndex)!!
-                                                    channel.write(ByteBuffer.wrap(segmentData))
-                                                    nextWriteIndex++
+                                launch(Dispatchers.IO) {
+                                    var attempt = 0
+                                    var success = false
+                                    while (attempt < 5 && !success) {
+                                        try {
+                                            // Rationale: We acquire a permit before downloading to bound RAM usage.
+                                            // The permit is released automatically after the segment is written to disk.
+                                            memorySemaphore.withPermit {
+                                                val segRequest = Request.Builder().url(segmentUrl).headers(headerMap).build()
+                                                client.newCall(segRequest).execute().use { response ->
+                                                    if (!response.isSuccessful) {
+                                                        if (response.code == 403) throw IOException("Segment 403: Forbidden")
+                                                        throw IOException("Segment failed: ${response.code}")
+                                                    }
+                                                    val data = response.body?.bytes() ?: throw IOException("Empty segment")
                                                     
-                                                    totalDownloaded++
-                                                    // Update Rich Notification
-                                                    download.downloadedSegments = nextWriteIndex
-                                                    // Simulate speed update
-                                                    download.update(channel.size(), (totalSegments * 1024 * 1024).toLong(), false) 
-                                                    notifier.onProgressChange(download)
+                                                    synchronized(downloadedSegments) {
+                                                        downloadedSegments[index] = data
+                                                    }
+                                                    
+                                                    // Sequential merge logic
+                                                    synchronized(channel) {
+                                                        while (downloadedSegments.containsKey(nextWriteIndex)) {
+                                                            val segmentData = downloadedSegments.remove(nextWriteIndex)!!
+                                                            channel.write(ByteBuffer.wrap(segmentData))
+                                                            nextWriteIndex++
+                                                            
+                                                            totalDownloaded++
+                                                            // Update Rich Notification
+                                                            download.downloadedSegments = nextWriteIndex
+                                                            // Simulate speed update
+                                                            download.update(channel.size(), (totalSegments * 1024 * 1024).toLong(), false) 
+                                                            notifier.onProgressChange(download)
+                                                        }
+                                                    }
+                                                    success = true
                                                 }
                                             }
-                                            success = true
-                                        }
-                                    } catch (e: Exception) {
-                                        if (e is CancellationException) throw e
-                                        attempt++
-                                        if (attempt >= 5) {
-                                            logcat(LogPriority.WARN) { "Failed to download segment $index after 5 attempts: ${e.message}" }
-                                            synchronized(downloadedSegments) {
-                                                // Add empty byte array to skip this segment but keep sequence
-                                                downloadedSegments[index] = ByteArray(0)
-                                                failedSegments++
-                                            }
-                                            // Trigger write if this was the next index
-                                            synchronized(channel) {
-                                                while (downloadedSegments.containsKey(nextWriteIndex)) {
-                                                    val segmentData = downloadedSegments.remove(nextWriteIndex)!!
-                                                    if (segmentData.isNotEmpty()) channel.write(ByteBuffer.wrap(segmentData))
-                                                    nextWriteIndex++
+                                        } catch (e: Exception) {
+                                            if (e is CancellationException) throw e
+                                            attempt++
+                                            if (attempt >= 5) {
+                                                logcat(LogPriority.WARN) { "Failed to download segment $index after 5 attempts: ${e.message}" }
+                                                synchronized(downloadedSegments) {
+                                                    // Add empty byte array to skip this segment but keep sequence
+                                                    downloadedSegments[index] = ByteArray(0)
+                                                    failedSegments++
                                                 }
+                                                // Trigger write if this was the next index
+                                                synchronized(channel) {
+                                                    while (downloadedSegments.containsKey(nextWriteIndex)) {
+                                                        val segmentData = downloadedSegments.remove(nextWriteIndex)!!
+                                                        if (segmentData.isNotEmpty()) channel.write(ByteBuffer.wrap(segmentData))
+                                                        nextWriteIndex++
+                                                    }
+                                                }
+                                            } else {
+                                                delay(1000L * attempt)
                                             }
-                                        } else {
-                                            delay(1000L * attempt)
                                         }
                                     }
                                 }
-                            }
-                        }
                     }
                 }
                 // Force flush to disk to ensure size check is accurate

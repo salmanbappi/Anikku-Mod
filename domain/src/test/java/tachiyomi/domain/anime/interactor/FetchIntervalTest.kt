@@ -1,10 +1,14 @@
 package tachiyomi.domain.anime.interactor
 
 import io.kotest.matchers.shouldBe
+import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
+import tachiyomi.domain.anime.model.Anime
+import tachiyomi.domain.episode.interactor.GetEpisodesByAnimeId
 import tachiyomi.domain.episode.model.Episode
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
@@ -25,7 +29,8 @@ class FetchIntervalTest {
         dateUpload = testTime.toEpochSecond() * 1000,
     )
 
-    private val fetchInterval = FetchInterval(mockk())
+    private val getEpisodesByAnimeId = mockk<GetEpisodesByAnimeId>()
+    private val fetchInterval = FetchInterval(getEpisodesByAnimeId)
 
     @Test
     fun `returns default interval of 7 days when not enough distinct days`() {
@@ -130,6 +135,24 @@ class FetchIntervalTest {
             episodeWithTime(episode, (43 * it).hours)
         }
         fetchInterval.calculateInterval(episodes, testZoneId) shouldBe 1
+    }
+
+    @Test
+    fun `calculateNextUpdate handles exponential backoff when missing many updates`() = runTest {
+        // Mock anime that hasn't been updated in 100 days
+        val interval = 1 // 1 day interval
+        val lastUpdate = testTime.minusDays(100).toInstant().toEpochMilli()
+        val anime = Anime.create().copy(lastUpdate = lastUpdate, nextUpdate = 0L, fetchInterval = interval)
+        
+        coEvery { getEpisodesByAnimeId.await(any(), any()) } returns emptyList()
+        
+        // window is today +/- 1 day
+        val window = fetchInterval.getWindow(testTime)
+        
+        val update = fetchInterval.toAnimeUpdate(anime, testTime, window)
+        
+        // The interval in update should be increased exponentially
+        update.fetchInterval shouldBe 16 
     }
 
     private fun episodeWithTime(episode: Episode, duration: Duration): Episode {

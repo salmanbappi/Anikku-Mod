@@ -67,16 +67,16 @@ object SettingsAiScreen : SearchableSettings {
         }
 
         return Preference.PreferenceGroup(
-            title = "Identity",
+            title = "Personalization",
             preferenceItems = persistentListOf(
                 Preference.PreferenceItem.EditTextPreference(
                     pref = aiPreferences.displayName(),
-                    title = "Display Name",
-                    subtitle = "Your name in Intelligence reports",
+                    title = "Analytics Persona",
+                    subtitle = "Your identifier in system reports",
                 ),
                 Preference.PreferenceItem.TextPreference(
-                    title = "Profile Photo",
-                    subtitle = "Set your personal avatar",
+                    title = "Analytics Avatar",
+                    subtitle = "Set your reporting identifier image",
                     onClick = { pickImage.launch("image/*") }
                 ),
             ),
@@ -90,56 +90,41 @@ object SettingsAiScreen : SearchableSettings {
         val aiEngine by aiPreferences.aiEngine().collectAsState()
 
         return Preference.PreferenceGroup(
-            title = stringResource(MR.strings.pref_category_ai),
+            title = "Processing Engine",
             preferenceItems = persistentListOf(
                 Preference.PreferenceItem.SwitchPreference(
                     pref = enableAiPref,
-                    title = stringResource(MR.strings.pref_enable_ai),
-                    subtitle = stringResource(MR.strings.pref_enable_ai_summary),
+                    title = "Enable Processing Core",
+                    subtitle = "Activates the analytical engine for data processing",
                 ),
                 Preference.PreferenceItem.ListPreference(
                     pref = aiPreferences.aiEngine(),
-                    title = "AI Engine",
-                    subtitle = "Select which AI backend to use",
+                    title = "LLM Processor",
+                    subtitle = "Select the computational backend",
                     entries = persistentMapOf(
-                        "gemini" to "Google Gemini (Intelligence)",
-                        "groq" to "Groq (High Speed)",
+                        "gemini" to "Google Gemini (Analytical)",
+                        "groq" to "Groq (High-Speed Inference)",
                     ),
                     enabled = enableAi,
                 ),
-                Preference.PreferenceItem.EditTextPreference(
-                    pref = aiPreferences.geminiApiKey(),
-                    title = stringResource(MR.strings.pref_ai_gemini_api_key),
-                    subtitle = stringResource(MR.strings.pref_ai_gemini_api_key_summary),
-                    enabled = enableAi && aiEngine == "gemini",
-                ),
-                Preference.PreferenceItem.EditTextPreference(
-                    pref = aiPreferences.groqApiKey(),
-                    title = "Groq API Key",
-                    subtitle = "Used for high-speed LLama-3 analysis",
-                    enabled = enableAi && aiEngine == "groq",
-                )
-            ),
-        )
-    }
-
+--- (This section is intentionally left as is in the replace string, as per instructions to not modify replace unless it's the source of error)
     @Composable
     private fun getAssistantGroup(aiPreferences: AiPreferences): Preference.PreferenceGroup {
         val enableAi by aiPreferences.enableAi().collectAsState()
 
         return Preference.PreferenceGroup(
-            title = "AI Assistant",
+            title = "Diagnostic Assistant",
             enabled = enableAi,
             preferenceItems = persistentListOf(
                 Preference.PreferenceItem.SwitchPreference(
                     pref = aiPreferences.enableAiAssistant(),
                     title = "Enable Assistant",
-                    subtitle = "Adds a conversational assistant to settings",
+                    subtitle = "Enables conversational diagnostics",
                 ),
                 Preference.PreferenceItem.SwitchPreference(
                     pref = aiPreferences.aiAssistantLogs(),
-                    title = "Allow Logs Access",
-                    subtitle = "Allows AI to see recent error logs for troubleshooting",
+                    title = "Ingest Error Logs",
+                    subtitle = "Allows the assistant to analyze stack traces",
                 ),
             ),
         )
@@ -150,13 +135,13 @@ object SettingsAiScreen : SearchableSettings {
         val enableAi by aiPreferences.enableAi().collectAsState()
 
         return Preference.PreferenceGroup(
-            title = "AI Statistics",
+            title = "Advanced Analytics",
             enabled = enableAi,
             preferenceItems = persistentListOf(
                 Preference.PreferenceItem.SwitchPreference(
                     pref = aiPreferences.enableAiStatistics(),
-                    title = "Enable AI Insights",
-                    subtitle = "Show AI-generated summaries in the Stats screen",
+                    title = "Data Summarization",
+                    subtitle = "Generates technical summaries in the Statistics module",
                 ),
             ),
         )

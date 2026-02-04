@@ -117,7 +117,7 @@ class AiAssistantScreen : Screen() {
                     ) {
                         if (messages.isEmpty()) {
                             item {
-                                AssistantMessage("Neural core online. System logs ingested. I am AniZen OS, ready to troubleshoot or analyze your library DNA. What is your query?")
+                                AssistantMessage("Diagnostic engine ready. System logs synchronized. I can assist with troubleshooting, data analysis, or library optimization. How can I help?")
                             }
                         }
                         items(messages) { message ->
@@ -188,7 +188,7 @@ class AiAssistantScreen : Screen() {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "CORE: ACTIVE // LOGS: SYNCED // THREATS: 0",
+                    text = "ENGINE: ACTIVE // LOGS: SYNCED // ERRORS: 0",
                     style = MaterialTheme.typography.labelSmall,
                     fontFamily = FontFamily.Monospace,
                     letterSpacing = 1.sp,
@@ -226,7 +226,7 @@ class AiAssistantScreen : Screen() {
                 TextField(
                     value = value,
                     onValueChange = onValueChange,
-                    placeholder = { Text("Input command...", style = MaterialTheme.typography.bodyMedium) },
+                    placeholder = { Text("Search logs or query analytics...", style = MaterialTheme.typography.bodyMedium) },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(28.dp),
                     colors = TextFieldDefaults.colors(
@@ -297,7 +297,7 @@ class AiAssistantScreen : Screen() {
                     modifier = Modifier.size(14.dp)
                 )
                 Text(
-                    text = "AniZen Intelligence",
+                    text = "System Analysis",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.ExtraBold,
@@ -324,7 +324,7 @@ class AiAssistantScreen : Screen() {
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = "NEURAL PROCESSING",
+                text = "SYNCHRONIZING DATA",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.primary,
                 fontFamily = FontFamily.Monospace,

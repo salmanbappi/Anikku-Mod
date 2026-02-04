@@ -57,12 +57,23 @@ fun GlobalSearchToolbar(
                 scrollBehavior = scrollBehavior,
             )
             if (progress in 1..<total) {
-                LinearProgressIndicator(
-                    progress = { progress / total.toFloat() },
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .fillMaxWidth(),
-                )
+                Column(modifier = Modifier.align(Alignment.BottomStart)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Text(
+                            text = "$progress / $total",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    LinearProgressIndicator(
+                        progress = { progress / total.toFloat() },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
         }
 
