@@ -51,6 +51,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -84,6 +85,11 @@ class AiAssistantScreen : Screen() {
         var input by remember { mutableStateOf("") }
         var isLoading by remember { mutableStateOf(false) }
         val listState = rememberLazyListState()
+        var errorCount by remember { mutableIntStateOf(0) }
+
+        LaunchedEffect(Unit) {
+            errorCount = aiManager.getErrorCount()
+        }
 
         LaunchedEffect(messages.size) {
             if (messages.isNotEmpty()) {
@@ -107,7 +113,7 @@ class AiAssistantScreen : Screen() {
                     .imePadding()
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
-                    DiagnosticHUD()
+                    DiagnosticHUD(errorCount)
                     
                     LazyColumn(
                         state = listState,
@@ -151,6 +157,8 @@ class AiAssistantScreen : Screen() {
                                 } else {
                                     messages.add(AiManager.ChatMessage("model", "Neural link unstable. Check API Key in Settings."))
                                 }
+                                // Refresh error count after chat
+                                errorCount = aiManager.getErrorCount()
                             }
                         }
                     )
@@ -160,7 +168,7 @@ class AiAssistantScreen : Screen() {
     }
 
     @Composable
-    private fun DiagnosticHUD() {
+    private fun DiagnosticHUD(errorCount: Int) {
         val infiniteTransition = rememberInfiniteTransition(label = "pulse")
         val alpha by infiniteTransition.animateFloat(
             initialValue = 0.4f,
@@ -184,11 +192,14 @@ class AiAssistantScreen : Screen() {
                     modifier = Modifier
                         .size(8.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = alpha))
+                        .background(
+                            if (errorCount > 0) Color.Red.copy(alpha = alpha)
+                            else Color.Green.copy(alpha = alpha)
+                        )
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "ENGINE: ACTIVE // LOGS: SYNCED // ERRORS: 0",
+                    text = "ENGINE: ACTIVE // LOGS: SYNCED // ERRORS: $errorCount",
                     style = MaterialTheme.typography.labelSmall,
                     fontFamily = FontFamily.Monospace,
                     letterSpacing = 1.sp,
