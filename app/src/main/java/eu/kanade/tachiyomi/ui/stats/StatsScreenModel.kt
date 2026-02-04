@@ -98,11 +98,23 @@ class StatsScreenModel(
                         val source = sourceManager.getOrStub(entry.key)
                         val ext = installedExtensions.find { it.sources.any { s -> s.id == entry.key } }
                         
+                        // Robust repo parsing
                         val repoName = when {
                             ext?.repoUrl == null -> null
-                            ext.repoUrl.contains("github.com/") -> ext.repoUrl.substringAfter("github.com/").substringBefore("/raw")
-                            ext.repoUrl.contains(".github.io/") -> ext.repoUrl.substringAfter("https://").substringBefore(".github.io/") + "/" + ext.repoUrl.substringAfter(".github.io/").substringBefore("/")
-                            else -> ext.repoUrl.substringAfter("://").take(20)
+                            ext.repoUrl.contains("github.com/") -> {
+                                ext.repoUrl.substringAfter("github.com/").substringBefore("/raw")
+                            }
+                            ext.repoUrl.contains("raw.githubusercontent.com/") -> {
+                                // Format: https://raw.githubusercontent.com/owner/repo/branch/index.min.json
+                                val parts = ext.repoUrl.substringAfter("raw.githubusercontent.com/").split("/")
+                                if (parts.size >= 2) "${parts[0]}/${parts[1]}" else "GitHub Raw"
+                            }
+                            ext.repoUrl.contains(".github.io/") -> {
+                                val owner = ext.repoUrl.substringAfter("https://").substringBefore(".github.io/")
+                                val repo = ext.repoUrl.substringAfter(".github.io/").substringBefore("/")
+                                "$owner/$repo"
+                            }
+                            else -> ext.repoUrl.substringAfter("://").substringBefore("/")
                         }
 
                         ExtensionInfo(
@@ -140,8 +152,8 @@ class StatsScreenModel(
             val statusBreakdown = StatsData.StatusBreakdown(
                 completedCount = distinctLibraryAnime.count { it.hasStarted && it.unseenCount == 0L && it.totalEpisodes > 0 },
                 ongoingCount = distinctLibraryAnime.count { it.hasStarted && it.unseenCount > 0L && it.anime.status.toInt() == SAnime.ONGOING },
-                droppedCount = animeTrackMap.values.flatten().count { it.status == 4L },
-                onHoldCount = animeTrackMap.values.flatten().count { it.status == 3L },
+                droppedCount = animeTrackMap.values.flatten().count { it.status == 4L }, // Universal DROPPED code
+                onHoldCount = animeTrackMap.values.flatten().count { it.status == 3L }, // Universal ON_HOLD code
                 planToWatchCount = distinctLibraryAnime.count { !it.hasStarted },
             )
 
