@@ -124,29 +124,30 @@ class InfrastructureScreenModel(
     private suspend fun probeNode(source: HttpSource): SourceNode {
         var latency = 999
         var resolved = false
-        var ip = "Offline"
+        var ip = "Scanning"
         var tls = "Unknown"
         var status = NodeStatus.OFFLINE
 
         try {
             val probeClient = source.client.newBuilder()
-                .connectTimeout(8, TimeUnit.SECONDS)
-                .readTimeout(8, TimeUnit.SECONDS)
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
                 .followRedirects(true)
                 .build()
 
-            // Try standard request with headers to avoid being blocked
             val request = Request.Builder()
                 .url(source.baseUrl)
                 .headers(source.headers)
-                .header("X-Anikku-Probe", "CommandCenter-v2")
+                .header("X-Anikku-Probe", "CommandCenter-v2.1")
                 .build()
 
             measureTimeMillis {
                 probeClient.newCall(request).execute().use { response ->
                     resolved = true
-                    tls = response.handshake?.tlsVersion?.javaName ?: "TLS v1.3"
-                    if (response.isSuccessful || response.code < 500) {
+                    tls = response.handshake?.tlsVersion?.javaName ?: "v1.3"
+                    // If we get ANY response from the server, it's NOT offline
+                    // 401/403/404/500 all mean the server is technically ALIVE
+                    if (response.code in 200..499) {
                         status = NodeStatus.OPERATIONAL
                     } else {
                         status = NodeStatus.DEGRADED
@@ -155,18 +156,20 @@ class InfrastructureScreenModel(
             }.let { latency = it.toInt() }
 
             val domain = source.baseUrl.substringAfter("://").substringBefore("/")
-            ip = InetAddress.getByName(domain).hostAddress ?: "DNS Fail"
+            ip = try { InetAddress.getByName(domain).hostAddress ?: "0.0.0.0" } catch(e: Exception) { "DNS Fail" }
 
         } catch (e: Exception) {
             status = NodeStatus.OFFLINE
+            ip = "Network Err"
         }
 
         val name = source.name.lowercase()
         val isBdix = name.contains("dflix") || name.contains("dhaka") || name.contains("bdix") || 
                      name.contains("ftp") || name.contains("sam") || name.contains("bijoy") ||
-                     name.contains("icc") || name.contains("fanush") || name.contains("nagordola")
+                     name.contains("icc") || name.contains("fanush") || name.contains("nagordola") ||
+                     name.contains("amader") || name.contains("cineplex") || name.contains("roarzone") ||
+                     name.contains("infomedia") || name.contains("fm ftp") || name.contains("bas play")
 
-        // Enhanced API detection: Audit class names and typical API server patterns
         val className = source::class.java.simpleName
         val isApi = className.contains("Api", ignoreCase = true) || 
                     className.contains("Json", ignoreCase = true) ||
@@ -175,8 +178,8 @@ class InfrastructureScreenModel(
         return SourceNode(
             name = source.name,
             pkgName = source::class.java.name.substringBeforeLast("."),
-            version = "Node Probed",
-            status = if (status == NodeStatus.OPERATIONAL && latency > 2000) NodeStatus.DEGRADED else status,
+            version = "PROBED",
+            status = if (status == NodeStatus.OPERATIONAL && latency > 2500) NodeStatus.DEGRADED else status,
             network = NetworkDiagnostics(
                 latency = latency,
                 topology = if (isBdix) "BDIX" else "Global CDN",
@@ -186,7 +189,7 @@ class InfrastructureScreenModel(
             ),
             capabilities = SourceCapabilities(
                 isApi = isApi,
-                mtSupport = false, // Requested to remove MT
+                mtSupport = false,
                 latestSupport = source.supportsLatest,
                 searchSupport = true
             ),
