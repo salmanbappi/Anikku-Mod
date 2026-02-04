@@ -1,6 +1,7 @@
 package eu.kanade.tachiyomi.data.ai
 
 import android.content.Context
+import android.os.Build
 import eu.kanade.domain.ai.AiPreferences
 import eu.kanade.tachiyomi.network.NetworkHelper
 import kotlinx.serialization.Serializable

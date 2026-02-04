@@ -99,8 +99,23 @@ class Downloader(
     private val sourceManager: SourceManager = Injekt.get(),
     private val networkHelper: eu.kanade.tachiyomi.network.NetworkHelper = Injekt.get(),
 ) {
+
+    private fun calculateDynamicConcurrency(): Int {
+        val userThreads = preferences.downloadThreads().get()
+        val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as? android.app.ActivityManager
+        
+        // Rationale: High thread counts (30+) can cause out-of-memory errors on older devices.
+        // We dynamically cap the threads based on the device's memory profile if the user 
+        // doesn't force a high limit.
+        return when {
+            activityManager?.isLowRamDevice == true -> userThreads.coerceIn(1, 8)
+            Runtime.getRuntime().maxMemory() < 256 * 1024 * 1024 -> userThreads.coerceIn(1, 12)
+            else -> userThreads.coerceAtLeast(12)
+        }
+    }
+
     /**
-     * Store for persisting downloads across restarts.
+     * Store for controlling downloader.
      */
     private val store = DownloadStore(context)
 

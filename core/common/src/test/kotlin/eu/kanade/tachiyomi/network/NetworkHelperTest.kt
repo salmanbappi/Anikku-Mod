@@ -4,12 +4,12 @@ import android.content.Context
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import kotlin.math.pow
 
 class NetworkHelperTest {
 
     private val context = mockk<Context>()
-    private val networkHelper = NetworkHelper(context)
+    private val preferences = mockk<NetworkPreferences>()
+    private val networkHelper = NetworkHelper(context, preferences, isDebugBuild = false)
 
     @Test
     fun `calculateExponentialBackoff respects maxDelay`() {
