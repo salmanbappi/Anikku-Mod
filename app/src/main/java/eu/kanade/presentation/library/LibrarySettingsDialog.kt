@@ -283,28 +283,20 @@ private fun ColumnScope.DisplayPage(
 
     val columns by columnPreference.collectAsState()
     if (displayMode == LibraryDisplayMode.List) {
-        SliderItem(
+        ColumnItem(
             label = stringResource(MR.strings.pref_library_rows),
-            max = 10,
             value = columns,
-            valueText = if (columns > 0) {
-                pluralStringResource(MR.plurals.pref_library_entries_in_column, columns, columns)
-            } else {
-                stringResource(MR.strings.label_default)
-            },
-            onChange = columnPreference::set,
+            min = 0,
+            max = 10,
+            onClick = columnPreference::set,
         )
     } else {
-        SliderItem(
+        ColumnItem(
             label = stringResource(MR.strings.pref_library_columns),
-            max = 10,
             value = columns,
-            valueText = if (columns > 0) {
-                stringResource(MR.strings.pref_library_columns_per_row, columns)
-            } else {
-                stringResource(MR.strings.label_default)
-            },
-            onChange = columnPreference::set,
+            min = 0,
+            max = 10,
+            onClick = columnPreference::set,
         )
     }
 
@@ -342,6 +334,49 @@ data class GroupMode(
     val nameRes: Int,
     val drawableRes: Int,
 )
+
+@Composable
+private fun ColumnItem(
+    label: String,
+    value: Int,
+    min: Int,
+    max: Int,
+    onClick: (Int) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MaterialTheme.padding.medium, vertical = MaterialTheme.padding.small),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(
+                onClick = { onClick(value - 1) },
+                enabled = value > min,
+            ) {
+                Icon(Icons.Outlined.RemoveCircle, contentDescription = null)
+            }
+            Text(
+                text = if (value > 0) value.toString() else stringResource(MR.strings.label_default),
+                style = MaterialTheme.typography.titleMedium,
+                fontFamily = FontFamily.Monospace,
+                modifier = Modifier.width(48.dp),
+                textAlign = TextAlign.Center,
+            )
+            IconButton(
+                onClick = { onClick(value + 1) },
+                enabled = value < max,
+            ) {
+                Icon(Icons.Outlined.AddCircle, contentDescription = null)
+            }
+        }
+    }
+}
 
 private fun groupTypeDrawableRes(type: Int): Int {
     return when (type) {
