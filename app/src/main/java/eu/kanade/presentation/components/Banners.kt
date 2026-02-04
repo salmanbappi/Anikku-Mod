@@ -63,20 +63,36 @@ fun AppStateBanners(
     downloadedOnlyMode: Boolean,
     incognitoMode: Boolean,
     indexing: Boolean,
+    libraryUpdateProgress: Int? = null,
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
     val mainInsets = WindowInsets.statusBars
     val mainInsetsTop = mainInsets.getTop(density)
     SubcomposeLayout(modifier = modifier) { constraints ->
+        val libraryUpdatePlaceable = subcompose(-1) {
+            AnimatedVisibility(
+                visible = libraryUpdateProgress != null,
+                enter = expandVertically(),
+                exit = shrinkVertically(),
+            ) {
+                LibraryUpdateBanner(
+                    progress = libraryUpdateProgress ?: 0,
+                    modifier = Modifier.windowInsetsPadding(mainInsets),
+                )
+            }
+        }.fastMap { it.measure(constraints) }
+        val libraryUpdateHeight = libraryUpdatePlaceable.fastMaxBy { it.height }?.height ?: 0
+
         val indexingPlaceable = subcompose(0) {
             AnimatedVisibility(
                 visible = indexing,
                 enter = expandVertically(),
                 exit = shrinkVertically(),
             ) {
+                val top = (mainInsetsTop - libraryUpdateHeight).coerceAtLeast(0)
                 IndexingDownloadBanner(
-                    modifier = Modifier.windowInsetsPadding(mainInsets),
+                    modifier = Modifier.windowInsetsPadding(WindowInsets(top = top)),
                 )
             }
         }.fastMap { it.measure(constraints) }
@@ -88,7 +104,7 @@ fun AppStateBanners(
                 enter = expandVertically(),
                 exit = shrinkVertically(),
             ) {
-                val top = (mainInsetsTop - indexingHeight).coerceAtLeast(0)
+                val top = (mainInsetsTop - libraryUpdateHeight - indexingHeight).coerceAtLeast(0)
                 DownloadedOnlyModeBanner(
                     modifier = Modifier.windowInsetsPadding(WindowInsets(top = top)),
                 )
@@ -102,7 +118,7 @@ fun AppStateBanners(
                 enter = expandVertically(),
                 exit = shrinkVertically(),
             ) {
-                val top = (mainInsetsTop - indexingHeight - downloadedOnlyHeight).coerceAtLeast(0)
+                val top = (mainInsetsTop - libraryUpdateHeight - indexingHeight - downloadedOnlyHeight).coerceAtLeast(0)
                 IncognitoModeBanner(
                     modifier = Modifier.windowInsetsPadding(WindowInsets(top = top)),
                 )
@@ -110,17 +126,57 @@ fun AppStateBanners(
         }.fastMap { it.measure(constraints) }
         val incognitoHeight = incognitoPlaceable.fastMaxBy { it.height }?.height ?: 0
 
-        layout(constraints.maxWidth, indexingHeight + downloadedOnlyHeight + incognitoHeight) {
-            indexingPlaceable.fastForEach {
+        layout(constraints.maxWidth, libraryUpdateHeight + indexingHeight + downloadedOnlyHeight + incognitoHeight) {
+            libraryUpdatePlaceable.fastForEach {
                 it.place(0, 0)
             }
+            indexingPlaceable.fastForEach {
+                it.place(0, libraryUpdateHeight)
+            }
             downloadedOnlyPlaceable.fastForEach {
-                it.place(0, indexingHeight)
+                it.place(0, libraryUpdateHeight + indexingHeight)
             }
             incognitoPlaceable.fastForEach {
-                it.place(0, indexingHeight + downloadedOnlyHeight)
+                it.place(0, libraryUpdateHeight + indexingHeight + downloadedOnlyHeight)
             }
         }
+    }
+}
+
+@Composable
+private fun LibraryUpdateBanner(
+    progress: Int,
+    modifier: Modifier = Modifier
+) {
+    val density = LocalDensity.current
+    Row(
+        modifier = Modifier
+            .background(color = MaterialTheme.colorScheme.primary)
+            .fillMaxWidth()
+            .padding(8.dp)
+            .then(modifier),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+    ) {
+        var textHeight by remember { mutableStateOf(0.dp) }
+        CircularProgressIndicator(
+            progress = { progress / 100f },
+            modifier = Modifier.requiredSize(textHeight),
+            color = MaterialTheme.colorScheme.onPrimary,
+            strokeWidth = textHeight / 8,
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = stringResource(MR.strings.updating_library) + " ($progress%)",
+            color = MaterialTheme.colorScheme.onPrimary,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.labelMedium,
+            onTextLayout = {
+                with(density) {
+                    textHeight = it.size.height.toDp()
+                }
+            },
+        )
     }
 }
 

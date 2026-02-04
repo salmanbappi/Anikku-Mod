@@ -446,6 +446,10 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
             completed.get(),
             animeToUpdate.size,
         )
+        
+        if (animeToUpdate.isNotEmpty()) {
+            setProgress(workDataOf("progress" to (completed.get() * 100 / animeToUpdate.size)))
+        }
 
         block()
 
@@ -458,6 +462,10 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
             completed.get(),
             animeToUpdate.size,
         )
+        
+        if (animeToUpdate.isNotEmpty()) {
+            setProgress(workDataOf("progress" to (completed.get() * 100 / animeToUpdate.size)))
+        }
     }
 
     /**

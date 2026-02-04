@@ -1,5 +1,6 @@
 package eu.kanade.presentation.anime
 
+import eu.kanade.presentation.theme.DynamicTachiyomiTheme
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -341,8 +342,9 @@ private fun AnimeScreenSmallImpl(
     }
     BackHandler(onBack = internalOnBackPressed)
 
-    Scaffold(
-        topBar = {
+    DynamicTachiyomiTheme(colorSeed = state.anime.asAnimeCover().vibrantCoverColor) {
+        Scaffold(
+            topBar = {
             val selectedEpisodeCount: Int = remember(episodes) {
                 episodes.count { it.selected }
             }
@@ -785,8 +787,9 @@ fun AnimeScreenLargeImpl(
     }
     BackHandler(onBack = internalOnBackPressed)
 
-    Scaffold(
-        topBar = {
+    DynamicTachiyomiTheme(colorSeed = state.anime.asAnimeCover().vibrantCoverColor) {
+        Scaffold(
+            topBar = {
             val selectedEpisodeCount = remember(episodes) {
                 episodes.count { it.selected }
             }

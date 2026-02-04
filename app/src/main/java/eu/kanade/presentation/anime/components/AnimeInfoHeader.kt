@@ -106,6 +106,10 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 import kotlin.math.roundToInt
 
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.border
+
 @Composable
 fun AnimeInfoBox(
     isTabletUi: Boolean,
@@ -117,51 +121,60 @@ fun AnimeInfoBox(
     doSearch: (query: String, global: Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier = modifier) {
-        // Backdrop
-        val backdropGradientColors = listOf(
-            Color.Transparent,
-            MaterialTheme.colorScheme.background,
-        )
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(anime.asAnimeCover())
-                .crossfade(true)
-                .build(),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .matchParentSize()
-                .drawWithContent {
-                    drawContent()
-                    drawRect(
-                        brush = Brush.verticalGradient(colors = backdropGradientColors),
+    Surface(
+        modifier = modifier
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        tonalElevation = 2.dp
+    ) {
+        Box {
+            // Backdrop
+            val backdropGradientColors = listOf(
+                Color.Transparent,
+                MaterialTheme.colorScheme.surfaceVariant,
+            )
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(anime.asAnimeCover())
+                    .crossfade(true)
+                    .build(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .matchParentSize()
+                    .drawWithContent {
+                        drawContent()
+                        drawRect(
+                            brush = Brush.verticalGradient(colors = backdropGradientColors),
+                        )
+                    }
+                    .blur(4.dp)
+                    .alpha(0.25f),
+            )
+
+            // Anime & source info
+            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant) {
+                if (!isTabletUi) {
+                    AnimeAndSourceTitlesSmall(
+                        appBarPadding = appBarPadding,
+                        anime = anime,
+                        sourceName = sourceName,
+                        isStubSource = isStubSource,
+                        onCoverClick = onCoverClick,
+                        doSearch = doSearch,
+                    )
+                } else {
+                    AnimeAndSourceTitlesLarge(
+                        appBarPadding = appBarPadding,
+                        anime = anime,
+                        sourceName = sourceName,
+                        isStubSource = isStubSource,
+                        onCoverClick = onCoverClick,
+                        doSearch = doSearch,
                     )
                 }
-                .blur(4.dp)
-                .alpha(0.2f),
-        )
-
-        // Anime & source info
-        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurface) {
-            if (!isTabletUi) {
-                AnimeAndSourceTitlesSmall(
-                    appBarPadding = appBarPadding,
-                    anime = anime,
-                    sourceName = sourceName,
-                    isStubSource = isStubSource,
-                    onCoverClick = onCoverClick,
-                    doSearch = doSearch,
-                )
-            } else {
-                AnimeAndSourceTitlesLarge(
-                    appBarPadding = appBarPadding,
-                    anime = anime,
-                    sourceName = sourceName,
-                    isStubSource = isStubSource,
-                    onCoverClick = onCoverClick,
-                    doSearch = doSearch,
-                )
             }
         }
     }
@@ -379,6 +392,9 @@ private fun AnimeAndSourceTitlesLarge(
             data = anime.asAnimeCover(),
             contentDescription = stringResource(MR.strings.manga_cover),
             onClick = onCoverClick,
+            onCoverLoaded = { cover, result ->
+                eu.kanade.tachiyomi.util.system.CoverColorExtractor.extract(cover, result)
+            },
         )
         Spacer(modifier = Modifier.height(16.dp))
         AnimeContentInfo(
@@ -418,6 +434,9 @@ private fun AnimeAndSourceTitlesSmall(
             data = anime.asAnimeCover(),
             contentDescription = stringResource(MR.strings.manga_cover),
             onClick = onCoverClick,
+            onCoverLoaded = { cover, result ->
+                eu.kanade.tachiyomi.util.system.CoverColorExtractor.extract(cover, result)
+            },
         )
         Column(
             verticalArrangement = Arrangement.spacedBy(2.dp),

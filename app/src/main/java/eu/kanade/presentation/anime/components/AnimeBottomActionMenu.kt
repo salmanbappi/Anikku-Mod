@@ -276,12 +276,16 @@ internal fun RowScope.Button(
     }
 }
 
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
+
 @Composable
 fun LibraryBottomActionMenu(
     visible: Boolean,
     onChangeCategoryClicked: () -> Unit,
     onMarkAsSeenClicked: () -> Unit,
     onMarkAsUnseenClicked: () -> Unit,
+    onFavoriteClicked: (() -> Unit)?,
     onDownloadClicked: ((DownloadAction) -> Unit)?,
     onDeleteClicked: () -> Unit,
     // SY -->
@@ -303,12 +307,12 @@ fun LibraryBottomActionMenu(
             val haptic = LocalHapticFeedback.current
             val confirm =
                 remember {
-                    mutableStateListOf(false, false, false, false, false)
+                    mutableStateListOf(false, false, false, false, false, false)
                 }
             var resetJob: Job? = remember { null }
             val onLongClickItem: (Int) -> Unit = { toConfirmIndex ->
                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                (0..<5).forEach { i -> confirm[i] = i == toConfirmIndex }
+                (0..<6).forEach { i -> confirm[i] = i == toConfirmIndex }
                 resetJob?.cancel()
                 resetJob = scope.launch {
                     delay(1.seconds)
@@ -331,6 +335,15 @@ fun LibraryBottomActionMenu(
                     onLongClick = { onLongClickItem(0) },
                     onClick = onChangeCategoryClicked,
                 )
+                if (onFavoriteClicked != null) {
+                    Button(
+                        title = stringResource(MR.strings.add_to_library),
+                        icon = Icons.Outlined.FavoriteBorder,
+                        toConfirm = confirm[5],
+                        onLongClick = { onLongClickItem(5) },
+                        onClick = onFavoriteClicked,
+                    )
+                }
                 Button(
                     title = stringResource(MR.strings.action_mark_as_seen),
                     icon = Icons.Outlined.DoneAll,
