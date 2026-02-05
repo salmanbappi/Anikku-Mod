@@ -157,7 +157,6 @@ fun AnimeScreen(
     onAllEpisodeSelected: (Boolean) -> Unit,
     onInvertSelection: () -> Unit,
     onLocalScoreClicked: () -> Unit,
-    onSuggestionsClicked: (() -> Unit)?,
 ) {
     val context = LocalContext.current
     val onCopyTagToClipboard: (tag: String) -> Unit = {
@@ -303,7 +302,6 @@ private fun AnimeScreenSmallImpl(
     onAllEpisodeSelected: (Boolean) -> Unit,
     onInvertSelection: () -> Unit,
     onLocalScoreClicked: () -> Unit,
-    onSuggestionsClicked: (() -> Unit)?,
 ) {
     val episodeListState = rememberLazyListState()
     val episodes = remember(state) { state.processedEpisodes }
@@ -599,7 +597,6 @@ fun AnimeScreenLargeImpl(
     onAllEpisodeSelected: (Boolean) -> Unit,
     onInvertSelection: () -> Unit,
     onLocalScoreClicked: () -> Unit,
-    onSuggestionsClicked: (() -> Unit)?,
 ) {
     val layoutDirection = LocalLayoutDirection.current
     val density = LocalDensity.current

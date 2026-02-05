@@ -364,35 +364,6 @@ fun ExpandableAnimeDescription(
 }
 
 @Composable
-fun SuggestionsRow(
-    suggestions: List<Anime>,
-    onAnimeClick: (Anime) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(modifier = modifier.padding(vertical = 8.dp)) {
-        Text(
-            text = stringResource(KMR.strings.related_mangas_website_suggestions),
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-        )
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            items(suggestions) { anime ->
-                AnimeCover.Book(
-                    modifier = Modifier
-                        .width(100.dp)
-                        .aspectRatio(AnimeCover.Book.ratio),
-                    data = anime.asAnimeCover(),
-                    onClick = { onAnimeClick(anime) },
-                )
-            }
-        }
-    }
-}
-
-@Composable
 private fun AnimeAndSourceTitlesLarge(
     appBarPadding: Dp,
     anime: Anime,

@@ -213,9 +213,6 @@ class AnimeScreen(
             onAllEpisodeSelected = screenModel::toggleAllSelection,
             onInvertSelection = screenModel::invertSelection,
             onLocalScoreClicked = screenModel::showLocalScoreDialog,
-            onSuggestionsClicked = {
-                navigator.push(RelatedAnimeScreen(animeId))
-            }.takeIf { !successState.source.isLocalOrStub() },
         )
 
         val onDismissRequest = {
