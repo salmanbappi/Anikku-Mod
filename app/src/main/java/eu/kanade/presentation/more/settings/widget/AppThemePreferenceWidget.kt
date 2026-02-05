@@ -198,7 +198,7 @@ fun AppThemePreviewItem(
                 modifier = Modifier
                     .padding(4.dp)
                     .size(width = 24.dp, height = 16.dp)
-                    .clip(RoundedCornerShape(5.dp)),
+                    .clip(MaterialTheme.shapes.extraSmall),
             ) {
                 Box(
                     modifier = Modifier

@@ -194,7 +194,7 @@ private fun TrackInfoItem(
                 .clip(MaterialTheme.shapes.medium)
                 .background(MaterialTheme.colorScheme.surfaceContainerHighest)
                 .padding(8.dp)
-                .clip(RoundedCornerShape(6.dp)),
+                .clip(MaterialTheme.shapes.extraSmall),
         ) {
             Column {
                 Row(modifier = Modifier.height(IntrinsicSize.Min)) {
