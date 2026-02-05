@@ -66,9 +66,14 @@ data object BrowseTab : Tab {
         val extensionsScreenModel = rememberScreenModel { ExtensionsScreenModel() }
         val animeExtensionsState by extensionsScreenModel.state.collectAsState()
 
-        val tabs = persistentListOf<eu.kanade.presentation.components.TabContent>(
+        val tabs = persistentListOf(
             sourcesTab(),
-            feedTab(),
+            eu.kanade.presentation.components.TabContent(
+                titleRes = SYMR.strings.feed,
+                searchQuery = null, // Or handle if needed
+                onChangeSearchQuery = {},
+                content = { feedTab().Content() }
+            ),
             extensionsTab(extensionsScreenModel),
             migrateSourceTab(),
         )
