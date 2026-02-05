@@ -2,8 +2,8 @@ package eu.kanade.presentation.anime.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Recommend
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material.icons.outlined.FlipToBack
@@ -131,7 +131,7 @@ fun AnimeToolbar(
                                     add(
                                         AppBar.Action(
                                             title = stringResource(KMR.strings.pref_source_related_mangas),
-                                            icon = Icons.Filled.AutoAwesome,
+                                            icon = Icons.Outlined.Recommend,
                                             onClick = onClickSuggestions,
                                         ),
                                     )

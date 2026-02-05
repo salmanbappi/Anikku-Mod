@@ -18,7 +18,13 @@ class GetRelatedAnime(
         try {
             source.getRelatedAnimeList(
                 anime = anime.toSAnime(),
-                exceptionHandler = { close(it) },
+                exceptionHandler = { e ->
+                    if (e is UnsupportedOperationException) {
+                        close()
+                    } else {
+                        close(e)
+                    }
+                },
                 pushResults = { relatedAnime, completed ->
                     trySend(relatedAnime)
                     if (completed) close()
