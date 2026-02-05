@@ -3,8 +3,8 @@ package eu.kanade.tachiyomi.ui.deeplink
 import androidx.compose.runtime.Immutable
 import cafe.adriel.voyager.core.model.StateScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import eu.kanade.domain.anime.model.toDomainAnime
-import eu.kanade.domain.anime.model.toSAnime
+import tachiyomi.domain.anime.model.toDomainAnime
+import tachiyomi.domain.anime.model.toSAnime
 import eu.kanade.domain.episode.interactor.SyncEpisodesWithSource
 import eu.kanade.tachiyomi.animesource.online.UriType
 import eu.kanade.tachiyomi.source.Source
