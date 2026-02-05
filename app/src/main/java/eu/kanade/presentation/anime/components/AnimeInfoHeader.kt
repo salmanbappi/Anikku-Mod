@@ -632,9 +632,7 @@ private fun AnimeSummary(
                 }
             },
             {
-                val colors = listOf(Color.Transparent, MaterialTheme.colorScheme.background.copy(alpha = 0.5f))
                 Box(
-                    modifier = Modifier.background(Brush.verticalGradient(colors = colors)),
                     contentAlignment = Alignment.Center,
                 ) {
                     val image = AnimatedImageVector.animatedVectorResource(R.drawable.anim_caret_down)
@@ -644,6 +642,15 @@ private fun AnimeSummary(
                             if (expanded) MR.strings.manga_info_collapse else MR.strings.manga_info_expand,
                         ),
                         tint = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.background(
+                            brush = Brush.radialGradient(
+                                colors = listOf(
+                                    MaterialTheme.colorScheme.background.copy(alpha = 0.8f),
+                                    Color.Transparent,
+                                ),
+                                radius = 40f,
+                            ),
+                        ),
                     )
                 }
             },

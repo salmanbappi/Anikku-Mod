@@ -158,8 +158,8 @@ object HomeScreen : Screen() {
 
                                 AnimatedVisibility(
                                     visible = bottomNavVisible && (navStyle == NavStyle.SHOW_ALL || tabNavigator.current != navStyle.moreTab),
-                                    enter = expandVertically(animationSpec = androidx.compose.animation.core.tween(200)),
-                                    exit = shrinkVertically(animationSpec = androidx.compose.animation.core.tween(200)),
+                                    enter = expandVertically(animationSpec = androidx.compose.animation.core.tween(100)),
+                                    exit = shrinkVertically(animationSpec = androidx.compose.animation.core.tween(100)),
                                 ) {
                                     NavigationBar(
                                         containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
@@ -185,7 +185,6 @@ object HomeScreen : Screen() {
                             targetState = tabNavigator.current,
                             transitionSpec = {
                                 materialFadeThroughIn(
-                                    initialScale = 1f,
                                     durationMillis = TAB_FADE_DURATION,
                                 ) togetherWith
                                     materialFadeThroughOut(

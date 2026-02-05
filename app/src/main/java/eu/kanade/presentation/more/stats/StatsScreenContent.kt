@@ -605,9 +605,9 @@ private fun StatusBreakdownSection(statuses: StatsData.StatusBreakdown) {
             )
             val colors = listOf(
                 MaterialTheme.colorScheme.primary,
-                MaterialTheme.colorScheme.secondary,
-                MaterialTheme.colorScheme.error,
                 MaterialTheme.colorScheme.tertiary,
+                MaterialTheme.colorScheme.error,
+                MaterialTheme.colorScheme.secondary,
                 MaterialTheme.colorScheme.outline
             )
             
@@ -621,8 +621,8 @@ private fun StatusBreakdownSection(statuses: StatsData.StatusBreakdown) {
             
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 StatusLegendItem(MaterialTheme.colorScheme.primary, "Completed", statuses.completedCount)
-                StatusLegendItem(MaterialTheme.colorScheme.secondary, "Ongoing", statuses.ongoingCount)
-                StatusLegendItem(MaterialTheme.colorScheme.tertiary, "On Hold", statuses.onHoldCount)
+                StatusLegendItem(MaterialTheme.colorScheme.tertiary, "Ongoing", statuses.ongoingCount)
+                StatusLegendItem(MaterialTheme.colorScheme.secondary, "On Hold", statuses.onHoldCount)
                 StatusLegendItem(MaterialTheme.colorScheme.error, "Dropped", statuses.droppedCount)
                 StatusLegendItem(MaterialTheme.colorScheme.outline, "Planned", statuses.planToWatchCount)
             }
