@@ -593,6 +593,7 @@ private fun AnimeScreenSmallImpl(
         }
     }
 }
+}
 
 @Composable
 private fun EpisodeItemWrapper(
@@ -986,6 +987,7 @@ fun AnimeScreenLargeImpl(
             )
         }
     }
+}
 }
 
 @Composable
