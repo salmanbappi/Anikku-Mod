@@ -33,6 +33,9 @@ import eu.kanade.presentation.theme.colorscheme.YotsubaColorScheme
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+
 @Composable
 fun TachiyomiTheme(
     appTheme: AppTheme? = null,
@@ -40,9 +43,11 @@ fun TachiyomiTheme(
     content: @Composable () -> Unit,
 ) {
     val uiPreferences = Injekt.get<UiPreferences>()
+    val theme by uiPreferences.appTheme().collectAsState()
+    val isAmoled by uiPreferences.themeDarkAmoled().collectAsState()
     BaseTachiyomiTheme(
-        appTheme = appTheme ?: uiPreferences.appTheme().get(),
-        isAmoled = amoled ?: uiPreferences.themeDarkAmoled().get(),
+        appTheme = appTheme ?: theme,
+        isAmoled = amoled ?: isAmoled,
         content = content,
     )
 }

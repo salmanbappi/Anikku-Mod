@@ -15,6 +15,9 @@ import eu.kanade.presentation.theme.colorscheme.MonetColorScheme
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+
 @Composable
 fun DynamicTachiyomiTheme(
     animate: Boolean = true,
@@ -23,9 +26,9 @@ fun DynamicTachiyomiTheme(
     content: @Composable () -> Unit,
 ) {
     val uiPreferences = Injekt.get<UiPreferences>()
-    val isAmoled = uiPreferences.themeDarkAmoled().get()
+    val isAmoled by uiPreferences.themeDarkAmoled().collectAsState()
     val isDark = isSystemInDarkTheme()
-    val isDynamicEnabled = uiPreferences.dynamicMangaTheme().get()
+    val isDynamicEnabled by uiPreferences.dynamicMangaTheme().collectAsState()
 
     if (colorSeed != null && isDynamicEnabled) {
         val colorScheme = rememberDynamicColorScheme(colorSeed, isDark, isAmoled, contrast)
