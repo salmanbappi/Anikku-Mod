@@ -94,13 +94,32 @@ fun UpdateScreen(
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     ) { contentPadding ->
-        when {
-            state.isLoading -> LoadingScreen(Modifier.padding(contentPadding))
-            state.items.isEmpty() -> EmptyScreen(
+    val screenState = when {
+        state.isLoading -> "Loading"
+        state.items.isEmpty() -> "Empty"
+        else -> "Content"
+    }
+
+    androidx.compose.animation.AnimatedContent(
+        targetState = screenState,
+        transitionSpec = {
+            soup.compose.material.motion.animation.materialFadeThroughIn(
+                initialScale = 1f,
+                durationMillis = 250,
+            ) androidx.compose.animation.togetherWith
+                soup.compose.material.motion.animation.materialFadeThroughOut(
+                    durationMillis = 250,
+                )
+        },
+        label = "updatesContent",
+    ) { currentScreenState ->
+        when (currentScreenState) {
+            "Loading" -> LoadingScreen(Modifier.padding(contentPadding))
+            "Empty" -> EmptyScreen(
                 stringRes = MR.strings.information_no_recent,
                 modifier = Modifier.padding(contentPadding),
             )
-            else -> {
+            "Content" -> {
                 val scope = rememberCoroutineScope()
                 var isRefreshing by remember { mutableStateOf(false) }
 
@@ -136,6 +155,7 @@ fun UpdateScreen(
                 }
             }
         }
+    }
     }
 }
 

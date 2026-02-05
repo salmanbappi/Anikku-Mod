@@ -369,7 +369,8 @@ private fun AnimeScreenSmallImpl(
                             ),
                         )
                     }
-                    .blur(4.dp)
+                    .clip(androidx.compose.ui.graphics.RectangleShape)
+                    .blur(8.dp)
                     .alpha(0.4f), // Slightly higher alpha for better color pop
             )
             Scaffold(
@@ -385,12 +386,14 @@ private fun AnimeScreenSmallImpl(
                         derivedStateOf { episodeListState.firstVisibleItemScrollOffset > 0 }
                     }
                     val animatedTitleAlpha by animateFloatAsState(
-                        if (!isFirstItemVisible) 1f else 0f,
+                        targetValue = if (!isFirstItemVisible) 1f else 0f,
+                        animationSpec = androidx.compose.animation.core.tween(200),
                         label = "Top Bar Title",
                     )
                     // Ensure the background color is truly transparent when at the top
                     val animatedBgAlpha by animateFloatAsState(
-                        if (!isFirstItemVisible || isFirstItemScrolled) 1f else 0f,
+                        targetValue = if (!isFirstItemVisible || isFirstItemScrolled) 1f else 0f,
+                        animationSpec = androidx.compose.animation.core.tween(200),
                         label = "Top Bar Background",
                     )
                     AnimeToolbar(
@@ -437,8 +440,8 @@ private fun AnimeScreenSmallImpl(
                     }
                     AnimatedVisibility(
                         visible = isFABVisible,
-                        enter = fadeIn(),
-                        exit = fadeOut(),
+                        enter = fadeIn() + androidx.compose.animation.scaleIn(),
+                        exit = fadeOut() + androidx.compose.animation.scaleOut(),
                     ) {
                         ExtendedFloatingActionButton(
                             text = {
@@ -680,7 +683,8 @@ fun AnimeScreenLargeImpl(
                             ),
                         )
                     }
-                    .blur(4.dp)
+                    .clip(androidx.compose.ui.graphics.RectangleShape)
+                    .blur(8.dp)
                     .alpha(0.4f), // Slightly higher alpha for better color pop
             )
             Scaffold(
@@ -739,8 +743,8 @@ fun AnimeScreenLargeImpl(
                     }
                     AnimatedVisibility(
                         visible = isFABVisible,
-                        enter = fadeIn(),
-                        exit = fadeOut(),
+                        enter = fadeIn() + androidx.compose.animation.scaleIn(),
+                        exit = fadeOut() + androidx.compose.animation.scaleOut(),
                     ) {
                         ExtendedFloatingActionButton(
                             text = {

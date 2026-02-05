@@ -75,82 +75,101 @@ fun BrowseSourceContent(
         }
     }
 
-    if (animeList.itemCount <= 0 && errorState != null && errorState is LoadState.Error) {
-        EmptyScreen(
-            modifier = Modifier.padding(contentPadding),
-            message = getErrorMessage(errorState),
-            actions = if (source is LocalSource) {
-                persistentListOf(
-                    EmptyScreenAction(
-                        stringRes = MR.strings.local_source_help_guide,
-                        icon = Icons.AutoMirrored.Outlined.HelpOutline,
-                        onClick = onLocalSourceHelpClick,
-                    ),
-                )
-            } else {
-                persistentListOf(
-                    EmptyScreenAction(
-                        stringRes = MR.strings.action_retry,
-                        icon = Icons.Outlined.Refresh,
-                        onClick = animeList::refresh,
-                    ),
-                    EmptyScreenAction(
-                        stringRes = MR.strings.action_open_in_web_view,
-                        icon = Icons.Outlined.Public,
-                        onClick = onWebViewClick,
-                    ),
-                    EmptyScreenAction(
-                        stringRes = MR.strings.label_help,
-                        icon = Icons.AutoMirrored.Outlined.HelpOutline,
-                        onClick = onHelpClick,
-                    ),
-                )
-            },
-        )
-
-        return
+    val screenState = when {
+        animeList.itemCount <= 0 && errorState != null && errorState is LoadState.Error -> "Error"
+        animeList.itemCount == 0 && animeList.loadState.refresh is LoadState.Loading -> "Loading"
+        else -> "Content"
     }
 
-    if (animeList.itemCount == 0 && animeList.loadState.refresh is LoadState.Loading) {
-        LoadingScreen(
-            modifier = Modifier.padding(contentPadding),
-        )
-        return
-    }
-
-    when (displayMode) {
-        LibraryDisplayMode.ComfortableGrid -> {
-            BrowseSourceComfortableGrid(
-                animeList = animeList,
-                columns = columns,
-                contentPadding = contentPadding,
-                onAnimeClick = onAnimeClick,
-                onAnimeLongClick = onAnimeLongClick,
-                selection = selection,
-            )
+    androidx.compose.animation.AnimatedContent(
+        targetState = screenState,
+        transitionSpec = {
+            soup.compose.material.motion.animation.materialFadeThroughIn(
+                initialScale = 1f,
+                durationMillis = 250,
+            ) androidx.compose.animation.togetherWith
+                soup.compose.material.motion.animation.materialFadeThroughOut(
+                    durationMillis = 250,
+                )
+        },
+        label = "browseSourceContent",
+    ) { state ->
+        when (state) {
+            "Error" -> {
+                EmptyScreen(
+                    modifier = Modifier.padding(contentPadding),
+                    message = getErrorMessage(errorState as LoadState.Error),
+                    actions = if (source is LocalSource) {
+                        persistentListOf(
+                            EmptyScreenAction(
+                                stringRes = MR.strings.local_source_help_guide,
+                                icon = Icons.AutoMirrored.Outlined.HelpOutline,
+                                onClick = onLocalSourceHelpClick,
+                            ),
+                        )
+                    } else {
+                        persistentListOf(
+                            EmptyScreenAction(
+                                stringRes = MR.strings.action_retry,
+                                icon = Icons.Outlined.Refresh,
+                                onClick = animeList::refresh,
+                            ),
+                            EmptyScreenAction(
+                                stringRes = MR.strings.action_open_in_web_view,
+                                icon = Icons.Outlined.Public,
+                                onClick = onWebViewClick,
+                            ),
+                            EmptyScreenAction(
+                                stringRes = MR.strings.label_help,
+                                icon = Icons.AutoMirrored.Outlined.HelpOutline,
+                                onClick = onHelpClick,
+                            ),
+                        )
+                    },
+                )
+            }
+            "Loading" -> {
+                LoadingScreen(
+                    modifier = Modifier.padding(contentPadding),
+                )
+            }
+            "Content" -> {
+                when (displayMode) {
+                    LibraryDisplayMode.ComfortableGrid -> {
+                        BrowseSourceComfortableGrid(
+                            animeList = animeList,
+                            columns = columns,
+                            contentPadding = contentPadding,
+                            onAnimeClick = onAnimeClick,
+                            onAnimeLongClick = onAnimeLongClick,
+                            selection = selection,
+                        )
+                    }
+                    LibraryDisplayMode.List -> {
+                        BrowseSourceList(
+                            animeList = animeList,
+                            entries = entries,
+                            topBarHeight = topBarHeight,
+                            contentPadding = contentPadding,
+                            onAnimeClick = onAnimeClick,
+                            onAnimeLongClick = onAnimeLongClick,
+                            selection = selection,
+                        )
+                    }
+                    LibraryDisplayMode.CompactGrid, LibraryDisplayMode.CoverOnlyGrid -> {
+                        BrowseSourceCompactGrid(
+                            animeList = animeList,
+                            columns = columns,
+                            contentPadding = contentPadding,
+                            onAnimeClick = onAnimeClick,
+                            onAnimeLongClick = onAnimeLongClick,
+                            selection = selection,
+                        )
+                    }
+                    else -> {}
+                }
+            }
         }
-        LibraryDisplayMode.List -> {
-            BrowseSourceList(
-                animeList = animeList,
-                entries = entries,
-                topBarHeight = topBarHeight,
-                contentPadding = contentPadding,
-                onAnimeClick = onAnimeClick,
-                onAnimeLongClick = onAnimeLongClick,
-                selection = selection,
-            )
-        }
-        LibraryDisplayMode.CompactGrid, LibraryDisplayMode.CoverOnlyGrid -> {
-            BrowseSourceCompactGrid(
-                animeList = animeList,
-                columns = columns,
-                contentPadding = contentPadding,
-                onAnimeClick = onAnimeClick,
-                onAnimeLongClick = onAnimeLongClick,
-                selection = selection,
-            )
-        }
-        else -> {}
     }
 }
 
