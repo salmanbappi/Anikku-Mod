@@ -100,6 +100,9 @@ class PreferenceModule(val app: Application) : InjektModule {
         addSingletonFactory {
             BasePreferences(app, get())
         }
+        addSingletonFactory {
+            eu.kanade.tachiyomi.data.ai.AiManager(app, get(), get(), get())
+        }
         // AM (CONNECTIONS) -->
         addSingletonFactory { ConnectionsPreferences(get()) }
         // <-- AM (CONNECTIONS)

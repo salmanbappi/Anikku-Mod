@@ -1,4 +1,4 @@
--dontobfuscate
+#-dontobfuscate
 
 -keep,allowoptimization class eu.kanade.**
 -keep,allowoptimization class tachiyomi.**

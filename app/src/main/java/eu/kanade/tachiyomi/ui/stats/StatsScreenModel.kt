@@ -44,8 +44,9 @@ class StatsScreenModel(
     private val trackerManager: TrackerManager = Injekt.get(),
     private val sourceManager: SourceManager = Injekt.get(),
     private val extensionManager: eu.kanade.tachiyomi.extension.ExtensionManager = Injekt.get(),
-    private val aiManager: eu.kanade.tachiyomi.data.ai.AiManager = Injekt.get(),
 ) : StateScreenModel<StatsScreenState>(StatsScreenState.Loading) {
+
+    private val aiManager: eu.kanade.tachiyomi.data.ai.AiManager by uy.kohesive.injekt.injectLazy()
 
     private val loggedInTrackers by lazy { trackerManager.loggedInTrackers().filter { it is AnimeTracker } }
 

@@ -24,6 +24,8 @@ class GetRelatedAnime(
                     if (completed) close()
                 },
             )
+        } catch (e: UnsupportedOperationException) {
+            close()
         } catch (e: Exception) {
             close(e)
         }
