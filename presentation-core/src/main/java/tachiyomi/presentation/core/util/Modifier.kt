@@ -32,7 +32,11 @@ fun Modifier.selectedBackground(isSelected: Boolean): Modifier = if (isSelected)
     composed {
         val alpha = if (isSystemInDarkTheme()) 0.16f else 0.22f
         val color = MaterialTheme.colorScheme.secondary.copy(alpha = alpha)
-        this.clip(RoundedCornerShape(12.dp)).background(color)
+        this.then(
+            Modifier
+                .clip(RoundedCornerShape(12.dp))
+                .background(color)
+        )
     }
 } else {
     this
