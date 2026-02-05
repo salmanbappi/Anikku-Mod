@@ -45,25 +45,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Settings
 import eu.kanade.presentation.components.AppBar
 
+import eu.kanade.domain.ui.UiPreferences
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
+
 data object BrowseTab : Tab {
-
-    override val options: TabOptions
-        @Composable
-        get() {
-            val isSelected = LocalTabNavigator.current.current is BrowseTab
-            val image = AnimatedImageVector.animatedVectorResource(R.drawable.anim_browse_enter)
-            return TabOptions(
-                index = 3u,
-                title = stringResource(MR.strings.browse),
-                icon = rememberAnimatedVectorPainter(image, isSelected),
-            )
-        }
-
-    // TODO: Find a way to let it open Global Anime/Manga Search depending on what Tab(e.g. Anime/Manga Source Tab) is open
-    override suspend fun onReselect(navigator: Navigator) {
-        navigator.push(GlobalSearchScreen())
-    }
-
+// ... same options and onReselect ...
     private val switchToExtensionTabChannel = Channel<Unit>(1, BufferOverflow.DROP_OLDEST)
 
     fun showExtension() {
@@ -74,32 +61,40 @@ data object BrowseTab : Tab {
     override fun Content() {
         val context = LocalContext.current
         val navigator = LocalNavigator.currentOrThrow
+        val uiPreferences = remember { Injekt.get<UiPreferences>() }
+        val enableFeed by uiPreferences.enableFeed().collectAsState()
 
         // Hoisted for extensions tab's search bar
         val extensionsScreenModel = rememberScreenModel { ExtensionsScreenModel() }
         val animeExtensionsState by extensionsScreenModel.state.collectAsState()
 
-        val tabs = listOf(
-            sourcesTab(),
-            eu.kanade.presentation.components.TabContent(
-                titleRes = SYMR.strings.feed,
-                searchEnabled = false,
-                actions = persistentListOf(
-                    AppBar.Action(
-                        title = "Edit Feed",
-                        icon = Icons.Outlined.Settings,
-                        onClick = { 
-                            navigator.push(FeedManageScreen())
-                        },
-                    ),
-                ),
-                content = { contentPadding, _ -> 
-                    FeedTab.Content(contentPadding)
+        val tabs = remember(enableFeed) {
+            buildList {
+                add(sourcesTab())
+                if (enableFeed) {
+                    add(
+                        eu.kanade.presentation.components.TabContent(
+                            titleRes = SYMR.strings.feed,
+                            searchEnabled = false,
+                            actions = persistentListOf(
+                                AppBar.Action(
+                                    title = "Edit Feed",
+                                    icon = Icons.Outlined.Settings,
+                                    onClick = { 
+                                        navigator.push(FeedManageScreen())
+                                    },
+                                ),
+                            ),
+                            content = { contentPadding, _ -> 
+                                FeedTab.Content(contentPadding)
+                            }
+                        )
+                    )
                 }
-            ),
-            extensionsTab(extensionsScreenModel),
-            migrateSourceTab(),
-        ).toImmutableList()
+                add(extensionsTab(extensionsScreenModel))
+                add(migrateSourceTab())
+            }.toImmutableList()
+        }
 
         val state = rememberPagerState { tabs.size }
 
@@ -111,10 +106,11 @@ data object BrowseTab : Tab {
             onChangeSearchQuery = extensionsScreenModel::search,
             scrollable = false,
         )
-        LaunchedEffect(state) {
+        LaunchedEffect(state, enableFeed) {
             switchToExtensionTabChannel.receiveAsFlow()
                 .collectLatest { 
-                    state.scrollToPage(2) 
+                    val targetPage = if (enableFeed) 2 else 1
+                    state.scrollToPage(targetPage) 
                 }
         }
 

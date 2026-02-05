@@ -27,19 +27,87 @@ import java.net.InetAddress
 import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
+import cafe.adriel.voyager.core.model.StateScreenModel
+import cafe.adriel.voyager.core.model.screenModelScope
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import eu.kanade.domain.source.service.SourcePreferences
+import eu.kanade.tachiyomi.network.model.*
+import eu.kanade.tachiyomi.network.GET
+import eu.kanade.tachiyomi.network.NetworkHelper
+import eu.kanade.tachiyomi.source.online.HttpSource
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import tachiyomi.core.common.util.lang.launchIO
+import tachiyomi.domain.source.service.SourceHealthCache
+import tachiyomi.domain.source.service.SourceManager
+import tachiyomi.source.local.isLocal
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
+import java.net.InetAddress
+import java.util.concurrent.TimeUnit
+import kotlin.system.measureTimeMillis
+
 class InfrastructureScreenModel(
     private val sourceManager: SourceManager = Injekt.get(),
     private val networkHelper: NetworkHelper = Injekt.get(),
     private val sourcePreferences: SourcePreferences = Injekt.get(),
+    private val context: Context = Injekt.get(),
 ) : StateScreenModel<InfrastructureState>(InfrastructureState.Loading) {
 
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
+    private val _events = Channel<Event>(Int.MAX_VALUE)
+    val events = _events.receiveAsFlow()
+
     private val semaphore = Semaphore(5)
 
     init {
         runDiagnostics()
+    }
+
+    fun copyReportToClipboard() {
+        val state = state.value
+        if (state !is InfrastructureState.Success) return
+
+        val report = state.report
+        val sb = StringBuilder()
+        sb.append("--- ANIKKU INFRASTRUCTURE REPORT ---\n")
+        sb.append("Timestamp: ${java.time.Instant.now()}\n")
+        sb.append("BDIX Saturation: ${report.globalMetrics.bdixSaturation}%\n")
+        sb.append("Avg Latency: ${report.globalMetrics.avgLatency}ms\n")
+        sb.append("Active Nodes: ${report.globalMetrics.activeNodeCount}/${report.nodes.size}\n\n")
+
+        sb.append("--- NODE STATUS ---\n")
+        report.nodes.forEach { node ->
+            sb.append("${node.name} [${node.status}]: ${node.network.latency}ms (${node.network.topology})\n")
+            sb.append("  IP: ${node.network.ipAddress}, TLS: ${node.network.tlsVersion}\n")
+        }
+
+        sb.append("\n--- SYSTEM LOGS ---\n")
+        report.systemLogs.forEach { log ->
+            sb.append("[${log.level.name}] ${log.source}: ${log.message}\n")
+        }
+
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("Anikku Infra Report", sb.toString())
+        clipboard.setPrimaryClip(clip)
+
+        screenModelScope.launchIO {
+            _events.send(Event.ReportCopied)
+        }
     }
 
     fun runDiagnostics() {
@@ -217,6 +285,9 @@ class InfrastructureScreenModel(
             ),
             uptimeScore = if (status == NodeStatus.OPERATIONAL) 1.0 else 0.0
         )
+    }
+    sealed interface Event {
+        data object ReportCopied : Event
     }
 }
 

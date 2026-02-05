@@ -206,6 +206,11 @@ object SettingsAppearanceScreen : SearchableSettings {
                     pref = uiPreferences.bottomBarLabels(),
                     title = stringResource(SYMR.strings.pref_show_bottom_bar_labels),
                 ),
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = uiPreferences.enableFeed(),
+                    title = "Enable Feed tab",
+                    subtitle = "Show global search results in a dedicated tab",
+                ),
             ),
         )
     }
