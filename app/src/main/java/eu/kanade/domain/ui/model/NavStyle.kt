@@ -36,19 +36,24 @@ enum class NavStyle(
             SHOW_ALL -> Icons.Outlined.History
         }
 
-    val tabs: List<Tab>
-        get() {
-            val tabs = mutableListOf(
-                LibraryTab,
-                FeedTab,
+    fun tabs(enableFeed: Boolean): List<Tab> {
+        val tabs = mutableListOf<Tab>(
+            LibraryTab,
+        )
+        if (enableFeed) {
+            tabs.add(FeedTab)
+        }
+        tabs.addAll(
+            listOf(
                 UpdatesTab,
                 HistoryTab,
                 BrowseTab,
                 MoreTab,
             )
-            if (this != SHOW_ALL) {
-                tabs.remove(this.moreTab)
-            }
-            return tabs
+        )
+        if (this != SHOW_ALL) {
+            tabs.remove(this.moreTab)
         }
+        return tabs
+    }
 }
