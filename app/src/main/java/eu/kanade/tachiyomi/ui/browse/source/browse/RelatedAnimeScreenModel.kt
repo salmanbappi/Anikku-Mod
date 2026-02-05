@@ -31,7 +31,7 @@ class RelatedAnimeScreenModel(
             val anime = getAnime.await(animeId) ?: return@launchIO
             mutableState.update { it.copy(title = anime.title) }
 
-            getRelatedAnime.subscribe(anime).collectLatest { (keyword, animes) ->
+            getRelatedAnime.subscribe(anime).collect { (keyword, animes) ->
                 val domainAnimes = animes.map {
                     val localAnime = networkToLocalAnime.await(it.toDomainAnime(anime.source))
                     getAnime.await(localAnime.id)!!
