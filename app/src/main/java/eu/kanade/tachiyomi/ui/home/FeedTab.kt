@@ -15,22 +15,15 @@ import eu.kanade.tachiyomi.ui.anime.AnimeScreen
 import tachiyomi.i18n.sy.SYMR
 import tachiyomi.presentation.core.i18n.stringResource
 
+import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
+import eu.kanade.tachiyomi.ui.browse.BrowseTab
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+
 fun feedTab(): Tab = FeedTab
 
 data object FeedTab : Tab {
-
-    @OptIn(ExperimentalAnimationGraphicsApi::class)
-    override val options: TabOptions
-        @Composable
-        get() {
-            val title = SYMR.strings.feed
-            return TabOptions(
-                index = 1u,
-                title = stringResource(title),
-                icon = painterResource(R.drawable.ic_browse_filled_24dp),
-            )
-        }
-
+// ... same options ...
     @Composable
     override fun Content() {
         Content(PaddingValues(0.dp))
@@ -39,11 +32,19 @@ data object FeedTab : Tab {
     @Composable
     fun Content(contentPadding: PaddingValues) {
         val navigator = LocalNavigator.currentOrThrow
+        val tabNavigator = LocalTabNavigator.current
+        val scope = rememberCoroutineScope()
         val screenModel = rememberScreenModel { FeedScreenModel() }
         
         FeedScreen(
             screenModel = screenModel,
             onAnimeClick = { navigator.push(AnimeScreen(it.id)) },
+            onAddSourceClick = { 
+                scope.launch {
+                    tabNavigator.current = BrowseTab
+                    // BrowseTab is already at index 0 (sourcesTab)
+                }
+            },
             contentPadding = contentPadding,
         )
     }

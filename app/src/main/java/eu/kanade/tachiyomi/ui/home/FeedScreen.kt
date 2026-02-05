@@ -32,20 +32,65 @@ import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.screens.EmptyScreen
 import tachiyomi.presentation.core.screens.LoadingScreen
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import eu.kanade.presentation.anime.components.AnimeCover
+import eu.kanade.presentation.components.AppBar
+import tachiyomi.domain.anime.model.Anime
+import tachiyomi.domain.source.model.SavedSearch
+import tachiyomi.i18n.MR
+import tachiyomi.i18n.sy.SYMR
+import tachiyomi.presentation.core.components.material.Scaffold
+import tachiyomi.presentation.core.i18n.stringResource
+import tachiyomi.presentation.core.screens.EmptyScreen
+import tachiyomi.presentation.core.screens.LoadingScreen
+
 @Composable
 fun FeedScreen(
     screenModel: FeedScreenModel,
     onAnimeClick: (Anime) -> Unit,
+    onAddSourceClick: () -> Unit,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     val state by screenModel.state.collectAsState()
 
     when {
         state.isLoading -> LoadingScreen(Modifier.padding(contentPadding))
-        state.items.isEmpty() -> EmptyScreen(
-            stringRes = SYMR.strings.feed_tab_empty,
-            modifier = Modifier.padding(contentPadding),
-        )
+        state.items.isEmpty() -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(contentPadding),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                EmptyScreen(
+                    stringRes = SYMR.strings.feed_tab_empty,
+                )
+                Button(
+                    onClick = onAddSourceClick,
+                    modifier = Modifier.padding(top = 16.dp),
+                ) {
+                    Icon(imageVector = Icons.Outlined.Add, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(text = "Add Sources")
+                }
+            }
+        }
         else -> {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -55,7 +100,7 @@ fun FeedScreen(
                     top = contentPadding.calculateTopPadding() + 8.dp,
                     bottom = contentPadding.calculateBottomPadding() + 8.dp
                 ),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(24.dp) // More space between islands
             ) {
                 items(state.items) { item ->
                     FeedIsland(
