@@ -42,6 +42,7 @@ import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
+import androidx.compose.runtime.collectAsState as collectAsStateFlow
 
 data object BrowseTab : Tab {
 
@@ -76,7 +77,7 @@ data object BrowseTab : Tab {
 
         // Hoisted for extensions tab's search bar
         val extensionsScreenModel = rememberScreenModel { ExtensionsScreenModel() }
-        val animeExtensionsState by extensionsScreenModel.state.collectAsState()
+        val animeExtensionsState by extensionsScreenModel.state.collectAsStateFlow()
 
         val sourcesTab = sourcesTab()
         val extensionsTab = extensionsTab(extensionsScreenModel)
