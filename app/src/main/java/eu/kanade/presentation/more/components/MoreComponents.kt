@@ -42,7 +42,7 @@ fun MoreSection(
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant,
+            color = MaterialTheme.colorScheme.surfaceContainerLow,
             tonalElevation = 2.dp
         ) {
             Column {

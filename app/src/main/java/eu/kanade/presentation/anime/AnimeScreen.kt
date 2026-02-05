@@ -372,7 +372,11 @@ private fun AnimeScreenSmallImpl(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(0.6f) // Cover more area for better immersion
-                    .graphicsLayer { translationY = backdropOffset }
+                    .graphicsLayer { 
+                        translationY = backdropOffset
+                        scaleX = 1.01f
+                        scaleY = 1.01f
+                    }
                     .drawWithContent {
                         drawContent()
                         drawRect(

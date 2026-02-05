@@ -1,6 +1,7 @@
 package eu.kanade.presentation.updates
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,12 +31,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import eu.kanade.core.preference.asState
 import eu.kanade.presentation.anime.components.AnimeCover
 import eu.kanade.presentation.anime.components.DotSeparatorText
 import eu.kanade.presentation.anime.components.EpisodeDownloadAction
@@ -87,121 +90,81 @@ internal fun LazyListScope.updatesUiItems(
     onClickUpdate: (UpdatesItem, altPlayer: Boolean) -> Unit,
     onDownloadEpisode: (List<UpdatesItem>, EpisodeDownloadAction) -> Unit,
 ) {
-    var i = 0
-    while (i < uiModels.size) {
-        val model = uiModels[i]
-        if (model is UpdatesUiModel.Header) {
-            item(key = "animeUpdatesHeader-${model.hashCode()}") {
-                ListGroupHeader(
-                    modifier = Modifier.animateItemFastScroll(),
-                    text = relativeDateText(model.date),
-                )
-            }
-            i++
-            val groupItems = mutableListOf<UpdatesItem>()
-            while (i < uiModels.size && uiModels[i] is UpdatesUiModel.Item) {
-                groupItems.add((uiModels[i] as UpdatesUiModel.Item).item)
-                i++
-            }
-            item(key = "animeUpdatesIsland-${model.hashCode()}") {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 4.dp),
-                    shape = MaterialTheme.shapes.large,
-                    color = MaterialTheme.colorScheme.surfaceContainerLow, // 30% Secondary
-                    tonalElevation = 2.dp
-                ) {
-                    Column {
-                        groupItems.forEach { updatesItem ->
-                            UpdatesUiItem(
-                                modifier = Modifier.animateItemFastScroll(),
-                                update = updatesItem.update,
-                                selected = updatesItem.selected,
-                                watchProgress = updatesItem.update.lastSecondSeen
-                                    .takeIf { !updatesItem.update.seen && it > 0L }
-                                    ?.let {
-                                        stringResource(
-                                            MR.strings.episode_progress,
-                                            formatProgress(it),
-                                            formatProgress(updatesItem.update.totalSeconds),
-                                        )
-                                    },
-                                onLongClick = {
-                                    onUpdateSelected(updatesItem, !updatesItem.selected, true, true)
-                                },
-                                onClick = {
-                                    when {
-                                        selectionMode -> onUpdateSelected(
-                                            updatesItem,
-                                            !updatesItem.selected,
-                                            true,
-                                            false,
-                                        )
-                                        else -> onClickUpdate(updatesItem, false)
-                                    }
-                                },
-                                onClickCover = { onClickCover(updatesItem) }.takeIf { !selectionMode },
-                                onDownloadEpisode = { action: EpisodeDownloadAction ->
-                                    onDownloadEpisode(listOf(updatesItem), action)
-                                }.takeIf { !selectionMode },
-                                downloadStateProvider = updatesItem.downloadStateProvider,
-                                downloadProgressProvider = updatesItem.downloadProgressProvider,
-                                updatesItem = updatesItem,
-                            )
-                        }
-                    }
-                }
-            }
-        } else if (model is UpdatesUiModel.Item) {
-            val updatesItem = model.item
-            item(key = "animeUpdates-${updatesItem.update.animeId}-${updatesItem.update.episodeId}") {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 4.dp),
-                    shape = MaterialTheme.shapes.large,
-                    color = MaterialTheme.colorScheme.surfaceContainerLow, // 30% Secondary
-                    tonalElevation = 2.dp
-                ) {
-                    UpdatesUiItem(
+    uiModels.forEach { model ->
+        when (model) {
+            is UpdatesUiModel.Header -> {
+                item(key = "animeUpdatesHeader-${model.hashCode()}") {
+                    ListGroupHeader(
                         modifier = Modifier.animateItemFastScroll(),
-                        update = updatesItem.update,
-                        selected = updatesItem.selected,
-                        watchProgress = updatesItem.update.lastSecondSeen
-                            .takeIf { !updatesItem.update.seen && it > 0L }
-                            ?.let {
-                                stringResource(
-                                    MR.strings.episode_progress,
-                                    formatProgress(it),
-                                    formatProgress(updatesItem.update.totalSeconds),
-                                )
-                            },
-                        onLongClick = {
-                            onUpdateSelected(updatesItem, !updatesItem.selected, true, true)
-                        },
-                        onClick = {
-                            when {
-                                selectionMode -> onUpdateSelected(
-                                    updatesItem,
-                                    !updatesItem.selected,
-                                    true,
-                                    false,
-                                )
-                                else -> onClickUpdate(updatesItem, false)
-                            }
-                        },
-                        onClickCover = { onClickCover(updatesItem) }.takeIf { !selectionMode },
-                        onDownloadEpisode = { action: EpisodeDownloadAction ->
-                            onDownloadEpisode(listOf(updatesItem), action)
-                        }.takeIf { !selectionMode },
-                        downloadStateProvider = updatesItem.downloadStateProvider,
-                        downloadProgressProvider = updatesItem.downloadProgressProvider,
-                        updatesItem = updatesItem,
+                        text = relativeDateText(model.date),
                     )
                 }
             }
-            i++
+            is UpdatesUiModel.Item -> {
+                val updatesItem = model.item
+                item(key = "animeUpdates-${updatesItem.update.animeId}-${updatesItem.update.episodeId}") {
+                    val shape = when (model.position) {
+                        UpdatesUiModel.ItemPosition.SINGLE -> MaterialTheme.shapes.large
+                        UpdatesUiModel.ItemPosition.TOP -> MaterialTheme.shapes.large.copy(
+                            bottomEnd = ZeroCornerSize,
+                            bottomStart = ZeroCornerSize,
+                        )
+                        UpdatesUiModel.ItemPosition.BOTTOM -> MaterialTheme.shapes.large.copy(
+                            topEnd = ZeroCornerSize,
+                            topStart = ZeroCornerSize,
+                        )
+                        UpdatesUiModel.ItemPosition.MIDDLE -> RectangleShape
+                    }
+                    val topPadding = if (model.position == UpdatesUiModel.ItemPosition.SINGLE || model.position == UpdatesUiModel.ItemPosition.TOP) 4.dp else 0.dp
+                    val bottomPadding = if (model.position == UpdatesUiModel.ItemPosition.SINGLE || model.position == UpdatesUiModel.ItemPosition.BOTTOM) 4.dp else 0.dp
+
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp)
+                            .padding(top = topPadding, bottom = bottomPadding)
+                            .animateItemFastScroll(),
+                        shape = shape,
+                        color = MaterialTheme.colorScheme.surfaceContainerLow,
+                        tonalElevation = 2.dp,
+                    ) {
+                        UpdatesUiItem(
+                            update = updatesItem.update,
+                            selected = updatesItem.selected,
+                            watchProgress = updatesItem.update.lastSecondSeen
+                                .takeIf { !updatesItem.update.seen && it > 0L }
+                                ?.let {
+                                    stringResource(
+                                        MR.strings.episode_progress,
+                                        formatProgress(it),
+                                        formatProgress(updatesItem.update.totalSeconds),
+                                    )
+                                },
+                            onLongClick = {
+                                onUpdateSelected(updatesItem, !updatesItem.selected, true, true)
+                            },
+                            onClick = {
+                                when {
+                                    selectionMode -> onUpdateSelected(
+                                        updatesItem,
+                                        !updatesItem.selected,
+                                        true,
+                                        false,
+                                    )
+                                    else -> onClickUpdate(updatesItem, false)
+                                }
+                            },
+                            onClickCover = { onClickCover(updatesItem) }.takeIf { !selectionMode },
+                            onDownloadEpisode = { action: EpisodeDownloadAction ->
+                                onDownloadEpisode(listOf(updatesItem), action)
+                            }.takeIf { !selectionMode },
+                            downloadStateProvider = updatesItem.downloadStateProvider,
+                            downloadProgressProvider = updatesItem.downloadProgressProvider,
+                            updatesItem = updatesItem,
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -224,6 +187,7 @@ private fun UpdatesUiItem(
     modifier: Modifier = Modifier,
 ) {
     val haptic = LocalHapticFeedback.current
+    val scope = rememberCoroutineScope()
     val textAlpha = if (update.seen) DISABLED_ALPHA else 1f
 
     Row(
@@ -306,9 +270,10 @@ private fun UpdatesUiItem(
             }
         }
 // AM (FILE_SIZE) -->
+        val showFileSize by remember { storagePreferences.showEpisodeFileSize().asState(scope) }
         var fileSizeAsync: Long? by remember { mutableStateOf(updatesItem.fileSize) }
         if (downloadStateProvider() == Download.State.DOWNLOADED &&
-            storagePreferences.showEpisodeFileSize().get() &&
+            showFileSize &&
             fileSizeAsync == null
         ) {
             LaunchedEffect(update, Unit) {
@@ -327,7 +292,6 @@ private fun UpdatesUiItem(
             }
         }
         // <-- AM (FILE_SIZE)
-
         EpisodeDownloadIndicator(
             enabled = onDownloadEpisode != null,
             modifier = Modifier.padding(start = 4.dp),
