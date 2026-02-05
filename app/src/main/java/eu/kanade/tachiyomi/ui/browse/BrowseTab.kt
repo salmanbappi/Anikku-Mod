@@ -31,6 +31,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import tachiyomi.i18n.MR
+import tachiyomi.i18n.sy.SYMR
 import tachiyomi.presentation.core.i18n.stringResource
 
 data object BrowseTab : Tab {
@@ -70,9 +71,9 @@ data object BrowseTab : Tab {
             sourcesTab(),
             eu.kanade.presentation.components.TabContent(
                 titleRes = SYMR.strings.feed,
-                searchQuery = null, // Or handle if needed
+                searchQuery = null,
                 onChangeSearchQuery = {},
-                content = { feedTab().Content() }
+                content = { _, _ -> feedTab().Content() }
             ),
             extensionsTab(extensionsScreenModel),
             migrateSourceTab(),
