@@ -343,6 +343,16 @@ private fun AnimeScreenSmallImpl(
             )
         }
 
+        val backdropOffset by remember {
+            derivedStateOf {
+                if (episodeListState.firstVisibleItemIndex == 0) {
+                    -episodeListState.firstVisibleItemScrollOffset.toFloat()
+                } else {
+                    -2000f
+                }
+            }
+        }
+
         Box(modifier = Modifier.fillMaxSize().background(backgroundColor)) {
             val context = LocalContext.current
             // Backdrop with improved blending
@@ -361,6 +371,7 @@ private fun AnimeScreenSmallImpl(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(0.6f) // Cover more area for better immersion
+                    .graphicsLayer { translationY = backdropOffset }
                     .drawWithContent {
                         drawContent()
                         drawRect(
@@ -629,6 +640,13 @@ fun AnimeScreenLargeImpl(
     val insetPadding = WindowInsets.systemBars.only(WindowInsetsSides.Horizontal).asPaddingValues()
     var topBarHeight by remember { mutableIntStateOf(0) }
     val episodeListState = rememberLazyListState()
+    val infoScrollState = rememberScrollState()
+
+    val backdropOffset by remember {
+        derivedStateOf {
+            -infoScrollState.value.toFloat()
+        }
+    }
 
     val internalOnBackPressed = {
         if (isAnySelected) {
@@ -674,6 +692,7 @@ fun AnimeScreenLargeImpl(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(0.7f) // Even more area for tablet immersion
+                    .graphicsLayer { translationY = backdropOffset }
                     .drawWithContent {
                         drawContent()
                         drawRect(
@@ -782,7 +801,7 @@ fun AnimeScreenLargeImpl(
                         startContent = {
                             Column(
                                 modifier = Modifier
-                                    .verticalScroll(rememberScrollState())
+                                    .verticalScroll(infoScrollState)
                                     .padding(bottom = contentPadding.calculateBottomPadding()),
                             ) {
                                 AnimeInfoBox(
