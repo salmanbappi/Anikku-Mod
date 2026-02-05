@@ -18,7 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Done
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
@@ -337,7 +337,7 @@ private fun GridItemSelectable(
 
         if (isSelected) {
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.Done,
+                imageVector = Icons.Filled.Done,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
@@ -358,10 +358,12 @@ private fun Modifier.selectedOutline(
     color: Color,
 ) = composed {
     if (isSelected) {
-        this.border(
-            width = 2.dp,
-            color = color,
-            shape = MaterialTheme.shapes.medium,
+        this.then(
+            Modifier.border(
+                width = 2.dp,
+                color = color,
+                shape = MaterialTheme.shapes.medium,
+            )
         )
     } else {
         this
