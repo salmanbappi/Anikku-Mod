@@ -23,7 +23,19 @@ import androidx.compose.runtime.rememberCoroutineScope
 fun feedTab(): Tab = FeedTab
 
 data object FeedTab : Tab {
-// ... same options ...
+
+    @OptIn(ExperimentalAnimationGraphicsApi::class)
+    override val options: TabOptions
+        @Composable
+        get() {
+            val title = SYMR.strings.feed
+            return TabOptions(
+                index = 1u,
+                title = stringResource(title),
+                icon = painterResource(R.drawable.ic_browse_filled_24dp),
+            )
+        }
+
     @Composable
     override fun Content() {
         Content(PaddingValues(0.dp))
