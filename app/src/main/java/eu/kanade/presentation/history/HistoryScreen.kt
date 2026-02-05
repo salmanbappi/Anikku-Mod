@@ -141,7 +141,7 @@ private fun HistoryScreenContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 12.dp, vertical = 4.dp),
-                        shape = RoundedCornerShape(16.dp),
+                        shape = MaterialTheme.shapes.large,
                         color = MaterialTheme.colorScheme.surfaceVariant,
                         tonalElevation = 2.dp
                     ) {
@@ -165,7 +165,7 @@ private fun HistoryScreenContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 12.dp, vertical = 4.dp),
-                        shape = RoundedCornerShape(16.dp),
+                        shape = MaterialTheme.shapes.large,
                         color = MaterialTheme.colorScheme.surfaceVariant,
                         tonalElevation = 2.dp
                     ) {

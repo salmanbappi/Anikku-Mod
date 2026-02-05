@@ -145,7 +145,7 @@ private fun ProfileHeaderSection(state: StatsScreenState.SuccessAnime) {
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.surfaceContainerLow, // 30% Secondary
         tonalElevation = 2.dp
     ) {
@@ -750,7 +750,7 @@ private fun StatsSectionCard(
         )
         ElevatedCard(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
+            shape = MaterialTheme.shapes.large,
             colors = androidx.compose.material3.CardDefaults.elevatedCardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow // 30% Secondary
             ),

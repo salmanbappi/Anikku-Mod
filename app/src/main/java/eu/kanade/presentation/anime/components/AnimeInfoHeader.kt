@@ -125,7 +125,7 @@ fun AnimeInfoBox(
         modifier = modifier
             .padding(horizontal = 12.dp, vertical = 8.dp)
             .fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.surfaceContainerLow, // 30% Secondary
         tonalElevation = 2.dp
     ) {

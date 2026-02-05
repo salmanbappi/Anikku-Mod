@@ -108,7 +108,7 @@ internal fun LazyListScope.updatesUiItems(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 12.dp, vertical = 4.dp),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = MaterialTheme.shapes.large,
                     color = MaterialTheme.colorScheme.surfaceContainerLow, // 30% Secondary
                     tonalElevation = 2.dp
                 ) {
@@ -160,7 +160,7 @@ internal fun LazyListScope.updatesUiItems(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 12.dp, vertical = 4.dp),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = MaterialTheme.shapes.large,
                     color = MaterialTheme.colorScheme.surfaceContainerLow, // 30% Secondary
                     tonalElevation = 2.dp
                 ) {
