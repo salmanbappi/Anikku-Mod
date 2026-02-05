@@ -359,13 +359,13 @@ private fun Modifier.selectedOutline(
     color: Color,
 ) = composed {
     if (isSelected) {
-        this.border(
+        Modifier.border(
             width = 2.dp,
             color = color,
             shape = MaterialTheme.shapes.medium,
         )
     } else {
-        this
+        Modifier
     }
 }
 
