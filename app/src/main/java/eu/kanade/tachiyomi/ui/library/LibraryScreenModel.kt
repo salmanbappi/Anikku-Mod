@@ -136,7 +136,7 @@ class LibraryScreenModel(
             ) { searchQuery, library, tracks, (trackingFilter, _), (groupType, sort) ->
                 library
                     // SY -->
-                    .applyGrouping(groupType)
+                    .applyGrouping(groupType, tracks)
                     // SY <--
                     .applyFilters(tracks, trackingFilter)
                     .applySort(tracks, sort.takeIf { groupType != LibraryGroup.BY_DEFAULT }, trackingFilter.keys)
@@ -477,7 +477,7 @@ class LibraryScreenModel(
     }
 
     // SY -->
-    private fun AnimeLibraryMap.applyGrouping(groupType: Int): AnimeLibraryMap {
+    private fun AnimeLibraryMap.applyGrouping(groupType: Int, tracks: Map<Long, List<Track>>): AnimeLibraryMap {
         val items = when (groupType) {
             LibraryGroup.BY_DEFAULT -> this
             LibraryGroup.UNGROUPED -> {
@@ -496,6 +496,7 @@ class LibraryScreenModel(
                 getGroupedAnimeItems(
                     groupType = groupType,
                     libraryAnime = this.values.flatten().distinctBy { it.libraryAnime.anime.id },
+                    tracks = tracks,
                 )
             }
         }
@@ -868,11 +869,11 @@ class LibraryScreenModel(
     private fun getGroupedAnimeItems(
         groupType: Int,
         libraryAnime: List<LibraryItem>,
+        tracks: Map<Long, List<Track>>,
     ): AnimeLibraryMap {
         val context = preferences.context
         return when (groupType) {
             LibraryGroup.BY_TRACK_STATUS -> {
-                val tracks = runBlocking { getTracks.await() }.groupBy { it.animeId }
                 libraryAnime.groupBy { item ->
                     val status = tracks[item.libraryAnime.anime.id]?.firstNotNullOfOrNull { track ->
                         TrackStatus.parseTrackerStatus(track.trackerId, track.status)

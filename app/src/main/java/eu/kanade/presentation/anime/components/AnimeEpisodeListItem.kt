@@ -114,11 +114,10 @@ fun AnimeEpisodeListItem(
                 .selectedBackground(selected)
                 .combinedClickable(
                     onClick = {
-                        haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
                         onClick()
                     },
                     onLongClick = {
-                        haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         onLongClick()
                     },
                 )

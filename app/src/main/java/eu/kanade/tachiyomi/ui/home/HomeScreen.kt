@@ -136,8 +136,8 @@ object HomeScreen : Screen() {
                     bottomBar = {
                         if (!isTabletUi()) {
                             Column {
-                                val isConnected =
-                                    castManager.castState.collectAsState().value == CastManager.CastState.CONNECTED
+                                val castState by castManager.castState.collectAsState()
+                                val isConnected = castState == CastManager.CastState.CONNECTED
                                 AnimatedVisibility(
                                     visible = isConnected,
                                     enter = expandVertically(),
@@ -263,11 +263,9 @@ object HomeScreen : Screen() {
         val navigator = LocalNavigator.currentOrThrow
         val scope = rememberCoroutineScope()
         val selected = tabNavigator.current.key == tab.key
-        val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
         NavigationBarItem(
             selected = selected,
             onClick = {
-                haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
                 if (!selected) {
                     tabNavigator.current = tab
                 } else {
@@ -298,11 +296,9 @@ object HomeScreen : Screen() {
         val navigator = LocalNavigator.currentOrThrow
         val scope = rememberCoroutineScope()
         val selected = tabNavigator.current.key == tab.key
-        val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
         NavigationRailItem(
             selected = selected,
             onClick = {
-                haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
                 if (!selected) {
                     tabNavigator.current = tab
                 } else {
