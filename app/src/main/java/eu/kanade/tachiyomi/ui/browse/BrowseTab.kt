@@ -72,9 +72,10 @@ data object BrowseTab : Tab {
             sourcesTab(),
             eu.kanade.presentation.components.TabContent(
                 titleRes = SYMR.strings.feed,
-                searchQuery = null,
-                onChangeSearchQuery = {},
-                content = { _, _ -> feedTab().Content() }
+                searchEnabled = false,
+                content = { contentPadding, _ -> 
+                    feedTab().Content(contentPadding)
+                }
             ),
             extensionsTab(extensionsScreenModel),
             migrateSourceTab(),

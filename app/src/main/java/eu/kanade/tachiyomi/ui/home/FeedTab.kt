@@ -31,12 +31,18 @@ data object FeedTab : Tab {
 
     @Composable
     override fun Content() {
+        Content(PaddingValues(0.dp))
+    }
+
+    @Composable
+    fun Content(contentPadding: PaddingValues) {
         val navigator = LocalNavigator.currentOrThrow
         val screenModel = rememberScreenModel { FeedScreenModel() }
         
         FeedScreen(
             screenModel = screenModel,
             onAnimeClick = { navigator.push(AnimeScreen(it.id)) },
+            contentPadding = contentPadding,
         )
     }
 }
