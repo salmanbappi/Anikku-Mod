@@ -175,7 +175,7 @@ fun AnimeToolbar(
                 containerColor = if (isActionMode) {
                     MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
                 } else {
-                    MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
+                    MaterialTheme.colorScheme.background
                         .copy(alpha = backgroundAlphaProvider())
                 },
             ),

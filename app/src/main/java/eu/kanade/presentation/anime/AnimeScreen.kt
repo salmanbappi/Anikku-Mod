@@ -371,7 +371,6 @@ private fun AnimeScreenSmallImpl(
                             ),
                         )
                     }
-                    .clip(RectangleShape)
                     .blur(8.dp)
                     .alpha(0.4f), // Slightly higher alpha for better color pop
             )
@@ -685,7 +684,6 @@ fun AnimeScreenLargeImpl(
                             ),
                         )
                     }
-                    .clip(RectangleShape)
                     .blur(8.dp)
                     .alpha(0.4f), // Slightly higher alpha for better color pop
             )
