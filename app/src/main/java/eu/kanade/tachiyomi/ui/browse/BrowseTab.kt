@@ -26,6 +26,7 @@ import eu.kanade.tachiyomi.ui.browse.source.sourcesTab
 import eu.kanade.tachiyomi.ui.home.feedTab
 import eu.kanade.tachiyomi.ui.main.MainActivity
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
@@ -67,7 +68,7 @@ data object BrowseTab : Tab {
         val extensionsScreenModel = rememberScreenModel { ExtensionsScreenModel() }
         val animeExtensionsState by extensionsScreenModel.state.collectAsState()
 
-        val tabs = persistentListOf(
+        val tabs = listOf(
             sourcesTab(),
             eu.kanade.presentation.components.TabContent(
                 titleRes = SYMR.strings.feed,
@@ -77,7 +78,7 @@ data object BrowseTab : Tab {
             ),
             extensionsTab(extensionsScreenModel),
             migrateSourceTab(),
-        )
+        ).toPersistentList()
 
         val state = rememberPagerState { tabs.size }
 
