@@ -50,7 +50,24 @@ import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
 data object BrowseTab : Tab {
-// ... same options and onReselect ...
+
+    override val options: TabOptions
+        @Composable
+        get() {
+            val isSelected = LocalTabNavigator.current.current is BrowseTab
+            val image = AnimatedImageVector.animatedVectorResource(R.drawable.anim_browse_enter)
+            return TabOptions(
+                index = 3u,
+                title = stringResource(MR.strings.browse),
+                icon = rememberAnimatedVectorPainter(image, isSelected),
+            )
+        }
+
+    // TODO: Find a way to let it open Global Anime/Manga Search depending on what Tab(e.g. Anime/Manga Source Tab) is open
+    override suspend fun onReselect(navigator: Navigator) {
+        navigator.push(GlobalSearchScreen())
+    }
+
     private val switchToExtensionTabChannel = Channel<Unit>(1, BufferOverflow.DROP_OLDEST)
 
     fun showExtension() {
