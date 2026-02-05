@@ -66,6 +66,10 @@ fun Screen.sourcesTab(): TabContent {
                         screenModel.toggleSource(source)
                         screenModel.closeDialog()
                     },
+                    onClickAddToFeed = {
+                        screenModel.addToFeed(source)
+                        screenModel.closeDialog()
+                    },
                     onDismiss = screenModel::closeDialog,
                 )
             }

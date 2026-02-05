@@ -214,6 +214,7 @@ fun SourceOptionsDialog(
     source: Source,
     onClickPin: () -> Unit,
     onClickDisable: () -> Unit,
+    onClickAddToFeed: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     AlertDialog(
@@ -231,6 +232,13 @@ fun SourceOptionsDialog(
                         .padding(vertical = 16.dp),
                 )
                 if (!source.isLocal()) {
+                    Text(
+                        text = "Add to Feed",
+                        modifier = Modifier
+                            .clickable(onClick = onClickAddToFeed)
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                    )
                     Text(
                         text = stringResource(MR.strings.action_disable),
                         modifier = Modifier

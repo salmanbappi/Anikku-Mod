@@ -96,7 +96,6 @@ object HomeScreen : Screen() {
     @Composable
     override fun Content() {
         val navStyle by uiPreferences.navStyle().collectAsState()
-        val enableFeed by uiPreferences.enableFeed().collectAsState()
         val navigator = LocalNavigator.currentOrThrow
         // SY -->
         val scope = rememberCoroutineScope()
@@ -126,7 +125,7 @@ object HomeScreen : Screen() {
                             NavigationRail(
                                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                             ) {
-                                navStyle.tabs(enableFeed)
+                                navStyle.tabs()
                                     .fastFilter { it.isEnabled() }
                                     .fastForEach {
                                         NavigationRailItem(it, alwaysShowLabel)
@@ -165,7 +164,7 @@ object HomeScreen : Screen() {
                                     NavigationBar(
                                         containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                                     ) {
-                                        navStyle.tabs(enableFeed)
+                                        navStyle.tabs()
                                             .fastFilter { it.isEnabled() }
                                             .fastForEach {
                                                 NavigationBarItem(it, alwaysShowLabel)
