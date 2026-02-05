@@ -35,6 +35,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -81,11 +82,10 @@ import uy.kohesive.injekt.injectLazy
 
 object HomeScreen : Screen() {
 
-    private val librarySearchEvent = Channel<String>()
     private val openTabEvent = Channel<Tab>()
     private val showBottomNavEvent = Channel<Boolean>()
 
-    private const val TAB_FADE_DURATION = 100
+    private const val TAB_FADE_DURATION = 200
     private const val TAB_NAVIGATOR_KEY = "HomeTabs"
 
     private val uiPreferences: UiPreferences by injectLazy()
@@ -320,7 +320,19 @@ object HomeScreen : Screen() {
 
     @Composable
     private fun NavigationIconItem(tab: eu.kanade.presentation.util.Tab) {
+        val tabNavigator = LocalTabNavigator.current
+        val selected = tabNavigator.current.key == tab.key
+        val scale by androidx.compose.animation.core.animateFloatAsState(
+            targetValue = if (selected) 1.2f else 1f,
+            animationSpec = androidx.compose.animation.core.spring(
+                dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
+                stiffness = androidx.compose.animation.core.Spring.StiffnessLow,
+            ),
+            label = "iconScale",
+        )
+
         BadgedBox(
+            modifier = Modifier.scale(scale),
             badge = {
                 when {
                     UpdatesTab::class.isInstance(tab) -> {

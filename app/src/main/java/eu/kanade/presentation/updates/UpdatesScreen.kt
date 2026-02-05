@@ -1,6 +1,7 @@
 package eu.kanade.presentation.updates
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -96,68 +97,67 @@ fun UpdateScreen(
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     ) { contentPadding ->
-    val screenState = when {
-        state.isLoading -> "Loading"
-        state.items.isEmpty() -> "Empty"
-        else -> "Content"
-    }
+        val scope = rememberCoroutineScope()
+        var isRefreshing by remember { mutableStateOf(false) }
 
-    AnimatedContent(
-        targetState = screenState,
-        transitionSpec = {
-            soup.compose.material.motion.animation.materialFadeThroughIn(
-                initialScale = 1f,
-                durationMillis = 250,
-            ) togetherWith
-                soup.compose.material.motion.animation.materialFadeThroughOut(
+        val screenState = when {
+            state.isLoading -> "Loading"
+            state.items.isEmpty() -> "Empty"
+            else -> "Content"
+        }
+
+        AnimatedContent(
+            targetState = screenState,
+            transitionSpec = {
+                soup.compose.material.motion.animation.materialFadeThroughIn(
+                    initialScale = 1f,
                     durationMillis = 250,
+                ) togetherWith
+                    soup.compose.material.motion.animation.materialFadeThroughOut(
+                        durationMillis = 250,
+                    )
+            },
+            label = "updatesContent",
+            modifier = Modifier.padding(contentPadding),
+        ) { currentScreenState ->
+            when (currentScreenState) {
+                "Loading" -> LoadingScreen()
+                "Empty" -> EmptyScreen(
+                    stringRes = MR.strings.information_no_recent,
                 )
-        },
-        label = "updatesContent",
-    ) { currentScreenState ->
-        when (currentScreenState) {
-            "Loading" -> LoadingScreen(Modifier.padding(contentPadding))
-            "Empty" -> EmptyScreen(
-                stringRes = MR.strings.information_no_recent,
-                modifier = Modifier.padding(contentPadding),
-            )
-            "Content" -> {
-                val scope = rememberCoroutineScope()
-                var isRefreshing by remember { mutableStateOf(false) }
-
-                PullRefresh(
-                    refreshing = isRefreshing,
-                    onRefresh = {
-                        val started = onUpdateLibrary()
-                        if (!started) return@PullRefresh
-                        scope.launch {
-                            // Fake refresh status but hide it after a second as it's a long running task
-                            isRefreshing = true
-                            delay(1.seconds)
-                            isRefreshing = false
-                        }
-                    },
-                    enabled = !state.selectionMode,
-                    indicatorPadding = contentPadding,
-                ) {
-                    FastScrollLazyColumn(
-                        contentPadding = contentPadding,
+                "Content" -> {
+                    PullRefresh(
+                        refreshing = isRefreshing,
+                        onRefresh = {
+                            val started = onUpdateLibrary()
+                            if (!started) return@PullRefresh
+                            scope.launch {
+                                // Fake refresh status but hide it after a second as it's a long running task
+                                isRefreshing = true
+                                delay(1.seconds)
+                                isRefreshing = false
+                            }
+                        },
+                        enabled = !state.selectionMode,
                     ) {
-                        updatesLastUpdatedItem(lastUpdated)
+                        FastScrollLazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                        ) {
+                            updatesLastUpdatedItem(lastUpdated)
 
-                        updatesUiItems(
-                            uiModels = state.uiModels,
-                            selectionMode = state.selectionMode,
-                            onUpdateSelected = onUpdateSelected,
-                            onClickCover = onClickCover,
-                            onClickUpdate = onOpenEpisode,
-                            onDownloadEpisode = onDownloadEpisode,
-                        )
+                            updatesUiItems(
+                                uiModels = state.uiModels,
+                                selectionMode = state.selectionMode,
+                                onUpdateSelected = onUpdateSelected,
+                                onClickCover = onClickCover,
+                                onClickUpdate = onOpenEpisode,
+                                onDownloadEpisode = onDownloadEpisode,
+                            )
+                        }
                     }
                 }
             }
         }
-    }
     }
 }
 
@@ -271,5 +271,12 @@ private fun UpdatesBottomBar(
 
 sealed interface UpdatesUiModel {
     data class Header(val date: LocalDate) : UpdatesUiModel
-    data class Item(val item: UpdatesItem) : UpdatesUiModel
+    data class Item(
+        val item: UpdatesItem,
+        val position: ItemPosition = ItemPosition.SINGLE,
+    ) : UpdatesUiModel
+
+    enum class ItemPosition {
+        SINGLE, TOP, MIDDLE, BOTTOM
+    }
 }

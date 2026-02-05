@@ -129,17 +129,30 @@ class UpdatesScreenModel(
     }
 
     private fun List<UpdatesItem>.toUiModel(): List<UpdatesUiModel> {
-        return this
-            .map { UpdatesUiModel.Item(it) }
-            .insertSeparators { before, after ->
-                val beforeDate = before?.item?.update?.dateFetch?.toLocalDate()
-                val afterDate = after?.item?.update?.dateFetch?.toLocalDate()
-                when {
-                    beforeDate != afterDate && afterDate != null -> UpdatesUiModel.Header(afterDate)
-                    // Return null to avoid adding a separator between two items.
-                    else -> null
-                }
+        val uiModels = mutableListOf<UpdatesUiModel>()
+        var i = 0
+        while (i < this.size) {
+            val item = this[i]
+            val date = item.update.dateFetch.toLocalDate()
+            uiModels.add(UpdatesUiModel.Header(date))
+
+            val group = mutableListOf<UpdatesItem>()
+            while (i < this.size && this[i].update.dateFetch.toLocalDate() == date) {
+                group.add(this[i])
+                i++
             }
+
+            group.forEachIndexed { index, updatesItem ->
+                val position = when {
+                    group.size == 1 -> UpdatesUiModel.ItemPosition.SINGLE
+                    index == 0 -> UpdatesUiModel.ItemPosition.TOP
+                    index == group.size - 1 -> UpdatesUiModel.ItemPosition.BOTTOM
+                    else -> UpdatesUiModel.ItemPosition.MIDDLE
+                }
+                uiModels.add(UpdatesUiModel.Item(updatesItem, position))
+            }
+        }
+        return uiModels
     }
 
     fun updateLibrary(): Boolean {
