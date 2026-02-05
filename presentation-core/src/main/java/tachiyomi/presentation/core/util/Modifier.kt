@@ -1,9 +1,11 @@
 package tachiyomi.presentation.core.util
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -14,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -29,13 +32,7 @@ fun Modifier.selectedBackground(isSelected: Boolean): Modifier = if (isSelected)
     composed {
         val alpha = if (isSystemInDarkTheme()) 0.16f else 0.22f
         val color = MaterialTheme.colorScheme.secondary.copy(alpha = alpha)
-        this then Modifier.drawBehind {
-            val radius = 12.dp.toPx()
-            drawRoundRect(
-                color = color,
-                cornerRadius = androidx.compose.ui.geometry.CornerRadius(radius, radius),
-            )
-        }
+        this.clip(RoundedCornerShape(12.dp)).background(color)
     }
 } else {
     this
