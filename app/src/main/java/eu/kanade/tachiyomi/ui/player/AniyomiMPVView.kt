@@ -289,9 +289,9 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         return true
     }
 
-    override fun destroy() {
+    override fun onDetachedFromWindow() {
         initialized = false
-        super.destroy()
+        super.onDetachedFromWindow()
     }
 
     private val observedProps = mapOf(
