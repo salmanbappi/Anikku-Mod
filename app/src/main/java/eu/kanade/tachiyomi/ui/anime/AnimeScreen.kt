@@ -24,7 +24,7 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import eu.kanade.core.util.ifSourcesLoaded
 import eu.kanade.domain.anime.model.hasCustomCover
-import eu.kanade.domain.anime.model.toSAnime
+import tachiyomi.domain.anime.model.toSAnime
 import eu.kanade.presentation.anime.AnimeScreen
 import eu.kanade.presentation.anime.DuplicateAnimeDialog
 import eu.kanade.presentation.anime.EditCoverAction

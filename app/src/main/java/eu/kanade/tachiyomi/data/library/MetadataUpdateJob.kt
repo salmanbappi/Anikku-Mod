@@ -12,7 +12,7 @@ import androidx.work.WorkQuery
 import androidx.work.WorkerParameters
 import eu.kanade.domain.anime.interactor.UpdateAnime
 import eu.kanade.domain.anime.model.copyFrom
-import eu.kanade.domain.anime.model.toSAnime
+import tachiyomi.domain.anime.model.toSAnime
 import eu.kanade.tachiyomi.data.cache.CoverCache
 import eu.kanade.tachiyomi.data.notification.Notifications
 import eu.kanade.tachiyomi.util.prepUpdateCover

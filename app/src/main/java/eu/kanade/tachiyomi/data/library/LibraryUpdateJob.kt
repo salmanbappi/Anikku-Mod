@@ -17,7 +17,7 @@ import androidx.work.WorkQuery
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import eu.kanade.domain.anime.interactor.UpdateAnime
-import eu.kanade.domain.anime.model.toSAnime
+import tachiyomi.domain.anime.model.toSAnime
 import eu.kanade.domain.episode.interactor.SyncEpisodesWithSource
 import eu.kanade.domain.sync.SyncPreferences
 import eu.kanade.tachiyomi.data.cache.CoverCache

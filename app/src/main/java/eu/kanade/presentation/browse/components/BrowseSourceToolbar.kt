@@ -70,12 +70,12 @@ fun BrowseSourceToolbar(
                     actions = persistentListOf(
                         AppBar.Action(
                             title = stringResource(MR.strings.action_select_all),
-                            icon = androidx.compose.material.icons.outlined.SelectAll,
+                            icon = Icons.Outlined.SelectAll,
                             onClick = onSelectAll,
                         ),
                         AppBar.Action(
                             title = stringResource(MR.strings.action_select_inverse),
-                            icon = androidx.compose.material.icons.outlined.FlipToBack,
+                            icon = Icons.Outlined.FlipToBack,
                             onClick = onInvertSelection,
                         ),
                     ),
