@@ -75,23 +75,18 @@ class UpdatesScreenModel(
 
     init {
         screenModelScope.launchIO {
-            // Set date limit for recent episodes
-
             val limit = ZonedDateTime.now().minusMonths(3).toInstant()
             combine(
                 getUpdates.subscribe(limit).distinctUntilChanged(),
                 downloadCache.changes,
-                downloadManager.queueState,
-            ) { updates, _, _ -> updates }
-                .catch {
-                    logcat(LogPriority.ERROR, it)
-                    _events.send(Event.InternalError)
-                }
+            ) { updates, _ -> updates }
                 .collectLatest { updates ->
+                    val items = withIOContext { updates.toUpdateItems() }
                     mutableState.update {
                         it.copy(
                             isLoading = false,
-                            items = updates.toUpdateItems(),
+                            items = items,
+                            uiModels = items.toUiModel(),
                         )
                     }
                 }
@@ -132,6 +127,20 @@ class UpdatesScreenModel(
             .toPersistentList()
     }
 
+    private fun List<UpdatesItem>.toUiModel(): List<UpdatesUiModel> {
+        return this
+            .map { UpdatesUiModel.Item(it) }
+            .insertSeparators { before, after ->
+                val beforeDate = before?.item?.update?.dateFetch?.toLocalDate()
+                val afterDate = after?.item?.update?.dateFetch?.toLocalDate()
+                when {
+                    beforeDate != afterDate && afterDate != null -> UpdatesUiModel.Header(afterDate)
+                    // Return null to avoid adding a separator between two items.
+                    else -> null
+                }
+            }
+    }
+
     fun updateLibrary(): Boolean {
         val started = LibraryUpdateJob.startNow(Injekt.get<Application>())
         screenModelScope.launch {
@@ -157,7 +166,7 @@ class UpdatesScreenModel(
                     downloadProgressProvider = { download.progress },
                 )
             }
-            state.copy(items = newItems)
+            state.copy(items = newItems, uiModels = newItems.toUiModel())
         }
     }
 
@@ -361,7 +370,8 @@ class UpdatesScreenModel(
                     }
                 }
             }
-            state.copy(items = newItems.toPersistentList())
+            val persistentItems = newItems.toPersistentList()
+            state.copy(items = persistentItems, uiModels = persistentItems.toUiModel())
         }
     }
 
@@ -371,7 +381,8 @@ class UpdatesScreenModel(
                 selectedEpisodeIds.addOrRemove(it.update.episodeId, selected)
                 it.copy(selected = selected)
             }
-            state.copy(items = newItems.toPersistentList())
+            val persistentItems = newItems.toPersistentList()
+            state.copy(items = persistentItems, uiModels = persistentItems.toUiModel())
         }
 
         selectedPositions[0] = -1
@@ -384,7 +395,8 @@ class UpdatesScreenModel(
                 selectedEpisodeIds.addOrRemove(it.update.episodeId, !it.selected)
                 it.copy(selected = !it.selected)
             }
-            state.copy(items = newItems.toPersistentList())
+            val persistentItems = newItems.toPersistentList()
+            state.copy(items = persistentItems, uiModels = persistentItems.toUiModel())
         }
         selectedPositions[0] = -1
         selectedPositions[1] = -1
@@ -402,24 +414,11 @@ class UpdatesScreenModel(
     data class State(
         val isLoading: Boolean = true,
         val items: PersistentList<UpdatesItem> = persistentListOf(),
+        val uiModels: List<UpdatesUiModel> = emptyList(),
         val dialog: Dialog? = null,
     ) {
         val selected = items.filter { it.selected }
         val selectionMode = selected.isNotEmpty()
-
-        fun getUiModel(): List<UpdatesUiModel> {
-            return items
-                .map { UpdatesUiModel.Item(it) }
-                .insertSeparators { before, after ->
-                    val beforeDate = before?.item?.update?.dateFetch?.toLocalDate()
-                    val afterDate = after?.item?.update?.dateFetch?.toLocalDate()
-                    when {
-                        beforeDate != afterDate && afterDate != null -> UpdatesUiModel.Header(afterDate)
-                        // Return null to avoid adding a separator between two items.
-                        else -> null
-                    }
-                }
-        }
     }
 
     sealed interface Dialog {
