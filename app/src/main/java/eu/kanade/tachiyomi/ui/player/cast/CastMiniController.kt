@@ -122,7 +122,7 @@ fun CastMiniController(
                         modifier = Modifier
                             .size(48.dp)
                             .padding(end = 8.dp),
-                        shape = RoundedCornerShape(4.dp),
+                        shape = MaterialTheme.shapes.small,
                     ) {
                         AsyncImage(
                             model = currentMedia?.thumbnail,

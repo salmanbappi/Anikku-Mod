@@ -19,7 +19,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -52,14 +51,14 @@ fun Badge(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.secondary,
     textColor: Color = MaterialTheme.colorScheme.onSecondary,
-    shape: Shape = RectangleShape,
+    shape: Shape = MaterialTheme.shapes.extraSmall,
 ) {
     Text(
         text = text,
         modifier = modifier
             .clip(shape)
             .background(color)
-            .padding(horizontal = 3.dp, vertical = 1.dp),
+            .padding(horizontal = 4.dp, vertical = 1.dp),
         color = textColor,
         fontWeight = FontWeight.Medium,
         maxLines = 1,
@@ -73,7 +72,7 @@ fun Badge(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.secondary,
     iconColor: Color = MaterialTheme.colorScheme.onSecondary,
-    shape: Shape = RectangleShape,
+    shape: Shape = MaterialTheme.shapes.extraSmall,
 ) {
     val iconContentPlaceholder = "[icon]"
     val text = buildAnnotatedString {
@@ -104,7 +103,7 @@ fun Badge(
         modifier = modifier
             .clip(shape)
             .background(color)
-            .padding(horizontal = 3.dp, vertical = 1.dp),
+            .padding(horizontal = 4.dp, vertical = 1.dp),
         color = iconColor,
         fontWeight = FontWeight.Medium,
         maxLines = 1,
@@ -119,7 +118,7 @@ fun Badge(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.secondary,
     tint: Color = Color.Unspecified,
-    shape: Shape = RectangleShape,
+    shape: Shape = MaterialTheme.shapes.extraSmall,
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -142,7 +141,7 @@ fun Badge(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.secondary,
     tint: Color? = null,
-    shape: Shape = RectangleShape,
+    shape: Shape = MaterialTheme.shapes.extraSmall,
 ) {
     Box(
         contentAlignment = Alignment.Center,

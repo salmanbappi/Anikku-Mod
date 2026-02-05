@@ -22,6 +22,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.unit.dp
 import tachiyomi.presentation.core.components.material.SECONDARY_ALPHA
 
 fun Modifier.selectedBackground(isSelected: Boolean): Modifier = if (isSelected) {
@@ -29,7 +30,11 @@ fun Modifier.selectedBackground(isSelected: Boolean): Modifier = if (isSelected)
         val alpha = if (isSystemInDarkTheme()) 0.16f else 0.22f
         val color = MaterialTheme.colorScheme.secondary.copy(alpha = alpha)
         this then Modifier.drawBehind {
-            drawRect(color)
+            val radius = 12.dp.toPx()
+            drawRoundRect(
+                color = color,
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(radius, radius),
+            )
         }
     }
 } else {

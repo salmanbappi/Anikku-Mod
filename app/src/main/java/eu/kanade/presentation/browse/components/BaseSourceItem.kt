@@ -137,9 +137,9 @@ private val defaultContent: @Composable RowScope.(Source, String?) -> Unit = { s
 private fun StatusBadge(text: String, color: Color) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(4.dp))
+            .clip(MaterialTheme.shapes.extraSmall)
             .background(color.copy(alpha = 0.15f))
-            .padding(horizontal = 4.dp, vertical = 1.dp)
+            .padding(horizontal = 6.dp, vertical = 2.dp)
     ) {
         Text(
             text = text,

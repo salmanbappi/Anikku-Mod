@@ -1,6 +1,8 @@
 package eu.kanade.presentation.library.components
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -13,8 +15,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
@@ -25,11 +29,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
@@ -128,11 +135,11 @@ private fun BoxScope.CoverTextOverlay(
 ) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(bottomStart = 4.dp, bottomEnd = 4.dp))
+            .clip(MaterialTheme.shapes.medium)
             .background(
                 Brush.verticalGradient(
                     0f to Color.Transparent,
-                    1f to Color(0xAA000000),
+                    1f to Color(0xCC000000),
                 ),
             )
             .fillMaxHeight(0.33f)
@@ -298,9 +305,14 @@ private fun GridItemSelectable(
     content: @Composable () -> Unit,
 ) {
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
+    val scale by animateFloatAsState(
+        if (isSelected) 0.95f else 1f,
+        label = "selection_scale",
+    )
     Box(
         modifier = modifier
-            .clip(MaterialTheme.shapes.small)
+            .scale(scale)
+            .clip(MaterialTheme.shapes.medium)
             .combinedClickable(
                 onClick = {
                     haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
@@ -311,16 +323,29 @@ private fun GridItemSelectable(
                     onLongClick()
                 },
             )
-            .selectedOutline(isSelected = isSelected, color = MaterialTheme.colorScheme.secondary)
+            .selectedOutline(isSelected = isSelected, color = MaterialTheme.colorScheme.primary)
             .padding(4.dp),
     ) {
         val contentColor = if (isSelected) {
-            MaterialTheme.colorScheme.onSecondary
+            MaterialTheme.colorScheme.onSurface
         } else {
             LocalContentColor.current
         }
         CompositionLocalProvider(LocalContentColor provides contentColor) {
             content()
+        }
+
+        if (isSelected) {
+            Icon(
+                imageVector = Icons.Filled.CheckCircle,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .size(24.dp)
+                    .align(Alignment.TopEnd)
+                    .padding(4.dp)
+                    .background(MaterialTheme.colorScheme.surface, CircleShape),
+            )
         }
     }
 }
@@ -331,7 +356,17 @@ private fun GridItemSelectable(
 private fun Modifier.selectedOutline(
     isSelected: Boolean,
     color: Color,
-) = drawBehind { if (isSelected) drawRect(color = color) }
+) = composed {
+    if (isSelected) {
+        this.border(
+            width = 2.dp,
+            color = color,
+            shape = MaterialTheme.shapes.medium,
+        )
+    } else {
+        this
+    }
+}
 
 /**
  * Layout of list item.
