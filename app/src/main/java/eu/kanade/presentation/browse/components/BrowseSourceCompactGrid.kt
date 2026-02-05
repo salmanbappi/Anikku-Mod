@@ -6,21 +6,18 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import eu.kanade.presentation.library.components.AnimeCompactGridItem
 import eu.kanade.presentation.library.components.CommonAnimeItemDefaults
-import kotlinx.coroutines.flow.StateFlow
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.anime.model.AnimeCover
 import tachiyomi.presentation.core.util.plus
 
 @Composable
 fun BrowseSourceCompactGrid(
-    animeList: LazyPagingItems<StateFlow<Anime>>,
+    animeList: LazyPagingItems<Anime>,
     columns: GridCells,
     contentPadding: PaddingValues,
     onAnimeClick: (Anime) -> Unit,
@@ -41,9 +38,9 @@ fun BrowseSourceCompactGrid(
 
         items(
             count = animeList.itemCount,
-            key = { index -> "${animeList[index]?.value?.id}_$index" },
+            key = { index -> "${animeList[index]?.id}_$index" },
         ) { index ->
-            val anime by animeList[index]?.collectAsState() ?: return@items
+            val anime = animeList[index] ?: return@items
             BrowseSourceCompactGridItem(
                 anime = anime,
                 isSelected = selection.any { it.id == anime.id },

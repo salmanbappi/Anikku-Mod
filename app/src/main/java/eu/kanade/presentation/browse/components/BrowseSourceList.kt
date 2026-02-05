@@ -3,7 +3,6 @@ package eu.kanade.presentation.browse.components
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -15,14 +14,13 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import eu.kanade.presentation.library.components.AnimeListItem
 import eu.kanade.presentation.library.components.CommonAnimeItemDefaults
-import kotlinx.coroutines.flow.StateFlow
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.anime.model.AnimeCover
 import tachiyomi.presentation.core.util.plus
 
 @Composable
 fun BrowseSourceList(
-    animeList: LazyPagingItems<StateFlow<Anime>>,
+    animeList: LazyPagingItems<Anime>,
     entries: Int,
     topBarHeight: Int,
     contentPadding: PaddingValues,
@@ -46,9 +44,9 @@ fun BrowseSourceList(
 
         items(
             count = animeList.itemCount,
-            key = { index -> "${animeList[index]?.value?.id}_$index" },
+            key = { index -> "${animeList[index]?.id}_$index" },
         ) { index ->
-            val anime by animeList[index]?.collectAsState() ?: return@items
+            val anime = animeList[index] ?: return@items
             BrowseSourceListItem(
                 anime = anime,
                 isSelected = selection.any { it.id == anime.id },
