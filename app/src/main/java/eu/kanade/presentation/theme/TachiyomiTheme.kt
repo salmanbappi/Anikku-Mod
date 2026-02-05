@@ -7,33 +7,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RippleConfiguration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
-import eu.kanade.domain.ui.UiPreferences
-import eu.kanade.domain.ui.model.AppTheme
-import eu.kanade.presentation.theme.colorscheme.BaseColorScheme
-import eu.kanade.presentation.theme.colorscheme.CloudflareColorScheme
-import eu.kanade.presentation.theme.colorscheme.CottoncandyColorScheme
-import eu.kanade.presentation.theme.colorscheme.CustomColorScheme
-import eu.kanade.presentation.theme.colorscheme.DoomColorScheme
-import eu.kanade.presentation.theme.colorscheme.GreenAppleColorScheme
-import eu.kanade.presentation.theme.colorscheme.LavenderColorScheme
-import eu.kanade.presentation.theme.colorscheme.MatrixColorScheme
-import eu.kanade.presentation.theme.colorscheme.MidnightDuskColorScheme
-import eu.kanade.presentation.theme.colorscheme.MochaColorScheme
-import eu.kanade.presentation.theme.colorscheme.MonetColorScheme
-import eu.kanade.presentation.theme.colorscheme.NordColorScheme
-import eu.kanade.presentation.theme.colorscheme.SapphireColorScheme
-import eu.kanade.presentation.theme.colorscheme.StrawberryColorScheme
-import eu.kanade.presentation.theme.colorscheme.TachiyomiColorScheme
-import eu.kanade.presentation.theme.colorscheme.TakoColorScheme
-import eu.kanade.presentation.theme.colorscheme.TealTurqoiseColorScheme
-import eu.kanade.presentation.theme.colorscheme.TidalWaveColorScheme
-import eu.kanade.presentation.theme.colorscheme.YinYangColorScheme
-import eu.kanade.presentation.theme.colorscheme.YotsubaColorScheme
-import uy.kohesive.injekt.Injekt
-import uy.kohesive.injekt.api.get
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun TachiyomiTheme(
@@ -42,8 +17,8 @@ fun TachiyomiTheme(
     content: @Composable () -> Unit,
 ) {
     val uiPreferences = Injekt.get<UiPreferences>()
-    val theme by uiPreferences.appTheme().collectAsState()
-    val isAmoled by uiPreferences.themeDarkAmoled().collectAsState()
+    val theme by uiPreferences.appTheme().collectAsStateWithLifecycle(initialValue = uiPreferences.appTheme().get())
+    val isAmoled by uiPreferences.themeDarkAmoled().collectAsStateWithLifecycle(initialValue = uiPreferences.themeDarkAmoled().get())
     BaseTachiyomiTheme(
         appTheme = appTheme ?: theme,
         isAmoled = amoled ?: isAmoled,
