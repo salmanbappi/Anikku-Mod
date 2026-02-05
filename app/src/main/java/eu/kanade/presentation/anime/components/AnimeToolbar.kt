@@ -3,7 +3,6 @@ package eu.kanade.presentation.anime.components
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.Recommend
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material.icons.outlined.FlipToBack
@@ -48,7 +47,6 @@ fun AnimeToolbar(
     onClickRefresh: () -> Unit,
     onClickMigrate: (() -> Unit)?,
     onClickSettings: (() -> Unit)?,
-    onClickSuggestions: (() -> Unit)?,
     // SY -->
     onClickEditInfo: (() -> Unit)?,
     // SY <--
@@ -127,39 +125,14 @@ fun AnimeToolbar(
                                         onClick = onClickFilter,
                                     ),
                                 )
-                                if (onClickSuggestions != null) {
-                                    add(
-                                        AppBar.Action(
-                                            title = stringResource(KMR.strings.pref_source_related_mangas),
-                                            icon = Icons.Outlined.Recommend,
-                                            onClick = onClickSuggestions,
-                                        ),
-                                    )
-                                }
-                                // SY -->
-                                if (onClickEditInfo != null) {
+                                if (onClickRefresh != null) {
                                     add(
                                         AppBar.OverflowAction(
-                                            title = stringResource(SYMR.strings.action_edit_info),
-                                            onClick = onClickEditInfo,
+                                            title = stringResource(MR.strings.action_webview_refresh),
+                                            onClick = onClickRefresh,
                                         ),
                                     )
                                 }
-                                // SY <--
-                                if (changeAnimeSkipIntro != null) {
-                                    add(
-                                        AppBar.OverflowAction(
-                                            title = stringResource(MR.strings.action_change_intro_length),
-                                            onClick = changeAnimeSkipIntro,
-                                        ),
-                                    )
-                                }
-                                add(
-                                    AppBar.OverflowAction(
-                                        title = stringResource(MR.strings.action_webview_refresh),
-                                        onClick = onClickRefresh,
-                                    ),
-                                )
                                 if (onClickEditCategory != null) {
                                     add(
                                         AppBar.OverflowAction(
@@ -198,9 +171,13 @@ fun AnimeToolbar(
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme
-                    .surfaceColorAtElevation(3.dp)
-                    .copy(alpha = if (isActionMode) 1f else backgroundAlphaProvider()),
+                containerColor = if (isActionMode) {
+                    MaterialTheme.colorScheme.background
+                } else if (backgroundAlphaProvider() < 0.01f) {
+                    Color.Transparent
+                } else {
+                    MaterialTheme.colorScheme.background.copy(alpha = backgroundAlphaProvider())
+                },
             ),
         )
     }

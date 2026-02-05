@@ -80,7 +80,6 @@ import eu.kanade.presentation.anime.components.EpisodeHeader
 import eu.kanade.presentation.anime.components.ExpandableAnimeDescription
 import eu.kanade.presentation.anime.components.MissingEpisodeCountListItem
 import eu.kanade.presentation.anime.components.NextEpisodeAiringListItem
-import eu.kanade.presentation.anime.components.SuggestionsRow
 import eu.kanade.presentation.components.relativeDateTimeText
 import eu.kanade.presentation.theme.DynamicTachiyomiTheme
 import eu.kanade.presentation.util.formatEpisodeNumber
@@ -214,7 +213,6 @@ fun AnimeScreen(
             onInvertSelection = onInvertSelection,
             onSettingsClicked = onSettingsClicked,
             onLocalScoreClicked = onLocalScoreClicked,
-            onSuggestionsClicked = onSuggestionsClicked,
         )
     } else {
         AnimeScreenLargeImpl(
@@ -258,7 +256,6 @@ fun AnimeScreen(
             onInvertSelection = onInvertSelection,
             onSettingsClicked = onSettingsClicked,
             onLocalScoreClicked = onLocalScoreClicked,
-            onSuggestionsClicked = onSuggestionsClicked,
         )
     }
 }
@@ -329,12 +326,13 @@ private fun AnimeScreenSmallImpl(
     val vibrantColor = vibrantColors[state.anime.id] ?: state.anime.asAnimeCover().vibrantCoverColor
 
     DynamicTachiyomiTheme(colorSeed = vibrantColor) {
-        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        val backgroundColor = MaterialTheme.colorScheme.background
+        Box(modifier = Modifier.fillMaxSize().background(backgroundColor)) {
             val context = LocalContext.current
-            // Backdrop
+            // Backdrop with improved blending
             val backdropGradientColors = listOf(
                 Color.Transparent,
-                MaterialTheme.colorScheme.background,
+                backgroundColor,
             )
             coil3.compose.AsyncImage(
                 model = coil3.request.ImageRequest.Builder(context)
@@ -345,15 +343,19 @@ private fun AnimeScreenSmallImpl(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(250.dp)
+                    .height(300.dp) // Taller backdrop for better immersion
                     .drawWithContent {
                         drawContent()
                         drawRect(
-                            brush = Brush.verticalGradient(colors = backdropGradientColors),
+                            brush = Brush.verticalGradient(
+                                colors = backdropGradientColors,
+                                startY = 0f,
+                                endY = size.height
+                            ),
                         )
                     }
                     .blur(4.dp)
-                    .alpha(0.25f),
+                    .alpha(0.3f), // Slightly higher alpha for better color pop
             )
             Scaffold(
                 containerColor = Color.Transparent,
@@ -371,6 +373,7 @@ private fun AnimeScreenSmallImpl(
                         if (!isFirstItemVisible) 1f else 0f,
                         label = "Top Bar Title",
                     )
+                    // Ensure the background color is truly transparent when at the top
                     val animatedBgAlpha by animateFloatAsState(
                         if (!isFirstItemVisible || isFirstItemScrolled) 1f else 0f,
                         label = "Top Bar Background",
@@ -389,7 +392,6 @@ private fun AnimeScreenSmallImpl(
                         onClickMigrate = onMigrateClicked,
                         onClickEditInfo = onEditInfoClicked.takeIf { state.anime.favorite },
                         onClickSettings = onSettingsClicked,
-                        onClickSuggestions = onSuggestionsClicked,
                         changeAnimeSkipIntro = changeAnimeSkipIntro,
                         actionModeCounter = selectedEpisodeCount,
                         onSelectAll = { onAllEpisodeSelected(true) },
@@ -474,53 +476,34 @@ private fun AnimeScreenSmallImpl(
                                     doSearch = onSearch,
                                 )
                             }
-                            item(key = AnimeScreenItem.ACTION_ROW, contentType = AnimeScreenItem.ACTION_ROW) {
-                                Surface(
-                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
-                                    shape = MaterialTheme.shapes.large,
-                                    color = MaterialTheme.colorScheme.surfaceContainerLow,
-                                    tonalElevation = 2.dp,
-                                ) {
-                                    AnimeActionRow(
-                                        favorite = state.anime.favorite,
-                                        trackingCount = state.trackingCount,
-                                        nextUpdate = nextUpdate,
-                                        isUserIntervalMode = state.anime.fetchInterval < 0,
-                                        onAddToLibraryClicked = onAddToLibraryClicked,
-                                        onWebViewClicked = onWebViewClicked,
-                                        onWebViewLongClicked = onWebViewLongClicked,
-                                        onTrackingClicked = onTrackingClicked,
-                                        onEditIntervalClicked = onEditIntervalClicked,
-                                        onEditCategory = onEditCategoryClicked,
-                                        localScore = state.anime.score,
-                                        onLocalScoreClicked = onLocalScoreClicked,
-                                    )
-                                }
-                            }
-                            item(key = AnimeScreenItem.DESCRIPTION_WITH_TAG, contentType = AnimeScreenItem.DESCRIPTION_WITH_TAG) {
-                                Surface(
-                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
-                                    shape = MaterialTheme.shapes.large,
-                                    color = MaterialTheme.colorScheme.surfaceContainerLow,
-                                    tonalElevation = 2.dp,
-                                ) {
-                                    Column {
-                                        ExpandableAnimeDescription(
-                                            defaultExpandState = state.isFromSource,
-                                            description = state.anime.description,
-                                            tagsProvider = { state.anime.genre },
-                                            onTagSearch = onTagSearch,
-                                            onCopyTagToClipboard = onCopyTagToClipboard,
-                                        )
-                                        if (state.suggestions.isNotEmpty()) {
-                                            SuggestionsRow(
-                                                suggestions = state.suggestions,
-                                                onAnimeClick = { onSearch(it.title, false) },
-                                            )
-                                        }
-                                    }
-                                }
-                            }
+                                                    item(key = AnimeScreenItem.ACTION_ROW, contentType = AnimeScreenItem.ACTION_ROW) {
+                                                        AnimeActionRow(
+                                                            modifier = Modifier.padding(vertical = 8.dp),
+                                                            favorite = state.anime.favorite,
+                                                            trackingCount = state.trackingCount,
+                                                            nextUpdate = nextUpdate,
+                                                            isUserIntervalMode = state.anime.fetchInterval < 0,
+                                                            onAddToLibraryClicked = onAddToLibraryClicked,
+                                                            onWebViewClicked = onWebViewClicked,
+                                                            onWebViewLongClicked = onWebViewLongClicked,
+                                                            onTrackingClicked = onTrackingClicked,
+                                                            onEditIntervalClicked = onEditIntervalClicked,
+                                                            onEditCategory = onEditCategoryClicked,
+                                                            localScore = state.anime.score,
+                                                            onLocalScoreClicked = onLocalScoreClicked,
+                                                        )
+                                                    }
+                                                    item(key = AnimeScreenItem.DESCRIPTION_WITH_TAG, contentType = AnimeScreenItem.DESCRIPTION_WITH_TAG) {
+                                                        ExpandableAnimeDescription(
+                                                            modifier = Modifier.padding(vertical = 8.dp),
+                                                            defaultExpandState = state.isFromSource,
+                                                            description = state.anime.description,
+                                                            tagsProvider = { state.anime.genre },
+                                                            onTagSearch = onTagSearch,
+                                                            onCopyTagToClipboard = onCopyTagToClipboard,
+                                                        )
+                                                    }
+                            
                             item(key = AnimeScreenItem.EPISODE_HEADER, contentType = AnimeScreenItem.EPISODE_HEADER) {
                                 val missingEpisodeCount = remember(episodes) {
                                     episodes.map { it.episode.episodeNumber }.missingEpisodesCount()
@@ -642,12 +625,13 @@ fun AnimeScreenLargeImpl(
     val vibrantColor = vibrantColors[state.anime.id] ?: state.anime.asAnimeCover().vibrantCoverColor
 
     DynamicTachiyomiTheme(colorSeed = vibrantColor) {
-        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        val backgroundColor = MaterialTheme.colorScheme.background
+        Box(modifier = Modifier.fillMaxSize().background(backgroundColor)) {
             val context = LocalContext.current
             // Backdrop
             val backdropGradientColors = listOf(
                 Color.Transparent,
-                MaterialTheme.colorScheme.background,
+                backgroundColor,
             )
             coil3.compose.AsyncImage(
                 model = coil3.request.ImageRequest.Builder(context)
@@ -658,7 +642,7 @@ fun AnimeScreenLargeImpl(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(250.dp)
+                    .height(400.dp) // Larger for tablet
                     .drawWithContent {
                         drawContent()
                         drawRect(
@@ -666,7 +650,7 @@ fun AnimeScreenLargeImpl(
                         )
                     }
                     .blur(4.dp)
-                    .alpha(0.25f),
+                    .alpha(0.3f),
             )
             Scaffold(
                 containerColor = Color.Transparent,
@@ -688,7 +672,6 @@ fun AnimeScreenLargeImpl(
                         onClickRefresh = onRefresh,
                         onClickMigrate = onMigrateClicked,
                         onClickSettings = onSettingsClicked,
-                        onClickSuggestions = onSuggestionsClicked,
                         changeAnimeSkipIntro = changeAnimeSkipIntro,
                         onClickEditInfo = onEditInfoClicked.takeIf { state.anime.favorite },
                         actionModeCounter = selectedEpisodeCount,
@@ -795,16 +778,11 @@ fun AnimeScreenLargeImpl(
                                     description = state.anime.description,
                                     tagsProvider = { state.anime.genre },
                                     onTagSearch = onTagSearch,
-                                    onCopyTagToClipboard = onCopyTagToClipboard,
-                                )
-                                if (state.suggestions.isNotEmpty()) {
-                                    SuggestionsRow(
-                                        suggestions = state.suggestions,
-                                        onAnimeClick = { onSearch(it.title, false) },
-                                    )
-                                }
-                            }
-                        },
+                                                                    onCopyTagToClipboard = onCopyTagToClipboard,
+                                                                )
+                                                            }
+                                                        },
+                                    
                         endContent = {
                             VerticalFastScroller(
                                 listState = episodeListState,
