@@ -29,6 +29,7 @@ import eu.kanade.presentation.components.DownloadDropdownMenu
 import eu.kanade.presentation.components.UpIcon
 import kotlinx.collections.immutable.persistentListOf
 import tachiyomi.i18n.MR
+import tachiyomi.i18n.kmk.KMR
 import tachiyomi.i18n.sy.SYMR
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.theme.active
@@ -46,6 +47,7 @@ fun AnimeToolbar(
     onClickRefresh: () -> Unit,
     onClickMigrate: (() -> Unit)?,
     onClickSettings: (() -> Unit)?,
+    onClickSuggestions: (() -> Unit)?,
     // SY -->
     onClickEditInfo: (() -> Unit)?,
     // SY <--
@@ -124,6 +126,15 @@ fun AnimeToolbar(
                                         onClick = onClickFilter,
                                     ),
                                 )
+                                if (onClickSuggestions != null) {
+                                    add(
+                                        AppBar.Action(
+                                            title = stringResource(KMR.strings.pref_source_related_mangas),
+                                            icon = Icons.Default.AutoAwesome,
+                                            onClick = onClickSuggestions,
+                                        ),
+                                    )
+                                }
                                 // SY -->
                                 if (onClickEditInfo != null) {
                                     add(

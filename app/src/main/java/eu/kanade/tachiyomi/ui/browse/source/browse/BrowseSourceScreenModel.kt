@@ -26,10 +26,10 @@ import eu.kanade.tachiyomi.animesource.model.AnimeFilter
 import eu.kanade.tachiyomi.source.CatalogueSource
 import eu.kanade.tachiyomi.source.model.FilterList
 import eu.kanade.tachiyomi.util.removeCovers
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.mutate
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -367,6 +367,35 @@ class BrowseSourceScreenModel(
         }
     }
 
+    fun toggleSelection(anime: Anime) {
+        mutableState.update { state ->
+            val newSelection = state.selection.mutate { list ->
+                if (list.fastAny { it.id == anime.id }) {
+                    list.removeAll { it.id == anime.id }
+                } else {
+                    list.add(anime)
+                }
+            }
+            state.copy(selection = newSelection)
+        }
+    }
+
+    fun clearSelection() {
+        mutableState.update { it.copy(selection = persistentListOf()) }
+    }
+
+    fun addSelectionToLibrary() {
+        val selection = state.value.selection
+        screenModelScope.launch {
+            selection.forEach { anime ->
+                if (!anime.favorite) {
+                    addFavorite(anime)
+                }
+            }
+            clearSelection()
+        }
+    }
+
     /**
      * Get user categories.
      *
@@ -454,7 +483,9 @@ class BrowseSourceScreenModel(
         val savedSearches: ImmutableList<SavedSearch> = persistentListOf(),
         val currentSavedSearch: SavedSearch? = null,
         val dialog: Dialog? = null,
+        val selection: PersistentList<Anime> = persistentListOf(),
     ) {
         val isUserQuery get() = listing is Listing.Search && !listing.query.isNullOrEmpty()
+        val selectionMode get() = selection.isNotEmpty()
     }
 }

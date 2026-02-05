@@ -59,6 +59,7 @@ import androidx.media.AudioFocusRequestCompat
 import androidx.media.AudioManagerCompat
 import com.hippo.unifile.UniFile
 import eu.kanade.domain.connections.service.ConnectionsPreferences
+import eu.kanade.presentation.theme.DynamicTachiyomiTheme
 import eu.kanade.presentation.theme.TachiyomiTheme
 import eu.kanade.tachiyomi.animesource.model.ChapterType
 import eu.kanade.tachiyomi.animesource.model.Hoster
@@ -94,6 +95,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import logcat.LogPriority
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import tachiyomi.domain.anime.model.asAnimeCover
 import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.core.common.util.lang.launchIO
 import tachiyomi.core.common.util.lang.launchNonCancellable
@@ -275,7 +279,8 @@ class PlayerActivity : BaseActivity() {
         // <-- Cast
 
         binding.controls.setContent {
-            TachiyomiTheme {
+            val anime by viewModel.currentAnime.collectAsState()
+            DynamicTachiyomiTheme(colorSeed = anime?.asAnimeCover()?.vibrantCoverColor) {
                 PlayerControls(
                     viewModel = viewModel,
                     castManager = castManager, // Pass the castManager instance

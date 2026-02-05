@@ -28,6 +28,7 @@ fun BrowseSourceList(
     contentPadding: PaddingValues,
     onAnimeClick: (Anime) -> Unit,
     onAnimeLongClick: (Anime) -> Unit,
+    selection: List<Anime>,
 ) {
     var containerHeight by remember { mutableIntStateOf(0) }
     LazyColumn(
@@ -50,6 +51,7 @@ fun BrowseSourceList(
             val anime by animeList[index]?.collectAsState() ?: return@items
             BrowseSourceListItem(
                 anime = anime,
+                isSelected = selection.any { it.id == anime.id },
                 onClick = { onAnimeClick(anime) },
                 onLongClick = { onAnimeLongClick(anime) },
                 entries = entries,
@@ -68,6 +70,7 @@ fun BrowseSourceList(
 @Composable
 internal fun BrowseSourceListItem(
     anime: Anime,
+    isSelected: Boolean = false,
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = onClick,
     entries: Int,
@@ -75,6 +78,7 @@ internal fun BrowseSourceListItem(
 ) {
     AnimeListItem(
         title = anime.title,
+        isSelected = isSelected,
         coverData = AnimeCover(
             animeId = anime.id,
             sourceId = anime.source,

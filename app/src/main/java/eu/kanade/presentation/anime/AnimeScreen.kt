@@ -153,6 +153,7 @@ fun AnimeScreen(
     onAllEpisodeSelected: (Boolean) -> Unit,
     onInvertSelection: () -> Unit,
     onLocalScoreClicked: () -> Unit,
+    onSuggestionsClicked: (() -> Unit)?,
 ) {
     val context = LocalContext.current
     val onCopyTagToClipboard: (tag: String) -> Unit = {
@@ -214,6 +215,7 @@ fun AnimeScreen(
             onInvertSelection = onInvertSelection,
             onSettingsClicked = onSettingsClicked,
             onLocalScoreClicked = onLocalScoreClicked,
+            onSuggestionsClicked = onSuggestionsClicked,
         )
     } else {
         AnimeScreenLargeImpl(
@@ -263,6 +265,7 @@ fun AnimeScreen(
             onInvertSelection = onInvertSelection,
             onSettingsClicked = onSettingsClicked,
             onLocalScoreClicked = onLocalScoreClicked,
+            onSuggestionsClicked = onSuggestionsClicked,
         )
     }
 }
@@ -328,6 +331,7 @@ private fun AnimeScreenSmallImpl(
     onAllEpisodeSelected: (Boolean) -> Unit,
     onInvertSelection: () -> Unit,
     onLocalScoreClicked: () -> Unit,
+    onSuggestionsClicked: (() -> Unit)?,
 ) {
     val episodeListState = rememberLazyListState()
 
@@ -385,6 +389,7 @@ private fun AnimeScreenSmallImpl(
                 onClickEditInfo = onEditInfoClicked.takeIf { state.anime.favorite },
                 // SY <--
                 onClickSettings = onSettingsClicked,
+                onClickSuggestions = onSuggestionsClicked,
                 changeAnimeSkipIntro = changeAnimeSkipIntro,
                 actionModeCounter = selectedEpisodeCount,
                 onSelectAll = { onAllEpisodeSelected(true) },
@@ -749,6 +754,7 @@ fun AnimeScreenLargeImpl(
     onAllEpisodeSelected: (Boolean) -> Unit,
     onInvertSelection: () -> Unit,
     onLocalScoreClicked: () -> Unit,
+    onSuggestionsClicked: (() -> Unit)?,
 ) {
     val layoutDirection = LocalLayoutDirection.current
     val density = LocalDensity.current
@@ -796,6 +802,7 @@ fun AnimeScreenLargeImpl(
                 onClickRefresh = onRefresh,
                 onClickMigrate = onMigrateClicked,
                 onClickSettings = onSettingsClicked,
+                onClickSuggestions = onSuggestionsClicked,
                 changeAnimeSkipIntro = changeAnimeSkipIntro,
                 // SY -->
                 onClickEditInfo = onEditInfoClicked.takeIf { state.anime.favorite },

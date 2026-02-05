@@ -148,9 +148,8 @@ fun Scaffold(
                     modifier = Modifier.hazeChild(
                         state = hazeState,
                         style = HazeDefaults.style(
-                            backgroundColor = containerColor,
                             blurRadius = 24.dp,
-                            tint = HazeTint(containerColor.copy(alpha = 0.7f)),
+                            tint = HazeTint(Color.Transparent),
                         ),
                     )
                 ) {
@@ -163,9 +162,8 @@ fun Scaffold(
                     modifier = Modifier.hazeChild(
                         state = hazeState,
                         style = HazeDefaults.style(
-                            backgroundColor = containerColor,
                             blurRadius = 24.dp,
-                            tint = HazeTint(containerColor.copy(alpha = 0.7f)),
+                            tint = HazeTint(Color.Transparent),
                         ),
                     )
                 ) {
