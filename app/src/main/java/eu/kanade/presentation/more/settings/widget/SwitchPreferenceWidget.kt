@@ -35,7 +35,6 @@ fun SwitchPreferenceWidget(
             )
         },
         onPreferenceClick = {
-            haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
             onCheckedChanged(!checked)
         },
     )

@@ -157,11 +157,7 @@ private fun DownloadingIndicator(
                 animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
                 label = "progress",
             )
-            arrowColor = if (animatedProgress < 0.5f) {
-                strokeColor
-            } else {
-                MaterialTheme.colorScheme.background
-            }
+            val backgroundColor = MaterialTheme.colorScheme.background
             CircularProgressIndicator(
                 progress = { animatedProgress },
                 modifier = IndicatorModifier,
@@ -171,29 +167,14 @@ private fun DownloadingIndicator(
                 strokeCap = StrokeCap.Butt,
                 gapSize = 0.dp,
             )
+            Icon(
+                imageVector = Icons.Outlined.ArrowDownward,
+                contentDescription = null,
+                modifier = ArrowModifier,
+                tint = if (animatedProgress < 0.5f) strokeColor else backgroundColor,
+            )
         }
         DropdownMenu(expanded = isMenuExpanded, onDismissRequest = { isMenuExpanded = false }) {
-            DropdownMenuItem(
-                text = { Text(text = stringResource(MR.strings.action_start_downloading_now)) },
-                onClick = {
-                    onClick(EpisodeDownloadAction.START_NOW)
-                    isMenuExpanded = false
-                },
-            )
-            DropdownMenuItem(
-                text = { Text(text = stringResource(MR.strings.action_cancel)) },
-                onClick = {
-                    onClick(EpisodeDownloadAction.CANCEL)
-                    isMenuExpanded = false
-                },
-            )
-        }
-        Icon(
-            imageVector = Icons.Outlined.ArrowDownward,
-            contentDescription = null,
-            modifier = ArrowModifier,
-            tint = arrowColor,
-        )
     }
 }
 

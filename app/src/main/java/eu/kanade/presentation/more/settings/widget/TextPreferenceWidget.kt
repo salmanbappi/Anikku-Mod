@@ -57,7 +57,6 @@ fun TextPreferenceWidget(
         },
         onClick = onPreferenceClick?.let {
             {
-                haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
                 it()
             }
         },
