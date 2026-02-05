@@ -85,6 +85,21 @@ data class ExtensionReportScreen(
     }
 }
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.remember
+import eu.kanade.presentation.components.AppBar
+import eu.kanade.presentation.components.AppBarActions
+import kotlinx.collections.immutable.persistentListOf
+
+object StatsScreen : Screen {
+// ... existing StatsScreen implementation ...
+}
+
+// ... existing ExtensionReportScreen implementation ...
+
 object InfrastructureScreen : Screen {
     @Composable
     override fun Content() {
@@ -92,21 +107,48 @@ object InfrastructureScreen : Screen {
         val screenModel = rememberScreenModel { InfrastructureScreenModel() }
         val state by screenModel.state.collectAsState()
         val isRefreshing by screenModel.isRefreshing.collectAsState()
+        val snackbarHostState = remember { SnackbarHostState() }
+
+        LaunchedEffect(Unit) {
+            screenModel.events.collectLatest { event ->
+                when (event) {
+                    InfrastructureScreenModel.Event.ReportCopied -> {
+                        snackbarHostState.showSnackbar("Report copied to clipboard")
+                    }
+                }
+            }
+        }
 
         Scaffold(
-            topBar = {
+            topBar = { scrollBehavior ->
                 AppBar(
                     title = "Infrastructure Command Center",
                     navigateUp = navigator::pop,
+                    actions = {
+                        AppBarActions(
+                            persistentListOf(
+                                AppBar.Action(
+                                    title = "Copy Report",
+                                    icon = Icons.Outlined.ContentCopy,
+                                    onClick = { 
+                                        screenModel.copyReportToClipboard()
+                                    },
+                                ),
+                            ),
+                        )
+                    },
+                    scrollBehavior = scrollBehavior,
                 )
             },
-            containerColor = MaterialTheme.colorScheme.background
+            containerColor = MaterialTheme.colorScheme.background,
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
         ) { contentPadding ->
             eu.kanade.presentation.more.stats.InfrastructureScreen(
                 state = state,
                 isRefreshing = isRefreshing,
                 onRefresh = screenModel::runDiagnostics,
-                contentPadding = contentPadding
+                contentPadding = contentPadding,
+                snackbarHostState = snackbarHostState,
             )
         }
     }
