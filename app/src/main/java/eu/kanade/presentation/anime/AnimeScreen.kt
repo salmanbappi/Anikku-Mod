@@ -490,7 +490,7 @@ private fun AnimeScreenSmallImpl(
                                 .fillMaxWidth()
                                 .padding(horizontal = 12.dp, vertical = 8.dp),
                             shape = RoundedCornerShape(16.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            color = MaterialTheme.colorScheme.surfaceContainerLow, // 30% Secondary
                             tonalElevation = 2.dp
                         ) {
                             AnimeActionRow(
@@ -519,7 +519,7 @@ private fun AnimeScreenSmallImpl(
                                 .fillMaxWidth()
                                 .padding(horizontal = 12.dp, vertical = 8.dp),
                             shape = RoundedCornerShape(16.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            color = MaterialTheme.colorScheme.surfaceContainerLow, // 30% Secondary
                             tonalElevation = 2.dp
                         ) {
                             ExpandableAnimeDescription(
@@ -1118,7 +1118,7 @@ private fun LazyListScope.sharedEpisodeItems(
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp, vertical = 8.dp),
             shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant,
+            color = MaterialTheme.colorScheme.surfaceContainerLow, // 30% Secondary
             tonalElevation = 2.dp
         ) {
             Column {

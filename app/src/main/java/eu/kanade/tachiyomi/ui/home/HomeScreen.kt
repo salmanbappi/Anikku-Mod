@@ -122,7 +122,9 @@ object HomeScreen : Screen() {
                 Scaffold(
                     startBar = {
                         if (isTabletUi()) {
-                            NavigationRail {
+                            NavigationRail(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                            ) {
                                 navStyle.tabs(enableFeed)
                                     .fastFilter { it.isEnabled() }
                                     .fastForEach {
@@ -159,7 +161,9 @@ object HomeScreen : Screen() {
                                     enter = expandVertically(animationSpec = androidx.compose.animation.core.tween(200)),
                                     exit = shrinkVertically(animationSpec = androidx.compose.animation.core.tween(200)),
                                 ) {
-                                    NavigationBar {
+                                    NavigationBar(
+                                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                    ) {
                                         navStyle.tabs(enableFeed)
                                             .fastFilter { it.isEnabled() }
                                             .fastForEach {

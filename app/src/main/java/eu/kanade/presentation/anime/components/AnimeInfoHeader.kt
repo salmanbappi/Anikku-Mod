@@ -126,14 +126,14 @@ fun AnimeInfoBox(
             .padding(horizontal = 12.dp, vertical = 8.dp)
             .fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        color = MaterialTheme.colorScheme.surfaceContainerLow, // 30% Secondary
         tonalElevation = 2.dp
     ) {
         Box {
             // Backdrop
             val backdropGradientColors = listOf(
                 Color.Transparent,
-                MaterialTheme.colorScheme.surfaceVariant,
+                MaterialTheme.colorScheme.surfaceContainerLow,
             )
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
@@ -716,10 +716,15 @@ private fun TagsChip(
     onClick: () -> Unit,
 ) {
     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
-        SuggestionChip(
+        androidx.compose.material3.SuggestionChip(
             modifier = modifier,
             onClick = onClick,
             label = { Text(text = text, style = MaterialTheme.typography.bodySmall) },
+            colors = androidx.compose.material3.SuggestionChipDefaults.suggestionChipColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                labelColor = MaterialTheme.colorScheme.onSurface,
+            ),
+            border = null,
         )
     }
 }
