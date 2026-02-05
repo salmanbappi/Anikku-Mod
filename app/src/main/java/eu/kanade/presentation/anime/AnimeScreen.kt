@@ -374,8 +374,8 @@ private fun AnimeScreenSmallImpl(
                     .fillMaxHeight(0.6f) // Cover more area for better immersion
                     .graphicsLayer { 
                         translationY = backdropOffset
-                        scaleX = 1.01f
-                        scaleY = 1.01f
+                        scaleX = 1.05f
+                        scaleY = 1.05f
                     }
                     .drawWithContent {
                         drawContent()
@@ -697,7 +697,11 @@ fun AnimeScreenLargeImpl(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(0.7f) // Even more area for tablet immersion
-                    .graphicsLayer { translationY = backdropOffset }
+                    .graphicsLayer { 
+                        translationY = backdropOffset
+                        scaleX = 1.05f
+                        scaleY = 1.05f
+                    }
                     .drawWithContent {
                         drawContent()
                         drawRect(
