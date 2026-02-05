@@ -156,6 +156,8 @@ data class BrowseSourceScreen(
                         onHelpClick = onHelpClick,
                         onSettingsClick = { navigator.push(SourcePreferencesScreen(sourceId)) },
                         onSearch = screenModel::search,
+                        selectedCount = state.selection.size,
+                        onUnselectAll = screenModel::clearSelection,
                     )
 
                     Row(
@@ -239,6 +241,49 @@ data class BrowseSourceScreen(
                     HorizontalDivider()
                 }
             },
+            bottomBar = {
+                val context = LocalContext.current
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = state.selectionMode,
+                    enter = androidx.compose.animation.expandVertically(),
+                    exit = androidx.compose.animation.shrinkVertically(),
+                ) {
+                    androidx.compose.material3.Surface(
+                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        shape = MaterialTheme.shapes.large.copy(
+                            bottomEnd = androidx.compose.foundation.shape.ZeroCornerSize,
+                            bottomStart = androidx.compose.foundation.shape.ZeroCornerSize,
+                        ),
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .padding(
+                                    androidx.compose.foundation.layout.WindowInsets.navigationBars
+                                        .only(androidx.compose.foundation.layout.WindowInsetsSides.Bottom)
+                                        .asPaddingValues(),
+                                )
+                                .padding(horizontal = 8.dp, vertical = 12.dp)
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                        ) {
+                            androidx.compose.material3.TextButton(
+                                onClick = { screenModel.addSelectionToLibrary() },
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Favorite,
+                                        contentDescription = null,
+                                    )
+                                    Text(
+                                        text = stringResource(MR.strings.add_to_library),
+                                        style = MaterialTheme.typography.labelSmall,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         ) { paddingValues ->
             val pagingFlow by screenModel.animePagerFlowFlow.collectAsState()
@@ -255,25 +300,22 @@ data class BrowseSourceScreen(
                 onWebViewClick = onWebViewClick,
                 onHelpClick = { uriHandler.openUri(Constants.URL_HELP) },
                 onLocalSourceHelpClick = onHelpClick,
-                onAnimeClick = { navigator.push((AnimeScreen(it.id, true))) },
-                onAnimeLongClick = { anime ->
-                    scope.launchIO {
-                        val duplicateAnime = screenModel.getDuplicateAnimelibAnime(anime)
-                        when {
-                            anime.favorite -> screenModel.setDialog(
-                                BrowseSourceScreenModel.Dialog.RemoveAnime(anime),
-                            )
-                            duplicateAnime != null -> screenModel.setDialog(
-                                BrowseSourceScreenModel.Dialog.AddDuplicateAnime(
-                                    anime,
-                                    duplicateAnime,
-                                ),
-                            )
-                            else -> screenModel.addFavorite(anime)
-                        }
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                onAnimeClick = {
+                    if (state.selectionMode) {
+                        screenModel.toggleSelection(it)
+                    } else {
+                        navigator.push((AnimeScreen(it.id, true)))
                     }
                 },
+                onAnimeLongClick = { anime ->
+                    if (state.selectionMode) {
+                        screenModel.toggleSelection(anime)
+                    } else {
+                        screenModel.toggleSelection(anime)
+                    }
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                },
+                selection = state.selection,
             )
         }
 

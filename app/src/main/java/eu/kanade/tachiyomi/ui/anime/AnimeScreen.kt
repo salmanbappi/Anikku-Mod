@@ -51,6 +51,7 @@ import eu.kanade.tachiyomi.ui.browse.migration.search.MigrateDialog
 import eu.kanade.tachiyomi.ui.browse.migration.search.MigrateDialogScreenModel
 import eu.kanade.tachiyomi.ui.browse.migration.search.MigrateSearchScreen
 import eu.kanade.tachiyomi.ui.browse.source.browse.BrowseSourceScreen
+import eu.kanade.tachiyomi.ui.browse.source.browse.RelatedAnimeScreen
 import eu.kanade.tachiyomi.ui.browse.source.globalsearch.GlobalSearchScreen
 import eu.kanade.tachiyomi.ui.category.CategoryScreen
 import eu.kanade.tachiyomi.ui.home.HomeScreen
@@ -212,6 +213,9 @@ class AnimeScreen(
             onAllEpisodeSelected = screenModel::toggleAllSelection,
             onInvertSelection = screenModel::invertSelection,
             onLocalScoreClicked = screenModel::showLocalScoreDialog,
+            onSuggestionsClicked = {
+                navigator.push(RelatedAnimeScreen(animeId))
+            }.takeIf { !successState.source.isLocalOrStub() },
         )
 
         val onDismissRequest = {

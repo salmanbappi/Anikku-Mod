@@ -51,6 +51,7 @@ fun BrowseSourceContent(
     onLocalSourceHelpClick: () -> Unit,
     onAnimeClick: (Anime) -> Unit,
     onAnimeLongClick: (Anime) -> Unit,
+    selection: List<Anime> = emptyList(),
 ) {
     val context = LocalContext.current
 
@@ -126,6 +127,7 @@ fun BrowseSourceContent(
                 contentPadding = contentPadding,
                 onAnimeClick = onAnimeClick,
                 onAnimeLongClick = onAnimeLongClick,
+                selection = selection,
             )
         }
         LibraryDisplayMode.List -> {
@@ -136,6 +138,7 @@ fun BrowseSourceContent(
                 contentPadding = contentPadding,
                 onAnimeClick = onAnimeClick,
                 onAnimeLongClick = onAnimeLongClick,
+                selection = selection,
             )
         }
         LibraryDisplayMode.CompactGrid, LibraryDisplayMode.CoverOnlyGrid -> {
@@ -145,6 +148,7 @@ fun BrowseSourceContent(
                 contentPadding = contentPadding,
                 onAnimeClick = onAnimeClick,
                 onAnimeLongClick = onAnimeLongClick,
+                selection = selection,
             )
         }
         else -> {}

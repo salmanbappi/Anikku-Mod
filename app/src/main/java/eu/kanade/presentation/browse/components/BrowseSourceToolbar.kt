@@ -3,6 +3,8 @@ package eu.kanade.presentation.browse.components
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ViewList
 import androidx.compose.material.icons.filled.ViewModule
+import androidx.compose.material.icons.outlined.FlipToBack
+import androidx.compose.material.icons.outlined.SelectAll
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
@@ -37,6 +39,10 @@ fun BrowseSourceToolbar(
     onSettingsClick: () -> Unit,
     onSearch: (String) -> Unit,
     scrollBehavior: TopAppBarScrollBehavior? = null,
+    onUnselectAll: () -> Unit = {},
+    onSelectAll: () -> Unit = {},
+    onInvertSelection: () -> Unit = {},
+    selectedCount: Int = 0,
 ) {
     // Avoid capturing unstable source in actions lambda
     val title = source?.name
@@ -46,53 +52,76 @@ fun BrowseSourceToolbar(
     var selectingDisplayMode by remember { mutableStateOf(false) }
 
     SearchToolbar(
-        navigateUp = navigateUp,
-        titleContent = { AppBarTitle(title) },
+        navigateUp = if (selectedCount > 0) onUnselectAll else navigateUp,
+        titleContent = {
+            if (selectedCount > 0) {
+                Text(text = selectedCount.toString())
+            } else {
+                AppBarTitle(title)
+            }
+        },
         searchQuery = searchQuery,
         onChangeSearchQuery = onSearchQueryChange,
         onSearch = onSearch,
         onClickCloseSearch = navigateUp,
         actions = {
-            AppBarActions(
-                actions = persistentListOf<AppBar.AppBarAction>().builder()
-                    .apply {
-                        add(
-                            AppBar.Action(
-                                title = stringResource(MR.strings.action_display_mode),
-                                icon = if (displayMode == LibraryDisplayMode.List) {
-                                    Icons.AutoMirrored.Filled.ViewList
-                                } else {
-                                    Icons.Filled.ViewModule
-                                },
-                                onClick = { selectingDisplayMode = true },
-                            ),
-                        )
-                        if (isLocalSource) {
+            if (selectedCount > 0) {
+                AppBarActions(
+                    actions = persistentListOf(
+                        AppBar.Action(
+                            title = stringResource(MR.strings.action_select_all),
+                            icon = androidx.compose.material.icons.outlined.SelectAll,
+                            onClick = onSelectAll,
+                        ),
+                        AppBar.Action(
+                            title = stringResource(MR.strings.action_select_inverse),
+                            icon = androidx.compose.material.icons.outlined.FlipToBack,
+                            onClick = onInvertSelection,
+                        ),
+                    ),
+                )
+            } else {
+                AppBarActions(
+                    actions = persistentListOf<AppBar.AppBarAction>().builder()
+                        .apply {
                             add(
-                                AppBar.OverflowAction(
-                                    title = stringResource(MR.strings.label_help),
-                                    onClick = onHelpClick,
+                                AppBar.Action(
+                                    title = stringResource(MR.strings.action_display_mode),
+                                    icon = if (displayMode == LibraryDisplayMode.List) {
+                                        Icons.AutoMirrored.Filled.ViewList
+                                    } else {
+                                        Icons.Filled.ViewModule
+                                    },
+                                    onClick = { selectingDisplayMode = true },
                                 ),
                             )
-                        } else {
-                            add(
-                                AppBar.OverflowAction(
-                                    title = stringResource(MR.strings.action_open_in_web_view),
-                                    onClick = onWebViewClick,
-                                ),
-                            )
+                            if (isLocalSource) {
+                                add(
+                                    AppBar.OverflowAction(
+                                        title = stringResource(MR.strings.label_help),
+                                        onClick = onHelpClick,
+                                    ),
+                                )
+                            } else {
+                                add(
+                                    AppBar.OverflowAction(
+                                        title = stringResource(MR.strings.action_open_in_web_view),
+                                        onClick = onWebViewClick,
+                                    ),
+                                )
+                            }
+                            if (isConfigurableSource) {
+                                add(
+                                    AppBar.OverflowAction(
+                                        title = stringResource(MR.strings.action_settings),
+                                        onClick = onSettingsClick,
+                                    ),
+                                )
+                            }
                         }
-                        if (isConfigurableSource) {
-                            add(
-                                AppBar.OverflowAction(
-                                    title = stringResource(MR.strings.action_settings),
-                                    onClick = onSettingsClick,
-                                ),
-                            )
-                        }
-                    }
-                    .build(),
-            )
+                        .build(),
+                )
+            }
 
             DropdownMenu(
                 expanded = selectingDisplayMode,

@@ -25,6 +25,7 @@ fun BrowseSourceComfortableGrid(
     contentPadding: PaddingValues,
     onAnimeClick: (Anime) -> Unit,
     onAnimeLongClick: (Anime) -> Unit,
+    selection: List<Anime>,
 ) {
     LazyVerticalGrid(
         columns = columns,
@@ -45,6 +46,7 @@ fun BrowseSourceComfortableGrid(
             val anime by animeList[index]?.collectAsState() ?: return@items
             BrowseSourceComfortableGridItem(
                 anime = anime,
+                isSelected = selection.any { it.id == anime.id },
                 onClick = { onAnimeClick(anime) },
                 onLongClick = { onAnimeLongClick(anime) },
             )
@@ -61,6 +63,7 @@ fun BrowseSourceComfortableGrid(
 @Composable
 internal fun BrowseSourceComfortableGridItem(
     anime: Anime,
+    isSelected: Boolean = false,
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = onClick,
 ) {
@@ -79,5 +82,6 @@ internal fun BrowseSourceComfortableGridItem(
         },
         onLongClick = onLongClick,
         onClick = onClick,
+        isSelected = isSelected,
     )
 }
