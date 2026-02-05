@@ -66,7 +66,7 @@ data object BrowseTab : Tab {
         val extensionsScreenModel = rememberScreenModel { ExtensionsScreenModel() }
         val animeExtensionsState by extensionsScreenModel.state.collectAsState()
 
-        val tabs = persistentListOf(
+        val tabs = persistentListOf<eu.kanade.presentation.components.TabContent>(
             sourcesTab(),
             feedTab(),
             extensionsTab(extensionsScreenModel),
