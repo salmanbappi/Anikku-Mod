@@ -214,10 +214,15 @@ class MainActivity : BaseActivity() {
                             modifier = Modifier.windowInsetsPadding(scaffoldInsets),
                         )
                     },
+                    containerColor = MaterialTheme.colorScheme.background,
                     contentWindowInsets = scaffoldInsets,
                 ) { contentPadding ->
                     // Consume insets already used by app state banners
-                    Box {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.background),
+                    ) {
                         // Shows current screen
                         DefaultNavigatorScreenTransition(
                             navigator = navigator,
