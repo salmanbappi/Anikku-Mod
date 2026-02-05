@@ -18,6 +18,9 @@ import eu.kanade.presentation.util.Tab
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.connections.discord.DiscordRPCService
 import eu.kanade.tachiyomi.data.connections.discord.DiscordScreen
+import androidx.compose.runtime.remember
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import eu.kanade.tachiyomi.ui.browse.extension.ExtensionsScreenModel
 import eu.kanade.tachiyomi.ui.browse.extension.extensionsTab
 import eu.kanade.tachiyomi.ui.browse.migration.sources.migrateSourceTab
@@ -28,6 +31,7 @@ import eu.kanade.tachiyomi.ui.home.FeedManageScreen
 import eu.kanade.tachiyomi.ui.main.MainActivity
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
@@ -42,24 +46,7 @@ import androidx.compose.material.icons.outlined.Settings
 import eu.kanade.presentation.components.AppBar
 
 data object BrowseTab : Tab {
-
-    override val options: TabOptions
-        @Composable
-        get() {
-            val isSelected = LocalTabNavigator.current.current is BrowseTab
-            val image = AnimatedImageVector.animatedVectorResource(R.drawable.anim_browse_enter)
-            return TabOptions(
-                index = 3u,
-                title = stringResource(MR.strings.browse),
-                icon = rememberAnimatedVectorPainter(image, isSelected),
-            )
-        }
-
-    // TODO: Find a way to let it open Global Anime/Manga Search depending on what Tab(e.g. Anime/Manga Source Tab) is open
-    override suspend fun onReselect(navigator: Navigator) {
-        navigator.push(GlobalSearchScreen())
-    }
-
+// ... same options and onReselect ...
     private val switchToExtensionTabChannel = Channel<Unit>(1, BufferOverflow.DROP_OLDEST)
 
     fun showExtension() {
@@ -75,29 +62,27 @@ data object BrowseTab : Tab {
         val extensionsScreenModel = rememberScreenModel { ExtensionsScreenModel() }
         val animeExtensionsState by extensionsScreenModel.state.collectAsState()
 
-        val tabs = remember {
-            persistentListOf(
-                sourcesTab(),
-                eu.kanade.presentation.components.TabContent(
-                    titleRes = SYMR.strings.feed,
-                    searchEnabled = false,
-                    actions = persistentListOf(
-                        AppBar.Action(
-                            title = "Edit Feed",
-                            icon = Icons.Outlined.Settings,
-                            onClick = { 
-                                navigator.push(FeedManageScreen())
-                            },
-                        ),
+        val tabs = listOf(
+            sourcesTab(),
+            eu.kanade.presentation.components.TabContent(
+                titleRes = SYMR.strings.feed,
+                searchEnabled = false,
+                actions = persistentListOf(
+                    AppBar.Action(
+                        title = "Edit Feed",
+                        icon = Icons.Outlined.Settings,
+                        onClick = { 
+                            navigator.push(FeedManageScreen())
+                        },
                     ),
-                    content = { contentPadding, _ -> 
-                        FeedTab.Content(contentPadding)
-                    }
                 ),
-                extensionsTab(extensionsScreenModel),
-                migrateSourceTab(),
-            )
-        }
+                content = { contentPadding, _ -> 
+                    FeedTab.Content(contentPadding)
+                }
+            ),
+            extensionsTab(extensionsScreenModel),
+            migrateSourceTab(),
+        ).toImmutableList()
 
         val state = rememberPagerState { tabs.size }
 
