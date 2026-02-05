@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -92,6 +93,7 @@ import eu.kanade.tachiyomi.util.system.copyToClipboard
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.anime.model.asAnimeCover
 import tachiyomi.i18n.MR
+import tachiyomi.i18n.kmk.KMR
 import tachiyomi.presentation.core.components.material.DISABLED_ALPHA
 import tachiyomi.presentation.core.components.material.TextButton
 import tachiyomi.presentation.core.components.material.padding

@@ -51,20 +51,25 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
     private val anime4kManager: Anime4KManager by injectLazy()
 
     var isExiting = false
+    var initialized = false
 
     private fun getPropertyInt(property: String): Int? {
+        if (!initialized) return null
         return MPVLib.getPropertyInt(property) as Int?
     }
 
     private fun getPropertyBoolean(property: String): Boolean? {
+        if (!initialized) return null
         return MPVLib.getPropertyBoolean(property) as Boolean?
     }
 
     private fun getPropertyDouble(property: String): Double? {
+        if (!initialized) return null
         return MPVLib.getPropertyDouble(property) as Double?
     }
 
     private fun getPropertyString(property: String): String? {
+        if (!initialized) return null
         return MPVLib.getPropertyString(property) as String?
     }
 
@@ -115,6 +120,7 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
     var aid: Int by TrackDelegate("aid")
 
     override fun initOptions(vo: String) {
+        initialized = true
         val useAnime4K = decoderPreferences.enableAnime4K().get()
         // Anime4K is incompatible with gpu-next
         setVo(if (decoderPreferences.gpuNext().get() && !useAnime4K) "gpu-next" else "gpu")
@@ -281,6 +287,11 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         MPVLib.command(arrayOf(action, mod.joinToString("+")))
 
         return true
+    }
+
+    override fun destroy() {
+        initialized = false
+        super.destroy()
     }
 
     private val observedProps = mapOf(

@@ -235,12 +235,12 @@ class PlayerActivity : BaseActivity() {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
+        setupPlayerMPV()
         enableEdgeToEdge()
         registerSecureActivity(this)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        setupPlayerMPV()
         setupPlayerAudio()
         setupMediaSession()
         setupPlayerOrientation()
@@ -714,7 +714,7 @@ class PlayerActivity : BaseActivity() {
     // A bunch of observers
 
     internal fun onObserverEvent(property: String, value: Long) {
-        if (player.isExiting) return
+        if (player.isExiting || !player.initialized) return
         when (property) {
             "video-params/w" -> PlayerStats.videoW.value = value
             "video-params/h" -> PlayerStats.videoH.value = value
@@ -739,7 +739,7 @@ class PlayerActivity : BaseActivity() {
     }
 
     internal fun onObserverEvent(property: String) {
-        if (player.isExiting) return
+        if (player.isExiting || !player.initialized) return
         when (property) {
             "chapter-list" -> {
                 viewModel.loadChapters()
@@ -750,7 +750,7 @@ class PlayerActivity : BaseActivity() {
     }
 
     internal fun onObserverEvent(property: String, value: Boolean) {
-        if (player.isExiting) return
+        if (player.isExiting || !player.initialized) return
         when (property) {
             "interpolation" -> PlayerStats.isInterpolating.value = value
             "pause" -> {
@@ -791,7 +791,7 @@ class PlayerActivity : BaseActivity() {
     }
 
     internal fun onObserverEvent(property: String, value: String) {
-        if (player.isExiting) return
+        if (player.isExiting || !player.initialized) return
         when (property) {
             "video-sync" -> PlayerStats.videoSync.value = value
             "tscale" -> PlayerStats.tscale.value = value
@@ -814,7 +814,7 @@ class PlayerActivity : BaseActivity() {
 
     @SuppressLint("NewApi")
     internal fun onObserverEvent(property: String, value: Double) {
-        if (player.isExiting) return
+        if (player.isExiting || !player.initialized) return
         when (property) {
             "speed" -> viewModel.playbackSpeed.update { value.toFloat() }
             "estimated-vf-fps" -> PlayerStats.estimatedVfFps.value = value
