@@ -18,6 +18,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.togetherWith
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
 import eu.kanade.presentation.anime.components.AnimeBottomActionMenu
@@ -100,13 +102,13 @@ fun UpdateScreen(
         else -> "Content"
     }
 
-    androidx.compose.animation.AnimatedContent(
+    AnimatedContent(
         targetState = screenState,
         transitionSpec = {
             soup.compose.material.motion.animation.materialFadeThroughIn(
                 initialScale = 1f,
                 durationMillis = 250,
-            ) androidx.compose.animation.togetherWith
+            ) togetherWith
                 soup.compose.material.motion.animation.materialFadeThroughOut(
                     durationMillis = 250,
                 )

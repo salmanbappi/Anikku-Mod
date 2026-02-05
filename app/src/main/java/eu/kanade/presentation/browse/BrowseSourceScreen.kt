@@ -13,6 +13,8 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.togetherWith
 import androidx.compose.ui.platform.LocalContext
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -81,13 +83,13 @@ fun BrowseSourceContent(
         else -> "Content"
     }
 
-    androidx.compose.animation.AnimatedContent(
+    AnimatedContent(
         targetState = screenState,
         transitionSpec = {
             soup.compose.material.motion.animation.materialFadeThroughIn(
                 initialScale = 1f,
                 durationMillis = 250,
-            ) androidx.compose.animation.togetherWith
+            ) togetherWith
                 soup.compose.material.motion.animation.materialFadeThroughOut(
                     durationMillis = 250,
                 )

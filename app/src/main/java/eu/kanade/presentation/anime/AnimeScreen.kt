@@ -55,9 +55,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
@@ -369,7 +371,7 @@ private fun AnimeScreenSmallImpl(
                             ),
                         )
                     }
-                    .clip(androidx.compose.ui.graphics.RectangleShape)
+                    .clip(RectangleShape)
                     .blur(8.dp)
                     .alpha(0.4f), // Slightly higher alpha for better color pop
             )
@@ -683,7 +685,7 @@ fun AnimeScreenLargeImpl(
                             ),
                         )
                     }
-                    .clip(androidx.compose.ui.graphics.RectangleShape)
+                    .clip(RectangleShape)
                     .blur(8.dp)
                     .alpha(0.4f), // Slightly higher alpha for better color pop
             )
