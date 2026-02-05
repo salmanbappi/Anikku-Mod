@@ -15,7 +15,7 @@ import cafe.adriel.voyager.core.model.StateScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import eu.kanade.core.preference.asState
 import eu.kanade.domain.anime.interactor.UpdateAnime
-import eu.kanade.domain.anime.model.toDomainAnime
+import tachiyomi.domain.anime.model.toDomainAnime
 import eu.kanade.domain.base.BasePreferences
 import eu.kanade.domain.source.service.SourcePreferences
 import eu.kanade.domain.track.interactor.AddTracks

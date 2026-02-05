@@ -1,7 +1,5 @@
 package tachiyomi.domain.anime.model
 
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.snapshots.SnapshotStateMap
 import tachiyomi.domain.anime.interactor.GetCustomAnimeInfo
 import uy.kohesive.injekt.injectLazy
 import java.util.concurrent.ConcurrentHashMap
@@ -74,7 +72,7 @@ data class AnimeCover(
          * [vibrantCoverColorMap] store color generated while browsing library.
          * It always empty at beginning each time app starts, then add more color while browsing.
          */
-        val vibrantCoverColorMap: SnapshotStateMap<Long, Int?> = mutableStateMapOf()
+        val vibrantCoverColorMap: HashMap<Long, Int?> = hashMapOf()
 
         /**
          * [dominantCoverColorMap] stores favorite manga's cover & text's color as a joined string in Prefs.

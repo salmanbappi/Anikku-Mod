@@ -3,7 +3,7 @@ package eu.kanade.tachiyomi.ui.browse.source.browse
 import androidx.compose.runtime.Immutable
 import cafe.adriel.voyager.core.model.StateScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import eu.kanade.domain.anime.model.toDomainAnime
+import tachiyomi.domain.anime.model.toDomainAnime
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentListOf

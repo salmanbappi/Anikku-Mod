@@ -280,7 +280,9 @@ class PlayerActivity : BaseActivity() {
 
         binding.controls.setContent {
             val anime by viewModel.currentAnime.collectAsState()
-            DynamicTachiyomiTheme(colorSeed = anime?.asAnimeCover()?.vibrantCoverColor) {
+            val vibrantColors by eu.kanade.tachiyomi.util.system.CoverColorObserver.vibrantColors.collectAsState()
+            val vibrantColor = anime?.let { vibrantColors[it.id] ?: it.asAnimeCover().vibrantCoverColor }
+            DynamicTachiyomiTheme(colorSeed = vibrantColor) {
                 PlayerControls(
                     viewModel = viewModel,
                     castManager = castManager, // Pass the castManager instance

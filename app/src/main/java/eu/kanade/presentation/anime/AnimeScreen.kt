@@ -344,21 +344,35 @@ private fun AnimeScreenSmallImpl(
         }
     }
 
-    val internalOnBackPressed = {
-        if (isAnySelected) {
-            onAllEpisodeSelected(false)
-        } else {
-            onBackClicked()
-        }
-    }
-    BackHandler(onBack = internalOnBackPressed)
+        val internalOnBackPressed = {
 
-    DynamicTachiyomiTheme(colorSeed = state.anime.asAnimeCover().vibrantCoverColor) {
-        Scaffold(
-            topBar = {
-            val selectedEpisodeCount: Int = remember(episodes) {
-                episodes.count { it.selected }
+            if (isAnySelected) {
+
+                onAllEpisodeSelected(false)
+
             }
+
+     else {
+
+                onBackClicked()
+
+            }
+
+        }
+
+        BackHandler(onBack = internalOnBackPressed)
+
+    
+
+        val vibrantColors by eu.kanade.tachiyomi.util.system.CoverColorObserver.vibrantColors.collectAsState()
+
+        val vibrantColor = vibrantColors[state.anime.id] ?: state.anime.asAnimeCover().vibrantCoverColor
+
+    
+
+        DynamicTachiyomiTheme(colorSeed = vibrantColor) {
+
+            Scaffold(
             val isFirstItemVisible by remember {
                 derivedStateOf { episodeListState.firstVisibleItemIndex == 0 }
             }
@@ -782,7 +796,10 @@ fun AnimeScreenLargeImpl(
     }
     BackHandler(onBack = internalOnBackPressed)
 
-    DynamicTachiyomiTheme(colorSeed = state.anime.asAnimeCover().vibrantCoverColor) {
+    val vibrantColors by eu.kanade.tachiyomi.util.system.CoverColorObserver.vibrantColors.collectAsState()
+    val vibrantColor = vibrantColors[state.anime.id] ?: state.anime.asAnimeCover().vibrantCoverColor
+
+    DynamicTachiyomiTheme(colorSeed = vibrantColor) {
         Scaffold(
             topBar = {
             val selectedEpisodeCount = remember(episodes) {
