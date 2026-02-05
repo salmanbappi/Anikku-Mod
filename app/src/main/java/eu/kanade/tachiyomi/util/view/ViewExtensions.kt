@@ -20,22 +20,15 @@ import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import eu.kanade.presentation.theme.DynamicTachiyomiTheme
 import eu.kanade.presentation.theme.TachiyomiTheme
 import eu.kanade.tachiyomi.R
-import eu.kanade.tachiyomi.util.system.CoverColorObserver
 
 inline fun ComponentActivity.setComposeContent(
     parent: CompositionContext? = null,
     crossinline content: @Composable () -> Unit,
 ) {
     setContent(parent) {
-        val vibrantColors by CoverColorObserver.vibrantColors.collectAsState()
-        val latestColor = vibrantColors.values.lastOrNull()
-
-        DynamicTachiyomiTheme(colorSeed = latestColor) {
+        TachiyomiTheme {
             CompositionLocalProvider(
                 LocalTextStyle provides MaterialTheme.typography.bodySmall,
                 LocalContentColor provides MaterialTheme.colorScheme.onBackground,
@@ -51,10 +44,7 @@ fun ComposeView.setComposeContent(
 ) {
     setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
     setContent {
-        val vibrantColors by CoverColorObserver.vibrantColors.collectAsState()
-        val latestColor = vibrantColors.values.lastOrNull()
-
-        DynamicTachiyomiTheme(colorSeed = latestColor) {
+        TachiyomiTheme {
             CompositionLocalProvider(
                 LocalTextStyle provides MaterialTheme.typography.bodySmall,
                 LocalContentColor provides MaterialTheme.colorScheme.onBackground,
