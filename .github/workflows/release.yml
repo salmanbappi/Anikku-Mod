@@ -68,15 +68,8 @@ jobs:
           files: app/build/outputs/apk/release/*.apk
           draft: false
           prerelease: false
+          generate_release_notes: true
           body: |
             ## 🚀 AniZen v${{ env.NEW_VN }}
-            
-            Automatic release with updated versioning.
-            
-            ### ✨ Features
-            - **2x Speed Toggle**: Long-press in player.
-            - **Fast Downloader**: Multi-threaded chunks (1DM+ Style).
-            - **Tactile UX**: Haptic feedback on tabs and settings.
-            - **Performance**: Full R8 optimization enabled.
             
             **📥 Download:** Choose the `arm64-v8a` version for your phone.
