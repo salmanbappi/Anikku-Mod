@@ -38,6 +38,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.key
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -370,47 +371,183 @@ private fun AnimeScreenSmallImpl(
 
     
 
-        DynamicTachiyomiTheme(colorSeed = vibrantColor) {
+            DynamicTachiyomiTheme(colorSeed = vibrantColor) {
 
-            Scaffold(
-            val isFirstItemVisible by remember {
-                derivedStateOf { episodeListState.firstVisibleItemIndex == 0 }
-            }
-            val isFirstItemScrolled by remember {
-                derivedStateOf { episodeListState.firstVisibleItemScrollOffset > 0 }
-            }
-            val animatedTitleAlpha by animateFloatAsState(
-                if (!isFirstItemVisible) 1f else 0f,
-                label = "Top Bar Title",
-            )
-            val animatedBgAlpha by animateFloatAsState(
-                if (!isFirstItemVisible || isFirstItemScrolled) 1f else 0f,
-                label = "Top Bar Background",
-            )
-            AnimeToolbar(
-                title = state.anime.title,
-                titleAlphaProvider = { animatedTitleAlpha },
-                backgroundAlphaProvider = { animatedBgAlpha },
-                hasFilters = state.filterActive,
-                onBackClicked = internalOnBackPressed,
-                onClickFilter = onFilterClicked,
-                onClickShare = onShareClicked,
-                onClickDownload = onDownloadActionClicked,
-                onClickEditCategory = onEditCategoryClicked,
-                onClickRefresh = onRefresh,
-                onClickMigrate = onMigrateClicked,
-                // SY -->
-                onClickEditInfo = onEditInfoClicked.takeIf { state.anime.favorite },
-                // SY <--
-                onClickSettings = onSettingsClicked,
-                onClickSuggestions = onSuggestionsClicked,
-                changeAnimeSkipIntro = changeAnimeSkipIntro,
-                actionModeCounter = selectedEpisodeCount,
-                onSelectAll = { onAllEpisodeSelected(true) },
-                onInvertSelection = { onInvertSelection() },
-            )
-        },
-        bottomBar = {
+    
+
+                Scaffold(
+
+    
+
+                    topBar = {
+
+    
+
+                        val selectedEpisodeCount: Int = remember(episodes) {
+
+    
+
+                            episodes.count { it.selected }
+
+    
+
+                        }
+
+    
+
+                        val isFirstItemVisible by remember {
+
+    
+
+                            derivedStateOf { episodeListState.firstVisibleItemIndex == 0 }
+
+    
+
+                        }
+
+    
+
+                        val isFirstItemScrolled by remember {
+
+    
+
+                            derivedStateOf { episodeListState.firstVisibleItemScrollOffset > 0 }
+
+    
+
+                        }
+
+    
+
+                        val animatedTitleAlpha by animateFloatAsState(
+
+    
+
+                            if (!isFirstItemVisible) 1f else 0f,
+
+    
+
+                            label = "Top Bar Title",
+
+    
+
+                        )
+
+    
+
+                        val animatedBgAlpha by animateFloatAsState(
+
+    
+
+                            if (!isFirstItemVisible || isFirstItemScrolled) 1f else 0f,
+
+    
+
+                            label = "Top Bar Background",
+
+    
+
+                        )
+
+    
+
+                        AnimeToolbar(
+
+    
+
+                            title = state.anime.title,
+
+    
+
+                            titleAlphaProvider = { animatedTitleAlpha },
+
+    
+
+                            backgroundAlphaProvider = { animatedBgAlpha },
+
+    
+
+                            hasFilters = state.filterActive,
+
+    
+
+                            onBackClicked = internalOnBackPressed,
+
+    
+
+                            onClickFilter = onFilterClicked,
+
+    
+
+                            onClickShare = onShareClicked,
+
+    
+
+                            onClickDownload = onDownloadActionClicked,
+
+    
+
+                            onClickEditCategory = onEditCategoryClicked,
+
+    
+
+                            onClickRefresh = onRefresh,
+
+    
+
+                            onClickMigrate = onMigrateClicked,
+
+    
+
+                            // SY -->
+
+    
+
+                            onClickEditInfo = onEditInfoClicked.takeIf { state.anime.favorite },
+
+    
+
+                            // SY <--
+
+    
+
+                            onClickSettings = onSettingsClicked,
+
+    
+
+                            onClickSuggestions = onSuggestionsClicked,
+
+    
+
+                            changeAnimeSkipIntro = changeAnimeSkipIntro,
+
+    
+
+                            actionModeCounter = selectedEpisodeCount,
+
+    
+
+                            onSelectAll = { onAllEpisodeSelected(true) },
+
+    
+
+                            onInvertSelection = { onInvertSelection() },
+
+    
+
+                        )
+
+    
+
+                    },
+
+    
+
+                    bottomBar = {
+
+    
+
+        
             val selectedEpisodes = remember(episodes) {
                 episodes.filter { it.selected }
             }
@@ -612,7 +749,6 @@ private fun AnimeScreenSmallImpl(
         }
     }
 }
-}
 
 @Composable
 private fun EpisodeItemWrapper(
@@ -799,11 +935,69 @@ fun AnimeScreenLargeImpl(
     val vibrantColors by eu.kanade.tachiyomi.util.system.CoverColorObserver.vibrantColors.collectAsState()
     val vibrantColor = vibrantColors[state.anime.id] ?: state.anime.asAnimeCover().vibrantCoverColor
 
-    DynamicTachiyomiTheme(colorSeed = vibrantColor) {
-        Scaffold(
-            topBar = {
-            val selectedEpisodeCount = remember(episodes) {
-                episodes.count { it.selected }
+        DynamicTachiyomiTheme(colorSeed = vibrantColor) {
+
+            Scaffold(
+
+                topBar = {
+
+                    val selectedEpisodeCount = remember(episodes) {
+
+                        episodes.count { it.selected }
+
+                    }
+
+                    AnimeToolbar(
+
+                        modifier = Modifier.onSizeChanged { topBarHeight = it.height },
+
+                        title = state.anime.title,
+
+                        titleAlphaProvider = { if (isAnySelected) 1f else 0f },
+
+                        backgroundAlphaProvider = { 1f },
+
+                        hasFilters = state.filterActive,
+
+                        onBackClicked = internalOnBackPressed,
+
+                        onClickFilter = onFilterButtonClicked,
+
+                        onClickShare = onShareClicked,
+
+                        onClickDownload = onDownloadActionClicked,
+
+                        onClickEditCategory = onEditCategoryClicked,
+
+                        onClickRefresh = onRefresh,
+
+                        onClickMigrate = onMigrateClicked,
+
+                        onClickSettings = onSettingsClicked,
+
+                        onClickSuggestions = onSuggestionsClicked,
+
+                        changeAnimeSkipIntro = changeAnimeSkipIntro,
+
+                        // SY -->
+
+                        onClickEditInfo = onEditInfoClicked.takeIf { state.anime.favorite },
+
+                        // SY <--
+
+                        actionModeCounter = selectedEpisodeCount,
+
+                        onSelectAll = { onAllEpisodeSelected(true) },
+
+                        onInvertSelection = { onInvertSelection() },
+
+                    )
+
+                },
+
+                bottomBar = {
+
+    ected }
             }
             AnimeToolbar(
                 modifier = Modifier.onSizeChanged { topBarHeight = it.height },
@@ -1011,7 +1205,6 @@ fun AnimeScreenLargeImpl(
             )
         }
     }
-}
 }
 
 @Composable
