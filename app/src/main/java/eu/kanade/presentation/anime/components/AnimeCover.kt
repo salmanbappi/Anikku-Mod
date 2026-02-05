@@ -59,7 +59,7 @@ enum class AnimeCover(val ratio: Float) {
         data: Any?,
         modifier: Modifier = Modifier,
         contentDescription: String = "",
-        shape: Shape = MaterialTheme.shapes.extraSmall,
+        shape: Shape = MaterialTheme.shapes.medium,
         onClick: (() -> Unit)? = null,
         // KMK -->
         alpha: Float = 1f,
@@ -179,7 +179,7 @@ enum class AnimeCoverHide(private val ratio: Float) {
     operator fun invoke(
         modifier: Modifier = Modifier,
         contentDescription: String = "",
-        shape: Shape = MaterialTheme.shapes.extraSmall,
+        shape: Shape = MaterialTheme.shapes.medium,
         onClick: (() -> Unit)? = null,
         // KMK -->
         /** background color, which used for loading/error indicator */

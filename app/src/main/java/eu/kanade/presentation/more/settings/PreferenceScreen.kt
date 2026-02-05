@@ -66,7 +66,7 @@ fun PreferenceScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 12.dp),
-                            shape = RoundedCornerShape(16.dp),
+                            shape = MaterialTheme.shapes.large,
                             color = MaterialTheme.colorScheme.surfaceVariant,
                             tonalElevation = 2.dp
                         ) {

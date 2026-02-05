@@ -62,6 +62,8 @@ private fun BaseTachiyomiTheme(
 ) {
     MaterialTheme(
         colorScheme = getThemeColorScheme(appTheme, isAmoled),
+        shapes = TachiyomiShapes,
+        typography = TachiyomiTypography,
         content = content,
     )
 }

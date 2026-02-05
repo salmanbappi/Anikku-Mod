@@ -489,7 +489,7 @@ private fun AnimeScreenSmallImpl(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 12.dp, vertical = 8.dp),
-                            shape = RoundedCornerShape(16.dp),
+                            shape = MaterialTheme.shapes.large,
                             color = MaterialTheme.colorScheme.surfaceContainerLow, // 30% Secondary
                             tonalElevation = 2.dp
                         ) {
@@ -518,7 +518,7 @@ private fun AnimeScreenSmallImpl(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 12.dp, vertical = 8.dp),
-                            shape = RoundedCornerShape(16.dp),
+                            shape = MaterialTheme.shapes.large,
                             color = MaterialTheme.colorScheme.surfaceContainerLow, // 30% Secondary
                             tonalElevation = 2.dp
                         ) {
@@ -1117,7 +1117,7 @@ private fun LazyListScope.sharedEpisodeItems(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp, vertical = 8.dp),
-            shape = RoundedCornerShape(16.dp),
+            shape = MaterialTheme.shapes.large,
             color = MaterialTheme.colorScheme.surfaceContainerLow, // 30% Secondary
             tonalElevation = 2.dp
         ) {

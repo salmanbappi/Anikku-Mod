@@ -36,24 +36,10 @@ import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.contentColorFor
-import androidx.compose.material3.rememberTopAppBarState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.SubcomposeLayout
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
-import androidx.compose.ui.unit.offset
-import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastMap
-import androidx.compose.ui.util.fastMapNotNull
-import androidx.compose.ui.util.fastMaxBy
-import kotlin.math.max
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.haze
+import dev.chrisbanes.haze.hazeChild
+import dev.chrisbanes.haze.HazeDefaults
 
 /**
  * <a href="https://material.io/design/layout/understanding-layout.html" class="external" target="_blank">Material Design layout</a>.
@@ -79,6 +65,7 @@ import kotlin.math.max
  * * Fixes for fab and snackbar horizontal placements when [contentWindowInsets] is used
  * * Handle consumed window insets
  * * Add startBar slot for Navigation Rail
+ * * Added Haze (Glassmorphism) support
  *
  * @param modifier the [Modifier] to be applied to this scaffold
  * @param topBar top app bar of the screen, typically a [SmallTopAppBar]
@@ -121,6 +108,8 @@ fun Scaffold(
 ) {
     // Tachiyomi: Handle consumed window insets
     val remainingWindowInsets = remember { MutableWindowInsets() }
+    val hazeState = remember { HazeState() }
+
     androidx.compose.material3.Surface(
         modifier = Modifier
             .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
@@ -135,10 +124,32 @@ fun Scaffold(
     ) {
         ScaffoldLayout(
             fabPosition = floatingActionButtonPosition,
-            topBar = { topBar(topBarScrollBehavior) },
+            topBar = {
+                Box(
+                    modifier = Modifier.hazeChild(
+                        state = hazeState,
+                        style = HazeDefaults.style(blurRadius = 24.dp, tint = containerColor.copy(alpha = 0.7f))
+                    )
+                ) {
+                    topBar(topBarScrollBehavior)
+                }
+            },
             startBar = startBar,
-            bottomBar = bottomBar,
-            content = content,
+            bottomBar = {
+                Box(
+                    modifier = Modifier.hazeChild(
+                        state = hazeState,
+                        style = HazeDefaults.style(blurRadius = 24.dp, tint = containerColor.copy(alpha = 0.7f))
+                    )
+                ) {
+                    bottomBar()
+                }
+            },
+            content = {
+                Box(modifier = Modifier.haze(hazeState)) {
+                    content(it)
+                }
+            },
             snackbar = snackbarHost,
             contentWindowInsets = remainingWindowInsets,
             fab = floatingActionButton,
