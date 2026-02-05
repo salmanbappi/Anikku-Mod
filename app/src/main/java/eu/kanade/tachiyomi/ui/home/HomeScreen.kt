@@ -95,6 +95,7 @@ object HomeScreen : Screen() {
     @Composable
     override fun Content() {
         val navStyle by uiPreferences.navStyle().collectAsState()
+        val enableFeed by uiPreferences.enableFeed().collectAsState()
         val navigator = LocalNavigator.currentOrThrow
         // SY -->
         val scope = rememberCoroutineScope()
@@ -122,7 +123,7 @@ object HomeScreen : Screen() {
                     startBar = {
                         if (isTabletUi()) {
                             NavigationRail {
-                                navStyle.tabs
+                                navStyle.tabs(enableFeed)
                                     .fastFilter { it.isEnabled() }
                                     .fastForEach {
                                         NavigationRailItem(it, alwaysShowLabel)
@@ -159,7 +160,7 @@ object HomeScreen : Screen() {
                                     exit = shrinkVertically(animationSpec = androidx.compose.animation.core.tween(200)),
                                 ) {
                                     NavigationBar {
-                                        navStyle.tabs
+                                        navStyle.tabs(enableFeed)
                                             .fastFilter { it.isEnabled() }
                                             .fastForEach {
                                                 NavigationBarItem(it, alwaysShowLabel)

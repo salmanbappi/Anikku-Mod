@@ -90,7 +90,7 @@ fun StatsScreenContent(
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.medium),
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface) // 60% Dominant
+            .background(MaterialTheme.colorScheme.background) // 60% Dominant
             .padding(horizontal = MaterialTheme.padding.medium),
     ) {
         item {
@@ -143,26 +143,23 @@ private fun ProfileHeaderSection(state: StatsScreenState.SuccessAnime) {
     val displayName by aiPreferences.displayName().collectAsState()
     val profilePhotoUri by aiPreferences.profilePhotoUri().collectAsState()
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
-                        MaterialTheme.colorScheme.surface,
-                    )
-                )
-            )
-            .padding(24.dp)
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow, // 30% Secondary
+        tonalElevation = 2.dp
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally, 
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp)
+        ) {
             Box(
                 modifier = Modifier
                     .size(80.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary),
+                    .background(MaterialTheme.colorScheme.primaryContainer), // Accent highlight
                 contentAlignment = Alignment.Center
             ) {
                 if (profilePhotoUri.isNotEmpty()) {
@@ -177,7 +174,7 @@ private fun ProfileHeaderSection(state: StatsScreenState.SuccessAnime) {
                         imageVector = Icons.Outlined.LocalLibrary,
                         contentDescription = null,
                         modifier = Modifier.size(40.dp),
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        tint = MaterialTheme.colorScheme.primary // 10% Accent
                     )
                 }
             }
@@ -185,14 +182,16 @@ private fun ProfileHeaderSection(state: StatsScreenState.SuccessAnime) {
             Text(
                 text = displayName,
                 style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = "${state.overview.libraryAnimeCount} Titles in Collection",
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontFamily = FontFamily.Monospace
                 ),
-                modifier = Modifier.secondaryItemAlpha()
+                modifier = Modifier.secondaryItemAlpha(),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -306,7 +305,7 @@ private fun OverviewGridSection(state: StatsScreenState.SuccessAnime) {
 @Composable
 private fun MetricItem(icon: ImageVector, label: String, value: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.tertiary)
+        Icon(icon, null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(modifier = Modifier.width(8.dp))
         Column {
             Text(
@@ -431,14 +430,14 @@ private fun GenreBar(genre: String, count: Int, maxCount: Int) {
                 .fillMaxWidth()
                 .height(6.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh) // 30% Structural
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth(progress)
                     .fillMaxHeight()
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary)
+                    .background(MaterialTheme.colorScheme.primary) // 10% Accent
             )
         }
     }
@@ -578,8 +577,13 @@ private fun WatchHabitsSection(habits: StatsData.WatchHabits) {
 @Composable
 private fun HabitItem(label: String, value: String) {
     Column {
-        Text(text = label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
-        Text(text = value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+        Text(text = label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            text = value, 
+            style = MaterialTheme.typography.bodyLarge, 
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary // 10% Accent
+        )
     }
 }
 
@@ -749,7 +753,8 @@ private fun StatsSectionCard(
             shape = RoundedCornerShape(16.dp),
             colors = androidx.compose.material3.CardDefaults.elevatedCardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow // 30% Secondary
-            )
+            ),
+            elevation = androidx.compose.material3.CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
         ) {
             content()
         }

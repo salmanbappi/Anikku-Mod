@@ -13,6 +13,8 @@ import eu.kanade.tachiyomi.ui.anime.AnimeScreen
 import tachiyomi.i18n.sy.SYMR
 import tachiyomi.presentation.core.i18n.stringResource
 
+fun feedTab(): Tab = FeedTab
+
 data object FeedTab : Tab {
 
     @OptIn(ExperimentalAnimationGraphicsApi::class)

@@ -23,6 +23,7 @@ import eu.kanade.tachiyomi.ui.browse.extension.extensionsTab
 import eu.kanade.tachiyomi.ui.browse.migration.sources.migrateSourceTab
 import eu.kanade.tachiyomi.ui.browse.source.globalsearch.GlobalSearchScreen
 import eu.kanade.tachiyomi.ui.browse.source.sourcesTab
+import eu.kanade.tachiyomi.ui.home.feedTab
 import eu.kanade.tachiyomi.ui.main.MainActivity
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.channels.BufferOverflow
@@ -67,6 +68,7 @@ data object BrowseTab : Tab {
 
         val tabs = persistentListOf(
             sourcesTab(),
+            feedTab(),
             extensionsTab(extensionsScreenModel),
             migrateSourceTab(),
         )
