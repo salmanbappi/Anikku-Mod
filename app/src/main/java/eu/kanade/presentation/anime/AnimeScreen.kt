@@ -1,6 +1,9 @@
 package eu.kanade.presentation.anime
 
 import androidx.activity.compose.BackHandler
+import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
@@ -55,6 +58,7 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
@@ -329,9 +333,9 @@ private fun AnimeScreenSmallImpl(
         val context = LocalContext.current
 
         LaunchedEffect(backgroundColor) {
-            val activity = context as? androidx.activity.ComponentActivity ?: return@LaunchedEffect
-            val lightStyle = androidx.activity.SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.BLACK)
-            val darkStyle = androidx.activity.SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+            val activity = context as? ComponentActivity ?: return@LaunchedEffect
+            val lightStyle = SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.BLACK)
+            val darkStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
             activity.enableEdgeToEdge(
                 statusBarStyle = if (isLight) lightStyle else darkStyle,
             )
@@ -640,9 +644,9 @@ fun AnimeScreenLargeImpl(
         val context = LocalContext.current
 
         LaunchedEffect(backgroundColor) {
-            val activity = context as? androidx.activity.ComponentActivity ?: return@LaunchedEffect
-            val lightStyle = androidx.activity.SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.BLACK)
-            val darkStyle = androidx.activity.SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+            val activity = context as? ComponentActivity ?: return@LaunchedEffect
+            val lightStyle = SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.BLACK)
+            val darkStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
             activity.enableEdgeToEdge(
                 statusBarStyle = if (isLight) lightStyle else darkStyle,
             )
@@ -678,9 +682,6 @@ fun AnimeScreenLargeImpl(
                     }
                     .blur(4.dp)
                     .alpha(0.4f), // Slightly higher alpha for better color pop
-            )
-                    }
-                    .alpha(0.3f),
             )
             Scaffold(
                 containerColor = Color.Transparent,
