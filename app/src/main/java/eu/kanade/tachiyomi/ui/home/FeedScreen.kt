@@ -36,41 +36,33 @@ import tachiyomi.presentation.core.screens.LoadingScreen
 fun FeedScreen(
     screenModel: FeedScreenModel,
     onAnimeClick: (Anime) -> Unit,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     val state by screenModel.state.collectAsState()
 
-    Scaffold(
-        topBar = { scrollBehavior ->
-            AppBar(
-                title = stringResource(SYMR.strings.feed),
-                scrollBehavior = scrollBehavior,
-            )
-        },
-    ) { paddingValues ->
-        when {
-            state.isLoading -> LoadingScreen(Modifier.padding(paddingValues))
-            state.items.isEmpty() -> EmptyScreen(
-                stringRes = SYMR.strings.feed_tab_empty,
-                modifier = Modifier.padding(paddingValues),
-            )
-            else -> {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(
-                        start = 16.dp,
-                        end = 16.dp,
-                        top = paddingValues.calculateTopPadding() + 8.dp,
-                        bottom = paddingValues.calculateBottomPadding() + 8.dp
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(state.items) { item ->
-                        FeedIsland(
-                            title = item.savedSearch?.name ?: item.source.name,
-                            animeList = item.animeList,
-                            onAnimeClick = onAnimeClick,
-                        )
-                    }
+    when {
+        state.isLoading -> LoadingScreen(Modifier.padding(contentPadding))
+        state.items.isEmpty() -> EmptyScreen(
+            stringRes = SYMR.strings.feed_tab_empty,
+            modifier = Modifier.padding(contentPadding),
+        )
+        else -> {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    start = 16.dp,
+                    end = 16.dp,
+                    top = contentPadding.calculateTopPadding() + 8.dp,
+                    bottom = contentPadding.calculateBottomPadding() + 8.dp
+                ),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(state.items) { item ->
+                    FeedIsland(
+                        title = item.savedSearch?.name ?: item.source.name,
+                        animeList = item.animeList,
+                        onAnimeClick = onAnimeClick,
+                    )
                 }
             }
         }
@@ -86,7 +78,7 @@ private fun FeedIsland(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        color = MaterialTheme.colorScheme.surfaceContainerLow, // 30% Secondary
         tonalElevation = 2.dp
     ) {
         Column(
