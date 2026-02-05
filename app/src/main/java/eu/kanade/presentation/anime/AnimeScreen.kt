@@ -1,5 +1,4 @@
 package eu.kanade.presentation.anime
-
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -72,6 +71,7 @@ import eu.kanade.presentation.anime.components.EpisodeHeader
 import eu.kanade.presentation.anime.components.ExpandableAnimeDescription
 import eu.kanade.presentation.anime.components.MissingEpisodeCountListItem
 import eu.kanade.presentation.anime.components.NextEpisodeAiringListItem
+import eu.kanade.presentation.anime.components.SuggestionsRow
 import eu.kanade.presentation.components.relativeDateTimeText
 import eu.kanade.presentation.util.formatEpisodeNumber
 import eu.kanade.tachiyomi.data.download.DownloadProvider
@@ -103,7 +103,6 @@ import tachiyomi.source.local.isLocal
 import uy.kohesive.injekt.injectLazy
 import java.time.Instant
 import java.util.concurrent.TimeUnit
-
 @Composable
 fun AnimeScreen(
     state: AnimeScreenModel.State.Success,
@@ -124,18 +123,14 @@ fun AnimeScreen(
     onWebViewClicked: (() -> Unit)?,
     onWebViewLongClicked: (() -> Unit)?,
     onTrackingClicked: () -> Unit,
-
     // For tags menu
     onTagSearch: (String) -> Unit,
-
     onFilterButtonClicked: () -> Unit,
     onRefresh: () -> Unit,
     onContinueWatching: () -> Unit,
     onSearch: (query: String, global: Boolean) -> Unit,
-
     // For cover dialog
     onCoverClicked: () -> Unit,
-
     // For top action menu
     onShareClicked: (() -> Unit)?,
     onDownloadActionClicked: ((DownloadAction) -> Unit)?,
@@ -162,12 +157,10 @@ fun AnimeScreen(
             context.copyToClipboard(it, it)
         }
     }
-
     val navigator = LocalNavigator.currentOrThrow
     val onSettingsClicked: (() -> Unit)? = {
         navigator.push(SourcePreferencesScreen(state.source.id))
     }.takeIf { state.source is ConfigurableSource }
-
     if (!isTabletUi) {
         AnimeScreenSmallImpl(
             state = state,
@@ -270,7 +263,6 @@ fun AnimeScreen(
         )
     }
 }
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AnimeScreenSmallImpl(
@@ -291,19 +283,15 @@ private fun AnimeScreenSmallImpl(
     onWebViewClicked: (() -> Unit)?,
     onWebViewLongClicked: (() -> Unit)?,
     onTrackingClicked: () -> Unit,
-
     // For tags menu
     onTagSearch: (String) -> Unit,
     onCopyTagToClipboard: (tag: String) -> Unit,
-
     onFilterClicked: () -> Unit,
     onRefresh: () -> Unit,
     onContinueWatching: () -> Unit,
     onSearch: (query: String, global: Boolean) -> Unit,
-
     // For cover dialog
     onCoverClicked: () -> Unit,
-
     // For top action menu
     onShareClicked: (() -> Unit)?,
     onDownloadActionClicked: ((DownloadAction) -> Unit)?,
@@ -315,7 +303,6 @@ private fun AnimeScreenSmallImpl(
     // SY -->
     onEditInfoClicked: () -> Unit,
     // SY <--
-
     // For bottom action menu
     onMultiBookmarkClicked: (List<Episode>, bookmarked: Boolean) -> Unit,
     // AM (FILLERMARK) -->
@@ -324,10 +311,8 @@ private fun AnimeScreenSmallImpl(
     onMultiMarkAsSeenClicked: (List<Episode>, markAsSeen: Boolean) -> Unit,
     onMarkPreviousAsSeenClicked: (Episode) -> Unit,
     onMultiDeleteClicked: (List<Episode>) -> Unit,
-
     // For swipe actions
     onEpisodeSwipe: (EpisodeList.Item, LibraryPreferences.EpisodeSwipeAction) -> Unit,
-
     onEpisodeSelected: (EpisodeList.Item, Boolean, Boolean, Boolean) -> Unit,
     onAllEpisodeSelected: (Boolean) -> Unit,
     onInvertSelection: () -> Unit,
@@ -335,219 +320,68 @@ private fun AnimeScreenSmallImpl(
     onSuggestionsClicked: (() -> Unit)?,
 ) {
     val episodeListState = rememberLazyListState()
-
     val episodes = remember(state) { state.processedEpisodes }
     val listItem = remember(state) { state.episodeListItems }
-
     val isAnySelected by remember {
         derivedStateOf {
             episodes.fastAny { it.selected }
         }
     }
-
         val internalOnBackPressed = {
-
             if (isAnySelected) {
-
                 onAllEpisodeSelected(false)
-
             }
-
      else {
-
                 onBackClicked()
-
             }
-
         }
-
         BackHandler(onBack = internalOnBackPressed)
-
-    
-
         val vibrantColors by eu.kanade.tachiyomi.util.system.CoverColorObserver.vibrantColors.collectAsState()
-
         val vibrantColor = vibrantColors[state.anime.id] ?: state.anime.asAnimeCover().vibrantCoverColor
-
-    
-
             DynamicTachiyomiTheme(colorSeed = vibrantColor) {
-
-    
-
                 Scaffold(
-
-    
-
                     topBar = {
-
-    
-
                         val selectedEpisodeCount: Int = remember(episodes) {
-
-    
-
                             episodes.count { it.selected }
-
-    
-
                         }
-
-    
-
                         val isFirstItemVisible by remember {
-
-    
-
                             derivedStateOf { episodeListState.firstVisibleItemIndex == 0 }
-
-    
-
                         }
-
-    
-
                         val isFirstItemScrolled by remember {
-
-    
-
                             derivedStateOf { episodeListState.firstVisibleItemScrollOffset > 0 }
-
-    
-
                         }
-
-    
-
                         val animatedTitleAlpha by animateFloatAsState(
-
-    
-
                             if (!isFirstItemVisible) 1f else 0f,
-
-    
-
                             label = "Top Bar Title",
-
-    
-
                         )
-
-    
-
                         val animatedBgAlpha by animateFloatAsState(
-
-    
-
                             if (!isFirstItemVisible || isFirstItemScrolled) 1f else 0f,
-
-    
-
                             label = "Top Bar Background",
-
-    
-
                         )
-
-    
-
                         AnimeToolbar(
-
-    
-
                             title = state.anime.title,
-
-    
-
                             titleAlphaProvider = { animatedTitleAlpha },
-
-    
-
                             backgroundAlphaProvider = { animatedBgAlpha },
-
-    
-
                             hasFilters = state.filterActive,
-
-    
-
                             onBackClicked = internalOnBackPressed,
-
-    
-
                             onClickFilter = onFilterClicked,
-
-    
-
                             onClickShare = onShareClicked,
-
-    
-
                             onClickDownload = onDownloadActionClicked,
-
-    
-
                             onClickEditCategory = onEditCategoryClicked,
-
-    
-
                             onClickRefresh = onRefresh,
-
-    
-
                             onClickMigrate = onMigrateClicked,
-
-    
-
                             // SY -->
-
-    
-
                             onClickEditInfo = onEditInfoClicked.takeIf { state.anime.favorite },
-
-    
-
                             // SY <--
-
-    
-
                             onClickSettings = onSettingsClicked,
-
-    
-
                             onClickSuggestions = onSuggestionsClicked,
-
-    
-
                             changeAnimeSkipIntro = changeAnimeSkipIntro,
-
-    
-
                             actionModeCounter = selectedEpisodeCount,
-
-    
-
                             onSelectAll = { onAllEpisodeSelected(true) },
-
-    
-
                             onInvertSelection = { onInvertSelection() },
-
-    
-
                         )
-
-    
-
                     },
-
-    
-
                     bottomBar = {
-
-    
-
-        
             val selectedEpisodes = remember(episodes) {
                 episodes.filter { it.selected }
             }
@@ -600,7 +434,6 @@ private fun AnimeScreenSmallImpl(
         },
     ) { contentPadding ->
         val topPadding = contentPadding.calculateTopPadding()
-
         PullRefresh(
             refreshing = state.isRefreshingData,
             onRefresh = onRefresh,
@@ -636,7 +469,6 @@ private fun AnimeScreenSmallImpl(
                             doSearch = onSearch,
                         )
                     }
-
                     item(
                         key = AnimeScreenItem.ACTION_ROW,
                         contentType = AnimeScreenItem.ACTION_ROW,
@@ -665,7 +497,6 @@ private fun AnimeScreenSmallImpl(
                             )
                         }
                     }
-
                     item(
                         key = AnimeScreenItem.DESCRIPTION_WITH_TAG,
                         contentType = AnimeScreenItem.DESCRIPTION_WITH_TAG,
@@ -688,6 +519,17 @@ private fun AnimeScreenSmallImpl(
                         }
                     }
 
+                    if (state.suggestions.isNotEmpty()) {
+                        item(
+                            key = "suggestions",
+                            contentType = "suggestions",
+                        ) {
+                            SuggestionsRow(
+                                suggestions = state.suggestions,
+                                onAnimeClick = { onSearch(it.title, false) },
+                            )
+                        }
+                    }
                     item(
                         key = AnimeScreenItem.EPISODE_HEADER,
                         contentType = AnimeScreenItem.EPISODE_HEADER,
@@ -702,7 +544,6 @@ private fun AnimeScreenSmallImpl(
                             onClick = onFilterClicked,
                         )
                     }
-
                     if (state.airingTime > 0L) {
                         item(
                             key = AnimeScreenItem.AIRING_TIME,
@@ -730,7 +571,6 @@ private fun AnimeScreenSmallImpl(
                             }
                         }
                     }
-
                     sharedEpisodeItems(
                         anime = state.anime,
                         source = state.source,
@@ -749,7 +589,6 @@ private fun AnimeScreenSmallImpl(
         }
     }
 }
-
 @Composable
 private fun EpisodeItemWrapper(
     item: EpisodeList,
@@ -765,7 +604,6 @@ private fun EpisodeItemWrapper(
     onEpisodeSwipe: (EpisodeList.Item, LibraryPreferences.EpisodeSwipeAction) -> Unit,
 ) {
     val haptic = LocalHapticFeedback.current
-
     when (item) {
         is EpisodeList.MissingCount -> {
             MissingEpisodeCountListItem(count = item.count)
@@ -841,7 +679,6 @@ private fun EpisodeItemWrapper(
         }
     }
 }
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnimeScreenLargeImpl(
@@ -862,19 +699,15 @@ fun AnimeScreenLargeImpl(
     onWebViewClicked: (() -> Unit)?,
     onWebViewLongClicked: (() -> Unit)?,
     onTrackingClicked: () -> Unit,
-
     // For tags menu
     onTagSearch: (String) -> Unit,
     onCopyTagToClipboard: (tag: String) -> Unit,
-
     onFilterButtonClicked: () -> Unit,
     onRefresh: () -> Unit,
     onContinueWatching: () -> Unit,
     onSearch: (query: String, global: Boolean) -> Unit,
-
     // For cover dialog
     onCoverClicked: () -> Unit,
-
     // For top action menu
     onShareClicked: (() -> Unit)?,
     onDownloadActionClicked: ((DownloadAction) -> Unit)?,
@@ -886,7 +719,6 @@ fun AnimeScreenLargeImpl(
     // SY -->
     onEditInfoClicked: () -> Unit,
     // SY <--
-
     // For bottom action menu
     onMultiBookmarkClicked: (List<Episode>, bookmarked: Boolean) -> Unit,
     // AM (FILLERMARK) -->
@@ -895,10 +727,8 @@ fun AnimeScreenLargeImpl(
     onMultiMarkAsSeenClicked: (List<Episode>, markAsSeen: Boolean) -> Unit,
     onMarkPreviousAsSeenClicked: (Episode) -> Unit,
     onMultiDeleteClicked: (List<Episode>) -> Unit,
-
     // For swipe actions
     onEpisodeSwipe: (EpisodeList.Item, LibraryPreferences.EpisodeSwipeAction) -> Unit,
-
     // Episode selection
     onEpisodeSelected: (EpisodeList.Item, Boolean, Boolean, Boolean) -> Unit,
     onAllEpisodeSelected: (Boolean) -> Unit,
@@ -908,21 +738,16 @@ fun AnimeScreenLargeImpl(
 ) {
     val layoutDirection = LocalLayoutDirection.current
     val density = LocalDensity.current
-
     val episodes = remember(state) { state.processedEpisodes }
     val listItem = remember(state) { state.episodeListItems }
-
     val isAnySelected by remember {
         derivedStateOf {
             episodes.fastAny { it.selected }
         }
     }
-
     val insetPadding = WindowInsets.systemBars.only(WindowInsetsSides.Horizontal).asPaddingValues()
     var topBarHeight by remember { mutableIntStateOf(0) }
-
     val episodeListState = rememberLazyListState()
-
     val internalOnBackPressed = {
         if (isAnySelected) {
             onAllEpisodeSelected(false)
@@ -931,72 +756,39 @@ fun AnimeScreenLargeImpl(
         }
     }
     BackHandler(onBack = internalOnBackPressed)
-
     val vibrantColors by eu.kanade.tachiyomi.util.system.CoverColorObserver.vibrantColors.collectAsState()
     val vibrantColor = vibrantColors[state.anime.id] ?: state.anime.asAnimeCover().vibrantCoverColor
-
         DynamicTachiyomiTheme(colorSeed = vibrantColor) {
-
             Scaffold(
-
                 topBar = {
-
                     val selectedEpisodeCount = remember(episodes) {
-
                         episodes.count { it.selected }
-
                     }
-
                     AnimeToolbar(
-
                         modifier = Modifier.onSizeChanged { topBarHeight = it.height },
-
                         title = state.anime.title,
-
                         titleAlphaProvider = { if (isAnySelected) 1f else 0f },
-
                         backgroundAlphaProvider = { 1f },
-
                         hasFilters = state.filterActive,
-
                         onBackClicked = internalOnBackPressed,
-
                         onClickFilter = onFilterButtonClicked,
-
                         onClickShare = onShareClicked,
-
                         onClickDownload = onDownloadActionClicked,
-
                         onClickEditCategory = onEditCategoryClicked,
-
                         onClickRefresh = onRefresh,
-
                         onClickMigrate = onMigrateClicked,
-
                         onClickSettings = onSettingsClicked,
-
                         onClickSuggestions = onSuggestionsClicked,
-
                         changeAnimeSkipIntro = changeAnimeSkipIntro,
-
                         // SY -->
-
                         onClickEditInfo = onEditInfoClicked.takeIf { state.anime.favorite },
-
                         // SY <--
-
                         actionModeCounter = selectedEpisodeCount,
-
                         onSelectAll = { onAllEpisodeSelected(true) },
-
                         onInvertSelection = { onInvertSelection() },
-
                     )
-
                 },
-
                 bottomBar = {
-
     ected }
             }
             AnimeToolbar(
@@ -1126,6 +918,12 @@ fun AnimeScreenLargeImpl(
                             onTagSearch = onTagSearch,
                             onCopyTagToClipboard = onCopyTagToClipboard,
                         )
+                        if (state.suggestions.isNotEmpty()) {
+                            SuggestionsRow(
+                                suggestions = state.suggestions,
+                                onAnimeClick = { onSearch(it.title, false) },
+                            )
+                        }
                     }
                 },
                 endContent = {
@@ -1155,7 +953,6 @@ fun AnimeScreenLargeImpl(
                                     onClick = onFilterButtonClicked,
                                 )
                             }
-
                             if (state.airingTime > 0L) {
                                 item(
                                     key = AnimeScreenItem.AIRING_TIME,
@@ -1183,7 +980,6 @@ fun AnimeScreenLargeImpl(
                                     }
                                 }
                             }
-
                             sharedEpisodeItems(
                                 anime = state.anime,
                                 // AM (FILE_SIZE) -->
@@ -1206,7 +1002,6 @@ fun AnimeScreenLargeImpl(
         }
     }
 }
-
 @Composable
 private fun SharedAnimeBottomActionMenu(
     selected: List<EpisodeList.Item>,
@@ -1267,7 +1062,6 @@ private fun SharedAnimeBottomActionMenu(
         }.takeIf { alwaysUseExternalPlayer && selected.size == 1 },
     )
 }
-
 private fun onEpisodeItemClick(
     episodeItem: EpisodeList.Item,
     isAnyEpisodeSelected: Boolean,
@@ -1280,7 +1074,6 @@ private fun onEpisodeItemClick(
         else -> onEpisodeClicked(episodeItem.episode, false)
     }
 }
-
 private fun formatTime(milliseconds: Long, useDayFormat: Boolean = false): String {
     return if (useDayFormat) {
         String.format(
@@ -1311,11 +1104,9 @@ private fun formatTime(milliseconds: Long, useDayFormat: Boolean = false): Strin
         )
     }
 }
-
 // AM (FILE_SIZE) -->
 private val downloadProvider: DownloadProvider by injectLazy()
 // <-- AM (FILE_SIZE)
-
 private fun LazyListScope.sharedEpisodeItems(
     anime: Anime,
     source: Source,

@@ -121,60 +121,54 @@ fun AnimeInfoBox(
     doSearch: (query: String, global: Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Surface(
+    Box(
         modifier = modifier
-            .padding(horizontal = 12.dp, vertical = 8.dp)
             .fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        color = MaterialTheme.colorScheme.surfaceContainerLow, // 30% Secondary
-        tonalElevation = 2.dp
     ) {
-        Box {
-            // Backdrop
-            val backdropGradientColors = listOf(
-                Color.Transparent,
-                MaterialTheme.colorScheme.surfaceContainerLow,
-            )
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(anime.asAnimeCover())
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .matchParentSize()
-                    .drawWithContent {
-                        drawContent()
-                        drawRect(
-                            brush = Brush.verticalGradient(colors = backdropGradientColors),
-                        )
-                    }
-                    .blur(4.dp)
-                    .alpha(0.25f),
-            )
-
-            // Anime & source info
-            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant) {
-                if (!isTabletUi) {
-                    AnimeAndSourceTitlesSmall(
-                        appBarPadding = appBarPadding,
-                        anime = anime,
-                        sourceName = sourceName,
-                        isStubSource = isStubSource,
-                        onCoverClick = onCoverClick,
-                        doSearch = doSearch,
-                    )
-                } else {
-                    AnimeAndSourceTitlesLarge(
-                        appBarPadding = appBarPadding,
-                        anime = anime,
-                        sourceName = sourceName,
-                        isStubSource = isStubSource,
-                        onCoverClick = onCoverClick,
-                        doSearch = doSearch,
+        // Backdrop
+        val backdropGradientColors = listOf(
+            Color.Transparent,
+            MaterialTheme.colorScheme.background,
+        )
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(anime.asAnimeCover())
+                .crossfade(true)
+                .build(),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .matchParentSize()
+                .drawWithContent {
+                    drawContent()
+                    drawRect(
+                        brush = Brush.verticalGradient(colors = backdropGradientColors),
                     )
                 }
+                .blur(4.dp)
+                .alpha(0.25f),
+        )
+
+        // Anime & source info
+        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant) {
+            if (!isTabletUi) {
+                AnimeAndSourceTitlesSmall(
+                    appBarPadding = appBarPadding,
+                    anime = anime,
+                    sourceName = sourceName,
+                    isStubSource = isStubSource,
+                    onCoverClick = onCoverClick,
+                    doSearch = doSearch,
+                )
+            } else {
+                AnimeAndSourceTitlesLarge(
+                    appBarPadding = appBarPadding,
+                    anime = anime,
+                    sourceName = sourceName,
+                    isStubSource = isStubSource,
+                    onCoverClick = onCoverClick,
+                    doSearch = doSearch,
+                )
             }
         }
     }
@@ -367,6 +361,35 @@ fun ExpandableAnimeDescription(
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun SuggestionsRow(
+    suggestions: List<Anime>,
+    onAnimeClick: (Anime) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier.padding(vertical = 8.dp)) {
+        Text(
+            text = stringResource(KMR.strings.pref_source_related_mangas),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        )
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            items(suggestions) { anime ->
+                AnimeCover.Book(
+                    modifier = Modifier
+                        .width(100.dp)
+                        .aspectRatio(AnimeCover.Book.ratio),
+                    data = anime.asAnimeCover(),
+                    onClick = { onAnimeClick(anime) },
+                )
             }
         }
     }

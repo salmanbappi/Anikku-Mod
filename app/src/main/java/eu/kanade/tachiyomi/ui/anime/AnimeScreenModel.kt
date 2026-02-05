@@ -262,6 +262,27 @@ class AnimeScreenModel(
 
             // Initial loading finished
             updateSuccessState { it.copy(isRefreshingData = false) }
+
+            // Fetch suggestions
+            fetchSuggestions(anime)
+        }
+    }
+
+    private suspend fun fetchSuggestions(anime: Anime) {
+        val getRelatedAnime = Injekt.get<tachiyomi.domain.source.interactor.GetRelatedAnime>()
+        val networkToLocalAnime = Injekt.get<NetworkToLocalAnime>()
+        val getAnime = Injekt.get<GetAnime>()
+
+        getRelatedAnime.subscribe(anime).collect { (_, animes) ->
+            val domainAnimes = animes.map {
+                val localAnime = networkToLocalAnime.await(it.toDomainAnime(anime.source))
+                getAnime.await(localAnime.id)!!
+            }
+            updateSuccessState { state ->
+                state.copy(
+                    suggestions = (state.suggestions + domainAnimes).distinctBy { it.id }.take(10).toImmutableList(),
+                )
+            }
         }
     }
 
@@ -1339,6 +1360,7 @@ class AnimeScreenModel(
                 anime.nextEpisodeToAir,
                 anime.nextEpisodeAiringAt,
             ),
+            val suggestions: ImmutableList<Anime> = persistentListOf(),
         ) : State {
 
             val processedEpisodes by lazy {
