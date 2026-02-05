@@ -1,42 +1,16 @@
 package eu.kanade.tachiyomi.ui.stats
 
-import cafe.adriel.voyager.core.model.StateScreenModel
-import cafe.adriel.voyager.core.model.screenModelScope
-import eu.kanade.domain.source.service.SourcePreferences
-import eu.kanade.tachiyomi.network.model.*
-import eu.kanade.tachiyomi.network.GET
-import eu.kanade.tachiyomi.network.NetworkHelper
-import eu.kanade.tachiyomi.source.online.HttpSource
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.sync.Semaphore
-import kotlinx.coroutines.sync.withPermit
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import tachiyomi.core.common.util.lang.launchIO
-import tachiyomi.domain.source.service.SourceHealthCache
-import tachiyomi.domain.source.service.SourceManager
-import tachiyomi.source.local.isLocal
-import uy.kohesive.injekt.Injekt
-import uy.kohesive.injekt.api.get
-import java.net.InetAddress
-import java.util.concurrent.TimeUnit
-import kotlin.system.measureTimeMillis
-
-import cafe.adriel.voyager.core.model.StateScreenModel
-import cafe.adriel.voyager.core.model.screenModelScope
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import cafe.adriel.voyager.core.model.StateScreenModel
+import cafe.adriel.voyager.core.model.screenModelScope
 import eu.kanade.domain.source.service.SourcePreferences
 import eu.kanade.tachiyomi.network.model.*
-import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.network.NetworkHelper
 import eu.kanade.tachiyomi.source.online.HttpSource
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -45,9 +19,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import tachiyomi.core.common.util.lang.launchIO
 import tachiyomi.domain.source.service.SourceHealthCache
@@ -120,7 +91,7 @@ class InfrastructureScreenModel(
                 .filter { !it.isLocal() }
                 .filter { it.id.toString() !in disabledSourceIds }
             
-            // 1. INSTANT LOAD: Populate state with ALL sources immediately
+            // Populate state with ALL sources immediately
             val initialNodes = sources.map { source ->
                 createPlaceholderNode(source)
             }
@@ -129,12 +100,11 @@ class InfrastructureScreenModel(
                 InfrastructureState.Success(InfrastructureReport(initialNodes, generateEmptyMetrics(initialNodes.size), emptyList()))
             }
 
-            // 2. PARALLEL UPDATE: Update telemetry in-place
+            // Parallel Update
             val nodes = sources.map { source ->
                 async {
                     semaphore.withPermit {
                         probeNode(source).also { finishedNode ->
-                            // Update the specific item in the list immediately
                             updateNodeInState(finishedNode)
                             SourceHealthCache.updateStatus(source.id, finishedNode.status, finishedNode.network.latency)
                         }
@@ -142,7 +112,6 @@ class InfrastructureScreenModel(
                 }
             }.awaitAll()
 
-            // 3. FINAL SORTING: Only sort once everything is finished
             val sortedNodes = nodes.sortedWith(compareByDescending<SourceNode> { it.status == NodeStatus.OPERATIONAL }
                 .thenBy { it.network.latency })
 
@@ -204,7 +173,6 @@ class InfrastructureScreenModel(
         val className = source::class.java.simpleName.lowercase()
         val pkg = source::class.java.name.lowercase()
         
-        // Deep heuristic audit for API usage
         return className.contains("api") || 
                className.contains("json") || 
                className.contains("graphql") ||
@@ -238,14 +206,12 @@ class InfrastructureScreenModel(
                 probeClient.newCall(request).execute().use { response ->
                     resolved = true
                     tls = response.handshake?.tlsVersion?.javaName ?: "v1.3"
-                    // If we get ANY response, it's NOT offline. 
-                    // Extensions like Amader/Fanush might return 401/403 if pined at root, but they are ALIVE.
                     if (response.code in 200..499) {
                         status = NodeStatus.OPERATIONAL
                     } else if (response.code >= 500) {
                         status = NodeStatus.DEGRADED
                     } else {
-                        status = NodeStatus.OPERATIONAL // Auth required etc still means operational server
+                        status = NodeStatus.OPERATIONAL
                     }
                 }
             }.let { latency = it.toInt() }
@@ -286,6 +252,7 @@ class InfrastructureScreenModel(
             uptimeScore = if (status == NodeStatus.OPERATIONAL) 1.0 else 0.0
         )
     }
+
     sealed interface Event {
         data object ReportCopied : Event
     }
