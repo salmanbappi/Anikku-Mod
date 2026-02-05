@@ -16,7 +16,7 @@ class TrackSearch : Track {
 
     override var library_id: Long? = null
 
-    override lateinit var title: String
+    override var title: String = ""
 
     override var last_episode_seen: Double = 0.0
 
@@ -30,7 +30,7 @@ class TrackSearch : Track {
 
     override var finished_watching_date: Long = 0
 
-    override lateinit var tracking_url: String
+    override var tracking_url: String = ""
 
     var cover_url: String = ""
 

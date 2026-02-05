@@ -4,9 +4,9 @@ package eu.kanade.tachiyomi.animesource.model
 
 class SAnimeImpl : SAnime {
 
-    override lateinit var url: String
+    override var url: String = ""
 
-    override lateinit var title: String
+    override var title: String = ""
 
     override var artist: String? = null
 
