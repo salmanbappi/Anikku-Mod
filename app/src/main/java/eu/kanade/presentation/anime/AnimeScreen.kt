@@ -346,11 +346,12 @@ private fun AnimeScreenSmallImpl(
 
         val backdropOffset by remember {
             derivedStateOf {
-                if (episodeListState.firstVisibleItemIndex == 0) {
-                    -episodeListState.firstVisibleItemScrollOffset.toFloat()
+                val scrollOffset = if (episodeListState.firstVisibleItemIndex == 0) {
+                    episodeListState.firstVisibleItemScrollOffset.toFloat()
                 } else {
-                    -2000f
+                    2000f
                 }
+                -scrollOffset
             }
         }
 
@@ -373,9 +374,9 @@ private fun AnimeScreenSmallImpl(
                     .fillMaxWidth()
                     .fillMaxHeight(0.6f) // Cover more area for better immersion
                     .graphicsLayer { 
-                        translationY = backdropOffset
-                        scaleX = 1.05f
-                        scaleY = 1.05f
+                        translationY = backdropOffset - 16.dp.toPx() // Move up to hide blur bleed
+                        scaleX = 1.15f // Increase scale to cover edges better
+                        scaleY = 1.15f
                     }
                     .drawWithContent {
                         drawContent()
@@ -387,7 +388,7 @@ private fun AnimeScreenSmallImpl(
                             ),
                         )
                     }
-                    .blur(8.dp)
+                    .blur(12.dp) // Slightly more blur for smoother look
                     .alpha(0.4f), // Slightly higher alpha for better color pop
             )
             Scaffold(
@@ -698,9 +699,9 @@ fun AnimeScreenLargeImpl(
                     .fillMaxWidth()
                     .fillMaxHeight(0.7f) // Even more area for tablet immersion
                     .graphicsLayer { 
-                        translationY = backdropOffset
-                        scaleX = 1.05f
-                        scaleY = 1.05f
+                        translationY = backdropOffset - 16.dp.toPx()
+                        scaleX = 1.15f
+                        scaleY = 1.15f
                     }
                     .drawWithContent {
                         drawContent()
@@ -712,7 +713,7 @@ fun AnimeScreenLargeImpl(
                             ),
                         )
                     }
-                    .blur(8.dp)
+                    .blur(12.dp)
                     .alpha(0.4f), // Slightly higher alpha for better color pop
             )
             Scaffold(

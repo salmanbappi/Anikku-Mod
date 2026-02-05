@@ -22,6 +22,8 @@ import kotlinx.coroutines.flow.update
 import logcat.LogPriority
 import tachiyomi.core.common.util.lang.launchIO
 import tachiyomi.core.common.util.system.logcat
+import tachiyomi.domain.source.interactor.InsertFeedSavedSearch
+import tachiyomi.domain.source.model.FeedSavedSearch
 import tachiyomi.domain.source.model.Pin
 import tachiyomi.domain.source.model.Source
 import uy.kohesive.injekt.Injekt
@@ -34,6 +36,7 @@ class SourcesScreenModel(
     private val getEnabledSources: GetEnabledSources = Injekt.get(),
     private val toggleSource: ToggleSource = Injekt.get(),
     private val toggleSourcePin: ToggleSourcePin = Injekt.get(),
+    private val insertFeedSavedSearch: InsertFeedSavedSearch = Injekt.get(),
 ) : StateScreenModel<SourcesScreenModel.State>(State()) {
 
     private val _events = Channel<Event>(Int.MAX_VALUE)
@@ -94,6 +97,20 @@ class SourcesScreenModel(
 
     fun togglePin(source: Source) {
         toggleSourcePin.await(source)
+    }
+
+    fun addToFeed(source: Source) {
+        screenModelScope.launchIO {
+            insertFeedSavedSearch.await(
+                FeedSavedSearch(
+                    id = -1,
+                    source = source.id,
+                    savedSearch = null,
+                    global = true,
+                    feedOrder = 0,
+                )
+            )
+        }
     }
 
     fun showSourceDialog(source: Source) {

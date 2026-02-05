@@ -1,0 +1,23 @@
+changelog:
+  categories:
+    - title: "🚀 Added"
+      labels:
+        - "feature"
+        - "enhancement"
+    - title: "🛠️ Improved"
+      labels:
+        - "performance"
+        - "ui"
+        - "polish"
+    - title: "🐛 Fixed"
+      labels:
+        - "bug"
+        - "fix"
+    - title: "Other Changes"
+      labels:
+        - "*"
+  exclude:
+    labels:
+      - "skip-changelog"
+    authors:
+      - "github-actions[bot]"
