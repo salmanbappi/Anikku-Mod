@@ -5,10 +5,10 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.material.color.utilities.Hct
 import com.google.android.material.color.utilities.MaterialDynamicColors
 import com.google.android.material.color.utilities.SchemeContent
@@ -25,9 +25,9 @@ fun DynamicTachiyomiTheme(
     content: @Composable () -> Unit,
 ) {
     val uiPreferences = Injekt.get<UiPreferences>()
-    val isAmoled by uiPreferences.themeDarkAmoled().collectAsStateWithLifecycle(initialValue = uiPreferences.themeDarkAmoled().get())
+    val isAmoled by uiPreferences.themeDarkAmoled().collectAsState()
     val isDark = isSystemInDarkTheme()
-    val isDynamicEnabled by uiPreferences.dynamicMangaTheme().collectAsStateWithLifecycle(initialValue = uiPreferences.dynamicMangaTheme().get())
+    val isDynamicEnabled by uiPreferences.dynamicMangaTheme().collectAsState()
 
     if (colorSeed != null && isDynamicEnabled) {
         val colorScheme = rememberDynamicColorScheme(colorSeed, isDark, isAmoled, contrast)

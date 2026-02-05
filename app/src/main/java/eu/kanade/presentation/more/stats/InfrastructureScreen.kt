@@ -39,6 +39,7 @@ fun InfrastructureScreen(
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
     contentPadding: PaddingValues,
+    snackbarHostState: SnackbarHostState,
 ) {
     if (state is InfrastructureState.Loading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

@@ -10,7 +10,6 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import eu.kanade.domain.ui.UiPreferences
 import eu.kanade.domain.ui.model.AppTheme
 import eu.kanade.presentation.theme.colorscheme.BaseColorScheme
@@ -43,8 +42,8 @@ fun TachiyomiTheme(
     content: @Composable () -> Unit,
 ) {
     val uiPreferences = Injekt.get<UiPreferences>()
-    val theme by uiPreferences.appTheme().collectAsStateWithLifecycle(initialValue = uiPreferences.appTheme().get())
-    val isAmoled by uiPreferences.themeDarkAmoled().collectAsStateWithLifecycle(initialValue = uiPreferences.themeDarkAmoled().get())
+    val theme by uiPreferences.appTheme().collectAsState()
+    val isAmoled by uiPreferences.themeDarkAmoled().collectAsState()
     BaseTachiyomiTheme(
         appTheme = appTheme ?: theme,
         isAmoled = amoled ?: isAmoled,
