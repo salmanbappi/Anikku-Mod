@@ -1,10 +1,16 @@
 package eu.kanade.tachiyomi.util.system
 
+import android.app.Application
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
+import androidx.core.graphics.drawable.toBitmap
 import androidx.palette.graphics.Palette
+import coil3.BitmapImage
+import coil3.asDrawable
 import coil3.compose.AsyncImagePainter
 import tachiyomi.domain.anime.model.AnimeCover
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
 
 object CoverColorExtractor {
 
@@ -12,9 +18,14 @@ object CoverColorExtractor {
         cover: AnimeCover,
         state: AsyncImagePainter.State.Success
     ) {
-        val drawable = state.painter.let { it as? BitmapDrawable } ?: return
-        val bitmap = drawable.bitmap ?: return
+        val context = Injekt.get<Application>()
+        val image = state.result.image
         
+        val bitmap = when (image) {
+            is BitmapImage -> image.bitmap
+            else -> image.asDrawable(context.resources).toBitmap()
+        }
+
         if (cover.vibrantCoverColor != null) return
 
         Palette.from(bitmap).generate { palette ->

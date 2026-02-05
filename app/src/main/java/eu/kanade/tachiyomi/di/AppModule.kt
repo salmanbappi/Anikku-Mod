@@ -54,6 +54,7 @@ class AppModule(val app: Application) : InjektModule {
 
     override fun InjektRegistrar.registerInjectables() {
         addSingleton(app)
+        addSingleton<Context>(app)
 
         val sqlDriverAnime = AndroidSqliteDriver(
             schema = Database.Schema,

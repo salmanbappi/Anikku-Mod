@@ -1,5 +1,6 @@
 package eu.kanade.tachiyomi.ui.stats
 
+import android.app.Application
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -31,10 +32,10 @@ import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
 class InfrastructureScreenModel(
+    private val context: Application = Injekt.get(),
     private val sourceManager: SourceManager = Injekt.get(),
     private val networkHelper: NetworkHelper = Injekt.get(),
     private val sourcePreferences: SourcePreferences = Injekt.get(),
-    private val context: Context = Injekt.get(),
 ) : StateScreenModel<InfrastructureState>(InfrastructureState.Loading) {
 
     private val _isRefreshing = MutableStateFlow(false)
