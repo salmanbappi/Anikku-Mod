@@ -137,19 +137,23 @@ private fun DownloadingIndicator(
             ),
         contentAlignment = Alignment.Center,
     ) {
-        val arrowColor: Color
         val strokeColor = MaterialTheme.colorScheme.onSurfaceVariant
         val downloadProgress = downloadProgressProvider()
         val indeterminate = downloadState == Download.State.QUEUE ||
             (downloadState == Download.State.DOWNLOADING && downloadProgress == 0)
         if (indeterminate) {
-            arrowColor = strokeColor
             CircularProgressIndicator(
                 modifier = IndicatorModifier,
                 color = strokeColor,
                 strokeWidth = IndicatorStrokeWidth,
                 trackColor = Color.Transparent,
                 strokeCap = StrokeCap.Butt,
+            )
+            Icon(
+                imageVector = Icons.Outlined.ArrowDownward,
+                contentDescription = null,
+                modifier = ArrowModifier,
+                tint = strokeColor,
             )
         } else {
             val animatedProgress by animateFloatAsState(
@@ -175,6 +179,21 @@ private fun DownloadingIndicator(
             )
         }
         DropdownMenu(expanded = isMenuExpanded, onDismissRequest = { isMenuExpanded = false }) {
+            DropdownMenuItem(
+                text = { Text(text = stringResource(MR.strings.action_start_downloading_now)) },
+                onClick = {
+                    onClick(EpisodeDownloadAction.START_NOW)
+                    isMenuExpanded = false
+                },
+            )
+            DropdownMenuItem(
+                text = { Text(text = stringResource(MR.strings.action_cancel)) },
+                onClick = {
+                    onClick(EpisodeDownloadAction.CANCEL)
+                    isMenuExpanded = false
+                },
+            )
+        }
     }
 }
 
