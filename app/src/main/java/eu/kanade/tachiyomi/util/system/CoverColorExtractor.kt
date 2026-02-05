@@ -22,6 +22,7 @@ object CoverColorExtractor {
                 val color = it.getVibrantColor(it.getMutedColor(0))
                 if (color != 0) {
                     cover.vibrantCoverColor = color
+                    CoverColorObserver.update(cover.animeId, color)
                 }
             }
         }
