@@ -2,6 +2,8 @@ package eu.kanade.presentation.anime.components
 
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -277,9 +279,6 @@ internal fun RowScope.Button(
         content?.invoke()
     }
 }
-
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.FavoriteBorder
 
 @Composable
 fun LibraryBottomActionMenu(
