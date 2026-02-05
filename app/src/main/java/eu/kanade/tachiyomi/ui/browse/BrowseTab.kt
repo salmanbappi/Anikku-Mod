@@ -74,7 +74,7 @@ data object BrowseTab : Tab {
                 titleRes = SYMR.strings.feed,
                 searchEnabled = false,
                 content = { contentPadding, _ -> 
-                    feedTab().Content(contentPadding)
+                    (feedTab() as FeedTab).Content(contentPadding)
                 }
             ),
             extensionsTab(extensionsScreenModel),
