@@ -38,6 +38,13 @@ import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.screens.EmptyScreen
 import tachiyomi.presentation.core.util.plus
 
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+
 class FeedManageScreen : Screen() {
 
     @Composable
@@ -45,6 +52,8 @@ class FeedManageScreen : Screen() {
         val navigator = LocalNavigator.currentOrThrow
         val screenModel = rememberScreenModel { FeedManageScreenModel() }
         val state by screenModel.state.collectAsState()
+
+        var deleteDialogItem by remember { mutableStateOf<FeedSavedSearch?>(null) }
 
         Scaffold(
             topBar = { scrollBehavior ->
@@ -65,8 +74,7 @@ class FeedManageScreen : Screen() {
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = paddingValues + PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = paddingValues,
             ) {
                 itemsIndexed(
                     items = state.items,
@@ -78,11 +86,38 @@ class FeedManageScreen : Screen() {
                         canMoveDown = index != state.items.lastIndex,
                         onMoveUp = { screenModel.moveUp(item.feed) },
                         onMoveDown = { screenModel.moveDown(item.feed) },
-                        onDelete = { screenModel.delete(item.feed) },
+                        onDelete = { deleteDialogItem = item.feed },
                         modifier = Modifier.animateItem(),
                     )
+                    if (index != state.items.lastIndex) {
+                        HorizontalDivider()
+                    }
                 }
             }
+        }
+
+        if (deleteDialogItem != null) {
+            val feed = deleteDialogItem!!
+            AlertDialog(
+                onDismissRequest = { deleteDialogItem = null },
+                title = { Text(text = "Delete feed item?") },
+                text = { Text(text = "Are you sure you want to remove this from your feed?") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            screenModel.delete(feed)
+                            deleteDialogItem = null
+                        },
+                    ) {
+                        Text(text = stringResource(MR.strings.action_ok))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { deleteDialogItem = null }) {
+                        Text(text = stringResource(MR.strings.action_cancel))
+                    }
+                },
+            )
         }
     }
 }
@@ -97,42 +132,36 @@ private fun FeedManageItem(
     onDelete: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    ElevatedCard(
-        modifier = modifier,
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(MaterialTheme.padding.medium),
-        ) {
+        Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
             )
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End,
-                modifier = Modifier.fillMaxWidth()
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(
+                onClick = onMoveUp,
+                enabled = canMoveUp,
             ) {
-                IconButton(
-                    onClick = onMoveUp,
-                    enabled = canMoveUp,
-                ) {
-                    Icon(imageVector = Icons.Outlined.ArrowDropUp, contentDescription = null)
-                }
-                IconButton(
-                    onClick = onMoveDown,
-                    enabled = canMoveDown,
-                ) {
-                    Icon(imageVector = Icons.Outlined.ArrowDropDown, contentDescription = null)
-                }
-                Spacer(modifier = Modifier.weight(1f))
-                IconButton(onClick = onDelete) {
-                    Icon(
-                        imageVector = Icons.Outlined.Delete,
-                        contentDescription = stringResource(MR.strings.action_delete),
-                    )
-                }
+                Icon(imageVector = Icons.Outlined.ArrowDropUp, contentDescription = null)
+            }
+            IconButton(
+                onClick = onMoveDown,
+                enabled = canMoveDown,
+            ) {
+                Icon(imageVector = Icons.Outlined.ArrowDropDown, contentDescription = null)
+            }
+            IconButton(onClick = onDelete) {
+                Icon(
+                    imageVector = Icons.Outlined.Delete,
+                    contentDescription = stringResource(MR.strings.action_delete),
+                )
             }
         }
     }

@@ -13,6 +13,17 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import tachiyomi.core.common.util.lang.launchIO
@@ -36,66 +47,62 @@ class FeedScreenModel(
 ) : StateScreenModel<FeedScreenModel.State>(State()) {
 
     init {
-        getFeed()
-    }
-
-    fun getFeed() {
         screenModelScope.launchIO {
-            mutableState.update { it.copy(isLoading = true) }
-            
-            val feedSavedSearches = getFeedSavedSearchGlobal.await()
-            val savedSearches = getSavedSearchGlobalFeed.await()
-            
-            val feedItems = coroutineScope {
-                feedSavedSearches.map { feed ->
-                    async {
-                        val source = sourceManager.get(feed.source) as? AnimeCatalogueSource
-                        if (source != null) {
-                            val results = try {
-                                if (feed.savedSearch == null) {
-                                    source.getLatestUpdates(1).animes
-                                } else {
-                                    val savedSearch = savedSearches.find { it.id == feed.savedSearch }
-                                    if (savedSearch != null) {
-                                        val filters = source.getFilterList()
-                                        source.getSearchAnime(1, savedSearch.query ?: "", filters).animes
-                                    } else {
+            getFeedSavedSearchGlobal.subscribe()
+                .distinctUntilChanged()
+                .onEach { mutableState.update { it.copy(isLoading = true) } }
+                .collectLatest { feedSavedSearches ->
+                    val savedSearches = getSavedSearchGlobalFeed.await()
+                    val feedItems = coroutineScope {
+                        feedSavedSearches.map { feed ->
+                            async {
+                                val source = sourceManager.get(feed.source) as? AnimeCatalogueSource
+                                if (source != null) {
+                                    val results = try {
+                                        if (feed.savedSearch == null) {
+                                            source.getLatestUpdates(1).animes
+                                        } else {
+                                            val savedSearch = savedSearches.find { it.id == feed.savedSearch }
+                                            if (savedSearch != null) {
+                                                val filters = source.getFilterList()
+                                                source.getSearchAnime(1, savedSearch.query ?: "", filters).animes
+                                            } else {
+                                                emptyList()
+                                            }
+                                        }
+                                    } catch (e: Exception) {
                                         emptyList()
                                     }
+                                    
+                                    val animeList = results.map {
+                                        async {
+                                            val domainAnime = it.toDomainAnime(source.id)
+                                            networkToLocalAnime.await(domainAnime)
+                                        }
+                                    }.awaitAll()
+                                    
+                                    FeedItem(
+                                        feed = feed,
+                                        source = source,
+                                        savedSearch = savedSearches.find { it.id == feed.savedSearch },
+                                        animeList = animeList.toImmutableList(),
+                                    )
+                                } else {
+                                    null
                                 }
-                            } catch (e: Exception) {
-                                emptyList()
                             }
-                            
-                            val animeList = results.map {
-                                async {
-                                    val domainAnime = it.toDomainAnime(source.id)
-                                    networkToLocalAnime.await(domainAnime)
-                                }
-                            }.awaitAll()
-                            
-                            FeedItem(
-                                feed = feed,
-                                source = source,
-                                savedSearch = savedSearches.find { it.id == feed.savedSearch },
-                                animeList = animeList.toImmutableList(),
-                            )
-                        } else {
-                            null
-                        }
+                        }.awaitAll().filterNotNull()
                     }
-                }.awaitAll().filterNotNull()
-            }
-
-            mutableState.update {
-                it.copy(
-                    isLoading = false,
-                    items = feedItems.toImmutableList(),
-                )
-            }
+                    
+                    mutableState.update {
+                        it.copy(
+                            isLoading = false,
+                            items = feedItems.toImmutableList(),
+                        )
+                    }
+                }
         }
     }
-
 
     @Immutable
     data class State(

@@ -101,13 +101,18 @@ class SourcesScreenModel(
 
     fun addToFeed(source: Source) {
         screenModelScope.launchIO {
+            val currentFeed = insertFeedSavedSearch.feedSavedSearchRepository.getGlobal()
+            if (currentFeed.any { it.source == source.id && it.savedSearch == null }) {
+                return@launchIO
+            }
+            val nextOrder = (currentFeed.maxOfOrNull { it.feedOrder } ?: -1) + 1
             insertFeedSavedSearch.await(
                 FeedSavedSearch(
                     id = -1,
                     source = source.id,
                     savedSearch = null,
                     global = true,
-                    feedOrder = 0,
+                    feedOrder = nextOrder,
                 )
             )
         }

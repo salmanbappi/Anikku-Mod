@@ -7,7 +7,7 @@ import tachiyomi.domain.source.model.FeedSavedSearch
 import tachiyomi.domain.source.repository.FeedSavedSearchRepository
 
 class InsertFeedSavedSearch(
-    private val feedSavedSearchRepository: FeedSavedSearchRepository,
+    val feedSavedSearchRepository: FeedSavedSearchRepository,
 ) {
 
     suspend fun await(feedSavedSearch: FeedSavedSearch): Long? {
