@@ -225,17 +225,6 @@ class MainActivity : BaseActivity() {
                                 .padding(contentPadding)
                                 .consumeWindowInsets(contentPadding),
                         )
-                        // Draw navigation bar scrim when needed
-                        if (remember { isNavigationBarNeedsScrim() }) {
-                            Spacer(
-                                modifier = Modifier
-                                    .align(Alignment.BottomCenter)
-                                    .fillMaxWidth()
-                                    .windowInsetsBottomHeight(WindowInsets.navigationBars)
-                                    .alpha(0.8f)
-                                    .background(MaterialTheme.colorScheme.surfaceContainer),
-                            )
-                        }
                     }
                 }
 

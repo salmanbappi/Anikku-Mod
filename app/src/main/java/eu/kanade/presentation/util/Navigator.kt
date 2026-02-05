@@ -81,7 +81,7 @@ fun DefaultNavigatorScreenTransition(
             materialSharedAxisX(
                 forward = navigator.lastEvent != StackEvent.Pop,
                 slideDistance = slideDistance,
-                durationMillis = 300, // Balanced smooth duration for 60Hz
+                durationMillis = 200, // Reduced from 300 for snappier feel
             )
         },
         modifier = modifier,

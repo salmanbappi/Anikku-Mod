@@ -188,6 +188,11 @@ object SettingsAppearanceScreen : SearchableSettings {
                         formattedNow,
                     ),
                 ),
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = uiPreferences.dynamicMangaTheme(),
+                    title = "Dynamic Manga Theme",
+                    subtitle = "Adapts app colors to the current manga cover",
+                ),
             ),
         )
     }

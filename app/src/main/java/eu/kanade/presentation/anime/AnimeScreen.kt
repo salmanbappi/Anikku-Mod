@@ -323,13 +323,26 @@ private fun AnimeScreenSmallImpl(
     val vibrantColors by CoverColorObserver.vibrantColors.collectAsState()
     val vibrantColor = vibrantColors[state.anime.id] ?: state.anime.asAnimeCover().vibrantCoverColor
 
-    DynamicTachiyomiTheme(colorSeed = vibrantColor) {
+    DynamicTachiyomiTheme(colorSeed = vibrantColor, contrast = 0.05) {
         val backgroundColor = MaterialTheme.colorScheme.background
+        val isLight = backgroundColor.luminance() > 0.5f
+        val context = LocalContext.current
+
+        LaunchedEffect(backgroundColor) {
+            val activity = context as? androidx.activity.ComponentActivity ?: return@LaunchedEffect
+            val lightStyle = androidx.activity.SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.BLACK)
+            val darkStyle = androidx.activity.SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+            activity.enableEdgeToEdge(
+                statusBarStyle = if (isLight) lightStyle else darkStyle,
+            )
+        }
+
         Box(modifier = Modifier.fillMaxSize().background(backgroundColor)) {
             val context = LocalContext.current
             // Backdrop with improved blending
             val backdropGradientColors = listOf(
                 Color.Transparent,
+                backgroundColor.copy(alpha = 0.7f),
                 backgroundColor,
             )
             coil3.compose.AsyncImage(
@@ -341,19 +354,19 @@ private fun AnimeScreenSmallImpl(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(300.dp) // Taller backdrop for better immersion
+                    .fillMaxHeight(0.6f) // Cover more area for better immersion
                     .drawWithContent {
                         drawContent()
                         drawRect(
                             brush = Brush.verticalGradient(
                                 colors = backdropGradientColors,
                                 startY = 0f,
-                                endY = size.height
+                                endY = size.height,
                             ),
                         )
                     }
                     .blur(4.dp)
-                    .alpha(0.3f), // Slightly higher alpha for better color pop
+                    .alpha(0.4f), // Slightly higher alpha for better color pop
             )
             Scaffold(
                 containerColor = Color.Transparent,
@@ -621,13 +634,26 @@ fun AnimeScreenLargeImpl(
     val vibrantColors by CoverColorObserver.vibrantColors.collectAsState()
     val vibrantColor = vibrantColors[state.anime.id] ?: state.anime.asAnimeCover().vibrantCoverColor
 
-    DynamicTachiyomiTheme(colorSeed = vibrantColor) {
+    DynamicTachiyomiTheme(colorSeed = vibrantColor, contrast = 0.05) {
         val backgroundColor = MaterialTheme.colorScheme.background
+        val isLight = backgroundColor.luminance() > 0.5f
+        val context = LocalContext.current
+
+        LaunchedEffect(backgroundColor) {
+            val activity = context as? androidx.activity.ComponentActivity ?: return@LaunchedEffect
+            val lightStyle = androidx.activity.SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.BLACK)
+            val darkStyle = androidx.activity.SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+            activity.enableEdgeToEdge(
+                statusBarStyle = if (isLight) lightStyle else darkStyle,
+            )
+        }
+
         Box(modifier = Modifier.fillMaxSize().background(backgroundColor)) {
             val context = LocalContext.current
             // Backdrop
             val backdropGradientColors = listOf(
                 Color.Transparent,
+                backgroundColor.copy(alpha = 0.7f),
                 backgroundColor,
             )
             coil3.compose.AsyncImage(
@@ -639,14 +665,21 @@ fun AnimeScreenLargeImpl(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(400.dp) // Larger for tablet
+                    .fillMaxHeight(0.7f) // Even more area for tablet immersion
                     .drawWithContent {
                         drawContent()
                         drawRect(
-                            brush = Brush.verticalGradient(colors = backdropGradientColors),
+                            brush = Brush.verticalGradient(
+                                colors = backdropGradientColors,
+                                startY = 0f,
+                                endY = size.height,
+                            ),
                         )
                     }
                     .blur(4.dp)
+                    .alpha(0.4f), // Slightly higher alpha for better color pop
+            )
+                    }
                     .alpha(0.3f),
             )
             Scaffold(
@@ -1054,34 +1087,27 @@ private fun LazyListScope.sharedEpisodeItems(
     onEpisodeSelected: (EpisodeList.Item, Boolean, Boolean, Boolean) -> Unit,
     onEpisodeSwipe: (EpisodeList.Item, LibraryPreferences.EpisodeSwipeAction) -> Unit,
 ) {
-    item(key = "episodes-island") {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 8.dp),
-            shape = MaterialTheme.shapes.large,
-            color = MaterialTheme.colorScheme.surfaceContainerLow,
-            tonalElevation = 2.dp
-        ) {
-            Column {
-                episodes.forEach { item ->
-                    key(item) {
-                        EpisodeItemWrapper(
-                            item = item,
-                            anime = anime,
-                            source = source,
-                            showFileSize = showFileSize,
-                            isAnyEpisodeSelected = isAnyEpisodeSelected,
-                            episodeSwipeStartAction = episodeSwipeStartAction,
-                            episodeSwipeEndAction = episodeSwipeEndAction,
-                            onEpisodeClicked = onEpisodeClicked,
-                            onDownloadEpisode = onDownloadEpisode,
-                            onEpisodeSelected = onEpisodeSelected,
-                            onEpisodeSwipe = onEpisodeSwipe,
-                        )
-                    }
-                }
+    items(
+        items = episodes,
+        key = { item ->
+            when (item) {
+                is EpisodeList.Item -> item.episode.id
+                is EpisodeList.MissingCount -> item.id
             }
-        }
+        },
+    ) { item ->
+        EpisodeItemWrapper(
+            item = item,
+            anime = anime,
+            source = source,
+            showFileSize = showFileSize,
+            isAnyEpisodeSelected = isAnyEpisodeSelected,
+            episodeSwipeStartAction = episodeSwipeStartAction,
+            episodeSwipeEndAction = episodeSwipeEndAction,
+            onEpisodeClicked = onEpisodeClicked,
+            onDownloadEpisode = onDownloadEpisode,
+            onEpisodeSelected = onEpisodeSelected,
+            onEpisodeSwipe = onEpisodeSwipe,
+        )
     }
 }

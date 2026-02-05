@@ -173,11 +173,10 @@ fun AnimeToolbar(
             },
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = if (isActionMode) {
-                    MaterialTheme.colorScheme.background
-                } else if (backgroundAlphaProvider() < 0.01f) {
-                    Color.Transparent
+                    MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
                 } else {
-                    MaterialTheme.colorScheme.background.copy(alpha = backgroundAlphaProvider())
+                    MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
+                        .copy(alpha = backgroundAlphaProvider())
                 },
             ),
         )

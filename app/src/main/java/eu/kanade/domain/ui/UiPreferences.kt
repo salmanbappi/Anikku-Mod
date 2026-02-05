@@ -46,6 +46,8 @@ class UiPreferences(
 
     // SY -->
     fun bottomBarLabels() = preferenceStore.getBoolean("pref_show_bottom_bar_labels", true)
+
+    fun dynamicMangaTheme() = preferenceStore.getBoolean("pref_dynamic_manga_theme", true)
     // SY <--
 
     companion object {
