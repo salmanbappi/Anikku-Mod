@@ -54,10 +54,11 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMapNotNull
 import androidx.compose.ui.util.fastMaxBy
+import dev.chrisbanes.haze.HazeDefaults
 import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
-import dev.chrisbanes.haze.HazeDefaults
 
 /**
  * <a href="https://material.io/design/layout/understanding-layout.html" class="external" target="_blank">Material Design layout</a>.
@@ -146,7 +147,11 @@ fun Scaffold(
                 Box(
                     modifier = Modifier.hazeChild(
                         state = hazeState,
-                        style = HazeDefaults.style(blurRadius = 24.dp, tint = containerColor.copy(alpha = 0.7f))
+                        style = HazeDefaults.style(
+                            backgroundColor = containerColor,
+                            blurRadius = 24.dp,
+                            tint = HazeTint(containerColor.copy(alpha = 0.7f)),
+                        ),
                     )
                 ) {
                     topBar(topBarScrollBehavior)
@@ -157,7 +162,11 @@ fun Scaffold(
                 Box(
                     modifier = Modifier.hazeChild(
                         state = hazeState,
-                        style = HazeDefaults.style(blurRadius = 24.dp, tint = containerColor.copy(alpha = 0.7f))
+                        style = HazeDefaults.style(
+                            backgroundColor = containerColor,
+                            blurRadius = 24.dp,
+                            tint = HazeTint(containerColor.copy(alpha = 0.7f)),
+                        ),
                     )
                 ) {
                     bottomBar()
@@ -300,18 +309,18 @@ private fun ScaffoldLayout(
                 ?.height
                 ?.takeIf { it != 0 }
             val fabOffsetFromBottom = fabPlacement?.let {
-                max(bottomBarHeight ?: 0, bottomInset) + it.height + FabSpacing.roundToPx()
+                kotlin.math.max(bottomBarHeight ?: 0, bottomInset) + it.height + FabSpacing.roundToPx()
             }
 
             val snackbarOffsetFromBottom = if (snackbarHeight != 0) {
-                snackbarHeight + (fabOffsetFromBottom ?: max(bottomBarHeight ?: 0, bottomInset))
+                snackbarHeight + (fabOffsetFromBottom ?: kotlin.math.max(bottomBarHeight ?: 0, bottomInset))
             } else {
                 0
             }
 
             val bodyContentPlaceables = subcompose(ScaffoldLayoutContent.MainContent) {
                 val insets = contentWindowInsets.asPaddingValues(this@SubcomposeLayout)
-                val fabOffsetDp = fabOffsetFromBottom?.toDp() ?: 0.dp
+                val fabOffsetDp = fabOffsetFromBottom?.let { it.toDp() } ?: 0.dp
                 val bottomBarHeightPx = bottomBarHeight ?: 0
                 val innerPadding = PaddingValues(
                     top = if (topBarPlaceables.isEmpty()) {
