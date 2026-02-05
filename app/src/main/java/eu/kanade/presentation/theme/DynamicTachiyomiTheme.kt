@@ -19,14 +19,16 @@ import uy.kohesive.injekt.api.get
 fun DynamicTachiyomiTheme(
     animate: Boolean = true,
     colorSeed: Int? = null,
+    contrast: Double = 0.0,
     content: @Composable () -> Unit,
 ) {
     val uiPreferences = Injekt.get<UiPreferences>()
     val isAmoled = uiPreferences.themeDarkAmoled().get()
     val isDark = isSystemInDarkTheme()
+    val isDynamicEnabled = uiPreferences.dynamicMangaTheme().get()
 
-    if (colorSeed != null) {
-        val colorScheme = rememberDynamicColorScheme(colorSeed, isDark, isAmoled)
+    if (colorSeed != null && isDynamicEnabled) {
+        val colorScheme = rememberDynamicColorScheme(colorSeed, isDark, isAmoled, contrast)
         MaterialTheme(
             colorScheme = colorScheme,
             content = content,
@@ -42,8 +44,9 @@ private fun rememberDynamicColorScheme(
     seed: Int,
     isDark: Boolean,
     isAmoled: Boolean,
+    contrast: Double,
 ): ColorScheme {
-    val colorScheme = generateColorSchemeFromSeed(seed, isDark)
+    val colorScheme = generateColorSchemeFromSeed(seed, isDark, contrast)
     if (isDark && isAmoled) {
         return colorScheme.copy(
             background = Color.Black,
@@ -62,11 +65,11 @@ private fun rememberDynamicColorScheme(
 }
 
 @SuppressLint("RestrictedApi")
-private fun generateColorSchemeFromSeed(seed: Int, dark: Boolean): ColorScheme {
+private fun generateColorSchemeFromSeed(seed: Int, dark: Boolean, contrast: Double): ColorScheme {
     val scheme = SchemeContent(
         Hct.fromInt(seed),
         dark,
-        0.0,
+        contrast,
     )
     val dynamicColors = MaterialDynamicColors()
     return ColorScheme(

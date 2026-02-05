@@ -441,7 +441,7 @@ class LibraryScreenModel(
         val animelibAnimesFlow = combine(
             getLibraryAnime.subscribe(),
             getAnimelibItemPreferencesFlow(),
-            downloadCache.changes,
+            downloadCache.changes.debounce(500L),
         ) { libraryMangaList, prefs, _ ->
             libraryMangaList
                 .map { libraryManga ->
@@ -1039,7 +1039,7 @@ class LibraryScreenModel(
         }
 
         fun getAnimelibItemsByPage(page: Int): List<LibraryItem> {
-            return library.values.toTypedArray().getOrNull(page).orEmpty()
+            return library.values.elementAtOrNull(page).orEmpty()
         }
 
         fun getAnimeCountForCategory(category: Category): Int? {

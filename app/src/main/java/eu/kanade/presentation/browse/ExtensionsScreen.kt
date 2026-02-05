@@ -212,56 +212,63 @@ private fun ExtensionContent(
                 }
             }
 
-            item(key = "extension-island-${header.hashCode()}") {
+            items(
+                items = items,
+                key = { "extension-${it.extension.pkgName}" },
+                contentType = { "extension_item" },
+            ) { item ->
+                val isFirst = items.first() == item
+                val isLast = items.last() == item
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 4.dp),
-                    shape = MaterialTheme.shapes.large,
+                        .padding(horizontal = 12.dp),
+                    shape = RoundedCornerShape(
+                        topStart = if (isFirst) 16.dp else 0.dp,
+                        topEnd = if (isFirst) 16.dp else 0.dp,
+                        bottomStart = if (isLast) 16.dp else 0.dp,
+                        bottomEnd = if (isLast) 16.dp else 0.dp,
+                    ),
                     color = MaterialTheme.colorScheme.surfaceVariant,
                     tonalElevation = 2.dp
                 ) {
-                    Column {
-                        items.forEach { item ->
-                            ExtensionItem(
-                                modifier = Modifier.animateItemFastScroll(),
-                                item = item,
-                                onClickItem = {
-                                    when (it) {
-                                        is Extension.Available -> onInstallExtension(it)
-                                        is Extension.Installed -> onOpenExtension(it)
-                                        is Extension.Untrusted -> {
-                                            trustState = it
-                                        }
+                    ExtensionItem(
+                        modifier = Modifier.animateItemFastScroll(),
+                        item = item,
+                        onClickItem = {
+                            when (it) {
+                                is Extension.Available -> onInstallExtension(it)
+                                is Extension.Installed -> onOpenExtension(it)
+                                is Extension.Untrusted -> {
+                                    trustState = it
+                                }
+                            }
+                        },
+                        onLongClickItem = onLongClickItem,
+                        onClickItemSecondaryAction = {
+                            when (it) {
+                                is Extension.Available -> onOpenWebView(it)
+                                is Extension.Installed -> onOpenExtension(it)
+                                else -> {}
+                            }
+                        },
+                        onClickItemCancel = onClickItemCancel,
+                        onClickItemAction = {
+                            when (it) {
+                                is Extension.Available -> onInstallExtension(it)
+                                is Extension.Installed -> {
+                                    if (it.hasUpdate) {
+                                        onUpdateExtension(it)
+                                    } else {
+                                        onOpenExtension(it)
                                     }
-                                },
-                                onLongClickItem = onLongClickItem,
-                                onClickItemSecondaryAction = {
-                                    when (it) {
-                                        is Extension.Available -> onOpenWebView(it)
-                                        is Extension.Installed -> onOpenExtension(it)
-                                        else -> {}
-                                    }
-                                },
-                                onClickItemCancel = onClickItemCancel,
-                                onClickItemAction = {
-                                    when (it) {
-                                        is Extension.Available -> onInstallExtension(it)
-                                        is Extension.Installed -> {
-                                            if (it.hasUpdate) {
-                                                onUpdateExtension(it)
-                                            } else {
-                                                onOpenExtension(it)
-                                            }
-                                        }
-                                        is Extension.Untrusted -> {
-                                            trustState = it
-                                        }
-                                    }
-                                },
-                            )
-                        }
-                    }
+                                }
+                                is Extension.Untrusted -> {
+                                    trustState = it
+                                }
+                            }
+                        },
+                    )
                 }
             }
         }

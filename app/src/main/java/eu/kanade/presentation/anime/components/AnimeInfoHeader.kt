@@ -122,30 +122,6 @@ fun AnimeInfoBox(
         modifier = modifier
             .fillMaxWidth(),
     ) {
-        // Backdrop
-        val backdropGradientColors = listOf(
-            Color.Transparent,
-            MaterialTheme.colorScheme.background,
-        )
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(anime.asAnimeCover())
-                .crossfade(true)
-                .build(),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .matchParentSize()
-                .drawWithContent {
-                    drawContent()
-                    drawRect(
-                        brush = Brush.verticalGradient(colors = backdropGradientColors),
-                    )
-                }
-                .blur(4.dp)
-                .alpha(0.25f),
-        )
-
         // Anime & source info
         CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant) {
             if (!isTabletUi) {
