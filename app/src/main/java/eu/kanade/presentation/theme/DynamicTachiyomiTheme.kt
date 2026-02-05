@@ -5,6 +5,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.material.color.utilities.Hct
@@ -14,9 +16,6 @@ import eu.kanade.domain.ui.UiPreferences
 import eu.kanade.presentation.theme.colorscheme.MonetColorScheme
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
-
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 
 @Composable
 fun DynamicTachiyomiTheme(
