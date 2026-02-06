@@ -31,6 +31,7 @@ import tachiyomi.domain.source.interactor.DeleteFeedSavedSearchById
 import tachiyomi.domain.source.interactor.DeleteSavedSearchById
 import tachiyomi.domain.source.interactor.GetFeedSavedSearchBySourceId
 import tachiyomi.domain.source.interactor.GetFeedSavedSearchGlobal
+import tachiyomi.domain.source.interactor.UpdateFeedSavedSearch
 import tachiyomi.domain.source.interactor.GetSavedSearchById
 import tachiyomi.domain.source.interactor.GetSavedSearchBySourceId
 import tachiyomi.domain.source.interactor.GetSavedSearchBySourceIdFeed
@@ -108,6 +109,7 @@ class SYDomainModule : InjektModule {
         addFactory { CountFeedSavedSearchBySourceId(get()) }
         addFactory { GetSavedSearchGlobalFeed(get()) }
         addFactory { GetSavedSearchBySourceIdFeed(get()) }
+        addFactory { UpdateFeedSavedSearch(get()) }
         // KMK -->
         addFactory { ReorderFeed(get()) }
         addFactory { UpdateFeedSavedSearch(get()) }
