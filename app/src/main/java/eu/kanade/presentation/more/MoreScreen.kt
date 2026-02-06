@@ -112,13 +112,16 @@ fun MoreScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { contentPadding ->
+        val aiPreferences = remember { Injekt.get<AiPreferences>() }
+        val displayName by aiPreferences.displayName().collectAsState()
+
         ScrollbarLazyColumn(
             modifier = Modifier.fillMaxSize().padding(contentPadding),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                ProfileHeader(name = "Salman")
+                ProfileHeader(name = displayName.ifBlank { "User" })
             }
 
             item {
