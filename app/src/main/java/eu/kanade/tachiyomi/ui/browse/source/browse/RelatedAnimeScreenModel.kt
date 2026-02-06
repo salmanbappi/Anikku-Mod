@@ -80,13 +80,10 @@ class RelatedAnimeScreenModel(
                                     intersect.toDouble() / anime.genre!!.size.coerceAtLeast(1)
                                 } else 0.0
                                 
-                                val totalScore = if (titleSim > 0.7) {
-                                    (titleSim * 0.8) + (genreOverlap * 0.2)
-                                } else {
-                                    (titleSim * 0.2) + (genreOverlap * 0.8)
-                                }
+                                // SMOOTH ADAPTIVE SCORING
+                                val totalScore = eu.kanade.tachiyomi.util.lang.StringSimilarity.adaptiveScore(titleSim, genreOverlap)
                                 
-                                if (totalScore < 0.3) return@async null
+                                if (totalScore < 0.25) return@async null
                                 fullAnime to totalScore
                             }
                         }.awaitAll().filterNotNull()
