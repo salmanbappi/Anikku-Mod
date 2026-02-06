@@ -91,7 +91,7 @@ class AiManager(
             if (library.isEmpty()) return "Library is empty."
             
             library.joinToString("\n") { anime ->
-                "- ${anime.anime.title} [Status: ${anime.anime.status}, Episodes: ${anime.anime.totalEpisodes}, Score: ${anime.anime.score}]"
+                "- ${anime.anime.title} [Status: ${anime.anime.status}, Episodes: ${anime.totalEpisodes}, Seen: ${anime.seenCount}, Score: ${anime.anime.score}]"
             }
         } catch (e: Exception) {
             "Failed to retrieve library: ${e.message}"
