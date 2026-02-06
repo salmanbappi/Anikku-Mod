@@ -297,50 +297,6 @@ class AnimeScreenModel(
         }
     }
 
-    private fun calculateJaroWinklerSimilarity(s1: String, s2: String): Double {
-        val m = 0.1 // scaling factor
-        val jaro = calculateJaroSimilarity(s1, s2)
-        val prefix = s1.commonPrefixWith(s2).length.coerceAtMost(4)
-        return jaro + (prefix * m * (1 - jaro))
-    }
-
-    private fun calculateJaroSimilarity(s1: String, s2: String): Double {
-        if (s1 == s2) return 1.0
-        val len1 = s1.length
-        val len2 = s2.length
-        if (len1 == 0 || len2 == 0) return 0.0
-        
-        val matchDistance = (kotlin.math.max(len1, len2) / 2) - 1
-        val s1Matches = BooleanArray(len1)
-        val s2Matches = BooleanArray(len2)
-        var matches = 0.0
-        var transpositions = 0.0
-
-        for (i in 0 until len1) {
-            val start = kotlin.math.max(0, i - matchDistance)
-            val end = kotlin.math.min(i + matchDistance + 1, len2)
-            for (j in start until end) {
-                if (s2Matches[j]) continue
-                if (s1[i] != s2[j]) continue
-                s1Matches[i] = true
-                s2Matches[j] = true
-                matches++
-                break
-            }
-        }
-        if (matches == 0.0) return 0.0
-
-        var k = 0
-        for (i in 0 until len1) {
-            if (!s1Matches[i]) continue
-            while (!s2Matches[k]) k++
-            if (s1[i] != s2[k]) transpositions++
-            k++
-        }
-
-        return ((matches / len1) + (matches / len2) + ((matches - transpositions / 2) / matches)) / 3.0
-    }
-
     private suspend fun fetchSuggestions(anime: Anime) {
         screenModelScope.launchIO {
             var suggestionsFound = false
@@ -382,8 +338,8 @@ class AnimeScreenModel(
                     val searchResult = source.getSearchAnime(1, query, source.getFilterList())
                     val domainAnimes = searchResult.animes
                         .filter { it.url != anime.url }
-                        // Sort by similarity to the original title
-                        .sortedByDescending { calculateJaroWinklerSimilarity(anime.title, it.title) }
+                        // Sort by similarity to the original title using utility
+                        .sortedByDescending { eu.kanade.tachiyomi.util.lang.StringSimilarity.jaroWinkler(anime.title, it.title) }
                         .take(10)
                         .map { sAnime ->
                             async {
