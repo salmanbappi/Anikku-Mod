@@ -112,8 +112,6 @@ import kotlin.math.floor
 
 import eu.kanade.tachiyomi.animesource.AnimeCatalogueSource
 import eu.kanade.tachiyomi.animesource.model.AnimeFilterList
-import logcat.LogPriority
-import logcat.logcat
 
 class AnimeScreenModel(
     private val context: Context,
