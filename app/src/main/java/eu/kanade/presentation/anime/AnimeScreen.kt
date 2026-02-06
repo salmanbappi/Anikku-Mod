@@ -346,7 +346,7 @@ private fun AnimeScreenSmallImpl(
     val vibrantColors by CoverColorObserver.vibrantColors.collectAsState()
     val vibrantColor = vibrantColors[state.anime.id] ?: state.anime.asAnimeCover().vibrantCoverColor
 
-    DynamicTachiyomiTheme(colorSeed = vibrantColor, contrast = 0.05) {
+    DynamicTachiyomiTheme(colorSeed = vibrantColor, contrast = 0.0) {
         val backgroundColor = MaterialTheme.colorScheme.background
         val isLight = backgroundColor.luminance() > 0.5f
         val context = LocalContext.current
@@ -376,7 +376,9 @@ private fun AnimeScreenSmallImpl(
             // Backdrop with improved blending
             val backdropGradientColors = listOf(
                 Color.Transparent,
-                backgroundColor.copy(alpha = 0.7f),
+                backgroundColor.copy(alpha = 0.2f),
+                backgroundColor.copy(alpha = 0.5f),
+                backgroundColor.copy(alpha = 0.8f),
                 backgroundColor,
             )
             coil3.compose.AsyncImage(
@@ -404,8 +406,8 @@ private fun AnimeScreenSmallImpl(
                             ),
                         )
                     }
-                    .blur(12.dp) // Slightly more blur for smoother look
-                    .alpha(0.4f), // Slightly higher alpha for better color pop
+                    .blur(16.dp) // Increased blur for smoother look
+                    .alpha(0.35f), // Adjusted alpha for better color pop without blinding
             )
             Scaffold(
                 containerColor = Color.Transparent,
@@ -738,7 +740,7 @@ fun AnimeScreenLargeImpl(
     val vibrantColors by CoverColorObserver.vibrantColors.collectAsState()
     val vibrantColor = vibrantColors[state.anime.id] ?: state.anime.asAnimeCover().vibrantCoverColor
 
-    DynamicTachiyomiTheme(colorSeed = vibrantColor, contrast = 0.05) {
+    DynamicTachiyomiTheme(colorSeed = vibrantColor, contrast = 0.0) {
         val backgroundColor = MaterialTheme.colorScheme.background
         val isLight = backgroundColor.luminance() > 0.5f
         val context = LocalContext.current
@@ -757,7 +759,9 @@ fun AnimeScreenLargeImpl(
             // Backdrop
             val backdropGradientColors = listOf(
                 Color.Transparent,
-                backgroundColor.copy(alpha = 0.7f),
+                backgroundColor.copy(alpha = 0.2f),
+                backgroundColor.copy(alpha = 0.5f),
+                backgroundColor.copy(alpha = 0.8f),
                 backgroundColor,
             )
             coil3.compose.AsyncImage(
@@ -785,8 +789,8 @@ fun AnimeScreenLargeImpl(
                             ),
                         )
                     }
-                    .blur(12.dp)
-                    .alpha(0.4f), // Slightly higher alpha for better color pop
+                    .blur(16.dp)
+                    .alpha(0.35f), // Slightly higher alpha for better color pop
             )
             Scaffold(
                 containerColor = Color.Transparent,
