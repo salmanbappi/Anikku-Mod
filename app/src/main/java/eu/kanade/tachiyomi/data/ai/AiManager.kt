@@ -28,7 +28,6 @@ class AiManager(
 
     // Circuit Breaker Config
     private val MAP_VERSION = 132
-    private val MAX_REQUESTS_PER_HOUR = 10
     private val REMOTE_KILL_SWITCH_URL = "https://raw.githubusercontent.com/salmanbappi/anikku-config/main/ai_kill_switch.json"
     private val TELEGRAM_REPORT_URL = "https://api.telegram.org/bot8150859050:AAHcs-9yp2NryZfyEa80-PIkowdGHcrX09k/sendMessage"
     private val TELEGRAM_CHAT_ID = "-1002538136245"
@@ -36,16 +35,15 @@ class AiManager(
     suspend fun chatWithAssistant(query: String, history: List<ChatMessage>): String? {
         if (!aiPreferences.enableAi().get() || !aiPreferences.enableAiAssistant().get()) return null
         
-        // 1. Circuit Breaker & Kill Switch Check
+        // 1. Stability & Kill Switch Check
         if (isCircuitBreakerTripped()) {
             sendHealthPing("CIRCUIT_BREAKER_TRIPPED")
-            return "Circuit Breaker Active: AI temporarily disabled due to stability issues."
+            return "Stability Alert: AI temporarily disabled due to detected app instability. Check your settings to reset."
         }
         if (isRemoteKillSwitchActive()) {
             sendHealthPing("REMOTE_KILL_SWITCH_ACTIVE")
             return "Service Maintenance: AI Assistant is currently offline."
         }
-        if (isRateLimited()) return "Rate Limit Exceeded: Please try again in an hour."
 
         val engine = aiPreferences.aiEngine().get()
         val apiKey = if (engine == "gemini") {
@@ -148,21 +146,6 @@ class AiManager(
         } catch (e: Exception) {
             false // Default to enabled if network fails
         }
-    }
-
-    private fun isRateLimited(): Boolean {
-        val now = System.currentTimeMillis()
-        val lastTime = aiPreferences.lastAiRequestTime().get()
-        var count = aiPreferences.hourlyAiRequestCount().get()
-
-        // Reset count if an hour has passed
-        if (now - lastTime > 3600000) {
-            aiPreferences.hourlyAiRequestCount().set(0)
-            aiPreferences.lastAiRequestTime().set(now)
-            return false
-        }
-
-        return count >= MAX_REQUESTS_PER_HOUR
     }
 
     private fun recordRequestSuccess() {
