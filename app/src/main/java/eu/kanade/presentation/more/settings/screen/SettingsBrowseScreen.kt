@@ -79,27 +79,27 @@ object SettingsBrowseScreen : SearchableSettings {
                 ),
             ),
             Preference.PreferenceGroup(
-                title = stringResource(KMR.strings.pref_source_related_mangas),
+                title = stringResource(tachiyomi.i18n.kmk.KMR.strings.pref_source_related_mangas),
                 preferenceItems = persistentListOf(
                     Preference.PreferenceItem.SwitchPreference(
                         pref = sourcePreferences.relatedAnimeShowSource(),
-                        title = stringResource(KMR.strings.pref_source_related_mangas),
-                        subtitle = stringResource(KMR.strings.pref_source_related_mangas_summary),
+                        title = stringResource(tachiyomi.i18n.kmk.KMR.strings.pref_source_related_mangas),
+                        subtitle = stringResource(tachiyomi.i18n.kmk.KMR.strings.pref_source_related_mangas_summary),
                     ),
                     Preference.PreferenceItem.SwitchPreference(
                         pref = sourcePreferences.relatedAnimeExpand(),
-                        title = stringResource(KMR.strings.pref_expand_related_mangas),
-                        subtitle = stringResource(KMR.strings.pref_expand_related_mangas_summary),
+                        title = stringResource(tachiyomi.i18n.kmk.KMR.strings.pref_expand_related_mangas),
+                        subtitle = stringResource(tachiyomi.i18n.kmk.KMR.strings.pref_expand_related_mangas_summary),
                     ),
                     Preference.PreferenceItem.SwitchPreference(
                         pref = sourcePreferences.relatedAnimeInOverflow(),
-                        title = stringResource(KMR.strings.put_related_mangas_in_overflow),
-                        subtitle = stringResource(KMR.strings.put_related_mangas_in_overflow_summary),
+                        title = stringResource(tachiyomi.i18n.kmk.KMR.strings.put_related_mangas_in_overflow),
+                        subtitle = stringResource(tachiyomi.i18n.kmk.KMR.strings.put_related_mangas_in_overflow_summary),
                     ),
                     Preference.PreferenceItem.SwitchPreference(
                         pref = sourcePreferences.relatedAnimeShowHome(),
-                        title = stringResource(KMR.strings.pref_show_home_on_related_mangas),
-                        subtitle = stringResource(KMR.strings.pref_show_home_on_related_mangas_summary),
+                        title = stringResource(tachiyomi.i18n.kmk.KMR.strings.pref_show_home_on_related_mangas),
+                        subtitle = stringResource(tachiyomi.i18n.kmk.KMR.strings.pref_show_home_on_related_mangas_summary),
                     ),
                 ),
             ),

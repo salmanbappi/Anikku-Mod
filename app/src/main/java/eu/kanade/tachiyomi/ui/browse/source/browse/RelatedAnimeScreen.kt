@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
@@ -58,7 +59,7 @@ class RelatedAnimeScreen(val animeId: Long) : Screen() {
                             IconButton(onClick = { navigator.popUntil { it is HomeScreen } }) {
                                 Icon(
                                     imageVector = Icons.Outlined.Home,
-                                    contentDescription = stringResource(KMR.strings.action_bar_home),
+                                    contentDescription = stringResource(tachiyomi.i18n.MR.strings.label_library),
                                 )
                             }
                         }
