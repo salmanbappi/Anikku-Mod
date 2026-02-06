@@ -114,5 +114,4 @@ class FeedSavedSearchRepositoryImpl(
             id = update.id,
         )
     }
-    // KMK <--
 }
