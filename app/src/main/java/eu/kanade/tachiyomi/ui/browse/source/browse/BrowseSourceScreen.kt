@@ -476,19 +476,24 @@ data class BrowseSourceScreen(
             else -> {}
         }
 
-        // Reactive Selection: Observe load state to expand selection in 'Select All' mode
+        // Reactive Selection Engine: Observes load state to expand selection in 'Select All' mode.
+        // Capped at 60-item batches to respect the batch-loading requirement.
         LaunchedEffect(animeList.loadState, state.isSelectAllMode) {
-            if (state.isSelectAllMode && animeList.loadState.append is androidx.paging.LoadState.NotLoading) {
-                val currentItems = animeList.itemSnapshotList.items.filterNotNull()
-                val currentSelectionSize = state.selection.size
+            val appendState = animeList.loadState.append
+            if (state.isSelectAllMode && appendState is androidx.paging.LoadState.NotLoading) {
+                val snapshot = animeList.itemSnapshotList
+                val loadedItems = snapshot.items.filterNotNull()
+                val currentlySelectedCount = state.selection.size
                 
-                if (currentItems.size > currentSelectionSize) {
-                    // Determine the next batch target (60, 120, 180...)
-                    val nextTarget = ((currentSelectionSize / 60) + 1) * 60
-                    val itemsToSelect = currentItems.take(nextTarget)
-                    
-                    if (itemsToSelect.size > currentSelectionSize) {
-                        screenModel.selectAll(itemsToSelect)
+                // Calculate batch target (60, 120, 180...)
+                val batchSize = 60
+                val targetCount = ((currentlySelectedCount / batchSize) + 1) * batchSize
+                
+                // Expand selection to available items, capped at the next batch boundary.
+                if (loadedItems.size > currentlySelectedCount) {
+                    val nextBatch = loadedItems.take(targetCount)
+                    if (nextBatch.size > currentlySelectedCount) {
+                        screenModel.selectAll(nextBatch)
                     }
                 }
             }
