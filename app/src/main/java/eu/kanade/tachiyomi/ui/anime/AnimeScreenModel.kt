@@ -346,6 +346,8 @@ class AnimeScreenModel(
             var suggestionsFound = false
             
             // 1. Try to get suggestions from the source's "Related" feature first
+            // Anikku extensions can provide multiple "Related" lists (e.g. "Sequel", "Prequel", "Same Franchise")
+            // We should collect them all or at least the most relevant ones.
             getRelatedAnime.subscribe(anime).collect { (_, animes) ->
                 if (animes.isNotEmpty()) {
                     val domainAnimes = animes.map { sAnime ->
@@ -356,8 +358,14 @@ class AnimeScreenModel(
                     }.awaitAll().filterNotNull()
                     
                     updateSuccessState { state ->
+                        // Append new suggestions to existing ones instead of overwriting,
+                        // unless it's the first batch. Filter duplicates.
+                        val currentSuggestions = if (!suggestionsFound) emptyList() else state.suggestions
                         state.copy(
-                            suggestions = (state.suggestions + domainAnimes).distinctBy { it.id }.take(10).toImmutableList(),
+                            suggestions = (currentSuggestions + domainAnimes)
+                                .distinctBy { it.id }
+                                .take(20) // Increased limit to 20 for better discovery
+                                .toImmutableList(),
                         )
                     }
                     suggestionsFound = true
