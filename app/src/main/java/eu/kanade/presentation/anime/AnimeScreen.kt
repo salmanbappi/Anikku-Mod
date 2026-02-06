@@ -387,6 +387,12 @@ private fun AnimeScreenSmallImpl(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .fillMaxHeight(0.6f) // Cover more area for better immersion
+                    .graphicsLayer { 
+                        translationY = backdropOffset - 16.dp.toPx() // Move up to hide blur bleed
+                        scaleX = 1.15f // Increase scale to cover edges better
+                        scaleY = 1.15f
+                    }
                     .drawWithContent {
                         drawContent()
                         // Top scrim for readability - Increased intensity and length
@@ -773,7 +779,7 @@ fun AnimeScreenLargeImpl(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.7f) // Even more area for tablet immersion
+                    .fillMaxHeight(0.6f)
                     .graphicsLayer { 
                         translationY = backdropOffset - 16.dp.toPx()
                         scaleX = 1.15f

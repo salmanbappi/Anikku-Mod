@@ -328,38 +328,34 @@ data class BrowseSourceScreen(
 
             // Reactive Selection Engine: Observes load state to expand selection in 'Select All' mode.
             // It selects items in batches based on targetCount and uses 'safe boundary access' to trigger Paging 3 fetches if needed.
-            var isProcessingBatch by remember { mutableStateOf(false) }
-            LaunchedEffect(state.isSelectAllMode, state.targetCount, animeList.itemCount) {
-                if (state.isSelectAllMode && !isProcessingBatch) {
-                    isProcessingBatch = true
+            val isSelectAllMode = state.isSelectAllMode
+            val targetCount = state.targetCount
+            val selectionSize = state.selection.size
+            val itemCount = animeList.itemCount
+
+            LaunchedEffect(isSelectAllMode, targetCount, itemCount) {
+                if (isSelectAllMode) {
                     val snapshot = animeList.itemSnapshotList
                     val loadedItems = snapshot.items.filterNotNull()
-                    val currentlySelectedCount = state.selection.size
-                    
-                    val targetCount = state.targetCount
                     
                     // Expand selection to available items, capped at the current targetCount.
-                    if (loadedItems.size > currentlySelectedCount) {
+                    if (loadedItems.size > selectionSize) {
                         val nextBatch = loadedItems.take(targetCount)
-                        if (nextBatch.size > currentlySelectedCount) {
+                        if (nextBatch.size > selectionSize) {
                             screenModel.updateSelection(nextBatch)
                         }
                     }
 
                     // TRIGGER THE NEXT PAGE (The Safe Poke) only if we haven't reached the targetCount
-                    val finalSelectedCount = state.selection.size
-                    if (finalSelectedCount < targetCount && animeList.itemCount > 0 && animeList.itemCount < targetCount) {
+                    // AND we haven't reached a reasonable safety cap (e.g. 240 items) to prevent literal infinite loops.
+                    if (selectionSize < targetCount && itemCount > 0 && itemCount < targetCount && targetCount <= 300) {
                         val appendState = animeList.loadState.append
                         if (appendState is androidx.paging.LoadState.NotLoading && !appendState.endOfPaginationReached) {
-                            // Safely poke the next item to trigger load
                             try {
-                                animeList[animeList.itemCount - 1]
-                            } catch (e: Exception) {
-                                // Ignore out of bounds if list changed
-                            }
+                                animeList[itemCount - 1]
+                            } catch (e: Exception) {}
                         }
                     }
-                    isProcessingBatch = false
                 }
             }
 
@@ -393,11 +389,10 @@ data class BrowseSourceScreen(
                 selection = state.selection,
                 favoriteIds = state.favoriteIds,
                 onBatchIncrement = { index ->
-                    // Only increment if we are strictly Select All mode and nearing the end of current target
-                    if (state.isSelectAllMode && index >= state.targetCount - 15 && !isProcessingBatch) {
-                        val nextTarget = state.targetCount + 60
-                        if (nextTarget > state.targetCount) {
-                            screenModel.setTargetCount(nextTarget)
+                    // Only increment if we are nearing the current target AND paging is not already busy
+                    if (isSelectAllMode && index >= targetCount - 10 && targetCount < 300) {
+                        if (animeList.loadState.append is androidx.paging.LoadState.NotLoading) {
+                            screenModel.setTargetCount(targetCount + 60)
                         }
                     }
                 },
