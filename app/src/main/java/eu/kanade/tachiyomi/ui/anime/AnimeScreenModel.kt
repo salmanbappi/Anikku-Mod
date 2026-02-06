@@ -233,11 +233,16 @@ class AnimeScreenModel(
                 downloadManager.queueState,
             ) { animeAndEpisodes, _, _ -> animeAndEpisodes }
                 .onEach { (anime, episodes) ->
+                    val oldAnime = successState?.anime
                     updateSuccessState {
                         it.copy(
                             anime = anime,
                             episodes = episodes.toEpisodeListItems(anime),
                         )
+                    }
+                    // If details were just loaded (genre added), retry suggestions
+                    if (oldAnime?.genre.isNullOrEmpty() && !anime.genre.isNullOrEmpty() && successState?.suggestions.isNullOrEmpty()) {
+                        fetchSuggestions(anime)
                     }
                 }
                 .launchIn(this)
