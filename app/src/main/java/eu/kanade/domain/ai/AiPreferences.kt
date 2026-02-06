@@ -19,6 +19,8 @@ class AiPreferences(
     
     fun aiAssistantLogs() = preferenceStore.getBoolean("ai_assistant_logs", true)
 
+    fun aiSystemPrompt() = preferenceStore.getString("ai_system_prompt", "")
+
     // Statistics
     fun enableAiStatistics() = preferenceStore.getBoolean("enable_ai_statistics", true)
 
