@@ -395,6 +395,18 @@ class BrowseSourceScreenModel(
         }
     }
 
+    fun removeSelectionFromLibrary() {
+        val selection = state.value.selection
+        screenModelScope.launch {
+            selection.forEach { anime ->
+                if (anime.favorite) {
+                    changeAnimeFavorite(anime)
+                }
+            }
+            clearSelection()
+        }
+    }
+
     /**
      * Get user categories.
      *

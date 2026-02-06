@@ -258,6 +258,9 @@ data class BrowseSourceScreen(
                     enter = androidx.compose.animation.expandVertically(),
                     exit = androidx.compose.animation.shrinkVertically(),
                 ) {
+                    val allFavorite = remember(state.selection) {
+                        state.selection.all { it.favorite }
+                    }
                     androidx.compose.material3.Surface(
                         color = MaterialTheme.colorScheme.surfaceContainerHigh,
                         shape = MaterialTheme.shapes.large.copy(
@@ -277,15 +280,24 @@ data class BrowseSourceScreen(
                             horizontalArrangement = Arrangement.SpaceEvenly,
                         ) {
                             androidx.compose.material3.TextButton(
-                                onClick = { screenModel.addSelectionToLibrary() },
+                                onClick = { 
+                                    if (allFavorite) {
+                                        screenModel.removeSelectionFromLibrary()
+                                    } else {
+                                        screenModel.addSelectionToLibrary()
+                                    }
+                                },
                             ) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Icon(
-                                        imageVector = Icons.Outlined.Favorite,
+                                        imageVector = if (allFavorite) Icons.Outlined.Favorite else Icons.Outlined.Favorite,
                                         contentDescription = null,
+                                        tint = if (allFavorite) MaterialTheme.colorScheme.primary else LocalContentColor.current
                                     )
                                     Text(
-                                        text = stringResource(MR.strings.add_to_library),
+                                        text = stringResource(
+                                            if (allFavorite) MR.strings.action_remove else MR.strings.add_to_library
+                                        ),
                                         style = MaterialTheme.typography.labelSmall,
                                     )
                                 }
