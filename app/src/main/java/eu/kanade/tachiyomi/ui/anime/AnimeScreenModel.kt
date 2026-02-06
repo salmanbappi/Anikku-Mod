@@ -341,21 +341,16 @@ class AnimeScreenModel(
                                 val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
                                 val fullAnime = getAnime.await(localAnime.id) ?: return@async null
                                 
-                                // ADAPTIVE SCORING
                                 val titleSim = eu.kanade.tachiyomi.util.lang.StringSimilarity.tokenSortRatio(anime.title, fullAnime.title)
                                 val genreOverlap = if (!anime.genre.isNullOrEmpty() && !fullAnime.genre.isNullOrEmpty()) {
                                     val intersect = anime.genre!!.intersect(fullAnime.genre!!.toSet()).size
                                     intersect.toDouble() / anime.genre!!.size.coerceAtLeast(1)
                                 } else 0.0
                                 
-                                // Flip logic: If titles are similar, it's a sequel. If not, it's a recommendation.
-                                val totalScore = if (titleSim > 0.7) {
-                                    (titleSim * 0.8) + (genreOverlap * 0.2)
-                                } else {
-                                    (titleSim * 0.2) + (genreOverlap * 0.8)
-                                }
+                                // SMOOTH ADAPTIVE SCORING (No more cliffs)
+                                val totalScore = eu.kanade.tachiyomi.util.lang.StringSimilarity.adaptiveScore(titleSim, genreOverlap)
                                 
-                                if (totalScore < 0.3) return@async null
+                                if (totalScore < 0.25) return@async null // Relaxed threshold for better discovery
                                 fullAnime to totalScore
                             }
                         }.awaitAll().filterNotNull()

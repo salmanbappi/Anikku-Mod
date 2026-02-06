@@ -10,27 +10,33 @@ object StringSimilarity {
         "season", "2nd", "3rd", "4th", "5th", "s1", "s2", "s3", "s4", "s5", "tv", "ova", "ona", "movie"
     )
 
+    // Pre-compiled scalpel regex: replaces special chars with space to preserve tokens
+    private val SCALPEL_REGEX = Regex("[^a-z0-9\\s]")
+    private val WHITESPACE_REGEX = Regex("\\s+")
+
     /**
-     * Extracts the most significant keywords from a title for searching.
-     * Removes stop words and special characters.
+     * Extracts significant keywords. Replaces special characters with spaces
+     * to ensure "K-On!" becomes "k on" for better search engine tokenization.
      */
     fun getSearchKeywords(title: String): String {
         return title.lowercase()
-            .replace(Regex("[^a-z0-9\\s]"), "") // Remove special chars
+            .replace(SCALPEL_REGEX, " ")
+            .replace(WHITESPACE_REGEX, " ")
+            .trim()
             .split(" ")
             .filter { it.isNotBlank() && it !in STOP_WORDS }
-            .take(3) // Take up to 3 significant words
+            .take(3)
             .joinToString(" ")
     }
 
     /**
-     * Token Sort Ratio: Splits strings into words, sorts them, and calculates Levenshtein similarity.
-     * This solves the "order-independent" problem while maintaining character-level accuracy.
+     * Token Sort Ratio: Order-independent Levenshtein.
+     * Uses pre-compiled regex for efficiency.
      */
     fun tokenSortRatio(s1: String, s2: String): Double {
-        val t1 = s1.lowercase().replace(Regex("[^a-z0-9\\s]"), "").split(" ").filter { it.isNotBlank() }.sorted().joinToString("")
-        val t2 = s2.lowercase().replace(Regex("[^a-z0-9\\s]"), "").split(" ").filter { it.isNotBlank() }.sorted().joinToString("")
-        return levenshteinSimilarity(t1, t2)
+        val t1 = s1.lowercase().replace(SCALPEL_REGEX, " ").split(" ").filter { it.isNotBlank() }.sorted().joinToString("")
+        val t2 = s2.lowercase().replace(SCALPEL_REGEX, " ").split(" ").filter { it.isNotBlank() }.sorted().joinToString("")
+        return if (t1.isEmpty() || t2.isEmpty()) 0.0 else levenshteinSimilarity(t1, t2)
     }
 
     fun diceCoefficient(s1: String, s2: String): Double {
@@ -47,19 +53,60 @@ object StringSimilarity {
         return (2.0 * matches) / (s1Bigrams.size + str2.length - 1)
     }
 
+    /**
+     * Optimized Levenshtein Distance (Two-Row Algorithm).
+     * Space: O(min(N, M)) instead of O(N * M).
+     */
     private fun levenshteinSimilarity(s1: String, s2: String): Double {
         if (s1 == s2) return 1.0
         val len1 = s1.length
         val len2 = s2.length
-        val dp = Array(len1 + 1) { IntArray(len2 + 1) }
-        for (i in 0..len1) dp[i][0] = i
-        for (j in 0..len2) dp[0][j] = j
-        for (i in 1..len1) {
-            for (j in 1..len2) {
-                val cost = if (s1[i - 1] == s2[j - 1]) 0 else 1
-                dp[i][j] = min(min(dp[i - 1][j] + 1, dp[i][j - 1] + 1), dp[i - 1][j - 1] + cost)
+        if (len1 == 0 || len2 == 0) return 0.0
+
+        // Optimization: Ensure we allocate the smaller array
+        val (short, long) = if (len1 < len2) s1 to s2 else s2 to s1
+        val minLen = short.length
+        val maxLen = long.length
+
+        var previousRow = IntArray(minLen + 1) { it }
+        var currentRow = IntArray(minLen + 1)
+
+        for (i in 1..maxLen) {
+            currentRow[0] = i
+            for (j in 1..minLen) {
+                val cost = if (long[i - 1] == short[j - 1]) 0 else 1
+                currentRow[j] = minOf(
+                    currentRow[j - 1] + 1,     // Insertion
+                    previousRow[j] + 1,        // Deletion
+                    previousRow[j - 1] + cost  // Substitution
+                )
+            }
+            // Swap arrays to reuse memory
+            for (j in 0..minLen) {
+                previousRow[j] = currentRow[j]
             }
         }
-        return 1.0 - (dp[len1][len2].toDouble() / max(len1, len2))
+
+        val distance = previousRow[minLen]
+        return 1.0 - (distance.toDouble() / max(len1, len2))
+    }
+
+    /**
+     * Smoothly interpolates weights based on confidence.
+     * Prevents ranking cliffs by using a linear shift between thresholds.
+     */
+    fun adaptiveScore(titleSim: Double, genreOverlap: Double): Double {
+        // Transition window: Below 0.4 we trust tags (80%), above 0.8 we trust title (80%)
+        val minThreshold = 0.4
+        val maxThreshold = 0.8
+        
+        // Calculate interpolation factor (alpha) between 0 and 1
+        val alpha = ((titleSim - minThreshold) / (maxThreshold - minThreshold)).coerceIn(0.0, 1.0)
+        
+        // titleWeight shifts from 0.2 to 0.8
+        val titleWeight = 0.2 + (alpha * 0.6)
+        val genreWeight = 1.0 - titleWeight
+        
+        return (titleSim * titleWeight) + (genreOverlap * genreWeight)
     }
 }
