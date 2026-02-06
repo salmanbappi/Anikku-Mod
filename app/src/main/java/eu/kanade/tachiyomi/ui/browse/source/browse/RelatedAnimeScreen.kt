@@ -2,6 +2,7 @@ package eu.kanade.tachiyomi.ui.browse.source.browse
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -12,13 +13,15 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -30,13 +33,9 @@ import eu.kanade.presentation.util.Screen
 import eu.kanade.tachiyomi.ui.anime.AnimeScreen
 import eu.kanade.tachiyomi.ui.home.HomeScreen
 import tachiyomi.i18n.MR
-import tachiyomi.i18n.kmk.KMR
 import tachiyomi.presentation.core.components.ListGroupHeader
 import tachiyomi.presentation.core.components.material.Scaffold
-import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
-import tachiyomi.presentation.core.util.collectAsState
-import tachiyomi.presentation.core.util.plus
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
@@ -53,14 +52,15 @@ class RelatedAnimeScreen(val animeId: Long) : Screen() {
         Scaffold(
             topBar = { scrollBehavior ->
                 AppBar(
-                    title = state.title,
+                    title = "Discover Related",
+                    subtitle = state.title,
                     navigateUp = navigator::pop,
                     actions = {
                         if (showHome) {
                             IconButton(onClick = { navigator.popUntil { it is HomeScreen } }) {
                                 Icon(
                                     imageVector = Icons.Outlined.Home,
-                                    contentDescription = stringResource(tachiyomi.i18n.MR.strings.label_library),
+                                    contentDescription = stringResource(MR.strings.label_library),
                                 )
                             }
                         }
@@ -84,16 +84,17 @@ class RelatedAnimeScreen(val animeId: Long) : Screen() {
         onAnimeClick: (tachiyomi.domain.anime.model.Anime) -> Unit,
     ) {
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(128.dp),
-            contentPadding = contentPadding + PaddingValues(8.dp),
+            columns = GridCells.Adaptive(160.dp), // More comfortable size
+            contentPadding = contentPadding + PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(CommonAnimeItemDefaults.GridVerticalSpacer),
             horizontalArrangement = Arrangement.spacedBy(CommonAnimeItemDefaults.GridHorizontalSpacer),
+            modifier = Modifier.fillMaxSize()
         ) {
             state.items.forEach { (keyword, animes) ->
                 item(key = "header-$keyword", span = { GridItemSpan(maxLineSpan) }) {
                     ListGroupHeader(
-                        text = keyword,
-                        modifier = Modifier.padding(horizontal = MaterialTheme.padding.medium),
+                        text = keyword.uppercase(),
+                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
                     )
                 }
                 items(animes, key = { "anime-${it.id}" }) { anime ->
