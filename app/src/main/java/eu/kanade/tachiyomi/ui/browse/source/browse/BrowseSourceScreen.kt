@@ -304,7 +304,7 @@ data class BrowseSourceScreen(
                             ) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Icon(
-                                        imageVector = if (allFavorite) Icons.Outlined.Favorite else Icons.Outlined.Favorite,
+                                        imageVector = if (allFavorite) Icons.Filled.Favorite else Icons.Outlined.Favorite,
                                         contentDescription = null,
                                         tint = if (allFavorite) MaterialTheme.colorScheme.primary else LocalContentColor.current
                                     )
@@ -340,12 +340,13 @@ data class BrowseSourceScreen(
                     if (loadedItems.size > currentlySelectedCount) {
                         val nextBatch = loadedItems.take(targetCount)
                         if (nextBatch.size > currentlySelectedCount) {
-                            screenModel.selectAll(nextBatch)
+                            screenModel.updateSelection(nextBatch)
                         }
                     }
 
                     // TRIGGER THE NEXT PAGE (The Safe Poke) only if we haven't reached the targetCount
-                    if (loadedItems.size < targetCount && !appendState.endOfPaginationReached && animeList.itemCount > 0) {
+                    val finalSelectedCount = state.selection.size
+                    if (finalSelectedCount < targetCount && !appendState.endOfPaginationReached && animeList.itemCount > 0) {
                         animeList[animeList.itemCount - 1]
                     }
                 }
