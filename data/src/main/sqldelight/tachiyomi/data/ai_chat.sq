@@ -17,10 +17,18 @@ CREATE TABLE ai_messages (
 CREATE INDEX ai_messages_session_id_index ON ai_messages(session_id);
 
 getSessions:
-SELECT * FROM ai_sessions ORDER BY is_pinned DESC, last_message_at DESC;
+SELECT s.*, COUNT(m._id) AS message_count 
+FROM ai_sessions s
+LEFT JOIN ai_messages m ON s._id = m.session_id
+GROUP BY s._id
+ORDER BY s.is_pinned DESC, s.last_message_at DESC;
 
 getSessionById:
-SELECT * FROM ai_sessions WHERE _id = :id;
+SELECT s.*, COUNT(m._id) AS message_count 
+FROM ai_sessions s
+LEFT JOIN ai_messages m ON s._id = m.session_id
+WHERE s._id = :id
+GROUP BY s._id;
 
 getMessagesBySessionId:
 SELECT * FROM ai_messages WHERE session_id = :sessionId ORDER BY created_at ASC;

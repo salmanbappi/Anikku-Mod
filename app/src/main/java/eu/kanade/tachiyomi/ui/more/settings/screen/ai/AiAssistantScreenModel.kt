@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -29,26 +30,49 @@ class AiAssistantScreenModel(
     private val aiManager: AiManager = Injekt.get(),
 ) : StateScreenModel<AiAssistantScreenModel.State>(State()) {
 
-    val sessions: StateFlow<ImmutableList<ChatSession>> = chatRepository.getSessions()
-        .map { it.toImmutableList() }
-        .stateIn(screenModelScope, SharingStarted.Lazily, persistentListOf())
+    val sessions: StateFlow<ImmutableList<ChatSession>> = combine(
+        chatRepository.getSessions(),
+        state.map { it.activeSessionId }.distinctUntilChanged()
+    ) { list, activeSessionId ->
+        list.filter { it.messageCount > 0 || it.id == activeSessionId }
+            .toImmutableList()
+    }
+    .stateIn(screenModelScope, SharingStarted.Lazily, persistentListOf())
 
     init {
         screenModelScope.launchIO {
             aiPreferences.activeSessionId().get().let { sessionId ->
                 if (sessionId != -1L) {
-                    loadSession(sessionId)
+                    val session = chatRepository.getSessionById(sessionId)
+                    if (session != null) {
+                        loadSession(sessionId)
+                    } else {
+                        createNewSession()
+                    }
                 } else {
                     createNewSession()
                 }
             }
         }
 
-        // Auto-create session if list becomes empty
+        // Auto-create session if list becomes empty (after filtering)
         screenModelScope.launchIO {
             sessions.collectLatest { list ->
                 if (list.isEmpty()) {
                     createNewSession()
+                }
+            }
+        }
+        
+        // Cleanup truly empty sessions on start (except active one)
+        screenModelScope.launchIO {
+            chatRepository.getSessions().collectLatest { list ->
+                val activeId = aiPreferences.activeSessionId().get()
+                val emptySessionIds = list
+                    .filter { it.messageCount == 0L && it.id != activeId }
+                    .map { it.id }
+                if (emptySessionIds.isNotEmpty()) {
+                    chatRepository.deleteSessions(emptySessionIds)
                 }
             }
         }
@@ -64,12 +88,14 @@ class AiAssistantScreenModel(
 
     fun createNewSession() {
         screenModelScope.launchIO {
-            // Avoid creating duplicate empty sessions
-            if (sessions.value.any { it.title == "New Analytic Session" && state.value.messages.isEmpty() }) {
-                val existing = sessions.value.first { it.title == "New Analytic Session" }
-                switchSession(existing.id)
+            // Find existing empty session to reuse instead of creating a new one
+            val existingEmpty = sessions.value.firstOrNull { it.messageCount == 0L }
+
+            if (existingEmpty != null) {
+                switchSession(existingEmpty.id)
                 return@launchIO
             }
+
             val sessionId = chatRepository.insertSession("New Analytic Session")
             aiPreferences.activeSessionId().set(sessionId)
             loadSession(sessionId)

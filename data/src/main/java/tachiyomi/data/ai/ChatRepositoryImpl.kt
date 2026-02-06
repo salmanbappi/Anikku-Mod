@@ -62,8 +62,8 @@ class ChatRepositoryImpl(
         handler.await { ai_chatQueries.deleteAllSessions() }
     }
 
-    private fun mapSession(_id: Long, title: String, last_message_at: Long, is_pinned: Long): ChatSession {
-        return ChatSession(_id, title, last_message_at, is_pinned == 1L)
+    private fun mapSession(_id: Long, title: String, last_message_at: Long, is_pinned: Long, message_count: Long): ChatSession {
+        return ChatSession(_id, title, last_message_at, is_pinned == 1L, message_count)
     }
 
     private fun mapMessage(_id: Long, session_id: Long, role: String, content: String, created_at: Long): ChatMessage {
