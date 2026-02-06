@@ -3,6 +3,7 @@ package eu.kanade.tachiyomi.util.system
 import android.app.Application
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
+import android.os.Build
 import androidx.core.graphics.drawable.toBitmap
 import androidx.palette.graphics.Palette
 import coil3.BitmapImage
@@ -24,6 +25,12 @@ object CoverColorExtractor {
         val bitmap = when (image) {
             is BitmapImage -> image.bitmap
             else -> image.asDrawable(context.resources).toBitmap()
+        }.let {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && it.config == Bitmap.Config.HARDWARE) {
+                it.copy(Bitmap.Config.ARGB_8888, false)
+            } else {
+                it
+            }
         }
 
         if (cover.vibrantCoverColor != null) return

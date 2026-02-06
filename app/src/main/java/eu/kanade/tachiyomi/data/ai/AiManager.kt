@@ -1,8 +1,9 @@
 package eu.kanade.tachiyomi.data.ai
 
 import android.content.Context
-import android.os.Build
 import eu.kanade.domain.ai.AiPreferences
+import eu.kanade.tachiyomi.BuildConfig
+import eu.kanade.tachiyomi.extension.ExtensionManager
 import eu.kanade.tachiyomi.network.NetworkHelper
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -19,13 +20,24 @@ class AiManager(
     private val context: Context,
     private val networkHelper: NetworkHelper = Injekt.get(),
     private val aiPreferences: AiPreferences = Injekt.get(),
+    private val extensionManager: ExtensionManager = Injekt.get(),
     private val json: Json = Injekt.get(),
 ) {
     private val jsonMediaType = "application/json; charset=utf-8".toMediaType()
 
+    // Circuit Breaker Config
+    private val MAP_VERSION = 132
+    private val MAX_REQUESTS_PER_HOUR = 10
+    private val REMOTE_KILL_SWITCH_URL = "https://raw.githubusercontent.com/salmanbappi/anikku-config/main/ai_kill_switch.json"
+
     suspend fun chatWithAssistant(query: String, history: List<ChatMessage>): String? {
         if (!aiPreferences.enableAi().get() || !aiPreferences.enableAiAssistant().get()) return null
         
+        // 1. Circuit Breaker & Kill Switch Check
+        if (isCircuitBreakerTripped()) return "Circuit Breaker Active: AI temporarily disabled due to stability issues."
+        if (isRemoteKillSwitchActive()) return "Service Maintenance: AI Assistant is currently offline."
+        if (isRateLimited()) return "Rate Limit Exceeded: Please try again in an hour."
+
         val engine = aiPreferences.aiEngine().get()
         val apiKey = if (engine == "gemini") {
             aiPreferences.geminiApiKey().get()
@@ -33,233 +45,262 @@ class AiManager(
             aiPreferences.groqApiKey().get()
         }.ifBlank { return "Please set an API Key in Settings > Advanced Analytics" }
 
-        val logs = if (aiPreferences.aiAssistantLogs().get()) getRecentLogs() else "Logs access disabled by user."
-        
         val systemInstruction = """
-            You are the 'Anikku System Assistant', the authoritative technical core of the Anikku platform.
-            You have exhaustive knowledge of every configuration node, preference key, and architectural layer.
+            You are the 'Anikku System Assistant', a senior systems engineer.
+            You have access to native diagnostic tools for logs and system maps.
             
-            SYSTEM MANIFEST (EVERY SETTING):
-            ${getAppKnowledgeBase()}
-            
-            USER ENVIRONMENT:
-            ${getDeviceInfo()}
-            
-            RECENT SYSTEM LOGS:
-            $logs
-            
-            STRICT OPERATIONAL RULES:
-            1. NO TABLES: Never use Markdown tables. Use technical bulleted lists or bold key-value blocks.
-            2. ZERO SLOP: Avoid "Neural," "DNA," or "Intelligence" marketing fluff. Use senior engineering terms.
-            3. PRECISION: When a user asks about a setting, provide the exact path (e.g., Settings > Player > Advanced).
-            4. TONE: Senior Systems Engineer. Concise, technical, and highly efficient.
+            OPERATIONAL PROTOCOLS:
+            1. SEMANTIC INTENT: Identify negative system states (e.g., "black screen", "crash", "stuck") and call get_system_diagnostics.
+            2. GROUNDED NAVIGATION: Use get_app_navigation_guide. If a [STALENESS_WARNING] is present, inform the user that menu paths may have changed in their version.
+            3. CRASH ANALYSIS: Prioritize "PINNED" blocks in logs as they contain the root cause of failures.
+            4. PRIVACY: PII (Auth headers, Cookies, and URL params) is strictly redacted.
         """.trimIndent()
 
         val messages = history.toMutableList()
         messages.add(ChatMessage(role = "user", content = query))
 
-        return if (engine == "gemini") {
-            callGemini(messages, apiKey, systemInstruction)
-        } else {
-            callGroq(messages, apiKey, systemInstruction)
-        }
-    }
-
-    suspend fun getStatisticsAnalysis(statsSummary: String): String? {
-        if (!aiPreferences.enableAi().get() || !aiPreferences.enableAiStatistics().get()) return null
+        // 2. Track Request State (Backoff for crashes)
+        aiPreferences.isRequestPending().set(true)
         
-        val engine = aiPreferences.aiEngine().get()
-        val apiKey = if (engine == "gemini") {
-            aiPreferences.geminiApiKey().get()
-        } else {
-            aiPreferences.groqApiKey().get()
-        }.ifBlank { return null }
+        val response = try {
+            if (engine == "gemini") {
+                callGeminiWithTools(messages, apiKey, systemInstruction)
+            } else {
+                callGroqWithTools(messages, apiKey, systemInstruction)
+            }
+        } finally {
+            aiPreferences.isRequestPending().set(false)
+            recordRequestSuccess()
+        }
+        
+        return response
+    }
 
-        val prompt = """
-            Generate a 'System Behavioral Profile' based on the following data.
-            
-            DATA INPUT:
-            $statsSummary
-            
-            REPORT STRUCTURE (STRICTLY NO TABLES):
-            - **User Classification**: Technical archetype (e.g., 'High-Volume Archivist').
-            - **Temporal Analysis**: Watch habit patterns.
-            - **Source Integrity**: Distribution across extensions.
-            - **Strategic Recommendations**: 3-5 anime titles based on data patterns.
-            
-            Constraint: Use bullet points. Do NOT use Markdown tables.
-        """.trimIndent()
+    private fun isCircuitBreakerTripped(): Boolean {
+        // If the app crashed during the last request, trip the breaker
+        if (aiPreferences.isRequestPending().get()) {
+            aiPreferences.isCircuitBreakerTripped().set(true)
+            return true
+        }
+        return aiPreferences.isCircuitBreakerTripped().get()
+    }
 
-        return if (engine == "gemini") {
-            callGemini(listOf(ChatMessage(role = "user", content = prompt)), apiKey, "You are a senior behavioral data analyst.")
-        } else {
-            callGroq(listOf(ChatMessage(role = "user", content = prompt)), apiKey, "You are a senior behavioral data analyst.")
+    private suspend fun isRemoteKillSwitchActive(): Boolean = withIOContext {
+        try {
+            val request = Request.Builder().url(REMOTE_KILL_SWITCH_URL).build()
+            networkHelper.client.newCall(request).execute().use { response ->
+                if (response.isSuccessful) {
+                    val body = response.body.string()
+                    body.contains("\"disabled\": true")
+                } else false
+            }
+        } catch (e: Exception) {
+            false // Default to enabled if network fails
         }
     }
 
-    private fun getDeviceInfo(): String {
-        return "Model: ${android.os.Build.MODEL}, SDK: ${android.os.Build.VERSION.SDK_INT}, App: Anikku"
+    private fun isRateLimited(): Boolean {
+        val now = System.currentTimeMillis()
+        val lastTime = aiPreferences.lastAiRequestTime().get()
+        var count = aiPreferences.hourlyAiRequestCount().get()
+
+        // Reset count if an hour has passed
+        if (now - lastTime > 3600000) {
+            aiPreferences.hourlyAiRequestCount().set(0)
+            aiPreferences.lastAiRequestTime().set(now)
+            return false
+        }
+
+        return count >= MAX_REQUESTS_PER_HOUR
     }
 
-    private fun getAppKnowledgeBase(): String {
-        return """
-            SYSTEM ARCHITECTURE:
-            - Core: Clean Architecture, DI (Injekt), DB (SQLDelight), Network (OkHttp/Brotli).
-            - Media: MPV (via JNI), Anime4K Shaders, Custom Interceptors.
+    private fun recordRequestSuccess() {
+        val count = aiPreferences.hourlyAiRequestCount().get()
+        aiPreferences.hourlyAiRequestCount().set(count + 1)
+        aiPreferences.lastAiRequestTime().set(System.currentTimeMillis())
+    }
+
+    private fun getSanitizedLogs(): String {
+        return try {
+            val process = Runtime.getRuntime().exec("logcat -d -t 500 *:W")
+            val reader = BufferedReader(InputStreamReader(process.inputStream))
             
-            EXHAUSTIVE SETTINGS & NAVIGATION MAP:
+            val logLines = mutableListOf<String>()
+            val pinnedBlocks = mutableListOf<List<String>>()
+            val currentBlock = mutableListOf<String>()
             
-            1. **General (Settings > General)**:
-                - Locale, App Language, Extension Installer (Legacy/Shizuku/PackageInstaller).
+            val packagePattern = "eu.kanade|app.anizen|mpv|ffmpeg|AndroidRuntime|libc|DEBUG".toRegex()
+            val piiRedaction = "(?i)(?:authorization|cookie|set-cookie):\s*[^
+]+\|(?<=\?|&)[^=]+=[^&\s]*|(?:[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})|(?:auth|token|key|password|secret|sid|session)=[a-zA-Z0-9._-]+".toRegex()
+            val traceTrigger = "Exception|Error|Fatal signal|SIGSEGV|abort\(\)|Native crash".toRegex(RegexOption.IGNORE_CASE)
+            
+            var lastLine = ""
+            var repeatCount = 0
+            
+            while (true) {
+                val line = reader.readLine() ?: break
+                val sanitizedLine = line.replace(piiRedaction, "[REDACTED]")
                 
-            2. **Appearance (Settings > Appearance)**: 
-                - `pref_theme_mode_key` (System/Light/Dark), `pref_app_theme` (Monet/Nord/Doom/etc).
-                - `pref_theme_dark_amoled_key` (Pure black mode).
-                - `bottom_rail_nav_style` (Show All/Small/Lean), `pref_show_bottom_bar_labels`.
-                - `tablet_ui_mode` (Auto/Always/Never), `start_screen` (Library/Updates/History/Browse).
-                
-            3. **Library (Settings > Library)**:
-                - `pref_library_update_interval_key` (None to 48h), `auto_update_metadata`.
-                - `pref_display_mode_library` (Grid types/List).
-                - Columns: `pref_animelib_columns_portrait_key` (Managed via +/- buttons in Library > Display Settings).
-                - Fetch Logic: Exponential backoff (Doubles every 10 cycles if updates fail).
-                
-            4. **Player (Settings > Player)**:
-                - `pref_default_player_orientation_type_key` (Sensor Landscape/Locked/etc).
-                - `pref_progress_preference` (Seen threshold, default 85%).
-                - Controls: `pref_show_loading`, `pref_player_time_to_disappear` (default 4000ms).
-                - Audio: `pref_remember_audio_delay`, `pref_audio_pitch`.
-                - Subtitles: `pref_subtitle_font`, `pref_subtitle_size`, `pref_subtitle_color`.
-                - Shaders: Anime4K (High/Mid/Low), Deband, Deoring.
-                - Automation: `pref_enable_skip_intro`, `pref_enable_auto_skip_ani_skip`.
-                - External: `pref_always_use_external_player`, `external_player_preference` (VLC/MPV/etc).
-                - Advanced: `mpv_scripts`, `pref_mpv_conf`, `pref_mpv_input`.
-                
-            5. **Downloads (Settings > Downloads)**:
-                - `download_threads` (Max 30, uses memory-aware Semaphore flow control).
-                - Logic: Chunked multi-threading for BDIX saturation; parallel fetching with sequential disk writing.
-                - `auto_clear_chapter_cache`: Auto-cleanup of watched content.
-                
-            6. **Tracking (Settings > Tracking)**:
-                - Anilist, MAL, Kitsu integration.
-                
-            7. **Security & Privacy (Settings > Security)**: 
-                - `use_biometric_lock`, `lock_app_after` (timeout).
-                - `secure_screen_v2` (Incognito/Always/Never).
-                - `encrypt_database`: SQLCipher encryption.
-                
-            8. **Advanced Analytics (Settings > Advanced Analytics)**:
-                - Analytics Persona, LLM Backend (Gemini/Groq), Diagnostic logs ingestion.
-                
-            9. **Advanced (Settings > Advanced)**: 
-                - Log Viewer (Extract logs here), Clear Database, Manage Cache.
+                // Block identification (Java traces or Native PC backtraces)
+                val isTraceLine = sanitizedLine.trimStart().startsWith("at ") || 
+                                 sanitizedLine.contains("Caused by:") || 
+                                 sanitizedLine.contains("#\\d+ pc ".toRegex())
+
+                if (sanitizedLine.contains(traceTrigger) || (isTraceLine && currentBlock.isNotEmpty())) {
+                    currentBlock.add(sanitizedLine)
+                    if (currentBlock.size > 80) { // Safety cap per block
+                        pinnedBlocks.add(currentBlock.toList())
+                        currentBlock.clear()
+                    }
+                } else {
+                    if (currentBlock.isNotEmpty()) {
+                        pinnedBlocks.add(currentBlock.toList())
+                        currentBlock.clear()
+                    }
+                    
+                    if (sanitizedLine.contains(packagePattern)) {
+                        if (sanitizedLine == lastLine) {
+                            repeatCount++
+                        } else {
+                            if (repeatCount > 0) logLines.add("... [TRUNCATED] repeated $repeatCount times ...")
+                            logLines.add(sanitizedLine)
+                            lastLine = sanitizedLine
+                            repeatCount = 0
+                        }
+                    }
+                }
+            }
+            if (currentBlock.isNotEmpty()) pinnedBlocks.add(currentBlock.toList())
+            if (repeatCount > 0) logLines.add("... [TRUNCATED] repeated $repeatCount times ...")
+            
+            val output = StringBuilder()
+            if (pinnedBlocks.isNotEmpty()) {
+                output.append("### CRITICAL SYSTEM EVENTS (PINNED CRASH ANCHORS):\n")
+                pinnedBlocks.takeLast(2).forEach { output.append(it.joinToString("\n")).append("\n---\n") }
+            }
+            output.append("### SYSTEM LOG TAIL:\n")
+            output.append(logLines.takeLast(60).joinToString("\n"))
+            output.toString()
+        } catch (e: Exception) {
+            "Diagnostic retrieval failed: ${e.message}"
+        }
+    }
+
+    private fun getAppMap(): String {
+        val currentVersion = BuildConfig.VERSION_CODE
+        val stalenessWarning = if (currentVersion != MAP_VERSION) {
+            "[STALENESS_WARNING]: Navigation map version ($MAP_VERSION) differs from App Version ($currentVersion). Paths may be shifted.\n"
+        } else ""
+
+        return stalenessWarning + """
+            - General: Settings > General
+            - Appearance: Settings > Appearance (Theme, Monet, Dark Mode)
+            - Library: Settings > Library (Update intervals, Columns)
+            - Player: Settings > Player (Shaders/Anime4K, Orientation, Subtitles, External Player)
+            - Downloads: Settings > Downloads (Threads, Cache)
+            - Tracking: Settings > Tracking (Anilist, MAL)
+            - Advanced: Settings > Advanced (Log viewer, Cache, Database)
+            - Analytics: Settings > Advanced Analytics (AI Config)
         """.trimIndent()
     }
+
+    private fun getExtensionStatusSummary(): String {
+        val installed = extensionManager.installedExtensionsFlow.value
+        return if (installed.isEmpty()) "No extensions installed."
+        else installed.joinToString("\n") { "- ${it.name} (${it.pkgName}) v${it.versionName} [Obsolete: ${it.isObsolete}, Update: ${it.hasUpdate}]" }
+    }
+
+    private suspend fun callGeminiWithTools(messages: List<ChatMessage>, apiKey: String, systemInstruction: String): String? {
+        val lastQuery = messages.last().content.lowercase()
+        val toolContext = StringBuilder()
+        
+        if (lastQuery.contains("log|error|fail|video|load|setting|where|how|device|black|broke|froze|slow|crash|die|dead".toRegex())) {
+            toolContext.append("\n[TOOL: get_system_diagnostics]\n${getSanitizedLogs()}\n")
+            toolContext.append("\n[TOOL: get_app_navigation_guide]\n${getAppMap()}\n")
+            toolContext.append("\n[TOOL: get_extension_health_report]\n${getExtensionStatusSummary()}\n")
+            toolContext.append("\n[ENVIRONMENT]: ${getDeviceInfo()}\n")
+        }
+        
+        val finalMessages = messages.dropLast(1) + ChatMessage("user", messages.last().content + toolContext.toString())
+        return callGemini(finalMessages, apiKey, systemInstruction)
+    }
+
+    private suspend fun callGroqWithTools(messages: List<ChatMessage>, apiKey: String, systemInstruction: String): String? {
+        val lastQuery = messages.last().content.lowercase()
+        val toolContext = StringBuilder()
+        if (lastQuery.contains("log|error|fail|video|load|setting|where|how|device|black|broke|froze|slow|crash".toRegex())) {
+            toolContext.append("\n[TOOL: get_system_diagnostics]\n${getSanitizedLogs()}\n")
+        }
+        val finalMessages = messages.dropLast(1) + ChatMessage("user", messages.last().content + toolContext.toString())
+        return callGroq(finalMessages, apiKey, systemInstruction)
+    }
+
+    private fun getDeviceInfo(): String = "Model: ${android.os.Build.MODEL}, SDK: ${android.os.Build.VERSION.SDK_INT}, App: Anikku"
 
     suspend fun getErrorCount(): Int = withIOContext {
         try {
-            val process = Runtime.getRuntime().exec("logcat -d -t 100 *:E")
+            val process = Runtime.getRuntime().exec("logcat -d -t 200 *:E")
             val reader = BufferedReader(InputStreamReader(process.inputStream))
             var count = 0
-            while (reader.readLine() != null) {
-                count++
+            val criticalPatterns = listOf("FATAL EXCEPTION", "NullPointerException", "IllegalStateException", "OutOfMemoryError", "SecurityException", "ANR in", "Crash", "eu.kanade", "app.anizen", "mpv", "ffmpeg", "OkHttp", "Fatal signal", "SIGSEGV")
+            val noiseTags = listOf("GmsClient", "MemoryLeakDetector", "AccessibilityBridge", "Surface", "BufferQueue", "SensorManager")
+            
+            while (true) {
+                val line = reader.readLine() ?: break
+                if (criticalPatterns.any { line.contains(it, ignoreCase = true) } && !noiseTags.any { line.contains(it, ignoreCase = true) }) {
+                    count++
+                }
             }
             count
-        } catch (e: Exception) {
-            0
-        }
-    }
-
-    private suspend fun getRecentLogs(): String = withIOContext {
-        try {
-            val process = Runtime.getRuntime().exec("logcat -d -t 100 *:E")
-            val reader = BufferedReader(InputStreamReader(process.inputStream))
-            val log = StringBuilder()
-            var line: String?
-            while (reader.readLine().also { line = it } != null) {
-                log.append(line).append("\n")
-            }
-            log.toString().takeLast(5000)
-        } catch (e: Exception) {
-            "Failed to fetch logs: ${e.message}"
-        }
+        } catch (e: Exception) { 0 }
     }
 
     private suspend fun callGemini(messages: List<ChatMessage>, apiKey: String, systemInstruction: String? = null): String? = withIOContext {
         val geminiContents = messages.map { msg ->
-            GeminiContent(
-                parts = listOf(GeminiPart(text = msg.content)),
-                role = if (msg.role == "user") "user" else "model"
-            )
+            GeminiContent(parts = listOf(GeminiPart(text = msg.content)), role = if (msg.role == "user") "user" else "model")
         }
-
-        val requestBody = GeminiRequest(
-            contents = geminiContents,
-            systemInstruction = systemInstruction?.let {
-                GeminiContent(parts = listOf(GeminiPart(text = it)))
-            }
-        )
-
+        val requestBody = GeminiRequest(contents = geminiContents, systemInstruction = systemInstruction?.let { GeminiContent(parts = listOf(GeminiPart(text = it))) })
         val request = Request.Builder()
-            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=$apiKey")
+            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$apiKey")
             .header("Content-Type", "application/json")
             .post(json.encodeToString(GeminiRequest.serializer(), requestBody).toRequestBody(jsonMediaType))
             .build()
-
         try {
             networkHelper.client.newCall(request).execute().use { response ->
                 val bodyString = response.body.string()
-                if (!response.isSuccessful) return@withIOContext "Error ${response.code}: ${response.message}\n$bodyString"
+                if (!response.isSuccessful) return@withIOContext "Error ${response.code}: ${response.message}"
                 val geminiResponse = json.decodeFromString(GeminiResponse.serializer(), bodyString)
                 geminiResponse.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text?.trim()
             }
-        } catch (e: Exception) {
-            "Exception: ${e.message}"
-        }
+        } catch (e: Exception) { "Exception: ${e.message}" }
     }
 
     private suspend fun callGroq(messages: List<ChatMessage>, apiKey: String, systemInstruction: String? = null): String? = withIOContext {
         val groqMessages = mutableListOf<GroqMessage>()
-        if (systemInstruction != null) {
-            groqMessages.add(GroqMessage(role = "system", content = systemInstruction))
-        }
-        messages.forEach { msg ->
-            groqMessages.add(GroqMessage(role = if (msg.role == "user") "user" else "assistant", content = msg.content))
-        }
-
-        val requestBody = GroqRequest(
-            messages = groqMessages,
-            model = "groq/compound-mini"
-        )
-
+        if (systemInstruction != null) groqMessages.add(GroqMessage(role = "system", content = systemInstruction))
+        messages.forEach { msg -> groqMessages.add(GroqMessage(role = if (msg.role == "user") "user" else "assistant", content = msg.content)) }
+        val requestBody = GroqRequest(messages = groqMessages, model = "llama3-70b-8192")
         val request = Request.Builder()
             .url("https://api.groq.com/openai/v1/chat/completions")
             .header("Authorization", "Bearer $apiKey")
             .header("Content-Type", "application/json")
             .post(json.encodeToString(GroqRequest.serializer(), requestBody).toRequestBody(jsonMediaType))
             .build()
-
         try {
             networkHelper.client.newCall(request).execute().use { response ->
                 val bodyString = response.body.string()
-                if (!response.isSuccessful) return@withIOContext "Error ${response.code}: ${response.message}\n$bodyString"
+                if (!response.isSuccessful) return@withIOContext "Error ${response.code}"
                 val groqResponse = json.decodeFromString(GroqResponse.serializer(), bodyString)
                 groqResponse.choices.firstOrNull()?.message?.content?.trim()
             }
-        } catch (e: Exception) {
-            "Exception: ${e.message}"
-        }
+        } catch (e: Exception) { "Exception: ${e.message}" }
     }
 
     @Serializable
     data class ChatMessage(val role: String, val content: String)
 
     @Serializable
-    private data class GeminiRequest(
-        val contents: List<GeminiContent>,
-        @kotlinx.serialization.SerialName("system_instruction")
-        val systemInstruction: GeminiContent? = null
-    )
+    private data class GeminiRequest(val contents: List<GeminiContent>, @kotlinx.serialization.SerialName("system_instruction") val systemInstruction: GeminiContent? = null)
 
     @Serializable
     private data class GeminiContent(val parts: List<GeminiPart>, val role: String? = null)
@@ -274,10 +315,7 @@ class AiManager(
     private data class GeminiCandidate(val content: GeminiContent)
 
     @Serializable
-    private data class GroqRequest(
-        val messages: List<GroqMessage>,
-        val model: String
-    )
+    private data class GroqRequest(val messages: List<GroqMessage>, val model: String)
 
     @Serializable
     private data class GroqMessage(val role: String, val content: String)
