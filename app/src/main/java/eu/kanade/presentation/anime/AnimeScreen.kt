@@ -816,11 +816,27 @@ fun AnimeScreenLargeImpl(
                     val selectedEpisodeCount = remember(episodes) {
                         episodes.count { it.selected }
                     }
+                    val isFirstItemVisible by remember {
+                        derivedStateOf { episodeListState.firstVisibleItemIndex == 0 }
+                    }
+                    val isFirstItemScrolled by remember {
+                        derivedStateOf { episodeListState.firstVisibleItemScrollOffset > 0 }
+                    }
+                    val animatedTitleAlpha by animateFloatAsState(
+                        targetValue = if (!isFirstItemVisible) 1f else 0f,
+                        animationSpec = androidx.compose.animation.core.tween(200),
+                        label = "Top Bar Title",
+                    )
+                    val animatedBgAlpha by animateFloatAsState(
+                        targetValue = if (!isFirstItemVisible || isFirstItemScrolled) 1f else 0f,
+                        animationSpec = androidx.compose.animation.core.tween(200),
+                        label = "Top Bar Background",
+                    )
                     AnimeToolbar(
                         modifier = Modifier.onSizeChanged { topBarHeight = it.height },
                         title = state.anime.title,
-                        titleAlphaProvider = { if (isAnySelected) 1f else 0f },
-                        backgroundAlphaProvider = { 1f },
+                        titleAlphaProvider = { if (isAnySelected) 1f else animatedTitleAlpha },
+                        backgroundAlphaProvider = { animatedBgAlpha },
                         hasFilters = state.filterActive,
                         onBackClicked = internalOnBackPressed,
                         onClickFilter = onFilterButtonClicked,
