@@ -174,7 +174,8 @@ data class BrowseSourceScreen(
                         onSelectAll = {
                             val items = animeList.itemSnapshotList.items.filterNotNull()
                             if (items.isNotEmpty()) {
-                                screenModel.selectAll(items)
+                                // Select up to the first batch of 60
+                                screenModel.selectAll(items.take(60))
                             }
                         },
                         onInvertSelection = {
@@ -477,26 +478,18 @@ data class BrowseSourceScreen(
 
         // Reactive Selection: Observe load state to expand selection in 'Select All' mode
         LaunchedEffect(animeList.loadState, state.isSelectAllMode) {
-            if (state.isSelectAllMode) {
+            if (state.isSelectAllMode && animeList.loadState.append is androidx.paging.LoadState.NotLoading) {
                 val currentItems = animeList.itemSnapshotList.items.filterNotNull()
+                val currentSelectionSize = state.selection.size
                 
-                // If we just finished loading a page, select all available items
-                if (animeList.loadState.append is androidx.paging.LoadState.NotLoading) {
-                    if (currentItems.size > state.selection.size) {
-                        screenModel.selectAll(currentItems)
+                if (currentItems.size > currentSelectionSize) {
+                    // Determine the next batch target (60, 120, 180...)
+                    val nextTarget = ((currentSelectionSize / 60) + 1) * 60
+                    val itemsToSelect = currentItems.take(nextTarget)
+                    
+                    if (itemsToSelect.size > currentSelectionSize) {
+                        screenModel.selectAll(itemsToSelect)
                     }
-                }
-
-                // Proactive Loading: If we are in Select All mode and haven't hit a multiple of 60,
-                // and we aren't already loading, trigger the next page.
-                val loadedCount = currentItems.size
-                if (loadedCount > 0 && 
-                    loadedCount % 60 != 0 && 
-                    loadedCount < animeList.itemCount &&
-                    animeList.loadState.append is androidx.paging.LoadState.NotLoading
-                ) {
-                    // Accessing the last item triggers the next page fetch in Paging 3
-                    animeList[loadedCount - 1]
                 }
             }
         }
