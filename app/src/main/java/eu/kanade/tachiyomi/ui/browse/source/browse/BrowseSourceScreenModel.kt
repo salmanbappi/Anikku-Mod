@@ -389,8 +389,9 @@ class BrowseSourceScreenModel(
 
     fun selectAll(animeList: List<Anime>) {
         mutableState.update { state ->
+            val newTarget = state.targetCount + 60
             val newSelection = state.selection.mutate { list ->
-                animeList.forEach { anime ->
+                animeList.take(newTarget).forEach { anime ->
                     if (list.none { it.id == anime.id }) {
                         list.add(anime)
                     }
@@ -399,7 +400,7 @@ class BrowseSourceScreenModel(
             state.copy(
                 selection = newSelection,
                 isSelectAllMode = true,
-                targetCount = if (state.targetCount == 0) 60 else state.targetCount
+                targetCount = newTarget
             )
         }
     }

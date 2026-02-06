@@ -119,7 +119,7 @@ class AiAssistantScreen : Screen() {
             errorCount = aiManager.getErrorCount()
         }
 
-        LaunchedEffect(state.messages.size) {
+        LaunchedEffect(state.messages.size, state.isLoading) {
             if (state.messages.isNotEmpty()) {
                 listState.animateScrollToItem(state.messages.size - 1)
             }
@@ -213,7 +213,7 @@ class AiAssistantScreen : Screen() {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding)
-                        .imePadding()
+                        .imePadding() // Follow keyboard
                 ) {
                         DiagnosticHUD(errorCount)
                         
@@ -286,7 +286,7 @@ class AiAssistantScreen : Screen() {
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp), // Reduced padding
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
@@ -300,7 +300,7 @@ class AiAssistantScreen : Screen() {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "STATUS: ENCRYPTED // LIBRARY: SYNCED // LOGS: HOT",
+                    text = "STATUS: ENCRYPTED // LIBRARY: SYNCED",
                     style = MaterialTheme.typography.labelSmall,
                     fontFamily = FontFamily.Monospace,
                     letterSpacing = 1.sp,
@@ -319,14 +319,12 @@ class AiAssistantScreen : Screen() {
     ) {
         val primaryColor = MaterialTheme.colorScheme.primary // Accent 10%
         val surfaceColor = MaterialTheme.colorScheme.surfaceContainerHigh
-        val onSurfaceColor = MaterialTheme.colorScheme.onSurface
 
         Surface(
             tonalElevation = 2.dp,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 8.dp)
-                .navigationBarsPadding(),
+                .padding(bottom = 4.dp), // Minimal bottom padding
             color = Color.Transparent
         ) {
             Row(

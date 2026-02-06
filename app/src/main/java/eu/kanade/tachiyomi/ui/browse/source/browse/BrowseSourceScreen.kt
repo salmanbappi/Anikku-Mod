@@ -11,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material.icons.outlined.NewReleases
@@ -176,8 +177,7 @@ data class BrowseSourceScreen(
                         onSelectAll = {
                             val items = animeList.itemSnapshotList.items.filterNotNull()
                             if (items.isNotEmpty()) {
-                                // Select up to the first batch of 60
-                                screenModel.selectAll(items.take(60))
+                                screenModel.selectAll(items)
                             }
                         },
                         onInvertSelection = {
@@ -305,15 +305,16 @@ data class BrowseSourceScreen(
                             ) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Icon(
-                                        imageVector = if (allFavorite) Icons.Filled.Favorite else Icons.Outlined.Favorite,
+                                        imageVector = if (allFavorite) Icons.Outlined.Delete else Icons.Outlined.Favorite,
                                         contentDescription = null,
-                                        tint = if (allFavorite) MaterialTheme.colorScheme.primary else LocalContentColor.current
+                                        tint = if (allFavorite) MaterialTheme.colorScheme.error else LocalContentColor.current
                                     )
                                     Text(
                                         text = stringResource(
                                             if (allFavorite) MR.strings.action_remove else MR.strings.add_to_library
                                         ),
                                         style = MaterialTheme.typography.labelSmall,
+                                        color = if (allFavorite) MaterialTheme.colorScheme.error else LocalContentColor.current
                                     )
                                 }
                             }
@@ -331,6 +332,7 @@ data class BrowseSourceScreen(
             val targetCount = state.targetCount
             val selectionSize = state.selection.size
             val itemCount = animeList.itemCount
+            var isPoking by remember { mutableStateOf(false) }
 
             LaunchedEffect(isSelectAllMode, targetCount, itemCount) {
                 if (isSelectAllMode) {
@@ -344,6 +346,28 @@ data class BrowseSourceScreen(
                             screenModel.updateSelection(nextBatch)
                         }
                     }
+
+                    // TRIGGER THE NEXT PAGE (The Safe Poke) only if we haven't reached the manual targetCount
+                    // AND we are not already poking.
+                    if (selectionSize < targetCount && itemCount > 0 && itemCount < targetCount && !isPoking) {
+                        val appendState = animeList.loadState.append
+                        if (appendState is androidx.paging.LoadState.NotLoading && !appendState.endOfPaginationReached) {
+                            isPoking = true
+                            try {
+                                animeList[itemCount - 1]
+                            } catch (e: Exception) {}
+                            // The next itemCount update will trigger this LaunchedEffect again and reset isPoking
+                        }
+                    }
+                } else {
+                    isPoking = false
+                }
+            }
+            
+            // Reset poking state when loading completes or state changes
+            LaunchedEffect(animeList.loadState.append) {
+                if (animeList.loadState.append is androidx.paging.LoadState.NotLoading) {
+                    isPoking = false
                 }
             }
 
@@ -376,15 +400,7 @@ data class BrowseSourceScreen(
                 },
                 selection = state.selection,
                 favoriteIds = state.favoriteIds,
-                onBatchIncrement = { index ->
-                    // Only increment if we are nearing the current target
-                    if (isSelectAllMode && index >= targetCount - 10) {
-                        val nextTarget = targetCount + 60
-                        if (nextTarget > targetCount && nextTarget <= 180) { // Reduced cap for safety
-                            screenModel.setTargetCount(nextTarget)
-                        }
-                    }
-                },
+                onBatchIncrement = { /* Manual increment only via Select All button */ },
             )
         }
 
