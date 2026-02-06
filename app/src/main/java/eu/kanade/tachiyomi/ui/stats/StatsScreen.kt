@@ -117,19 +117,6 @@ object InfrastructureScreen : Screen {
                 AppBar(
                     title = "Infrastructure Command Center",
                     navigateUp = navigator::pop,
-                    actions = {
-                        AppBarActions(
-                            persistentListOf(
-                                AppBar.Action(
-                                    title = "Copy Report",
-                                    icon = Icons.Outlined.ContentCopy,
-                                    onClick = { 
-                                        screenModel.copyReportToClipboard()
-                                    },
-                                ),
-                            ),
-                        )
-                    },
                     scrollBehavior = scrollBehavior,
                 )
             },

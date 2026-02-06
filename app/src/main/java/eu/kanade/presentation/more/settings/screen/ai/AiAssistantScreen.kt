@@ -75,17 +75,25 @@ import tachiyomi.presentation.core.components.material.Scaffold
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.ui.platform.LocalContext
+import eu.kanade.tachiyomi.util.system.copyToClipboard
+
 class AiAssistantScreen : Screen() {
 
     @Composable
     override fun Content() {
         val aiManager = remember { Injekt.get<AiManager>() }
         val scope = rememberCoroutineScope()
+        val context = LocalContext.current
         val messages = remember { mutableStateListOf<AiManager.ChatMessage>() }
         var input by remember { mutableStateOf("") }
         var isLoading by remember { mutableStateOf(false) }
         val listState = rememberLazyListState()
         var errorCount by remember { mutableIntStateOf(0) }
+        val snackbarHostState = remember { SnackbarHostState() }
 
         LaunchedEffect(Unit) {
             errorCount = aiManager.getErrorCount()
@@ -104,7 +112,8 @@ class AiAssistantScreen : Screen() {
                     navigateUp = { /* Pop handled by Voyager */ },
                 )
             },
-            containerColor = MaterialTheme.colorScheme.background
+            containerColor = MaterialTheme.colorScheme.background,
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
         ) { padding ->
             Box(
                 modifier = Modifier
@@ -123,14 +132,26 @@ class AiAssistantScreen : Screen() {
                     ) {
                         if (messages.isEmpty()) {
                             item {
-                                AssistantMessage("Diagnostic engine ready. System logs synchronized. I can assist with troubleshooting, data analysis, or library optimization. How can I help?")
+                                AssistantMessage(
+                                    content = "Diagnostic engine ready. System logs synchronized. I can assist with troubleshooting, data analysis, or library optimization. How can I help?",
+                                    onCopy = {
+                                        context.copyToClipboard("AniZen AI", it)
+                                        scope.launch { snackbarHostState.showSnackbar("Copied to clipboard") }
+                                    }
+                                )
                             }
                         }
                         items(messages) { message ->
                             if (message.role == "user") {
                                 UserMessage(message.content)
                             } else {
-                                AssistantMessage(message.content)
+                                AssistantMessage(
+                                    content = message.content,
+                                    onCopy = {
+                                        context.copyToClipboard("AniZen AI", it)
+                                        scope.launch { snackbarHostState.showSnackbar("Copied to clipboard") }
+                                    }
+                                )
                             }
                         }
                         if (isLoading) {
@@ -289,7 +310,7 @@ class AiAssistantScreen : Screen() {
     }
 
     @Composable
-    private fun AssistantMessage(content: String) {
+    private fun AssistantMessage(content: String, onCopy: (String) -> Unit) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -314,6 +335,18 @@ class AiAssistantScreen : Screen() {
                     fontWeight = FontWeight.ExtraBold,
                     letterSpacing = 0.5.sp
                 )
+                Spacer(modifier = Modifier.weight(1f))
+                IconButton(
+                    onClick = { onCopy(content) },
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.ContentCopy,
+                        contentDescription = "Copy",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(14.dp)
+                    )
+                }
             }
             
             Surface(
