@@ -116,12 +116,15 @@ import tachiyomi.domain.episode.service.missingEpisodesCount
 import tachiyomi.domain.library.service.LibraryPreferences
 import tachiyomi.domain.source.model.StubSource
 import tachiyomi.i18n.MR
+import tachiyomi.i18n.kmk.KMR
 import tachiyomi.presentation.core.components.TwoPanelBox
 import tachiyomi.presentation.core.components.VerticalFastScroller
 import tachiyomi.presentation.core.components.material.ExtendedFloatingActionButton
 import tachiyomi.presentation.core.components.material.PullRefresh
 import tachiyomi.presentation.core.components.material.Scaffold
 import tachiyomi.presentation.core.i18n.stringResource
+import tachiyomi.presentation.core.util.clickableNoIndication
+import tachiyomi.presentation.core.util.collectAsState
 import tachiyomi.presentation.core.util.plus
 import tachiyomi.presentation.core.util.shouldExpandFAB
 import tachiyomi.source.local.isLocal
@@ -320,9 +323,9 @@ private fun AnimeScreenSmallImpl(
     onInvertSelection: () -> Unit,
     onLocalScoreClicked: () -> Unit,
 ) {
-    val episodeListState = rememberLazyListState()
-    val episodes = remember(state) { state.processedEpisodes }
     val listItem = remember(state) { state.episodeListItems }
+
+    val showSuggestions = sourcePreferences.relatedAnimeShowSource().collectAsState().value
 
     val isAnySelected by remember {
         derivedStateOf { episodes.fastAny { it.selected } }
@@ -550,7 +553,6 @@ private fun AnimeScreenSmallImpl(
                                                         )
                                                     }
 
-                            val showSuggestions by sourcePreferences.relatedAnimeShowSource().collectAsState()
                             if (showSuggestions && state.suggestions.isNotEmpty()) {
                                 item(key = AnimeScreenItem.SUGGESTIONS, contentType = AnimeScreenItem.SUGGESTIONS) {
                                     val navigator = LocalNavigator.currentOrThrow
@@ -563,11 +565,11 @@ private fun AnimeScreenSmallImpl(
                                             verticalAlignment = Alignment.CenterVertically,
                                         ) {
                                             Text(
-                                                text = stringResource(KMR.strings.related_mangas_website_suggestions),
+                                                text = stringResource(tachiyomi.i18n.kmk.KMR.strings.related_mangas_website_suggestions),
                                                 style = MaterialTheme.typography.titleMedium,
                                             )
                                             TextButton(onClick = { navigator.push(RelatedAnimeScreen(state.anime.id)) }) {
-                                                Text(text = stringResource(MR.strings.action_more))
+                                                Text(text = stringResource(tachiyomi.i18n.MR.strings.label_more))
                                             }
                                         }
                                         androidx.compose.foundation.lazy.LazyRow(
@@ -703,6 +705,9 @@ fun AnimeScreenLargeImpl(
     val density = LocalDensity.current
     val episodes = remember(state) { state.processedEpisodes }
     val listItem = remember(state) { state.episodeListItems }
+
+    val showSuggestions = sourcePreferences.relatedAnimeShowSource().collectAsState().value
+
     val isAnySelected by remember {
         derivedStateOf { episodes.fastAny { it.selected } }
     }
@@ -908,7 +913,6 @@ fun AnimeScreenLargeImpl(
                                     onCopyTagToClipboard = onCopyTagToClipboard,
                                 )
 
-                                val showSuggestions by sourcePreferences.relatedAnimeShowSource().collectAsState()
                                 if (showSuggestions && state.suggestions.isNotEmpty()) {
                                     val navigator = LocalNavigator.currentOrThrow
                                     Column(modifier = Modifier.padding(vertical = 8.dp)) {
@@ -920,11 +924,11 @@ fun AnimeScreenLargeImpl(
                                             verticalAlignment = Alignment.CenterVertically,
                                         ) {
                                             Text(
-                                                text = stringResource(KMR.strings.related_mangas_website_suggestions),
+                                                text = stringResource(tachiyomi.i18n.kmk.KMR.strings.related_mangas_website_suggestions),
                                                 style = MaterialTheme.typography.titleMedium,
                                             )
                                             TextButton(onClick = { navigator.push(RelatedAnimeScreen(state.anime.id)) }) {
-                                                Text(text = stringResource(MR.strings.action_more))
+                                                Text(text = stringResource(tachiyomi.i18n.MR.strings.label_more))
                                             }
                                         }
                                         androidx.compose.foundation.lazy.LazyRow(
