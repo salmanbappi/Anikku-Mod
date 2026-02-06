@@ -146,6 +146,9 @@ data class BrowseSourceScreen(
         }
 
         var topBarHeight by remember { mutableIntStateOf(0) }
+        val pagingFlow by screenModel.animePagerFlowFlow.collectAsState()
+        val animeList = pagingFlow.collectAsLazyPagingItems()
+
         Scaffold(
             topBar = {
                 Column(
@@ -168,6 +171,17 @@ data class BrowseSourceScreen(
                         onSearch = screenModel::search,
                         selectedCount = state.selection.size,
                         onUnselectAll = screenModel::clearSelection,
+                        onSelectAll = {
+                            val currentItems = animeList.itemSnapshotList.items.filterNotNull()
+                            screenModel.selectAll(currentItems)
+                            // Trigger loading more items automatically (up to 60)
+                            if (animeList.itemCount > 0 && currentItems.size < 60) {
+                                animeList[59.coerceAtMost(animeList.itemCount - 1)]
+                            }
+                        },
+                        onInvertSelection = {
+                            screenModel.invertSelection(animeList.itemSnapshotList.items.filterNotNull())
+                        },
                     )
 
                     Row(
@@ -461,6 +475,24 @@ data class BrowseSourceScreen(
                 )
             }
             else -> {}
+        }
+
+        LaunchedEffect(animeList.itemSnapshotList.items, state.isSelectAllMode) {
+            if (state.isSelectAllMode) {
+                val currentItems = animeList.itemSnapshotList.items.filterNotNull()
+                if (currentItems.size > state.selection.size) {
+                    screenModel.selectAll(currentItems)
+                }
+                
+                // If user scrolls near the end of selection, trigger next 60
+                val loadedCount = currentItems.size
+                if (loadedCount > 0 && loadedCount == state.selection.size) {
+                    val nextBatchTrigger = ((loadedCount / 60) + 1) * 60 - 1
+                    if (nextBatchTrigger < animeList.itemCount) {
+                        animeList[nextBatchTrigger]
+                    }
+                }
+            }
         }
 
         LaunchedEffect(Unit) {

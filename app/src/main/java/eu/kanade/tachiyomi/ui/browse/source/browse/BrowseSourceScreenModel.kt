@@ -129,6 +129,7 @@ class BrowseSourceScreenModel(
      * Flow of Pager flow tied to [State.listing]
      */
     private val hideInLibraryItems = sourcePreferences.hideInAnimeLibraryItems().get()
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     val animePagerFlowFlow = state.map { it.listing }
         .distinctUntilChanged()
         .map { listing ->
@@ -379,8 +380,38 @@ class BrowseSourceScreenModel(
         }
     }
 
+    fun selectAll(animeList: List<Anime>) {
+        mutableState.update { state ->
+            val newSelection = state.selection.mutate { list ->
+                animeList.forEach { anime ->
+                    if (list.none { it.id == anime.id }) {
+                        list.add(anime)
+                    }
+                }
+            }
+            state.copy(selection = newSelection, isSelectAllMode = true)
+        }
+    }
+
+    fun invertSelection(animeList: List<Anime>) {
+        mutableState.update { state ->
+            val newSelection = state.selection.mutate { list ->
+                animeList.forEach { anime ->
+                    val index = list.indexOfFirst { it.id == anime.id }
+                    if (index != -1) {
+                        list.removeAt(index)
+                    } else {
+                        list.add(anime)
+                    }
+                }
+            }
+            // Invert selection turns off select all mode usually as it's a specific manual action
+            state.copy(selection = newSelection, isSelectAllMode = false)
+        }
+    }
+
     fun clearSelection() {
-        mutableState.update { it.copy(selection = persistentListOf()) }
+        mutableState.update { it.copy(selection = persistentListOf(), isSelectAllMode = false) }
     }
 
     fun addSelectionToLibrary() {
@@ -495,6 +526,7 @@ class BrowseSourceScreenModel(
         val currentSavedSearch: SavedSearch? = null,
         val dialog: Dialog? = null,
         val selection: PersistentList<Anime> = persistentListOf(),
+        val isSelectAllMode: Boolean = false,
     ) {
         val isUserQuery get() = listing is Listing.Search && !listing.query.isNullOrEmpty()
         val selectionMode get() = selection.isNotEmpty()
