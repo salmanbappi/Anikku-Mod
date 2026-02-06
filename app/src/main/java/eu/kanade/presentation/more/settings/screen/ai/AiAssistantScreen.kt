@@ -266,7 +266,6 @@ class AiAssistantScreen : Screen() {
                 }
             }
         }
-    }
 
     @Composable
     private fun DiagnosticHUD(errorCount: Int) {

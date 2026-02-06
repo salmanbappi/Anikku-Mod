@@ -110,6 +110,11 @@ import uy.kohesive.injekt.api.get
 import java.util.Calendar
 import kotlin.math.floor
 
+import eu.kanade.tachiyomi.animesource.AnimeCatalogueSource
+import eu.kanade.tachiyomi.animesource.model.AnimeFilterList
+import logcat.LogPriority
+import logcat.logcat
+
 class AnimeScreenModel(
     private val context: Context,
     private val lifecycle: Lifecycle,
@@ -293,9 +298,10 @@ class AnimeScreenModel(
         var hasEmitted = false
         getRelatedAnime.subscribe(anime).collect { (_, animes) ->
             hasEmitted = true
-            val domainAnimes = animes.map {
-                val localAnime = networkToLocalAnime.await(it.toDomainAnime(anime.source))
-                getAnime.await(localAnime.id)!!
+            val domainAnimes = mutableListOf<Anime>()
+            for (sAnime in animes) {
+                val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
+                getAnime.await(localAnime.id)?.let { domainAnimes.add(it) }
             }
             updateSuccessState { state ->
                 state.copy(
@@ -306,17 +312,17 @@ class AnimeScreenModel(
 
         if (!hasEmitted) {
             val firstTag = anime.genre?.firstOrNull() ?: return
-            val source = sourceManager.get(anime.source) as? CatalogueSource ?: return
+            val source = sourceManager.get(anime.source) as? AnimeCatalogueSource ?: return
             
             try {
                 val searchResult = source.getSearchAnime(1, firstTag, source.getFilterList())
-                val domainAnimes = searchResult.animes
-                    .filter { it.url != anime.url }
-                    .take(10)
-                    .map {
-                        val localAnime = networkToLocalAnime.await(it.toDomainAnime(anime.source))
-                        getAnime.await(localAnime.id)!!
-                    }
+                val domainAnimes = mutableListOf<Anime>()
+                for (sAnime in searchResult.animes) {
+                    if (sAnime.url == anime.url) continue
+                    val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
+                    getAnime.await(localAnime.id)?.let { domainAnimes.add(it) }
+                    if (domainAnimes.size >= 10) break
+                }
                 updateSuccessState { state ->
                     state.copy(suggestions = domainAnimes.toImmutableList())
                 }
