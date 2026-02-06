@@ -195,25 +195,6 @@ class AnimeScreenModel(
 
     init {
         screenModelScope.launchIO {
-            combine(
-                getAnimeAndEpisodes.subscribe(animeId).distinctUntilChanged(),
-                downloadCache.changes,
-                downloadManager.queueState,
-            ) { animeAndEpisodes, _, _ -> animeAndEpisodes }
-                .flowWithLifecycle(lifecycle)
-                .collectLatest { (anime, episodes) ->
-                    updateSuccessState {
-                        it.copy(
-                            anime = anime,
-                            episodes = episodes.toEpisodeListItems(anime),
-                        )
-                    }
-                }
-        }
-
-        observeDownloads()
-
-        screenModelScope.launchIO {
             val anime = getAnimeAndEpisodes.awaitManga(animeId)
             val episodes = getAnimeAndEpisodes.awaitChapters(animeId).toEpisodeListItems(anime)
 
@@ -238,7 +219,26 @@ class AnimeScreenModel(
                     dialog = null,
                 )
             }
+
+            // Start subscription AFTER initial success state is set
+            launchIO {
+                combine(
+                    getAnimeAndEpisodes.subscribe(animeId).distinctUntilChanged(),
+                    downloadCache.changes,
+                    downloadManager.queueState,
+                ) { animeAndEpisodes, _, _ -> animeAndEpisodes }
+                    .flowWithLifecycle(lifecycle)
+                    .collectLatest { (anime, episodes) ->
+                        updateSuccessState {
+                            it.copy(
+                                anime = anime,
+                                episodes = episodes.toEpisodeListItems(anime),
+                            )
+                        }
+                    }
+            }
             
+            observeDownloads()
             observeTrackers()
 
             if (screenModelScope.isActive) {

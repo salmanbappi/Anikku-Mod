@@ -327,7 +327,8 @@ private fun AnimeScreenSmallImpl(
     val episodes = remember(state) { state.processedEpisodes }
     val listItem = remember(state) { state.episodeListItems }
 
-    val showSuggestions = sourcePreferences.relatedAnimeShowSource().collectAsState().value
+    val showSuggestions = sourcePreferences.relatedAnimeShowSource().collectAsState().value &&
+        sourcePreferences.relatedAnimeExpand().collectAsState().value
 
     val isAnySelected by remember {
         derivedStateOf { episodes.fastAny { it.selected } }
@@ -708,7 +709,8 @@ fun AnimeScreenLargeImpl(
     val episodes = remember(state) { state.processedEpisodes }
     val listItem = remember(state) { state.episodeListItems }
 
-    val showSuggestions = sourcePreferences.relatedAnimeShowSource().collectAsState().value
+    val showSuggestions = sourcePreferences.relatedAnimeShowSource().collectAsState().value &&
+        sourcePreferences.relatedAnimeExpand().collectAsState().value
 
     val isAnySelected by remember {
         derivedStateOf { episodes.fastAny { it.selected } }
