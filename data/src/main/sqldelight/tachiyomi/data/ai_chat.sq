@@ -41,3 +41,6 @@ DELETE FROM ai_sessions WHERE _id = :id;
 
 deleteAllSessions:
 DELETE FROM ai_sessions;
+
+selectLastInsertedRowId:
+SELECT last_insert_rowid();
