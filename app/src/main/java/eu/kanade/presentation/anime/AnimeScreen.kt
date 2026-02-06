@@ -9,10 +9,12 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
@@ -25,6 +27,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
@@ -40,6 +43,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -559,7 +563,7 @@ private fun AnimeScreenSmallImpl(
                                             verticalAlignment = Alignment.CenterVertically,
                                         ) {
                                             Text(
-                                                text = stringResource(MR.strings.related_mangas_website_suggestions),
+                                                text = stringResource(KMR.strings.related_mangas_website_suggestions),
                                                 style = MaterialTheme.typography.titleMedium,
                                             )
                                             TextButton(onClick = { navigator.push(RelatedAnimeScreen(state.anime.id)) }) {
@@ -577,7 +581,7 @@ private fun AnimeScreenSmallImpl(
                                                 Column(
                                                     modifier = Modifier
                                                         .width(96.dp)
-                                                        .clickableNoIndication { navigator.push(AnimeScreen(anime.id)) },
+                                                        .clickableNoIndication { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(anime.id)) },
                                                 ) {
                                                     eu.kanade.presentation.anime.components.AnimeCover.Book(
                                                         data = anime.asAnimeCover(),
@@ -916,7 +920,7 @@ fun AnimeScreenLargeImpl(
                                             verticalAlignment = Alignment.CenterVertically,
                                         ) {
                                             Text(
-                                                text = stringResource(MR.strings.related_mangas_website_suggestions),
+                                                text = stringResource(KMR.strings.related_mangas_website_suggestions),
                                                 style = MaterialTheme.typography.titleMedium,
                                             )
                                             TextButton(onClick = { navigator.push(RelatedAnimeScreen(state.anime.id)) }) {
@@ -934,7 +938,7 @@ fun AnimeScreenLargeImpl(
                                                 Column(
                                                     modifier = Modifier
                                                         .width(96.dp)
-                                                        .clickableNoIndication { navigator.push(AnimeScreen(anime.id)) },
+                                                        .clickableNoIndication { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(anime.id)) },
                                                 ) {
                                                     eu.kanade.presentation.anime.components.AnimeCover.Book(
                                                         data = anime.asAnimeCover(),

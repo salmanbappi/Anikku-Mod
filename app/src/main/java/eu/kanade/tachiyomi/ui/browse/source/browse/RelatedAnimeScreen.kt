@@ -29,6 +29,7 @@ import eu.kanade.presentation.util.Screen
 import eu.kanade.tachiyomi.ui.anime.AnimeScreen
 import eu.kanade.tachiyomi.ui.home.HomeScreen
 import tachiyomi.i18n.MR
+import tachiyomi.i18n.kmk.KMR
 import tachiyomi.presentation.core.components.ListGroupHeader
 import tachiyomi.presentation.core.components.material.Scaffold
 import tachiyomi.presentation.core.components.material.padding
@@ -57,7 +58,7 @@ class RelatedAnimeScreen(val animeId: Long) : Screen() {
                             IconButton(onClick = { navigator.popUntil { it is HomeScreen } }) {
                                 Icon(
                                     imageVector = Icons.Outlined.Home,
-                                    contentDescription = stringResource(MR.strings.action_bar_home),
+                                    contentDescription = stringResource(KMR.strings.action_bar_home),
                                 )
                             }
                         }
