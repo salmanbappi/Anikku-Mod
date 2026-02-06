@@ -396,7 +396,24 @@ class BrowseSourceScreenModel(
                     }
                 }
             }
-            state.copy(selection = newSelection, isSelectAllMode = true, targetCount = 60)
+            state.copy(
+                selection = newSelection,
+                isSelectAllMode = true,
+                targetCount = if (state.targetCount == 0) 60 else state.targetCount
+            )
+        }
+    }
+
+    fun updateSelection(animeList: List<Anime>) {
+        mutableState.update { state ->
+            val newSelection = state.selection.mutate { list ->
+                animeList.forEach { anime ->
+                    if (list.none { it.id == anime.id }) {
+                        list.add(anime)
+                    }
+                }
+            }
+            state.copy(selection = newSelection)
         }
     }
 
