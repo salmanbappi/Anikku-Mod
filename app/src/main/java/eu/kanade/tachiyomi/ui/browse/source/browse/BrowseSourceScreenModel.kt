@@ -89,6 +89,7 @@ class BrowseSourceScreenModel(
     private val insertSavedSearch: InsertSavedSearch = Injekt.get(),
     private val deleteSavedSearchById: DeleteSavedSearchById = Injekt.get(),
     private val filterSerializer: FilterSerializer = Injekt.get(),
+    private val getFavorites: tachiyomi.domain.anime.interactor.GetFavorites = Injekt.get(),
 ) : StateScreenModel<BrowseSourceScreenModel.State>(State(Listing.valueOf(listingQuery))) {
 
     var displayMode by sourcePreferences.sourceDisplayMode().asState(screenModelScope)
@@ -121,6 +122,12 @@ class BrowseSourceScreenModel(
         getSavedSearchBySourceId.subscribe(sourceId)
             .onEach { savedSearches ->
                 mutableState.update { it.copy(savedSearches = savedSearches.toImmutableList()) }
+            }
+            .launchIn(screenModelScope)
+
+        getFavorites.subscribe(sourceId)
+            .onEach { favorites ->
+                mutableState.update { it.copy(favoriteIds = favorites.map { fav -> fav.id }.toSet()) }
             }
             .launchIn(screenModelScope)
     }
@@ -389,8 +396,12 @@ class BrowseSourceScreenModel(
                     }
                 }
             }
-            state.copy(selection = newSelection, isSelectAllMode = true)
+            state.copy(selection = newSelection, isSelectAllMode = true, targetCount = 60)
         }
+    }
+
+    fun setTargetCount(count: Int) {
+        mutableState.update { it.copy(targetCount = count) }
     }
 
     fun invertSelection(animeList: List<Anime>) {
@@ -406,12 +417,12 @@ class BrowseSourceScreenModel(
                 }
             }
             // Invert selection turns off select all mode usually as it's a specific manual action
-            state.copy(selection = newSelection, isSelectAllMode = false)
+            state.copy(selection = newSelection, isSelectAllMode = false, targetCount = 0)
         }
     }
 
     fun clearSelection() {
-        mutableState.update { it.copy(selection = persistentListOf(), isSelectAllMode = false) }
+        mutableState.update { it.copy(selection = persistentListOf(), isSelectAllMode = false, targetCount = 0) }
     }
 
     fun addSelectionToLibrary() {
@@ -527,6 +538,8 @@ class BrowseSourceScreenModel(
         val dialog: Dialog? = null,
         val selection: PersistentList<Anime> = persistentListOf(),
         val isSelectAllMode: Boolean = false,
+        val favoriteIds: Set<Long> = emptySet(),
+        val targetCount: Int = 0,
     ) {
         val isUserQuery get() = listing is Listing.Search && !listing.query.isNullOrEmpty()
         val selectionMode get() = selection.isNotEmpty()
