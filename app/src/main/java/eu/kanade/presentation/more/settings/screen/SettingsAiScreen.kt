@@ -141,6 +141,12 @@ object SettingsAiScreen : SearchableSettings {
                     title = "Ingest Error Logs",
                     subtitle = "Allows the assistant to analyze stack traces",
                 ),
+                Preference.PreferenceItem.MultiLineEditTextPreference(
+                    pref = aiPreferences.aiSystemPrompt(),
+                    title = "Custom System Prompt",
+                    subtitle = "Override the default behavioral instructions",
+                    canBeBlank = true,
+                ),
             ),
         )
     }

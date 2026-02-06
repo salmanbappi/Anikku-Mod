@@ -48,7 +48,8 @@ class AiManager(
             aiPreferences.groqApiKey().get()
         }.ifBlank { return "Please set an API Key in Settings > Advanced Analytics" }
 
-        val systemInstruction = """
+        val customPrompt = aiPreferences.aiSystemPrompt().get()
+        val defaultSystemInstruction = """
             You are the 'Anikku System Assistant', a senior systems engineer.
             You have access to native diagnostic tools for logs and system maps.
             
@@ -59,6 +60,8 @@ class AiManager(
             4. CRASH ANALYSIS: Prioritize "PINNED" blocks in logs as they contain the root cause of failures.
             5. PRIVACY: PII (Auth headers, Cookies, and URL params) is strictly redacted.
         """.trimIndent()
+        
+        val systemInstruction = if (customPrompt.isNotBlank()) customPrompt else defaultSystemInstruction
 
         val messages = history.toMutableList()
         messages.add(ChatMessage(role = "user", content = query))
