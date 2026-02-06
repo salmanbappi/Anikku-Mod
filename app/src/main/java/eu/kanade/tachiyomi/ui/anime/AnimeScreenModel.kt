@@ -328,38 +328,40 @@ class AnimeScreenModel(
             if (!suggestionsFound || (successState?.suggestions?.size ?: 0) < 5) {
                 val source = sourceManager.get(anime.source) as? AnimeCatalogueSource ?: return@launchIO
                 
-                // Wide Search Strategy: Try first tag, then cleaned first two words of title
-                val queries = listOfNotNull(
-                    anime.genre?.firstOrNull(),
-                    anime.title.replace(Regex("[^a-zA-Z0-9 ]"), "").split(" ").take(2).joinToString(" ")
-                ).distinct()
+                // TKE: Use meaningful keywords, not just the first words
+                val query = eu.kanade.tachiyomi.util.lang.StringSimilarity.getSearchKeywords(anime.title)
+                if (query.isBlank()) return@launchIO
 
-                val allResults = queries.flatMap { query ->
-                    try {
-                        source.getSearchAnime(1, query, source.getFilterList()).animes
-                    } catch (e: Exception) { emptyList() }
-                }.distinctBy { it.url }.filter { it.url != anime.url }
-
-                if (allResults.isNotEmpty()) {
-                    val domainAnimes = allResults.map { sAnime ->
-                        async {
-                            val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
-                            val fullAnime = getAnime.await(localAnime.id) ?: return@async null
-                            
-                            // Hybrid Scoring Algorithm
-                            val titleSim = eu.kanade.tachiyomi.util.lang.StringSimilarity.diceCoefficient(anime.title, fullAnime.title)
-                            val genreOverlap = if (anime.genre != null && fullAnime.genre != null) {
-                                val intersect = anime.genre!!.intersect(fullAnime.genre!!.toSet()).size
-                                intersect.toDouble() / anime.genre!!.size.coerceAtLeast(1)
-                            } else 0.0
-                            
-                            val totalScore = (titleSim * 0.7) + (genreOverlap * 0.3)
-                            fullAnime to totalScore
-                        }
-                    }.awaitAll().filterNotNull()
-                    .sortedByDescending { it.second }
-                    .map { it.first }
-                    .take(15)
+                try {
+                    val searchResult = source.getSearchAnime(1, query, source.getFilterList())
+                    val domainAnimes = searchResult.animes
+                        .filter { it.url != anime.url }
+                        .map { sAnime ->
+                            async {
+                                val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
+                                val fullAnime = getAnime.await(localAnime.id) ?: return@async null
+                                
+                                // ADAPTIVE SCORING
+                                val titleSim = eu.kanade.tachiyomi.util.lang.StringSimilarity.tokenSortRatio(anime.title, fullAnime.title)
+                                val genreOverlap = if (!anime.genre.isNullOrEmpty() && !fullAnime.genre.isNullOrEmpty()) {
+                                    val intersect = anime.genre!!.intersect(fullAnime.genre!!.toSet()).size
+                                    intersect.toDouble() / anime.genre!!.size.coerceAtLeast(1)
+                                } else 0.0
+                                
+                                // Flip logic: If titles are similar, it's a sequel. If not, it's a recommendation.
+                                val totalScore = if (titleSim > 0.7) {
+                                    (titleSim * 0.8) + (genreOverlap * 0.2)
+                                } else {
+                                    (titleSim * 0.2) + (genreOverlap * 0.8)
+                                }
+                                
+                                if (totalScore < 0.3) return@async null
+                                fullAnime to totalScore
+                            }
+                        }.awaitAll().filterNotNull()
+                        .sortedByDescending { it.second }
+                        .map { it.first }
+                        .take(15)
 
                     updateSuccessState { state ->
                         state.copy(
@@ -368,6 +370,8 @@ class AnimeScreenModel(
                                 .toImmutableList()
                         )
                     }
+                } catch (e: Exception) {
+                    logcat(LogPriority.ERROR, e)
                 }
             }
         }

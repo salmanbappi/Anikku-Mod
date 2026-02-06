@@ -83,8 +83,19 @@ class RelatedAnimeScreen(val animeId: Long) : Screen() {
         contentPadding: PaddingValues,
         onAnimeClick: (tachiyomi.domain.anime.model.Anime) -> Unit,
     ) {
+        val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+        val columns = remember(configuration.screenWidthDp) {
+            when {
+                configuration.screenWidthDp >= 1200 -> GridCells.Fixed(6)
+                configuration.screenWidthDp >= 840 -> GridCells.Fixed(5)
+                configuration.screenWidthDp >= 600 -> GridCells.Fixed(4)
+                configuration.screenWidthDp >= 480 -> GridCells.Fixed(3)
+                else -> GridCells.Fixed(2)
+            }
+        }
+
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(160.dp), // More comfortable size
+            columns = columns,
             contentPadding = contentPadding + PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(CommonAnimeItemDefaults.GridVerticalSpacer),
             horizontalArrangement = Arrangement.spacedBy(CommonAnimeItemDefaults.GridHorizontalSpacer),
