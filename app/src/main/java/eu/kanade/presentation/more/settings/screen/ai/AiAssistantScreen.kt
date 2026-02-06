@@ -213,6 +213,7 @@ class AiAssistantScreen : Screen() {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding)
+                        .imePadding()
                 ) {
                         DiagnosticHUD(errorCount)
                         

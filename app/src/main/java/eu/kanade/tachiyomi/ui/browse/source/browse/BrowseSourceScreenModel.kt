@@ -406,14 +406,11 @@ class BrowseSourceScreenModel(
 
     fun updateSelection(animeList: List<Anime>) {
         mutableState.update { state ->
-            val newSelection = state.selection.mutate { list ->
-                animeList.forEach { anime ->
-                    if (list.none { it.id == anime.id }) {
-                        list.add(anime)
-                    }
-                }
-            }
-            state.copy(selection = newSelection)
+            val currentIds = state.selection.map { it.id }.toSet()
+            val newItems = animeList.filter { it.id !in currentIds }
+            if (newItems.isEmpty()) return@update state
+            
+            state.copy(selection = state.selection.addAll(newItems))
         }
     }
 
