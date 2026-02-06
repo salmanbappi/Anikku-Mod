@@ -1,0 +1,43 @@
+CREATE TABLE ai_sessions (
+    _id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    last_message_at INTEGER NOT NULL
+);
+
+CREATE TABLE ai_messages (
+    _id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    session_id INTEGER NOT NULL,
+    role TEXT NOT NULL,
+    content TEXT NOT NULL,
+    created_at INTEGER NOT NULL,
+    FOREIGN KEY (session_id) REFERENCES ai_sessions (_id) ON DELETE CASCADE
+);
+
+CREATE INDEX ai_messages_session_id_index ON ai_messages(session_id);
+
+getSessions:
+SELECT * FROM ai_sessions ORDER BY last_message_at DESC;
+
+getSessionById:
+SELECT * FROM ai_sessions WHERE _id = :id;
+
+getMessagesBySessionId:
+SELECT * FROM ai_messages WHERE session_id = :sessionId ORDER BY created_at ASC;
+
+insertSession:
+INSERT INTO ai_sessions (title, last_message_at) VALUES (:title, :lastMessageAt);
+
+updateSessionTitle:
+UPDATE ai_sessions SET title = :title WHERE _id = :id;
+
+updateSessionLastMessageAt:
+UPDATE ai_sessions SET last_message_at = :lastMessageAt WHERE _id = :id;
+
+insertMessage:
+INSERT INTO ai_messages (session_id, role, content, created_at) VALUES (:sessionId, :role, :content, :createdAt);
+
+deleteSession:
+DELETE FROM ai_sessions WHERE _id = :id;
+
+deleteAllSessions:
+DELETE FROM ai_sessions;

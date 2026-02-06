@@ -22,6 +22,7 @@ class AiManager(
     private val networkHelper: NetworkHelper = Injekt.get(),
     private val aiPreferences: AiPreferences = Injekt.get(),
     private val extensionManager: ExtensionManager = Injekt.get(),
+    private val getLibraryAnime: tachiyomi.domain.anime.interactor.GetLibraryAnime = Injekt.get(),
     private val json: Json = Injekt.get(),
 ) {
     private val jsonMediaType = "application/json; charset=utf-8".toMediaType()
@@ -51,14 +52,15 @@ class AiManager(
         val customPrompt = aiPreferences.aiSystemPrompt().get()
         val defaultSystemInstruction = """
             You are the 'Anikku System Assistant', a senior systems engineer.
-            You have access to native diagnostic tools for logs and system maps.
+            You have access to native diagnostic tools for logs, system maps, and the user's anime library.
             
             OPERATIONAL PROTOCOLS:
             1. FORMATTING: STRICTLY NO TABLES. Use bullet points or lists for structured data. NEVER output Markdown tables.
             2. SEMANTIC INTENT: Identify negative system states (e.g., "black screen", "crash", "stuck") and call get_system_diagnostics.
             3. GROUNDED NAVIGATION: Use get_app_navigation_guide. If a [STALENESS_WARNING] is present, inform the user that menu paths may have changed in their version.
             4. CRASH ANALYSIS: Prioritize "PINNED" blocks in logs as they contain the root cause of failures.
-            5. PRIVACY: PII (Auth headers, Cookies, and URL params) is strictly redacted.
+            5. LIBRARY AWARENESS: Use the [USER_LIBRARY_DATA] block to answer questions about the user's collection, recommendations, or statistics.
+            6. PRIVACY: PII (Auth headers, Cookies, and URL params) is strictly redacted.
         """.trimIndent()
         
         val systemInstruction = if (customPrompt.isNotBlank()) customPrompt else defaultSystemInstruction
@@ -81,6 +83,19 @@ class AiManager(
         }
         
         return response
+    }
+
+    private suspend fun getLibrarySummary(): String {
+        return try {
+            val library = getLibraryAnime.await()
+            if (library.isEmpty()) return "Library is empty."
+            
+            library.joinToString("\n") { anime ->
+                "- ${anime.anime.title} [Status: ${anime.anime.status}, Episodes: ${anime.anime.totalEpisodes}, Score: ${anime.anime.score}]"
+            }
+        } catch (e: Exception) {
+            "Failed to retrieve library: ${e.message}"
+        }
     }
 
     suspend fun getStatisticsAnalysis(statsSummary: String): String? {
@@ -252,6 +267,10 @@ class AiManager(
             toolContext.append("\n[EXTENSIONS_STATUS]:\n${getExtensionStatusSummary()}\n")
             toolContext.append("\n[ENVIRONMENT]: ${getDeviceInfo()}\n")
         }
+
+        if (lastQuery.contains("""library|anime|watch|collection|have|my|list|recommend""".toRegex())) {
+            toolContext.append("\n[USER_LIBRARY_DATA]:\n${getLibrarySummary()}\n")
+        }
         
         val finalMessages = messages.dropLast(1) + ChatMessage("user", messages.last().content + "\n\n" + toolContext.toString())
         return callGemini(finalMessages, apiKey, systemInstruction)
@@ -262,6 +281,9 @@ class AiManager(
         val toolContext = StringBuilder()
         if (lastQuery.contains("""log|error|fail|video|load|setting|where|how|device|black|broke|froze|slow|crash""".toRegex())) {
             toolContext.append("\n[DIAGNOSTICS_DATA]:\n${getSanitizedLogs()}\n")
+        }
+        if (lastQuery.contains("""library|anime|watch|collection|have|my|list|recommend""".toRegex())) {
+            toolContext.append("\n[USER_LIBRARY_DATA]:\n${getLibrarySummary()}\n")
         }
         val finalMessages = messages.dropLast(1) + ChatMessage("user", messages.last().content + "\n\n" + toolContext.toString())
         return callGroq(finalMessages, apiKey, systemInstruction)

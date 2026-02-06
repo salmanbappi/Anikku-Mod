@@ -158,6 +158,10 @@ class AppModule(val app: Application) : InjektModule {
         addSingletonFactory { ConnectionsManager() }
         // <-- AM (CONNECTIONS)
 
+        addSingletonFactory<tachiyomi.domain.ai.repository.ChatRepository> { 
+            tachiyomi.data.ai.ChatRepositoryImpl(get()) 
+        }
+
         addSingletonFactory { GoogleDriveService(app) }
     }
 }
