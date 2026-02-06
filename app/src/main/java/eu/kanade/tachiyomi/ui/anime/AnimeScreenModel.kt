@@ -57,6 +57,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -195,55 +197,54 @@ class AnimeScreenModel(
 
     init {
         screenModelScope.launchIO {
-            val anime = getAnimeAndEpisodes.awaitManga(animeId)
-            val episodes = getAnimeAndEpisodes.awaitChapters(animeId).toEpisodeListItems(anime)
+            val initialAnime = getAnimeAndEpisodes.awaitManga(animeId)
+            val initialEpisodes = getAnimeAndEpisodes.awaitChapters(animeId).toEpisodeListItems(initialAnime)
 
-            if (!anime.favorite) {
-                setAnimeDefaultEpisodeFlags.await(anime)
+            if (!initialAnime.favorite) {
+                setAnimeDefaultEpisodeFlags.await(initialAnime)
             }
 
-            val animeSource = Injekt.get<SourceManager>().getOrStub(anime.source)
+            val animeSource = Injekt.get<SourceManager>().getOrStub(initialAnime.source)
             if (animeSource.isSourceForTorrents()) {
                 TorrentServerService.start()
                 TorrentServerService.wait(10)
                 TorrentServerUtils.setTrackersList()
             }
 
+            // Set initial state from database
             mutableState.update {
                 State.Success(
-                    anime = anime,
+                    anime = initialAnime,
                     source = animeSource,
                     isFromSource = isFromSource,
-                    episodes = episodes,
-                    isRefreshingData = !anime.initialized || episodes.isEmpty(),
+                    episodes = initialEpisodes,
+                    isRefreshingData = !initialAnime.initialized || initialEpisodes.isEmpty(),
                     dialog = null,
                 )
             }
 
-            // Start subscription AFTER initial success state is set
-            launchIO {
-                combine(
-                    getAnimeAndEpisodes.subscribe(animeId).distinctUntilChanged(),
-                    downloadCache.changes,
-                    downloadManager.queueState,
-                ) { animeAndEpisodes, _, _ -> animeAndEpisodes }
-                    .flowWithLifecycle(lifecycle)
-                    .collectLatest { (anime, episodes) ->
-                        updateSuccessState {
-                            it.copy(
-                                anime = anime,
-                                episodes = episodes.toEpisodeListItems(anime),
-                            )
-                        }
+            // Reactive stream for all subsequent updates (DB changes, downloads, etc.)
+            combine(
+                getAnimeAndEpisodes.subscribe(animeId).distinctUntilChanged(),
+                downloadCache.changes,
+                downloadManager.queueState,
+            ) { animeAndEpisodes, _, _ -> animeAndEpisodes }
+                .onEach { (anime, episodes) ->
+                    updateSuccessState {
+                        it.copy(
+                            anime = anime,
+                            episodes = episodes.toEpisodeListItems(anime),
+                        )
                     }
-            }
+                }
+                .launchIn(this)
             
             observeDownloads()
             observeTrackers()
 
-            if (screenModelScope.isActive) {
-                val needRefreshInfo = !anime.initialized
-                val needRefreshEpisode = episodes.isEmpty()
+            if (isActive) {
+                val needRefreshInfo = !initialAnime.initialized
+                val needRefreshEpisode = initialEpisodes.isEmpty()
                 
                 if (needRefreshInfo || needRefreshEpisode) {
                     val fetchFromSourceTasks = listOf(
@@ -255,7 +256,7 @@ class AnimeScreenModel(
             }
 
             updateSuccessState { it.copy(isRefreshingData = false) }
-            fetchSuggestions(anime)
+            fetchSuggestions(initialAnime)
         }
     }
 

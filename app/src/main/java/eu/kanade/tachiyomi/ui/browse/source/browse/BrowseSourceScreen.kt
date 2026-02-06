@@ -172,11 +172,9 @@ data class BrowseSourceScreen(
                         selectedCount = state.selection.size,
                         onUnselectAll = screenModel::clearSelection,
                         onSelectAll = {
-                            val currentItems = animeList.itemSnapshotList.items.filterNotNull()
-                            screenModel.selectAll(currentItems)
-                            // Trigger loading more items automatically (up to 60)
-                            if (animeList.itemCount > 0 && currentItems.size < 60) {
-                                animeList[59.coerceAtMost(animeList.itemCount - 1)]
+                            val items = animeList.itemSnapshotList.items.filterNotNull()
+                            if (items.isNotEmpty()) {
+                                screenModel.selectAll(items)
                             }
                         },
                         onInvertSelection = {
@@ -477,20 +475,28 @@ data class BrowseSourceScreen(
             else -> {}
         }
 
-        LaunchedEffect(animeList.itemSnapshotList.items, state.isSelectAllMode) {
+        // Reactive Selection: Observe load state to expand selection in 'Select All' mode
+        LaunchedEffect(animeList.loadState, state.isSelectAllMode) {
             if (state.isSelectAllMode) {
                 val currentItems = animeList.itemSnapshotList.items.filterNotNull()
-                if (currentItems.size > state.selection.size) {
-                    screenModel.selectAll(currentItems)
-                }
                 
-                // If user scrolls near the end of selection, trigger next 60
-                val loadedCount = currentItems.size
-                if (loadedCount > 0 && loadedCount == state.selection.size) {
-                    val nextBatchTrigger = ((loadedCount / 60) + 1) * 60 - 1
-                    if (nextBatchTrigger < animeList.itemCount) {
-                        animeList[nextBatchTrigger]
+                // If we just finished loading a page, select all available items
+                if (animeList.loadState.append is androidx.paging.LoadState.NotLoading) {
+                    if (currentItems.size > state.selection.size) {
+                        screenModel.selectAll(currentItems)
                     }
+                }
+
+                // Proactive Loading: If we are in Select All mode and haven't hit a multiple of 60,
+                // and we aren't already loading, trigger the next page.
+                val loadedCount = currentItems.size
+                if (loadedCount > 0 && 
+                    loadedCount % 60 != 0 && 
+                    loadedCount < animeList.itemCount &&
+                    animeList.loadState.append is androidx.paging.LoadState.NotLoading
+                ) {
+                    // Accessing the last item triggers the next page fetch in Paging 3
+                    animeList[loadedCount - 1]
                 }
             }
         }
