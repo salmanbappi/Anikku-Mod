@@ -58,7 +58,10 @@ private fun MigrateAnimeContent(
     FastScrollLazyColumn(
         contentPadding = contentPadding,
     ) {
-        items(state.titles) { anime ->
+        items(
+            items = state.titles,
+            key = { it.id },
+        ) { anime ->
             MigrateAnimeItem(
                 anime = anime,
                 onClickItem = onClickItem,
