@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -41,16 +42,28 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -65,12 +78,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cafe.adriel.voyager.core.model.rememberScreenModel
 import eu.kanade.presentation.anime.components.MarkdownRender
 import eu.kanade.presentation.components.AppBar
 import eu.kanade.presentation.util.Screen
 import eu.kanade.tachiyomi.data.ai.AiManager
+import eu.kanade.tachiyomi.ui.more.settings.screen.ai.AiAssistantScreenModel
 import kotlinx.coroutines.launch
 import tachiyomi.presentation.core.components.material.Scaffold
 import uy.kohesive.injekt.Injekt
@@ -86,12 +102,15 @@ class AiAssistantScreen : Screen() {
 
     @Composable
     override fun Content() {
+        val screenModel = rememberScreenModel { AiAssistantScreenModel() }
+        val state by screenModel.state.collectAsState()
+        val sessions by screenModel.sessions.collectAsState()
+        
+        val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val aiManager = remember { Injekt.get<AiManager>() }
         val scope = rememberCoroutineScope()
         val context = LocalContext.current
-        val messages = remember { mutableStateListOf<AiManager.ChatMessage>() }
         var input by remember { mutableStateOf("") }
-        var isLoading by remember { mutableStateOf(false) }
         val listState = rememberLazyListState()
         var errorCount by remember { mutableIntStateOf(0) }
         val snackbarHostState = remember { SnackbarHostState() }
@@ -100,89 +119,152 @@ class AiAssistantScreen : Screen() {
             errorCount = aiManager.getErrorCount()
         }
 
-        LaunchedEffect(messages.size) {
-            if (messages.isNotEmpty()) {
-                listState.animateScrollToItem(messages.size - 1)
+        LaunchedEffect(state.messages.size) {
+            if (state.messages.isNotEmpty()) {
+                listState.animateScrollToItem(state.messages.size - 1)
             }
         }
 
-        Scaffold(
-            topBar = {
-                AppBar(
-                    title = "AniZen Intelligence OS",
-                    navigateUp = { /* Pop handled by Voyager */ },
-                )
-            },
-            containerColor = MaterialTheme.colorScheme.background,
-            snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-        ) { padding ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .imePadding()
-            ) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    DiagnosticHUD(errorCount)
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            drawerContent = {
+                ModalDrawerSheet(
+                    drawerContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    drawerTonalElevation = 0.dp
+                ) {
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        "ANALYTIC SESSIONS",
+                        modifier = Modifier.padding(horizontal = 28.dp, vertical = 16.dp),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    )
                     
-                    LazyColumn(
-                        state = listState,
-                        modifier = Modifier.weight(1f),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                    ) {
-                        if (messages.isEmpty()) {
-                            item {
-                                AssistantMessage(
-                                    content = "Diagnostic engine ready. System logs synchronized. I can assist with troubleshooting, data analysis, or library optimization. How can I help?",
-                                    onCopy = {
-                                        context.copyToClipboard("AniZen AI", it)
-                                        scope.launch { snackbarHostState.showSnackbar("Copied to clipboard") }
+                    NavigationDrawerItem(
+                        icon = { Icon(Icons.Default.Add, null) },
+                        label = { Text("Start New Session") },
+                        selected = false,
+                        onClick = {
+                            screenModel.createNewSession()
+                            scope.launch { drawerState.close() }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                        colors = NavigationDrawerItemDefaults.colors(
+                            unselectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                        )
+                    )
+                    
+                    HorizontalDivider(Modifier.padding(vertical = 8.dp, horizontal = 28.dp))
+                    
+                    LazyColumn(modifier = Modifier.fillMaxHeight()) {
+                        items(sessions) { session ->
+                            NavigationDrawerItem(
+                                icon = { Icon(Icons.Default.History, null) },
+                                label = { 
+                                    Text(
+                                        session.title, 
+                                        maxLines = 1, 
+                                        overflow = TextOverflow.Ellipsis 
+                                    ) 
+                                },
+                                selected = state.activeSessionId == session.id,
+                                onClick = {
+                                    screenModel.switchSession(session.id)
+                                    scope.launch { drawerState.close() }
+                                },
+                                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                                badge = {
+                                    IconButton(
+                                        onClick = { screenModel.deleteSession(session.id) },
+                                        modifier = Modifier.size(24.dp)
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Delete, 
+                                            null, 
+                                            modifier = Modifier.size(16.dp),
+                                            tint = MaterialTheme.colorScheme.error.copy(alpha = 0.6f)
+                                        )
                                     }
-                                )
-                            }
-                        }
-                        items(messages) { message ->
-                            if (message.role == "user") {
-                                UserMessage(message.content)
-                            } else {
-                                AssistantMessage(
-                                    content = message.content,
-                                    onCopy = {
-                                        context.copyToClipboard("AniZen AI", it)
-                                        scope.launch { snackbarHostState.showSnackbar("Copied to clipboard") }
-                                    }
-                                )
-                            }
-                        }
-                        if (isLoading) {
-                            item {
-                                ProcessingIndicator(input)
-                            }
+                                }
+                            )
                         }
                     }
-
-                    ChatInput(
-                        value = input,
-                        onValueChange = { input = it },
-                        isLoading = isLoading,
-                        onSend = {
-                            val userQuery = input
-                            messages.add(AiManager.ChatMessage("user", userQuery))
-                            isLoading = true
-                            scope.launch {
-                                val response = aiManager.chatWithAssistant(userQuery, messages.dropLast(1))
-                                isLoading = false
-                                input = ""
-                                if (response != null) {
-                                    messages.add(AiManager.ChatMessage("model", response))
-                                } else {
-                                    messages.add(AiManager.ChatMessage("model", "Neural link unstable. Check API Key in Settings."))
-                                }
-                                errorCount = aiManager.getErrorCount()
+                }
+            }
+        ) {
+            Scaffold(
+                topBar = {
+                    AppBar(
+                        title = "AniZen Intelligence OS",
+                        navigateUp = { /* Pop handled by Voyager */ },
+                        actions = {
+                            IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                                Icon(Icons.Default.Menu, "Session History")
                             }
                         }
                     )
+                },
+                containerColor = MaterialTheme.colorScheme.surface, // Base 60%
+                snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+            ) { padding ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .imePadding()
+                ) {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        DiagnosticHUD(errorCount)
+                        
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier.weight(1f),
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                        ) {
+                            if (state.messages.isEmpty()) {
+                                item {
+                                    AssistantMessage(
+                                        content = "Analytical core online. Session synchronized. I have deep context of your anime library and system logs. How can I assist with your collection or system today?",
+                                        onCopy = {
+                                            context.copyToClipboard("AniZen AI", it)
+                                            scope.launch { snackbarHostState.showSnackbar("Copied to clipboard") }
+                                        }
+                                    )
+                                }
+                            }
+                            items(state.messages) { message ->
+                                if (message.role == "user") {
+                                    UserMessage(message.content)
+                                } else {
+                                    AssistantMessage(
+                                        content = message.content,
+                                        onCopy = {
+                                            context.copyToClipboard("AniZen AI", it)
+                                            scope.launch { snackbarHostState.showSnackbar("Copied to clipboard") }
+                                        }
+                                    )
+                                }
+                            }
+                            if (state.isLoading) {
+                                item {
+                                    ProcessingIndicator(input)
+                                }
+                            }
+                        }
+
+                        ChatInput(
+                            value = input,
+                            onValueChange = { input = it },
+                            isLoading = state.isLoading,
+                            onSend = {
+                                screenModel.sendMessage(input)
+                                input = ""
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -202,7 +284,7 @@ class AiAssistantScreen : Screen() {
         )
 
         Surface(
-            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f), // Secondary 30%
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(
@@ -220,11 +302,11 @@ class AiAssistantScreen : Screen() {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "ENGINE: ACTIVE // LOGS: SYNCED // ERRORS: $errorCount",
+                    text = "STATUS: ENCRYPTED // LIBRARY: SYNCED // LOGS: HOT",
                     style = MaterialTheme.typography.labelSmall,
                     fontFamily = FontFamily.Monospace,
                     letterSpacing = 1.sp,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
                 )
             }
         }
@@ -237,35 +319,40 @@ class AiAssistantScreen : Screen() {
         isLoading: Boolean,
         onSend: () -> Unit
     ) {
-        val primaryColor = MaterialTheme.colorScheme.primary
-        val surfaceVariantColor = MaterialTheme.colorScheme.surfaceVariant
-        val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
-        val onSurfaceVariantColor = MaterialTheme.colorScheme.onSurfaceVariant
+        val primaryColor = MaterialTheme.colorScheme.primary // Accent 10%
+        val surfaceColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        val onSurfaceColor = MaterialTheme.colorScheme.onSurface
 
         Surface(
-            tonalElevation = 8.dp,
+            tonalElevation = 2.dp,
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, primaryColor.copy(alpha = 0.1f), RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                .padding(bottom = 8.dp)
+                .navigationBarsPadding(),
+            color = Color.Transparent
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 TextField(
                     value = value,
                     onValueChange = onValueChange,
-                    placeholder = { Text("Search logs or query analytics...", style = MaterialTheme.typography.bodyMedium) },
-                    modifier = Modifier.weight(1f),
+                    placeholder = { Text("Query intelligence core...", style = MaterialTheme.typography.bodyMedium) },
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(28.dp))
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(28.dp)),
                     shape = RoundedCornerShape(28.dp),
                     colors = TextFieldDefaults.colors(
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        focusedContainerColor = surfaceVariantColor.copy(alpha = 0.5f),
-                        unfocusedContainerColor = surfaceVariantColor.copy(alpha = 0.5f),
+                        focusedContainerColor = surfaceColor,
+                        unfocusedContainerColor = surfaceColor,
+                        cursorColor = primaryColor
                     ),
                     maxLines = 5,
                 )
@@ -273,18 +360,18 @@ class AiAssistantScreen : Screen() {
                     onClick = onSend,
                     enabled = value.isNotBlank() && !isLoading,
                     modifier = Modifier
-                        .size(48.dp)
+                        .size(52.dp)
                         .clip(CircleShape)
                         .background(
                             if (value.isNotBlank() && !isLoading) primaryColor 
-                            else surfaceVariantColor
+                            else MaterialTheme.colorScheme.surfaceContainerHighest
                         ),
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.Send,
                         contentDescription = "Send",
-                        tint = if (value.isNotBlank() && !isLoading) onPrimaryColor 
-                               else onSurfaceVariantColor,
+                        tint = if (value.isNotBlank() && !isLoading) MaterialTheme.colorScheme.onPrimary 
+                               else MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -293,9 +380,9 @@ class AiAssistantScreen : Screen() {
 
     @Composable
     private fun UserMessage(content: String) {
-        Box(modifier = Modifier.fillMaxWidth().padding(start = 48.dp, bottom = 8.dp), contentAlignment = Alignment.CenterEnd) {
+        Box(modifier = Modifier.fillMaxWidth().padding(start = 48.dp, bottom = 4.dp), contentAlignment = Alignment.CenterEnd) {
             Surface(
-                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f),
+                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f), // Secondary 30% usage
                 shape = RoundedCornerShape(24.dp, 24.dp, 4.dp, 24.dp),
                 modifier = Modifier.widthIn(min = 40.dp)
             ) {
@@ -316,7 +403,7 @@ class AiAssistantScreen : Screen() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 12.dp),
+                .padding(vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Row(
@@ -331,7 +418,7 @@ class AiAssistantScreen : Screen() {
                     modifier = Modifier.size(14.dp)
                 )
                 Text(
-                    text = "System Analysis",
+                    text = "ANI-ZEN OS // ANALYSIS",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.ExtraBold,
@@ -352,10 +439,11 @@ class AiAssistantScreen : Screen() {
             }
             
             Surface(
-                color = Color.Transparent,
-                modifier = Modifier.fillMaxWidth()
+                color = MaterialTheme.colorScheme.surfaceContainerLow, // Secondary 30% area
+                shape = RoundedCornerShape(4.dp, 24.dp, 24.dp, 24.dp),
+                modifier = Modifier.fillMaxWidth().padding(end = 48.dp)
             ) {
-                Box(modifier = Modifier.padding(start = 4.dp, end = 8.dp)) {
+                Box(modifier = Modifier.padding(16.dp)) {
                     SelectionContainer {
                         MarkdownRender(content = content)
                     }
@@ -366,24 +454,24 @@ class AiAssistantScreen : Screen() {
 
     @Composable
     private fun ProcessingIndicator(query: String) {
-        val statusMessage = remember(query) {
-            when {
-                query.contains("log|error|fail|video|load|black|broke|froze|slow".toRegex(RegexOption.IGNORE_CASE)) -> "ANALYZING SYSTEM LOGS..."
-                query.contains("setting|where|how".toRegex(RegexOption.IGNORE_CASE)) -> "RETRIEVING APP MAP..."
-                else -> "SYNCHRONIZING DATA..."
-            }
-        }
         Row(
-            modifier = Modifier.padding(start = 48.dp),
+            modifier = Modifier.padding(start = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            Icon(
+                imageVector = Icons.Default.AutoAwesome,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(14.dp).alpha(0.5f)
+            )
             Text(
-                text = statusMessage,
+                text = "PROCESSING CORE COMMANDS...",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.primary,
                 fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.alpha(0.5f)
             )
         }
     }

@@ -28,6 +28,8 @@ class AiPreferences(
     fun profilePhotoUri() = preferenceStore.getString("profile_photo_uri", "")
     fun displayName() = preferenceStore.getString("display_name", "Anime Explorer")
 
+    fun activeSessionId() = preferenceStore.getLong("active_ai_session_id", -1L)
+
     // Circuit Breaker
     fun lastAiRequestTime() = preferenceStore.getLong("last_ai_request_time", 0L)
     fun hourlyAiRequestCount() = preferenceStore.getInt("hourly_ai_request_count", 0)
