@@ -23,6 +23,8 @@ fun BrowseSourceComfortableGrid(
     onAnimeClick: (Anime) -> Unit,
     onAnimeLongClick: (Anime) -> Unit,
     selection: List<Anime>,
+    favoriteIds: Set<Long> = emptySet(),
+    onBatchIncrement: () -> Unit = {},
 ) {
     LazyVerticalGrid(
         columns = columns,
@@ -41,8 +43,10 @@ fun BrowseSourceComfortableGrid(
             key = { index -> animeList.peek(index)?.id ?: "placeholder_$index" },
         ) { index ->
             val anime = animeList[index] ?: return@items
+            onBatchIncrement()
+            val isFavorite = remember(anime.id, favoriteIds) { anime.id in favoriteIds }
             BrowseSourceComfortableGridItem(
-                anime = anime,
+                anime = anime.copy(favorite = isFavorite),
                 isSelected = selection.any { it.id == anime.id },
                 onClick = { onAnimeClick(anime) },
                 onLongClick = { onAnimeLongClick(anime) },

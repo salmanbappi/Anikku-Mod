@@ -272,8 +272,8 @@ data class BrowseSourceScreen(
                     enter = androidx.compose.animation.expandVertically(),
                     exit = androidx.compose.animation.shrinkVertically(),
                 ) {
-                    val allFavorite = remember(state.selection) {
-                        state.selection.all { it.favorite }
+                    val allFavorite = remember(state.selection, state.favoriteIds) {
+                        state.selection.all { it.id in state.favoriteIds }
                     }
                     androidx.compose.material3.Surface(
                         color = MaterialTheme.colorScheme.surfaceContainerHigh,
@@ -323,10 +323,37 @@ data class BrowseSourceScreen(
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         ) { paddingValues ->
             val pagingFlow by screenModel.animePagerFlowFlow.collectAsState()
+            val animeList = pagingFlow.collectAsLazyPagingItems()
+
+            // Reactive Selection Engine: Observes load state to expand selection in 'Select All' mode.
+            // It selects items in batches based on targetCount and uses 'safe boundary access' to trigger Paging 3 fetches if needed.
+            LaunchedEffect(animeList.loadState, state.isSelectAllMode, state.targetCount) {
+                val appendState = animeList.loadState.append
+                if (state.isSelectAllMode && appendState is androidx.paging.LoadState.NotLoading) {
+                    val snapshot = animeList.itemSnapshotList
+                    val loadedItems = snapshot.items.filterNotNull()
+                    val currentlySelectedCount = state.selection.size
+                    
+                    val targetCount = state.targetCount
+                    
+                    // Expand selection to available items, capped at the current targetCount.
+                    if (loadedItems.size > currentlySelectedCount) {
+                        val nextBatch = loadedItems.take(targetCount)
+                        if (nextBatch.size > currentlySelectedCount) {
+                            screenModel.selectAll(nextBatch)
+                        }
+                    }
+
+                    // TRIGGER THE NEXT PAGE (The Safe Poke) only if we haven't reached the targetCount
+                    if (loadedItems.size < targetCount && !appendState.endOfPaginationReached && animeList.itemCount > 0) {
+                        animeList[animeList.itemCount - 1]
+                    }
+                }
+            }
 
             BrowseSourceContent(
                 source = screenModel.source,
-                animeList = pagingFlow.collectAsLazyPagingItems(),
+                animeList = animeList,
                 columns = screenModel.getColumnsPreference(LocalConfiguration.current.orientation),
                 entries = screenModel.getColumnsPreferenceForCurrentOrientation(LocalConfiguration.current.orientation),
                 topBarHeight = topBarHeight,
@@ -352,6 +379,12 @@ data class BrowseSourceScreen(
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 },
                 selection = state.selection,
+                favoriteIds = state.favoriteIds,
+                onBatchIncrement = {
+                    if (state.isSelectAllMode && state.selection.size >= state.targetCount - 5) {
+                        screenModel.setTargetCount(state.targetCount + 60)
+                    }
+                },
             )
         }
 

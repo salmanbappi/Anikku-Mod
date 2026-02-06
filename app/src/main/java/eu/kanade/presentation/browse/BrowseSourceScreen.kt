@@ -53,6 +53,8 @@ fun BrowseSourceContent(
     onAnimeClick: (Anime) -> Unit,
     onAnimeLongClick: (Anime) -> Unit,
     selection: List<Anime> = emptyList(),
+    favoriteIds: Set<Long> = emptySet(),
+    onBatchIncrement: () -> Unit = {},
 ) {
     val context = LocalContext.current
 
@@ -145,6 +147,8 @@ fun BrowseSourceContent(
                             onAnimeClick = onAnimeClick,
                             onAnimeLongClick = onAnimeLongClick,
                             selection = selection,
+                            favoriteIds = favoriteIds,
+                            onBatchIncrement = onBatchIncrement,
                         )
                     }
                     LibraryDisplayMode.List -> {
@@ -156,6 +160,8 @@ fun BrowseSourceContent(
                             onAnimeClick = onAnimeClick,
                             onAnimeLongClick = onAnimeLongClick,
                             selection = selection,
+                            favoriteIds = favoriteIds,
+                            onBatchIncrement = onBatchIncrement,
                         )
                     }
                     LibraryDisplayMode.CompactGrid, LibraryDisplayMode.CoverOnlyGrid -> {
@@ -166,6 +172,8 @@ fun BrowseSourceContent(
                             onAnimeClick = onAnimeClick,
                             onAnimeLongClick = onAnimeLongClick,
                             selection = selection,
+                            favoriteIds = favoriteIds,
+                            onBatchIncrement = onBatchIncrement,
                         )
                     }
                     else -> {}
