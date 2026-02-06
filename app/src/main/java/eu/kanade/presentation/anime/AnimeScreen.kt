@@ -323,6 +323,8 @@ private fun AnimeScreenSmallImpl(
     onInvertSelection: () -> Unit,
     onLocalScoreClicked: () -> Unit,
 ) {
+    val episodeListState = rememberLazyListState()
+    val episodes = remember(state) { state.processedEpisodes }
     val listItem = remember(state) { state.episodeListItems }
 
     val showSuggestions = sourcePreferences.relatedAnimeShowSource().collectAsState().value
@@ -587,7 +589,7 @@ private fun AnimeScreenSmallImpl(
                                                 ) {
                                                     eu.kanade.presentation.anime.components.AnimeCover.Book(
                                                         data = anime.asAnimeCover(),
-                                                        contentDescription = null,
+                                                        contentDescription = "",
                                                         modifier = Modifier.fillMaxWidth(),
                                                     )
                                                     Text(
@@ -946,7 +948,7 @@ fun AnimeScreenLargeImpl(
                                                 ) {
                                                     eu.kanade.presentation.anime.components.AnimeCover.Book(
                                                         data = anime.asAnimeCover(),
-                                                        contentDescription = null,
+                                                        contentDescription = "",
                                                         modifier = Modifier.fillMaxWidth(),
                                                     )
                                                     Text(
