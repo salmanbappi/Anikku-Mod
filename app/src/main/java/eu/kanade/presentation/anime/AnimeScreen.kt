@@ -387,23 +387,18 @@ private fun AnimeScreenSmallImpl(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.6f) // Cover more area for better immersion
-                    .graphicsLayer { 
-                        translationY = backdropOffset - 16.dp.toPx() // Move up to hide blur bleed
-                        scaleX = 1.15f // Increase scale to cover edges better
-                        scaleY = 1.15f
-                    }
                     .drawWithContent {
                         drawContent()
-                        // Top scrim for readability
+                        // Top scrim for readability - Increased intensity and length
                         drawRect(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    Color.Black.copy(alpha = 0.45f),
+                                    Color.Black.copy(alpha = 0.7f),
+                                    Color.Black.copy(alpha = 0.3f),
                                     Color.Transparent,
                                 ),
                                 startY = 0f,
-                                endY = 120.dp.toPx(),
+                                endY = 200.dp.toPx(),
                             ),
                         )
                         drawRect(
@@ -786,15 +781,16 @@ fun AnimeScreenLargeImpl(
                     }
                     .drawWithContent {
                         drawContent()
-                        // Top scrim for readability
+                        // Top scrim for readability - Increased intensity and length
                         drawRect(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    Color.Black.copy(alpha = 0.45f),
+                                    Color.Black.copy(alpha = 0.7f),
+                                    Color.Black.copy(alpha = 0.3f),
                                     Color.Transparent,
                                 ),
                                 startY = 0f,
-                                endY = 120.dp.toPx(),
+                                endY = 200.dp.toPx(),
                             ),
                         )
                         drawRect(
