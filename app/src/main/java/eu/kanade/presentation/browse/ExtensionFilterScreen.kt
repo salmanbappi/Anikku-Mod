@@ -56,7 +56,10 @@ private fun ExtensionFilterContent(
     LazyColumn(
         contentPadding = contentPadding,
     ) {
-        items(state.languages) { language ->
+        items(
+            items = state.languages,
+            key = { it },
+        ) { language ->
             SwitchPreferenceWidget(
                 modifier = Modifier.animateItem(),
                 title = LocaleHelper.getSourceDisplayName(language, context),
