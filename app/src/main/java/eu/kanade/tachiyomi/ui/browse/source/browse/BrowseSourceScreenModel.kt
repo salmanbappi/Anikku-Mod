@@ -459,7 +459,13 @@ class BrowseSourceScreenModel(
         screenModelScope.launch {
             selection.forEach { anime ->
                 if (anime.id in favoriteIds) {
-                    changeAnimeFavorite(anime)
+                    // Force set favorite to false to ensure removal
+                    val newAnime = anime.copy(
+                        favorite = false,
+                        dateAdded = 0,
+                    )
+                    newAnime.removeCovers(coverCache)
+                    updateAnime.await(newAnime.toAnimeUpdate())
                 }
             }
             clearSelection()
