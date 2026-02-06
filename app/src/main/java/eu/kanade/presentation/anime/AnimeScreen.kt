@@ -77,6 +77,7 @@ import androidx.compose.ui.util.fastMap
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.request.crossfade
+import eu.kanade.domain.source.service.SourcePreferences
 import eu.kanade.presentation.anime.components.AnimeActionRow
 import eu.kanade.presentation.anime.components.AnimeBottomActionMenu
 import eu.kanade.presentation.anime.components.AnimeEpisodeListItem
@@ -99,6 +100,7 @@ import eu.kanade.tachiyomi.source.model.SAnime
 import eu.kanade.tachiyomi.ui.anime.AnimeScreenModel
 import eu.kanade.tachiyomi.ui.anime.EpisodeList
 import eu.kanade.tachiyomi.ui.browse.extension.details.SourcePreferencesScreen
+import eu.kanade.tachiyomi.ui.browse.source.browse.RelatedAnimeScreen
 import eu.kanade.tachiyomi.util.system.CoverColorObserver
 import eu.kanade.tachiyomi.util.system.copyToClipboard
 import kotlinx.coroutines.delay
@@ -165,6 +167,7 @@ fun AnimeScreen(
     onInvertSelection: () -> Unit,
     onLocalScoreClicked: () -> Unit,
 ) {
+    val sourcePreferences: SourcePreferences by injectLazy()
     val context = LocalContext.current
     val onCopyTagToClipboard: (tag: String) -> Unit = {
         if (it.isNotEmpty()) {
@@ -180,6 +183,7 @@ fun AnimeScreen(
     if (!isTabletUi) {
         AnimeScreenSmallImpl(
             state = state,
+            sourcePreferences = sourcePreferences,
             snackbarHostState = snackbarHostState,
             nextUpdate = nextUpdate,
             episodeSwipeStartAction = episodeSwipeStartAction,
@@ -223,6 +227,7 @@ fun AnimeScreen(
     } else {
         AnimeScreenLargeImpl(
             state = state,
+            sourcePreferences = sourcePreferences,
             snackbarHostState = snackbarHostState,
             nextUpdate = nextUpdate,
             episodeSwipeStartAction = episodeSwipeStartAction,
@@ -270,6 +275,7 @@ fun AnimeScreen(
 @Composable
 private fun AnimeScreenSmallImpl(
     state: AnimeScreenModel.State.Success,
+    sourcePreferences: SourcePreferences,
     snackbarHostState: SnackbarHostState,
     nextUpdate: Instant?,
     episodeSwipeStartAction: LibraryPreferences.EpisodeSwipeAction,
@@ -539,6 +545,58 @@ private fun AnimeScreenSmallImpl(
                                                             onCopyTagToClipboard = onCopyTagToClipboard,
                                                         )
                                                     }
+
+                            val showSuggestions by sourcePreferences.relatedAnimeShowSource().collectAsState()
+                            if (showSuggestions && state.suggestions.isNotEmpty()) {
+                                item(key = AnimeScreenItem.SUGGESTIONS, contentType = AnimeScreenItem.SUGGESTIONS) {
+                                    val navigator = LocalNavigator.currentOrThrow
+                                    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 16.dp),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically,
+                                        ) {
+                                            Text(
+                                                text = stringResource(MR.strings.related_mangas_website_suggestions),
+                                                style = MaterialTheme.typography.titleMedium,
+                                            )
+                                            TextButton(onClick = { navigator.push(RelatedAnimeScreen(state.anime.id)) }) {
+                                                Text(text = stringResource(MR.strings.action_more))
+                                            }
+                                        }
+                                        androidx.compose.foundation.lazy.LazyRow(
+                                            contentPadding = PaddingValues(horizontal = 16.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        ) {
+                                            items(
+                                                items = state.suggestions,
+                                                key = { "suggestion-${it.id}" },
+                                            ) { anime ->
+                                                Column(
+                                                    modifier = Modifier
+                                                        .width(96.dp)
+                                                        .clickableNoIndication { navigator.push(AnimeScreen(anime.id)) },
+                                                ) {
+                                                    eu.kanade.presentation.anime.components.AnimeCover.Book(
+                                                        data = anime.asAnimeCover(),
+                                                        contentDescription = null,
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                    )
+                                                    Text(
+                                                        text = anime.title,
+                                                        style = MaterialTheme.typography.labelSmall,
+                                                        maxLines = 2,
+                                                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                                        modifier = Modifier.padding(top = 4.dp),
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                             
                             item(key = AnimeScreenItem.EPISODE_HEADER, contentType = AnimeScreenItem.EPISODE_HEADER) {
                                 val missingEpisodeCount = remember(episodes) {
@@ -596,6 +654,7 @@ private fun AnimeScreenSmallImpl(
 @Composable
 fun AnimeScreenLargeImpl(
     state: AnimeScreenModel.State.Success,
+    sourcePreferences: SourcePreferences,
     snackbarHostState: SnackbarHostState,
     nextUpdate: Instant?,
     episodeSwipeStartAction: LibraryPreferences.EpisodeSwipeAction,
@@ -842,10 +901,60 @@ fun AnimeScreenLargeImpl(
                                     description = state.anime.description,
                                     tagsProvider = { state.anime.genre },
                                     onTagSearch = onTagSearch,
-                                                                    onCopyTagToClipboard = onCopyTagToClipboard,
-                                                                )
-                                                            }
-                                                        },
+                                    onCopyTagToClipboard = onCopyTagToClipboard,
+                                )
+
+                                val showSuggestions by sourcePreferences.relatedAnimeShowSource().collectAsState()
+                                if (showSuggestions && state.suggestions.isNotEmpty()) {
+                                    val navigator = LocalNavigator.currentOrThrow
+                                    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 16.dp),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically,
+                                        ) {
+                                            Text(
+                                                text = stringResource(MR.strings.related_mangas_website_suggestions),
+                                                style = MaterialTheme.typography.titleMedium,
+                                            )
+                                            TextButton(onClick = { navigator.push(RelatedAnimeScreen(state.anime.id)) }) {
+                                                Text(text = stringResource(MR.strings.action_more))
+                                            }
+                                        }
+                                        androidx.compose.foundation.lazy.LazyRow(
+                                            contentPadding = PaddingValues(horizontal = 16.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        ) {
+                                            items(
+                                                items = state.suggestions,
+                                                key = { "suggestion-${it.id}" },
+                                            ) { anime ->
+                                                Column(
+                                                    modifier = Modifier
+                                                        .width(96.dp)
+                                                        .clickableNoIndication { navigator.push(AnimeScreen(anime.id)) },
+                                                ) {
+                                                    eu.kanade.presentation.anime.components.AnimeCover.Book(
+                                                        data = anime.asAnimeCover(),
+                                                        contentDescription = null,
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                    )
+                                                    Text(
+                                                        text = anime.title,
+                                                        style = MaterialTheme.typography.labelSmall,
+                                                        maxLines = 2,
+                                                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                                        modifier = Modifier.padding(top = 4.dp),
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
                                     
                         endContent = {
                             VerticalFastScroller(

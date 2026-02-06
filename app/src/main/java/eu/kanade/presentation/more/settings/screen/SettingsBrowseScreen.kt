@@ -77,6 +77,31 @@ object SettingsBrowseScreen : SearchableSettings {
                     ),
                 ),
             ),
+            Preference.PreferenceGroup(
+                title = stringResource(MR.strings.pref_source_related_mangas),
+                preferenceItems = persistentListOf(
+                    Preference.PreferenceItem.SwitchPreference(
+                        pref = sourcePreferences.relatedAnimeShowSource(),
+                        title = stringResource(MR.strings.pref_source_related_mangas),
+                        subtitle = stringResource(MR.strings.pref_source_related_mangas_summary),
+                    ),
+                    Preference.PreferenceItem.SwitchPreference(
+                        pref = sourcePreferences.relatedAnimeExpand(),
+                        title = stringResource(MR.strings.pref_expand_related_mangas),
+                        subtitle = stringResource(MR.strings.pref_expand_related_mangas_summary),
+                    ),
+                    Preference.PreferenceItem.SwitchPreference(
+                        pref = sourcePreferences.relatedAnimeInOverflow(),
+                        title = stringResource(MR.strings.put_related_mangas_in_overflow),
+                        subtitle = stringResource(MR.strings.put_related_mangas_in_overflow_summary),
+                    ),
+                    Preference.PreferenceItem.SwitchPreference(
+                        pref = sourcePreferences.relatedAnimeShowHome(),
+                        title = stringResource(MR.strings.pref_show_home_on_related_mangas),
+                        subtitle = stringResource(MR.strings.pref_show_home_on_related_mangas_summary),
+                    ),
+                ),
+            ),
         )
     }
 }
