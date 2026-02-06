@@ -327,7 +327,6 @@ data class BrowseSourceScreen(
             val animeList = pagingFlow.collectAsLazyPagingItems()
 
             // Reactive Selection Engine: Observes load state to expand selection in 'Select All' mode.
-            // It selects items in batches based on targetCount and uses 'safe boundary access' to trigger Paging 3 fetches if needed.
             val isSelectAllMode = state.isSelectAllMode
             val targetCount = state.targetCount
             val selectionSize = state.selection.size
@@ -343,17 +342,6 @@ data class BrowseSourceScreen(
                         val nextBatch = loadedItems.take(targetCount)
                         if (nextBatch.size > selectionSize) {
                             screenModel.updateSelection(nextBatch)
-                        }
-                    }
-
-                    // TRIGGER THE NEXT PAGE (The Safe Poke) only if we haven't reached the targetCount
-                    // AND we haven't reached a reasonable safety cap (e.g. 240 items) to prevent literal infinite loops.
-                    if (selectionSize < targetCount && itemCount > 0 && itemCount < targetCount && targetCount <= 300) {
-                        val appendState = animeList.loadState.append
-                        if (appendState is androidx.paging.LoadState.NotLoading && !appendState.endOfPaginationReached) {
-                            try {
-                                animeList[itemCount - 1]
-                            } catch (e: Exception) {}
                         }
                     }
                 }
@@ -389,10 +377,11 @@ data class BrowseSourceScreen(
                 selection = state.selection,
                 favoriteIds = state.favoriteIds,
                 onBatchIncrement = { index ->
-                    // Only increment if we are nearing the current target AND paging is not already busy
-                    if (isSelectAllMode && index >= targetCount - 10 && targetCount < 300) {
-                        if (animeList.loadState.append is androidx.paging.LoadState.NotLoading) {
-                            screenModel.setTargetCount(targetCount + 60)
+                    // Only increment if we are nearing the current target
+                    if (isSelectAllMode && index >= targetCount - 10) {
+                        val nextTarget = targetCount + 60
+                        if (nextTarget > targetCount && nextTarget <= 180) { // Reduced cap for safety
+                            screenModel.setTargetCount(nextTarget)
                         }
                     }
                 },

@@ -387,24 +387,24 @@ private fun AnimeScreenSmallImpl(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.6f) // Cover more area for better immersion
+                    .fillMaxHeight(0.7f) // Increased for more immersion
                     .graphicsLayer { 
-                        translationY = backdropOffset - 16.dp.toPx() // Move up to hide blur bleed
-                        scaleX = 1.15f // Increase scale to cover edges better
+                        translationY = backdropOffset - 16.dp.toPx()
+                        scaleX = 1.15f
                         scaleY = 1.15f
                     }
                     .drawWithContent {
                         drawContent()
-                        // Top scrim for readability - Increased intensity and length
+                        // Top scrim for readability - Intensified
                         drawRect(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    Color.Black.copy(alpha = 0.7f),
-                                    Color.Black.copy(alpha = 0.3f),
+                                    Color.Black.copy(alpha = 0.75f),
+                                    Color.Black.copy(alpha = 0.4f),
                                     Color.Transparent,
                                 ),
                                 startY = 0f,
-                                endY = 200.dp.toPx(),
+                                endY = 220.dp.toPx(),
                             ),
                         )
                         drawRect(
@@ -415,8 +415,8 @@ private fun AnimeScreenSmallImpl(
                             ),
                         )
                     }
-                    .blur(16.dp) // Increased blur for smoother look
-                    .alpha(0.35f), // Adjusted alpha for better color pop without blinding
+                    .blur(16.dp)
+                    .alpha(0.45f), // Increased opacity for better color pop
             )
             Scaffold(
                 containerColor = Color.Transparent,
@@ -779,7 +779,7 @@ fun AnimeScreenLargeImpl(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.6f)
+                    .fillMaxHeight(0.7f)
                     .graphicsLayer { 
                         translationY = backdropOffset - 16.dp.toPx()
                         scaleX = 1.15f
@@ -787,16 +787,16 @@ fun AnimeScreenLargeImpl(
                     }
                     .drawWithContent {
                         drawContent()
-                        // Top scrim for readability - Increased intensity and length
+                        // Top scrim for readability - Intensified
                         drawRect(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    Color.Black.copy(alpha = 0.7f),
-                                    Color.Black.copy(alpha = 0.3f),
+                                    Color.Black.copy(alpha = 0.75f),
+                                    Color.Black.copy(alpha = 0.4f),
                                     Color.Transparent,
                                 ),
                                 startY = 0f,
-                                endY = 200.dp.toPx(),
+                                endY = 220.dp.toPx(),
                             ),
                         )
                         drawRect(
@@ -808,7 +808,7 @@ fun AnimeScreenLargeImpl(
                         )
                     }
                     .blur(16.dp)
-                    .alpha(0.35f), // Slightly higher alpha for better color pop
+                    .alpha(0.45f), // Slightly higher alpha for better color pop
             )
             Scaffold(
                 containerColor = Color.Transparent,

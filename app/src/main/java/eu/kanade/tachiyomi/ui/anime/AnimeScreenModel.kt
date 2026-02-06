@@ -310,13 +310,12 @@ class AnimeScreenModel(
             }
         }
 
-        if (!hasEmitted) {
-            val firstTag = anime.genre?.firstOrNull() ?: return
+        if (!hasEmitted || successState?.suggestions.isNullOrEmpty()) {
             val source = sourceManager.get(anime.source) as? AnimeCatalogueSource ?: return
+            val query = anime.genre?.firstOrNull() ?: anime.title.split(" ").firstOrNull() ?: return
             
             try {
-                // Use tag search with filter if possible, otherwise keyword search
-                val searchResult = source.getSearchAnime(1, firstTag, source.getFilterList())
+                val searchResult = source.getSearchAnime(1, query, source.getFilterList())
                 val domainAnimes = searchResult.animes
                     .filter { it.url != anime.url }
                     .take(10)
@@ -328,7 +327,7 @@ class AnimeScreenModel(
                     }.awaitAll().filterNotNull()
                 
                 updateSuccessState { state ->
-                    state.copy(suggestions = domainAnimes.toImmutableList())
+                    state.copy(suggestions = domainAnimes.distinctBy { it.id }.toImmutableList())
                 }
             } catch (e: Exception) {
                 logcat(LogPriority.ERROR, e)
