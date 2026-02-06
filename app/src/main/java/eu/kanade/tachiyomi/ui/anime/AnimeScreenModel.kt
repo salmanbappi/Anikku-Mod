@@ -290,7 +290,9 @@ class AnimeScreenModel(
     }
 
     private suspend fun fetchSuggestions(anime: Anime) {
+        var hasEmitted = false
         getRelatedAnime.subscribe(anime).collect { (_, animes) ->
+            hasEmitted = true
             val domainAnimes = animes.map {
                 val localAnime = networkToLocalAnime.await(it.toDomainAnime(anime.source))
                 getAnime.await(localAnime.id)!!
@@ -299,6 +301,27 @@ class AnimeScreenModel(
                 state.copy(
                     suggestions = (state.suggestions + domainAnimes).distinctBy { it.id }.take(10).toImmutableList(),
                 )
+            }
+        }
+
+        if (!hasEmitted) {
+            val firstTag = anime.genre?.firstOrNull() ?: return
+            val source = sourceManager.get(anime.source) as? CatalogueSource ?: return
+            
+            try {
+                val searchResult = source.getSearchAnime(1, firstTag, source.getFilterList())
+                val domainAnimes = searchResult.animes
+                    .filter { it.url != anime.url }
+                    .take(10)
+                    .map {
+                        val localAnime = networkToLocalAnime.await(it.toDomainAnime(anime.source))
+                        getAnime.await(localAnime.id)!!
+                    }
+                updateSuccessState { state ->
+                    state.copy(suggestions = domainAnimes.toImmutableList())
+                }
+            } catch (e: Exception) {
+                logcat(LogPriority.ERROR, e)
             }
         }
     }

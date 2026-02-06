@@ -395,6 +395,17 @@ private fun AnimeScreenSmallImpl(
                     }
                     .drawWithContent {
                         drawContent()
+                        // Top scrim for readability
+                        drawRect(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Black.copy(alpha = 0.45f),
+                                    Color.Transparent,
+                                ),
+                                startY = 0f,
+                                endY = 120.dp.toPx(),
+                            ),
+                        )
                         drawRect(
                             brush = Brush.verticalGradient(
                                 colors = backdropGradientColors,
@@ -775,6 +786,17 @@ fun AnimeScreenLargeImpl(
                     }
                     .drawWithContent {
                         drawContent()
+                        // Top scrim for readability
+                        drawRect(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Black.copy(alpha = 0.45f),
+                                    Color.Transparent,
+                                ),
+                                startY = 0f,
+                                endY = 120.dp.toPx(),
+                            ),
+                        )
                         drawRect(
                             brush = Brush.verticalGradient(
                                 colors = backdropGradientColors,
