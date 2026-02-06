@@ -76,6 +76,48 @@ class AiManager(
         return response
     }
 
+    suspend fun getStatisticsAnalysis(statsSummary: String): String? {
+        if (!aiPreferences.enableAi().get() || !aiPreferences.enableAiStatistics().get()) return null
+        
+        // Circuit Breaker for Stats too
+        if (isCircuitBreakerTripped() || isRateLimited()) return null
+
+        val engine = aiPreferences.aiEngine().get()
+        val apiKey = if (engine == "gemini") {
+            aiPreferences.geminiApiKey().get()
+        } else {
+            aiPreferences.groqApiKey().get()
+        }.ifBlank { return null }
+
+        val prompt = """
+            Generate a 'System Behavioral Profile' based on the following data.
+            
+            DATA INPUT:
+            $statsSummary
+            
+            REPORT STRUCTURE (STRICTLY NO TABLES):
+            - **User Classification**: Technical archetype (e.g., 'High-Volume Archivist').
+            - **Temporal Analysis**: Watch habit patterns.
+            - **Source Integrity**: Distribution across extensions.
+            - **Strategic Recommendations**: 3-5 anime titles based on data patterns.
+            
+            Constraint: Use bullet points. Do NOT use Markdown tables.
+        """.trimIndent()
+
+        aiPreferences.isRequestPending().set(true)
+        val response = try {
+            if (engine == "gemini") {
+                callGemini(listOf(ChatMessage(role = "user", content = prompt)), apiKey, "You are a senior behavioral data analyst.")
+            } else {
+                callGroq(listOf(ChatMessage(role = "user", content = prompt)), apiKey, "You are a senior behavioral data analyst.")
+            }
+        } finally {
+            aiPreferences.isRequestPending().set(false)
+            recordRequestSuccess()
+        }
+        return response
+    }
+
     private fun isCircuitBreakerTripped(): Boolean {
         // If the app crashed during the last request, trip the breaker
         if (aiPreferences.isRequestPending().get()) {
@@ -130,8 +172,7 @@ class AiManager(
             val currentBlock = mutableListOf<String>()
             
             val packagePattern = "eu.kanade|app.anizen|mpv|ffmpeg|AndroidRuntime|libc|DEBUG".toRegex()
-            val piiRedaction = "(?i)(?:authorization|cookie|set-cookie):\s*[^
-]+\|(?<=\?|&)[^=]+=[^&\s]*|(?:[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})|(?:auth|token|key|password|secret|sid|session)=[a-zA-Z0-9._-]+".toRegex()
+            val piiRedaction = """(?i)(?:authorization|cookie|set-cookie):\s*[^\n\r]+|(?<=\?|&)[^=]+=[^&\s]*|(?:[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})|(?:auth|token|key|password|secret|sid|session)=[a-zA-Z0-9._-]+"""\.toRegex()
             val traceTrigger = "Exception|Error|Fatal signal|SIGSEGV|abort\(\)|Native crash".toRegex(RegexOption.IGNORE_CASE)
             
             var lastLine = ""
