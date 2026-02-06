@@ -85,8 +85,9 @@ fun FeedScreen(
                 verticalArrangement = Arrangement.spacedBy(24.dp) // More space between islands
             ) {
                 items(state.items) { item ->
+                    val title = item.savedSearch?.name ?: "${item.source.name} (${tachiyomi.domain.source.model.FeedSavedSearch.Type.from(item.feed.type).name})"
                     FeedIsland(
-                        title = item.savedSearch?.name ?: item.source.name,
+                        title = title,
                         animeList = item.animeList,
                         onAnimeClick = onAnimeClick,
                     )

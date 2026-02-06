@@ -59,15 +59,23 @@ class FeedScreenModel(
                                 val source = sourceManager.get(feed.source) as? AnimeCatalogueSource
                                 if (source != null) {
                                     val results = try {
-                                        if (feed.savedSearch == null) {
-                                            source.getLatestUpdates(1).animes
-                                        } else {
-                                            val savedSearch = savedSearches.find { it.id == feed.savedSearch }
-                                            if (savedSearch != null) {
-                                                val filters = source.getFilterList()
-                                                source.getSearchAnime(1, savedSearch.query ?: "", filters).animes
-                                            } else {
-                                                emptyList()
+                                        when (FeedSavedSearch.Type.from(feed.type)) {
+                                            FeedSavedSearch.Type.Latest -> {
+                                                try {
+                                                    source.getLatestUpdates(1).animes
+                                                } catch (e: Exception) {
+                                                    source.getPopularAnime(1).animes
+                                                }
+                                            }
+                                            FeedSavedSearch.Type.Popular -> source.getPopularAnime(1).animes
+                                            FeedSavedSearch.Type.SavedSearch -> {
+                                                val savedSearch = savedSearches.find { it.id == feed.savedSearch }
+                                                if (savedSearch != null) {
+                                                    val filters = source.getFilterList()
+                                                    source.getSearchAnime(1, savedSearch.query ?: "", filters).animes
+                                                } else {
+                                                    emptyList()
+                                                }
                                             }
                                         }
                                     } catch (e: Exception) {

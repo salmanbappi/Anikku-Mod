@@ -36,6 +36,7 @@ import tachiyomi.domain.source.interactor.GetSavedSearchBySourceId
 import tachiyomi.domain.source.interactor.GetSavedSearchBySourceIdFeed
 import tachiyomi.domain.source.interactor.GetSavedSearchGlobalFeed
 import tachiyomi.domain.source.interactor.InsertFeedSavedSearch
+import tachiyomi.domain.source.interactor.UpdateFeedSavedSearch
 import tachiyomi.domain.source.interactor.InsertSavedSearch
 import tachiyomi.domain.source.interactor.ReorderFeed
 import tachiyomi.domain.source.repository.FeedSavedSearchRepository
@@ -109,6 +110,7 @@ class SYDomainModule : InjektModule {
         addFactory { GetSavedSearchBySourceIdFeed(get()) }
         // KMK -->
         addFactory { ReorderFeed(get()) }
+        addFactory { UpdateFeedSavedSearch(get()) }
         // KMK <--
 
         addSingletonFactory<CustomAnimeRepository> { CustomAnimeRepositoryImpl(get<Application>()) }

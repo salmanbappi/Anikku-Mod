@@ -14,7 +14,7 @@ class TrackImpl : Track {
 
     override var library_id: Long? = null
 
-    override var title: String = ""
+    override var title: String = "Unknown"
 
     override var last_episode_seen: Double = 0.0
 

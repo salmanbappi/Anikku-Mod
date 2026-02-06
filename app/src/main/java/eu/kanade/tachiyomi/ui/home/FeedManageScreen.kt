@@ -1,5 +1,6 @@
 package eu.kanade.tachiyomi.ui.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -82,11 +83,13 @@ class FeedManageScreen : Screen() {
                 ) { index, item ->
                     FeedManageItem(
                         title = item.title,
+                        type = if (item.feed.savedSearch != null) "Saved Search" else FeedSavedSearch.Type.from(item.feed.type).name,
                         canMoveUp = index != 0,
                         canMoveDown = index != state.items.lastIndex,
                         onMoveUp = { screenModel.moveUp(item.feed) },
                         onMoveDown = { screenModel.moveDown(item.feed) },
                         onDelete = { deleteDialogItem = item.feed },
+                        onToggleMethod = { screenModel.toggleMethod(item.feed) },
                         modifier = Modifier.animateItem(),
                     )
                     if (index != state.items.lastIndex) {
@@ -125,11 +128,13 @@ class FeedManageScreen : Screen() {
 @Composable
 private fun FeedManageItem(
     title: String,
+    type: String,
     canMoveUp: Boolean,
     canMoveDown: Boolean,
     onMoveUp: () -> Unit,
     onMoveDown: () -> Unit,
     onDelete: () -> Unit,
+    onToggleMethod: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -138,10 +143,15 @@ private fun FeedManageItem(
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(modifier = Modifier.weight(1f)) {
+        Column(modifier = Modifier.weight(1f).clickable { onToggleMethod() }) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
+            )
+            Text(
+                text = type,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary,
             )
         }
         Row(verticalAlignment = Alignment.CenterVertically) {

@@ -69,6 +69,7 @@ class FeedSavedSearchRepositoryImpl(
                         feedSavedSearch.source,
                         feedSavedSearch.savedSearch,
                         feedSavedSearch.global,
+                        feedSavedSearch.type.toLong(),
                     )
                     feed_saved_searchQueries.selectLastInsertedRowId()
                 }
@@ -82,6 +83,7 @@ class FeedSavedSearchRepositoryImpl(
                     it.source,
                     it.savedSearch,
                     it.global,
+                    it.type.toLong(),
                 )
             }
         }
@@ -108,6 +110,7 @@ class FeedSavedSearchRepositoryImpl(
             saved_search = update.savedSearch,
             global = update.global,
             feed_order = update.feedOrder,
+            search_type = update.searchType,
             id = update.id,
         )
     }

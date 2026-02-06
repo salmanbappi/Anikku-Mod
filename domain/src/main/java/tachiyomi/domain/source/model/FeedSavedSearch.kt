@@ -13,4 +13,15 @@ data class FeedSavedSearch(
     // If the feed is a global (FeedScreen) or source specific feed (SourceFeedScreen)
     val global: Boolean,
     val feedOrder: Long,
-)
+    val type: Int,
+) {
+    enum class Type(val value: Int) {
+        Popular(0),
+        Latest(1),
+        SavedSearch(2);
+
+        companion object {
+            fun from(value: Int): Type = entries.find { it.value == value } ?: Latest
+        }
+    }
+}

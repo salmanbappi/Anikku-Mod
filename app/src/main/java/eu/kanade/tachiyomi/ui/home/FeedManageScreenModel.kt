@@ -12,7 +12,9 @@ import tachiyomi.domain.source.interactor.DeleteFeedSavedSearchById
 import tachiyomi.domain.source.interactor.GetFeedSavedSearchGlobal
 import tachiyomi.domain.source.interactor.GetSavedSearchGlobalFeed
 import tachiyomi.domain.source.interactor.ReorderFeed
+import tachiyomi.domain.source.interactor.UpdateFeedSavedSearch
 import tachiyomi.domain.source.model.FeedSavedSearch
+import tachiyomi.domain.source.model.FeedSavedSearchUpdate
 import tachiyomi.domain.source.model.SavedSearch
 import tachiyomi.domain.source.service.SourceManager
 import uy.kohesive.injekt.Injekt
@@ -24,6 +26,7 @@ class FeedManageScreenModel(
     private val getSavedSearchGlobalFeed: GetSavedSearchGlobalFeed = Injekt.get(),
     private val reorderFeed: ReorderFeed = Injekt.get(),
     private val deleteFeedSavedSearchById: DeleteFeedSavedSearchById = Injekt.get(),
+    private val updateFeedSavedSearch: UpdateFeedSavedSearch = Injekt.get(),
 ) : StateScreenModel<FeedManageScreenModel.State>(State()) {
 
     init {
@@ -48,6 +51,24 @@ class FeedManageScreenModel(
                     items = items.toImmutableList(),
                 )
             }
+        }
+    }
+
+    fun toggleMethod(feed: FeedSavedSearch) {
+        if (feed.savedSearch != null) return
+        screenModelScope.launchIO {
+            val newType = when (FeedSavedSearch.Type.from(feed.type)) {
+                FeedSavedSearch.Type.Latest -> FeedSavedSearch.Type.Popular
+                FeedSavedSearch.Type.Popular -> FeedSavedSearch.Type.Latest
+                else -> FeedSavedSearch.Type.Latest
+            }
+            updateFeedSavedSearch.await(
+                FeedSavedSearchUpdate(
+                    id = feed.id,
+                    searchType = newType.value.toLong(),
+                )
+            )
+            getFeed()
         }
     }
 
