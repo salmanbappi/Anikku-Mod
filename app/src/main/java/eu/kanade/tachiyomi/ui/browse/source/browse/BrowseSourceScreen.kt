@@ -404,7 +404,7 @@ data class BrowseSourceScreen(
             is BrowseSourceScreenModel.Dialog.AddDuplicateAnime -> {
                 DuplicateAnimeDialog(
                     onDismissRequest = onDismissRequest,
-                    onConfirm = { screenModel.addFavorite(dialog.anime) },
+                    onConfirm = { scope.launch { screenModel.addFavorite(dialog.anime) } },
                     onOpenAnime = { navigator.push(AnimeScreen(dialog.duplicate.id)) },
                     onMigrate = {
                         screenModel.setDialog(

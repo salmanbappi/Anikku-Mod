@@ -113,6 +113,7 @@ class SourcesScreenModel(
                     savedSearch = null,
                     global = true,
                     feedOrder = nextOrder,
+                    type = FeedSavedSearch.Type.Latest.value,
                 )
             )
         }
