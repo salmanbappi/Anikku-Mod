@@ -304,12 +304,14 @@ class AnimeScreenModel(
             // 1. Source-provided "Related" section
             getRelatedAnime.subscribe(anime).collect { (_, animes) ->
                 if (animes.isNotEmpty()) {
-                    val domainAnimes = animes.map { sAnime ->
-                        async {
-                            val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
-                            getAnime.await(localAnime.id)
-                        }
-                    }.awaitAll().filterNotNull()
+                    val domainAnimes = kotlinx.coroutines.coroutineScope {
+                        animes.map { sAnime ->
+                            async {
+                                val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
+                                getAnime.await(localAnime.id)
+                            }
+                        }.awaitAll().filterNotNull()
+                    }
                     
                     updateSuccessState { state ->
                         val currentSuggestions = if (!suggestionsFound) emptyList() else state.suggestions
@@ -334,29 +336,31 @@ class AnimeScreenModel(
 
                 try {
                     val searchResult = source.getSearchAnime(1, query, source.getFilterList())
-                    val domainAnimes = searchResult.animes
-                        .filter { it.url != anime.url }
-                        .map { sAnime ->
-                            async {
-                                val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
-                                val fullAnime = getAnime.await(localAnime.id) ?: return@async null
-                                
-                                val titleSim = eu.kanade.tachiyomi.util.lang.StringSimilarity.tokenSortRatio(anime.title, fullAnime.title)
-                                val genreOverlap = if (!anime.genre.isNullOrEmpty() && !fullAnime.genre.isNullOrEmpty()) {
-                                    val intersect = anime.genre!!.intersect(fullAnime.genre!!.toSet()).size
-                                    intersect.toDouble() / anime.genre!!.size.coerceAtLeast(1)
-                                } else 0.0
-                                
-                                // SMOOTH ADAPTIVE SCORING (No more cliffs)
-                                val totalScore = eu.kanade.tachiyomi.util.lang.StringSimilarity.adaptiveScore(titleSim, genreOverlap)
-                                
-                                if (totalScore < 0.25) return@async null // Relaxed threshold for better discovery
-                                fullAnime to totalScore
-                            }
-                        }.awaitAll().filterNotNull()
-                        .sortedByDescending { it.second }
-                        .map { it.first }
-                        .take(15)
+                    val domainAnimes = kotlinx.coroutines.coroutineScope {
+                        searchResult.animes
+                            .filter { it.url != anime.url }
+                            .map { sAnime ->
+                                async {
+                                    val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
+                                    val fullAnime = getAnime.await(localAnime.id) ?: return@async null
+                                    
+                                    val titleSim = eu.kanade.tachiyomi.util.lang.StringSimilarity.tokenSortRatio(anime.title, fullAnime.title)
+                                    val genreOverlap = if (!anime.genre.isNullOrEmpty() && !fullAnime.genre.isNullOrEmpty()) {
+                                        val intersect = anime.genre!!.intersect(fullAnime.genre!!.toSet()).size
+                                        intersect.toDouble() / anime.genre!!.size.coerceAtLeast(1)
+                                    } else 0.0
+                                    
+                                    // SMOOTH ADAPTIVE SCORING (No more cliffs)
+                                    val totalScore = eu.kanade.tachiyomi.util.lang.StringSimilarity.adaptiveScore(titleSim, genreOverlap)
+                                    
+                                    if (totalScore < 0.25) return@async null // Relaxed threshold for better discovery
+                                    fullAnime to totalScore
+                                }
+                            }.awaitAll().filterNotNull()
+                            .sortedByDescending { it.second }
+                            .map { it.first }
+                            .take(15)
+                    }
 
                     updateSuccessState { state ->
                         state.copy(

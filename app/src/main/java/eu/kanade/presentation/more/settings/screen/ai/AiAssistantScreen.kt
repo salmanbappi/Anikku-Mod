@@ -82,6 +82,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.model.rememberScreenModel
+import eu.kanade.domain.ai.AiPreferences
 import eu.kanade.presentation.anime.components.MarkdownRender
 import eu.kanade.presentation.components.AppBar
 import eu.kanade.presentation.util.Screen
@@ -95,6 +96,9 @@ import uy.kohesive.injekt.api.get
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
+import eu.kanade.tachiyomi.util.system.copyToClipboard
 import androidx.compose.ui.platform.LocalContext
 import eu.kanade.tachiyomi.util.system.copyToClipboard
 

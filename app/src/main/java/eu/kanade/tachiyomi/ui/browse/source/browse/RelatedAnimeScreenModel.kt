@@ -3,8 +3,8 @@ package eu.kanade.tachiyomi.ui.browse.source.browse
 import androidx.compose.runtime.Immutable
 import cafe.adriel.voyager.core.model.StateScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import eu.kanade.tachiyomi.source.AnimeCatalogueSource
-import eu.kanade.tachiyomi.source.SourceManager
+import eu.kanade.tachiyomi.animesource.AnimeCatalogueSource
+import tachiyomi.domain.source.service.SourceManager
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentListOf
@@ -12,6 +12,7 @@ import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.update
 import logcat.LogPriority
 import tachiyomi.core.common.util.lang.launchIO
@@ -42,12 +43,14 @@ class RelatedAnimeScreenModel(
             // 1. Source-provided related anime
             getRelatedAnime.subscribe(anime).collect { (keyword, animes) ->
                 if (animes.isNotEmpty()) {
-                    val domainAnimes = animes.map {
-                        async {
-                            val localAnime = networkToLocalAnime.await(it.toDomainAnime(anime.source))
-                            getAnime.await(localAnime.id)
-                        }
-                    }.awaitAll().filterNotNull()
+                    val domainAnimes = coroutineScope {
+                        animes.map {
+                            async {
+                                val localAnime = networkToLocalAnime.await(it.toDomainAnime(anime.source))
+                                getAnime.await(localAnime.id)
+                            }
+                        }.awaitAll().filterNotNull()
+                    }
                     
                     mutableState.update { state ->
                         state.copy(
@@ -67,29 +70,31 @@ class RelatedAnimeScreenModel(
 
                 try {
                     val searchResult = source.getSearchAnime(1, query, source.getFilterList())
-                    val domainAnimes = searchResult.animes
-                        .filter { it.url != anime.url }
-                        .map { sAnime ->
-                            async {
-                                val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
-                                val fullAnime = getAnime.await(localAnime.id) ?: return@async null
-                                
-                                val titleSim = eu.kanade.tachiyomi.util.lang.StringSimilarity.tokenSortRatio(anime.title, fullAnime.title)
-                                val genreOverlap = if (!anime.genre.isNullOrEmpty() && !fullAnime.genre.isNullOrEmpty()) {
-                                    val intersect = anime.genre!!.intersect(fullAnime.genre!!.toSet()).size
-                                    intersect.toDouble() / anime.genre!!.size.coerceAtLeast(1)
-                                } else 0.0
-                                
-                                // SMOOTH ADAPTIVE SCORING
-                                val totalScore = eu.kanade.tachiyomi.util.lang.StringSimilarity.adaptiveScore(titleSim, genreOverlap)
-                                
-                                if (totalScore < 0.25) return@async null
-                                fullAnime to totalScore
-                            }
-                        }.awaitAll().filterNotNull()
-                        .sortedByDescending { it.second }
-                        .map { it.first }
-                        .take(24) // Show more in full screen
+                    val domainAnimes = coroutineScope {
+                        searchResult.animes
+                            .filter { it.url != anime.url }
+                            .map { sAnime ->
+                                async {
+                                    val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
+                                    val fullAnime = getAnime.await(localAnime.id) ?: return@async null
+                                    
+                                    val titleSim = eu.kanade.tachiyomi.util.lang.StringSimilarity.tokenSortRatio(anime.title, fullAnime.title)
+                                    val genreOverlap = if (!anime.genre.isNullOrEmpty() && !fullAnime.genre.isNullOrEmpty()) {
+                                        val intersect = anime.genre!!.intersect(fullAnime.genre!!.toSet()).size
+                                        intersect.toDouble() / anime.genre!!.size.coerceAtLeast(1)
+                                    } else 0.0
+                                    
+                                    // SMOOTH ADAPTIVE SCORING
+                                    val totalScore = eu.kanade.tachiyomi.util.lang.StringSimilarity.adaptiveScore(titleSim, genreOverlap)
+                                    
+                                    if (totalScore < 0.25) return@async null
+                                    fullAnime to totalScore
+                                }
+                            }.awaitAll().filterNotNull()
+                            .sortedByDescending { it.second }
+                            .map { it.first }
+                            .take(24) // Show more in full screen
+                    }
                     
                     if (domainAnimes.isNotEmpty()) {
                         mutableState.update { state ->
