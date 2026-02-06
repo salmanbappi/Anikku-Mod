@@ -779,11 +779,11 @@ fun AnimeScreenLargeImpl(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.7f)
+                    .fillMaxHeight(0.75f) // Increased height
                     .graphicsLayer { 
                         translationY = backdropOffset - 16.dp.toPx()
-                        scaleX = 1.15f
-                        scaleY = 1.15f
+                        scaleX = 1.2f // Increased scale
+                        scaleY = 1.2f
                     }
                     .drawWithContent {
                         drawContent()
@@ -791,12 +791,12 @@ fun AnimeScreenLargeImpl(
                         drawRect(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    Color.Black.copy(alpha = 0.75f),
-                                    Color.Black.copy(alpha = 0.4f),
+                                    Color.Black.copy(alpha = 0.8f), // Darker top
+                                    Color.Black.copy(alpha = 0.45f),
                                     Color.Transparent,
                                 ),
                                 startY = 0f,
-                                endY = 220.dp.toPx(),
+                                endY = 240.dp.toPx(),
                             ),
                         )
                         drawRect(
@@ -808,7 +808,7 @@ fun AnimeScreenLargeImpl(
                         )
                     }
                     .blur(16.dp)
-                    .alpha(0.45f), // Slightly higher alpha for better color pop
+                    .alpha(0.5f), // Higher alpha
             )
             Scaffold(
                 containerColor = Color.Transparent,
