@@ -28,7 +28,7 @@ fun BrowseSourceList(
     onAnimeLongClick: (Anime) -> Unit,
     selection: List<Anime>,
     favoriteIds: Set<Long> = emptySet(),
-    onBatchIncrement: () -> Unit = {},
+    onBatchIncrement: (Int) -> Unit = {},
 ) {
     var containerHeight by remember { mutableIntStateOf(0) }
     LazyColumn(
@@ -49,7 +49,7 @@ fun BrowseSourceList(
             key = { index -> animeList.peek(index)?.id ?: "placeholder_$index" },
         ) { index ->
             val anime = animeList[index] ?: return@items
-            onBatchIncrement()
+            onBatchIncrement(index)
             val isFavorite = remember(anime.id, favoriteIds) { anime.id in favoriteIds }
             BrowseSourceListItem(
                 anime = anime.copy(favorite = isFavorite),

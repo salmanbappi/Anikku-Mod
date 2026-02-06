@@ -38,6 +38,10 @@ class ChatRepositoryImpl(
         handler.await { ai_chatQueries.updateSessionLastMessageAt(lastMessageAt, id) }
     }
 
+    override suspend fun updateSessionPinned(id: Long, isPinned: Boolean) {
+        handler.await { ai_chatQueries.updateSessionPinned(if (isPinned) 1L else 0L, id) }
+    }
+
     override suspend fun insertMessage(sessionId: Long, role: String, content: String) {
         val now = Instant.now().toEpochMilli()
         handler.await(inTransaction = true) {
@@ -50,12 +54,16 @@ class ChatRepositoryImpl(
         handler.await { ai_chatQueries.deleteSession(id) }
     }
 
+    override suspend fun deleteSessions(ids: List<Long>) {
+        handler.await { ai_chatQueries.deleteSessions(ids) }
+    }
+
     override suspend fun deleteAllSessions() {
         handler.await { ai_chatQueries.deleteAllSessions() }
     }
 
-    private fun mapSession(_id: Long, title: String, last_message_at: Long): ChatSession {
-        return ChatSession(_id, title, last_message_at)
+    private fun mapSession(_id: Long, title: String, last_message_at: Long, is_pinned: Long): ChatSession {
+        return ChatSession(_id, title, last_message_at, is_pinned == 1L)
     }
 
     private fun mapMessage(_id: Long, session_id: Long, role: String, content: String, created_at: Long): ChatMessage {

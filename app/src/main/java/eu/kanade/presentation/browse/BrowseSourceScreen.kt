@@ -54,7 +54,7 @@ fun BrowseSourceContent(
     onAnimeLongClick: (Anime) -> Unit,
     selection: List<Anime> = emptyList(),
     favoriteIds: Set<Long> = emptySet(),
-    onBatchIncrement: () -> Unit = {},
+    onBatchIncrement: (Int) -> Unit = {},
 ) {
     val context = LocalContext.current
 

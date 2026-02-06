@@ -382,8 +382,8 @@ data class BrowseSourceScreen(
                 },
                 selection = state.selection,
                 favoriteIds = state.favoriteIds,
-                onBatchIncrement = {
-                    if (state.isSelectAllMode && state.selection.size >= state.targetCount - 5) {
+                onBatchIncrement = { index ->
+                    if (state.isSelectAllMode && index >= state.targetCount - 5) {
                         screenModel.setTargetCount(state.targetCount + 60)
                     }
                 },
