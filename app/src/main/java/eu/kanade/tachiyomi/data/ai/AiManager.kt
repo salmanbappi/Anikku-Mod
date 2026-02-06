@@ -29,19 +29,15 @@ class AiManager(
     // Circuit Breaker Config
     private val MAP_VERSION = 132
     private val REMOTE_KILL_SWITCH_URL = "https://raw.githubusercontent.com/salmanbappi/anikku-config/main/ai_kill_switch.json"
-    private val TELEGRAM_REPORT_URL = "https://api.telegram.org/bot8150859050:AAHcs-9yp2NryZfyEa80-PIkowdGHcrX09k/sendMessage"
-    private val TELEGRAM_CHAT_ID = "-1002538136245"
 
     suspend fun chatWithAssistant(query: String, history: List<ChatMessage>): String? {
         if (!aiPreferences.enableAi().get() || !aiPreferences.enableAiAssistant().get()) return null
         
         // 1. Stability & Kill Switch Check
         if (isCircuitBreakerTripped()) {
-            sendHealthPing("CIRCUIT_BREAKER_TRIPPED")
             return "Stability Alert: AI temporarily disabled due to detected app instability. Check your settings to reset."
         }
         if (isRemoteKillSwitchActive()) {
-            sendHealthPing("REMOTE_KILL_SWITCH_ACTIVE")
             return "Service Maintenance: AI Assistant is currently offline."
         }
 
@@ -152,30 +148,6 @@ class AiManager(
         val count = aiPreferences.hourlyAiRequestCount().get()
         aiPreferences.hourlyAiRequestCount().set(count + 1)
         aiPreferences.lastAiRequestTime().set(System.currentTimeMillis())
-    }
-
-    private fun sendHealthPing(reason: String) {
-        val now = System.currentTimeMillis()
-        val lastTime = aiPreferences.lastAiRequestTime().get()
-        if (now - lastTime < 300000) return 
-
-        val message = "🚨 *AI Stability Alert*\n" +
-                      "Status: $reason\n" +
-                      "Version: ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})\n" +
-                      "Device: ${android.os.Build.MODEL}\n" +
-                      "Engine: ${aiPreferences.aiEngine().get()}"
-
-        @Serializable
-        data class TelegramMessage(val chat_id: String, val text: String, val parse_mode: String)
-        
-        val requestBody = json.encodeToString(TelegramMessage.serializer(), TelegramMessage(TELEGRAM_CHAT_ID, message, "Markdown")).toRequestBody(jsonMediaType)
-        val request = Request.Builder().url(TELEGRAM_REPORT_URL).post(requestBody).build()
-        
-        extensionManager.scope.launch {
-            try {
-                networkHelper.client.newCall(request).execute().use { it.close() }
-            } catch (_: Exception) {}
-        }
     }
 
     private fun getSanitizedLogs(): String {
