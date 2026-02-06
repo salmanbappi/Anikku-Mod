@@ -296,11 +296,13 @@ class AnimeScreenModel(
         var hasEmitted = false
         getRelatedAnime.subscribe(anime).collect { (_, animes) ->
             hasEmitted = true
-            val domainAnimes = mutableListOf<Anime>()
-            for (sAnime in animes) {
-                val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
-                getAnime.await(localAnime.id)?.let { domainAnimes.add(it) }
-            }
+            val domainAnimes = animes.map { sAnime ->
+                screenModelScope.async {
+                    val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
+                    getAnime.await(localAnime.id)
+                }
+            }.awaitAll().filterNotNull()
+            
             updateSuccessState { state ->
                 state.copy(
                     suggestions = (state.suggestions + domainAnimes).distinctBy { it.id }.take(10).toImmutableList(),
@@ -313,14 +315,18 @@ class AnimeScreenModel(
             val source = sourceManager.get(anime.source) as? AnimeCatalogueSource ?: return
             
             try {
+                // Use tag search with filter if possible, otherwise keyword search
                 val searchResult = source.getSearchAnime(1, firstTag, source.getFilterList())
-                val domainAnimes = mutableListOf<Anime>()
-                for (sAnime in searchResult.animes) {
-                    if (sAnime.url == anime.url) continue
-                    val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
-                    getAnime.await(localAnime.id)?.let { domainAnimes.add(it) }
-                    if (domainAnimes.size >= 10) break
-                }
+                val domainAnimes = searchResult.animes
+                    .filter { it.url != anime.url }
+                    .take(10)
+                    .map { sAnime ->
+                        screenModelScope.async {
+                            val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
+                            getAnime.await(localAnime.id)
+                        }
+                    }.awaitAll().filterNotNull()
+                
                 updateSuccessState { state ->
                     state.copy(suggestions = domainAnimes.toImmutableList())
                 }

@@ -112,6 +112,12 @@ class AiAssistantScreenModel(
         if (query.isBlank() || state.value.isLoading) return
 
         screenModelScope.launchIO {
+            // Check if session still exists
+            if (chatRepository.getSessionById(sessionId) == null) {
+                createNewSession()
+                return@launchIO
+            }
+
             // 1. Save User Message
             chatRepository.insertMessage(sessionId, "user", query)
             

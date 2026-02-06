@@ -328,9 +328,10 @@ data class BrowseSourceScreen(
 
             // Reactive Selection Engine: Observes load state to expand selection in 'Select All' mode.
             // It selects items in batches based on targetCount and uses 'safe boundary access' to trigger Paging 3 fetches if needed.
-            LaunchedEffect(animeList.loadState, state.isSelectAllMode, state.targetCount) {
-                val appendState = animeList.loadState.append
-                if (state.isSelectAllMode && appendState is androidx.paging.LoadState.NotLoading) {
+            var isProcessingBatch by remember { mutableStateOf(false) }
+            LaunchedEffect(state.isSelectAllMode, state.targetCount, animeList.itemCount) {
+                if (state.isSelectAllMode && !isProcessingBatch) {
+                    isProcessingBatch = true
                     val snapshot = animeList.itemSnapshotList
                     val loadedItems = snapshot.items.filterNotNull()
                     val currentlySelectedCount = state.selection.size
@@ -347,9 +348,18 @@ data class BrowseSourceScreen(
 
                     // TRIGGER THE NEXT PAGE (The Safe Poke) only if we haven't reached the targetCount
                     val finalSelectedCount = state.selection.size
-                    if (finalSelectedCount < targetCount && !appendState.endOfPaginationReached && animeList.itemCount > 0) {
-                        animeList[animeList.itemCount - 1]
+                    if (finalSelectedCount < targetCount && animeList.itemCount > 0 && animeList.itemCount < targetCount) {
+                        val appendState = animeList.loadState.append
+                        if (appendState is androidx.paging.LoadState.NotLoading && !appendState.endOfPaginationReached) {
+                            // Safely poke the next item to trigger load
+                            try {
+                                animeList[animeList.itemCount - 1]
+                            } catch (e: Exception) {
+                                // Ignore out of bounds if list changed
+                            }
+                        }
                     }
+                    isProcessingBatch = false
                 }
             }
 
@@ -383,8 +393,12 @@ data class BrowseSourceScreen(
                 selection = state.selection,
                 favoriteIds = state.favoriteIds,
                 onBatchIncrement = { index ->
-                    if (state.isSelectAllMode && index >= state.targetCount - 5) {
-                        screenModel.setTargetCount(state.targetCount + 60)
+                    // Only increment if we are strictly Select All mode and nearing the end of current target
+                    if (state.isSelectAllMode && index >= state.targetCount - 15 && !isProcessingBatch) {
+                        val nextTarget = state.targetCount + 60
+                        if (nextTarget > state.targetCount) {
+                            screenModel.setTargetCount(nextTarget)
+                        }
                     }
                 },
             )

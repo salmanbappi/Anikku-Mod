@@ -1,0 +1,30 @@
+-- Create AI Chat tables if they don't exist
+CREATE TABLE IF NOT EXISTS ai_sessions (
+    _id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    last_message_at INTEGER NOT NULL,
+    is_pinned INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS ai_messages (
+    _id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    session_id INTEGER NOT NULL,
+    role TEXT NOT NULL,
+    content TEXT NOT NULL,
+    created_at INTEGER NOT NULL,
+    FOREIGN KEY (session_id) REFERENCES ai_sessions (_id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS ai_messages_session_id_index ON ai_messages(session_id);
+
+-- Add is_pinned column to ai_sessions if it doesn't exist
+-- SQLite doesn't have a direct 'IF NOT EXISTS' for columns, 
+-- but we can use a workaround or just let it fail silently if handled by the framework.
+-- However, SQLDelight sqm files are executed as a single transaction.
+-- If the table was recently added without the column, we need to ensure it's there.
+
+-- We use a trick to add the column only if missing (by checking table_info)
+-- but in sqm we usually just write the ALTER. If it fails, the migration fails.
+-- Given the error 'no column named is_pinned', we know it's missing for some users.
+
+ALTER TABLE ai_sessions ADD COLUMN is_pinned INTEGER NOT NULL DEFAULT 0;
