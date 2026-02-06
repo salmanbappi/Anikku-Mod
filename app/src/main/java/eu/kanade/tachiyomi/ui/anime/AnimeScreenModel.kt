@@ -298,44 +298,52 @@ class AnimeScreenModel(
     }
 
     private suspend fun fetchSuggestions(anime: Anime) {
-        var hasEmitted = false
-        getRelatedAnime.subscribe(anime).collect { (_, animes) ->
-            hasEmitted = true
-            val domainAnimes = animes.map { sAnime ->
-                screenModelScope.async {
-                    val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
-                    getAnime.await(localAnime.id)
-                }
-            }.awaitAll().filterNotNull()
+        screenModelScope.launchIO {
+            var suggestionsFound = false
             
-            updateSuccessState { state ->
-                state.copy(
-                    suggestions = (state.suggestions + domainAnimes).distinctBy { it.id }.take(10).toImmutableList(),
-                )
-            }
-        }
-
-        if (!hasEmitted || successState?.suggestions.isNullOrEmpty()) {
-            val source = sourceManager.get(anime.source) as? AnimeCatalogueSource ?: return
-            val query = anime.genre?.firstOrNull() ?: anime.title.split(" ").firstOrNull() ?: return
-            
-            try {
-                val searchResult = source.getSearchAnime(1, query, source.getFilterList())
-                val domainAnimes = searchResult.animes
-                    .filter { it.url != anime.url }
-                    .take(10)
-                    .map { sAnime ->
-                        screenModelScope.async {
+            // 1. Try to get suggestions from the source's "Related" feature first
+            getRelatedAnime.subscribe(anime).collect { (_, animes) ->
+                if (animes.isNotEmpty()) {
+                    val domainAnimes = animes.map { sAnime ->
+                        async {
                             val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
                             getAnime.await(localAnime.id)
                         }
                     }.awaitAll().filterNotNull()
-                
-                updateSuccessState { state ->
-                    state.copy(suggestions = domainAnimes.distinctBy { it.id }.toImmutableList())
+                    
+                    updateSuccessState { state ->
+                        state.copy(
+                            suggestions = (state.suggestions + domainAnimes).distinctBy { it.id }.take(10).toImmutableList(),
+                        )
+                    }
+                    suggestionsFound = true
                 }
-            } catch (e: Exception) {
-                logcat(LogPriority.ERROR, e)
+            }
+
+            // 2. Fallback: If no related anime found, search by genre or title
+            if (!suggestionsFound || successState?.suggestions.isNullOrEmpty()) {
+                val source = sourceManager.get(anime.source) as? AnimeCatalogueSource ?: return@launchIO
+                // Prefer genre, fallback to first word of title
+                val query = anime.genre?.firstOrNull() ?: anime.title.split(" ").firstOrNull() ?: return@launchIO
+                
+                try {
+                    val searchResult = source.getSearchAnime(1, query, source.getFilterList())
+                    val domainAnimes = searchResult.animes
+                        .filter { it.url != anime.url }
+                        .take(10)
+                        .map { sAnime ->
+                            async {
+                                val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
+                                getAnime.await(localAnime.id)
+                            }
+                        }.awaitAll().filterNotNull()
+                    
+                    updateSuccessState { state ->
+                        state.copy(suggestions = domainAnimes.distinctBy { it.id }.toImmutableList())
+                    }
+                } catch (e: Exception) {
+                    logcat(LogPriority.ERROR, e)
+                }
             }
         }
     }
