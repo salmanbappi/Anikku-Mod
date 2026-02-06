@@ -444,9 +444,10 @@ class BrowseSourceScreenModel(
 
     fun addSelectionToLibrary() {
         val selection = state.value.selection
+        val favoriteIds = state.value.favoriteIds
         screenModelScope.launch {
             selection.forEach { anime ->
-                if (!anime.favorite) {
+                if (anime.id !in favoriteIds) {
                     addFavorite(anime)
                 }
             }
@@ -456,9 +457,10 @@ class BrowseSourceScreenModel(
 
     fun removeSelectionFromLibrary() {
         val selection = state.value.selection
+        val favoriteIds = state.value.favoriteIds
         screenModelScope.launch {
             selection.forEach { anime ->
-                if (anime.favorite) {
+                if (anime.id in favoriteIds) {
                     changeAnimeFavorite(anime)
                 }
             }
