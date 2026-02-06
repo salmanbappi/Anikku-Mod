@@ -63,7 +63,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -96,9 +95,8 @@ import uy.kohesive.injekt.api.get
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
-import eu.kanade.tachiyomi.util.system.copyToClipboard
 import androidx.compose.ui.platform.LocalContext
 import eu.kanade.tachiyomi.util.system.copyToClipboard
 
@@ -241,7 +239,8 @@ class AiAssistantScreen : Screen() {
                             items(state.messages) { message ->
                                 if (message.role == "user") {
                                     val aiPreferences = remember { Injekt.get<AiPreferences>() }
-                                    val displayName by aiPreferences.displayName().collectAsState()
+                                    val displayName by aiPreferences.displayName().changes()
+                                        .collectAsState(aiPreferences.displayName().get())
                                     Column(horizontalAlignment = Alignment.End, modifier = Modifier.fillMaxWidth()) {
                                         Text(
                                             text = displayName.ifBlank { "USER" }.uppercase() + " // UPLINK",

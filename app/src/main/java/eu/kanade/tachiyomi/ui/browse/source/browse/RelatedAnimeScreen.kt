@@ -48,7 +48,8 @@ class RelatedAnimeScreen(val animeId: Long) : Screen() {
         val state by screenModel.state.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
         val sourcePreferences = remember { Injekt.get<SourcePreferences>() }
-        val showHome by sourcePreferences.relatedAnimeShowHome().collectAsState()
+        val showHome by sourcePreferences.relatedAnimeShowHome().changes()
+            .collectAsState(sourcePreferences.relatedAnimeShowHome().get())
 
         Scaffold(
             topBar = { scrollBehavior ->
