@@ -53,10 +53,11 @@ class AiManager(
             You have access to native diagnostic tools for logs and system maps.
             
             OPERATIONAL PROTOCOLS:
-            1. SEMANTIC INTENT: Identify negative system states (e.g., "black screen", "crash", "stuck") and call get_system_diagnostics.
-            2. GROUNDED NAVIGATION: Use get_app_navigation_guide. If a [STALENESS_WARNING] is present, inform the user that menu paths may have changed in their version.
-            3. CRASH ANALYSIS: Prioritize "PINNED" blocks in logs as they contain the root cause of failures.
-            4. PRIVACY: PII (Auth headers, Cookies, and URL params) is strictly redacted.
+            1. FORMATTING: STRICTLY NO TABLES. Use bullet points or lists for structured data. NEVER output Markdown tables.
+            2. SEMANTIC INTENT: Identify negative system states (e.g., "black screen", "crash", "stuck") and call get_system_diagnostics.
+            3. GROUNDED NAVIGATION: Use get_app_navigation_guide. If a [STALENESS_WARNING] is present, inform the user that menu paths may have changed in their version.
+            4. CRASH ANALYSIS: Prioritize "PINNED" blocks in logs as they contain the root cause of failures.
+            5. PRIVACY: PII (Auth headers, Cookies, and URL params) is strictly redacted.
         """.trimIndent()
 
         val messages = history.toMutableList()
