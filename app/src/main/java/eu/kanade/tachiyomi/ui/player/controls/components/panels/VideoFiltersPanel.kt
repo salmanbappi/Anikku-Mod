@@ -407,7 +407,10 @@ fun Anime4KCard() {
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
                 ) {
-                    items(Anime4KManager.Mode.entries) { mode ->
+                    items(
+                        items = Anime4KManager.Mode.entries,
+                        key = { it.name }
+                    ) { mode ->
                         if (mode == Anime4KManager.Mode.OFF) return@items
                         InputChip(
                             selected = anime4kMode == mode.name,
@@ -427,7 +430,10 @@ fun Anime4KCard() {
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
                 ) {
-                    items(Anime4KManager.Quality.entries) { quality ->
+                    items(
+                        items = Anime4KManager.Quality.entries,
+                        key = { it.name }
+                    ) { quality ->
                         val label = when (quality) {
                             Anime4KManager.Quality.FAST -> stringResource(MR.strings.anime4k_quality_fast)
                             Anime4KManager.Quality.BALANCED -> stringResource(MR.strings.anime4k_quality_balanced)
