@@ -528,34 +528,6 @@ data class BrowseSourceScreen(
 
         // Reactive Selection Engine: Observes load state to expand selection in 'Select All' mode.
         // It selects items in batches of 60 and uses 'safe boundary access' to trigger Paging 3 fetches.
-        LaunchedEffect(animeList.loadState, state.isSelectAllMode) {
-            val appendState = animeList.loadState.append
-            if (state.isSelectAllMode && appendState is androidx.paging.LoadState.NotLoading) {
-                val snapshot = animeList.itemSnapshotList
-                val loadedItems = snapshot.items.filterNotNull()
-                val currentlySelectedCount = state.selection.size
-                
-                // 1. Calculate batch target (60, 120, 180...)
-                val batchSize = 60
-                val targetCount = ((currentlySelectedCount / batchSize) + 1) * batchSize
-                
-                // 2. Expand selection to available items, capped at the next batch boundary.
-                if (loadedItems.size > currentlySelectedCount) {
-                    val nextBatch = loadedItems.take(targetCount)
-                    if (nextBatch.size > currentlySelectedCount) {
-                        screenModel.selectAll(nextBatch)
-                    }
-                }
-
-                // 3. TRIGGER THE NEXT PAGE (The Safe Poke)
-                // If we haven't reached the end of the entire dataset, access the last item.
-                // This read operation signals Paging 3 to prefetch the next page.
-                if (!appendState.endOfPaginationReached && animeList.itemCount > 0) {
-                    animeList[animeList.itemCount - 1]
-                }
-            }
-        }
-
         LaunchedEffect(Unit) {
             queryEvent.receiveAsFlow()
                 .collectLatest {
