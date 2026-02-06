@@ -43,6 +43,15 @@ class AiAssistantScreenModel(
                 }
             }
         }
+
+        // Auto-create session if list becomes empty
+        screenModelScope.launchIO {
+            sessions.collectLatest { list ->
+                if (list.isEmpty()) {
+                    createNewSession()
+                }
+            }
+        }
     }
 
     private fun loadSession(sessionId: Long) {
@@ -55,6 +64,12 @@ class AiAssistantScreenModel(
 
     fun createNewSession() {
         screenModelScope.launchIO {
+            // Avoid creating duplicate empty sessions
+            if (sessions.value.any { it.title == "New Analytic Session" && state.value.messages.isEmpty() }) {
+                val existing = sessions.value.first { it.title == "New Analytic Session" }
+                switchSession(existing.id)
+                return@launchIO
+            }
             val sessionId = chatRepository.insertSession("New Analytic Session")
             aiPreferences.activeSessionId().set(sessionId)
             loadSession(sessionId)
@@ -71,8 +86,24 @@ class AiAssistantScreenModel(
             chatRepository.deleteSession(sessionId)
             if (state.value.activeSessionId == sessionId) {
                 aiPreferences.activeSessionId().set(-1L)
-                createNewSession()
+                // The sessions collector will trigger createNewSession if empty
             }
+        }
+    }
+
+    fun deleteSessions(sessionIds: List<Long>) {
+        screenModelScope.launchIO {
+            chatRepository.deleteSessions(sessionIds)
+            if (state.value.activeSessionId in sessionIds) {
+                aiPreferences.activeSessionId().set(-1L)
+                // The sessions collector will trigger createNewSession if empty
+            }
+        }
+    }
+
+    fun toggleSessionPin(sessionId: Long, isPinned: Boolean) {
+        screenModelScope.launchIO {
+            chatRepository.updateSessionPinned(sessionId, !isPinned)
         }
     }
 
@@ -95,8 +126,10 @@ class AiAssistantScreenModel(
             if (response != null) {
                 chatRepository.insertMessage(sessionId, "model", response)
                 
-                // 5. Update Session Title if it's the first message
-                if (state.value.messages.size <= 2) {
+                // 5. Update Session Title if it's the first message from human
+                // Note: state.value.messages already includes the user query and potentially the AI response
+                val userMessages = state.value.messages.filter { it.role == "user" }
+                if (userMessages.size == 1) {
                     updateSessionTitle(sessionId, query)
                 }
             } else {
@@ -112,6 +145,21 @@ class AiAssistantScreenModel(
         chatRepository.updateSessionTitle(sessionId, title)
     }
 
+    fun toggleSessionSelection(sessionId: Long) {
+        mutableState.update { state ->
+            val newSelection = if (state.selectedSessionIds.contains(sessionId)) {
+                state.selectedSessionIds - sessionId
+            } else {
+                state.selectedSessionIds + sessionId
+            }
+            state.copy(selectedSessionIds = newSelection)
+        }
+    }
+
+    fun clearSessionSelection() {
+        mutableState.update { it.copy(selectedSessionIds = emptySet()) }
+    }
+
     fun clearAllSessions() {
         screenModelScope.launchIO {
             chatRepository.deleteAllSessions()
@@ -124,5 +172,6 @@ class AiAssistantScreenModel(
         val activeSessionId: Long? = null,
         val messages: ImmutableList<ChatMessage> = persistentListOf(),
         val isLoading: Boolean = false,
+        val selectedSessionIds: Set<Long> = emptySet(),
     )
 }

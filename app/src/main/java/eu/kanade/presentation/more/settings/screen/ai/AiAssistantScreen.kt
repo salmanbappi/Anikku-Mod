@@ -209,13 +209,11 @@ class AiAssistantScreen : Screen() {
                 containerColor = MaterialTheme.colorScheme.surface, // Base 60%
                 snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
             ) { padding ->
-                Box(
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding)
-                        .imePadding()
                 ) {
-                    Column(modifier = Modifier.fillMaxSize()) {
                         DiagnosticHUD(errorCount)
                         
                         LazyColumn(

@@ -1,7 +1,8 @@
 CREATE TABLE ai_sessions (
     _id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
-    last_message_at INTEGER NOT NULL
+    last_message_at INTEGER NOT NULL,
+    is_pinned INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE ai_messages (
@@ -16,7 +17,7 @@ CREATE TABLE ai_messages (
 CREATE INDEX ai_messages_session_id_index ON ai_messages(session_id);
 
 getSessions:
-SELECT * FROM ai_sessions ORDER BY last_message_at DESC;
+SELECT * FROM ai_sessions ORDER BY is_pinned DESC, last_message_at DESC;
 
 getSessionById:
 SELECT * FROM ai_sessions WHERE _id = :id;
@@ -25,7 +26,7 @@ getMessagesBySessionId:
 SELECT * FROM ai_messages WHERE session_id = :sessionId ORDER BY created_at ASC;
 
 insertSession:
-INSERT INTO ai_sessions (title, last_message_at) VALUES (:title, :lastMessageAt);
+INSERT INTO ai_sessions (title, last_message_at, is_pinned) VALUES (:title, :lastMessageAt, 0);
 
 updateSessionTitle:
 UPDATE ai_sessions SET title = :title WHERE _id = :id;
@@ -33,11 +34,17 @@ UPDATE ai_sessions SET title = :title WHERE _id = :id;
 updateSessionLastMessageAt:
 UPDATE ai_sessions SET last_message_at = :lastMessageAt WHERE _id = :id;
 
+updateSessionPinned:
+UPDATE ai_sessions SET is_pinned = :isPinned WHERE _id = :id;
+
 insertMessage:
 INSERT INTO ai_messages (session_id, role, content, created_at) VALUES (:sessionId, :role, :content, :createdAt);
 
 deleteSession:
 DELETE FROM ai_sessions WHERE _id = :id;
+
+deleteSessions:
+DELETE FROM ai_sessions WHERE _id IN :ids;
 
 deleteAllSessions:
 DELETE FROM ai_sessions;

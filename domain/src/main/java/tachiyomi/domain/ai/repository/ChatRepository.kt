@@ -11,7 +11,9 @@ interface ChatRepository {
     suspend fun insertSession(title: String): Long
     suspend fun updateSessionTitle(id: Long, title: String)
     suspend fun updateSessionLastMessageAt(id: Long, lastMessageAt: Long)
+    suspend fun updateSessionPinned(id: Long, isPinned: Boolean)
     suspend fun insertMessage(sessionId: Long, role: String, content: String)
     suspend fun deleteSession(id: Long)
+    suspend fun deleteSessions(ids: List<Long>)
     suspend fun deleteAllSessions()
 }
