@@ -236,7 +236,19 @@ class AiAssistantScreen : Screen() {
                             }
                             items(state.messages) { message ->
                                 if (message.role == "user") {
-                                    UserMessage(message.content)
+                                    val aiPreferences = remember { Injekt.get<AiPreferences>() }
+                                    val displayName by aiPreferences.displayName().collectAsState()
+                                    Column(horizontalAlignment = Alignment.End, modifier = Modifier.fillMaxWidth()) {
+                                        Text(
+                                            text = displayName.ifBlank { "USER" }.uppercase() + " // UPLINK",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            fontFamily = FontFamily.Monospace,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.padding(end = 8.dp, bottom = 4.dp).alpha(0.6f)
+                                        )
+                                        UserMessage(message.content)
+                                    }
                                 } else {
                                     AssistantMessage(
                                         content = message.content,
