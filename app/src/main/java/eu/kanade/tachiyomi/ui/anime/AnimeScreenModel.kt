@@ -301,9 +301,7 @@ class AnimeScreenModel(
         screenModelScope.launchIO {
             var suggestionsFound = false
             
-            // 1. Try to get suggestions from the source's "Related" feature first
-            // Anikku extensions can provide multiple "Related" lists (e.g. "Sequel", "Prequel", "Same Franchise")
-            // We should collect them all or at least the most relevant ones.
+            // 1. Source-provided "Related" section
             getRelatedAnime.subscribe(anime).collect { (_, animes) ->
                 if (animes.isNotEmpty()) {
                     val domainAnimes = animes.map { sAnime ->
@@ -314,13 +312,11 @@ class AnimeScreenModel(
                     }.awaitAll().filterNotNull()
                     
                     updateSuccessState { state ->
-                        // Append new suggestions to existing ones instead of overwriting,
-                        // unless it's the first batch. Filter duplicates.
                         val currentSuggestions = if (!suggestionsFound) emptyList() else state.suggestions
                         state.copy(
                             suggestions = (currentSuggestions + domainAnimes)
                                 .distinctBy { it.id }
-                                .take(20) // Increased limit to 20 for better discovery
+                                .take(30) // Increased for better discovery
                                 .toImmutableList(),
                         )
                     }
@@ -328,31 +324,50 @@ class AnimeScreenModel(
                 }
             }
 
-            // 2. Fallback: If no related anime found, search by genre or title
-            if (!suggestionsFound || successState?.suggestions.isNullOrEmpty()) {
+            // 2. Hybrid Intelligence Fallback
+            if (!suggestionsFound || (successState?.suggestions?.size ?: 0) < 5) {
                 val source = sourceManager.get(anime.source) as? AnimeCatalogueSource ?: return@launchIO
-                // Prioritize title-based search for better relevance if tags are weak
-                val query = anime.title.split(" ").take(2).joinToString(" ")
                 
-                try {
-                    val searchResult = source.getSearchAnime(1, query, source.getFilterList())
-                    val domainAnimes = searchResult.animes
-                        .filter { it.url != anime.url }
-                        // Sort by similarity to the original title using utility
-                        .sortedByDescending { eu.kanade.tachiyomi.util.lang.StringSimilarity.jaroWinkler(anime.title, it.title) }
-                        .take(10)
-                        .map { sAnime ->
-                            async {
-                                val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
-                                getAnime.await(localAnime.id)
-                            }
-                        }.awaitAll().filterNotNull()
-                    
+                // Wide Search Strategy: Try first tag, then cleaned first two words of title
+                val queries = listOfNotNull(
+                    anime.genre?.firstOrNull(),
+                    anime.title.replace(Regex("[^a-zA-Z0-9 ]"), "").split(" ").take(2).joinToString(" ")
+                ).distinct()
+
+                val allResults = queries.flatMap { query ->
+                    try {
+                        source.getSearchAnime(1, query, source.getFilterList()).animes
+                    } catch (e: Exception) { emptyList() }
+                }.distinctBy { it.url }.filter { it.url != anime.url }
+
+                if (allResults.isNotEmpty()) {
+                    val domainAnimes = allResults.map { sAnime ->
+                        async {
+                            val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
+                            val fullAnime = getAnime.await(localAnime.id) ?: return@async null
+                            
+                            // Hybrid Scoring Algorithm
+                            val titleSim = eu.kanade.tachiyomi.util.lang.StringSimilarity.diceCoefficient(anime.title, fullAnime.title)
+                            val genreOverlap = if (anime.genre != null && fullAnime.genre != null) {
+                                val intersect = anime.genre!!.intersect(fullAnime.genre!!.toSet()).size
+                                intersect.toDouble() / anime.genre!!.size.coerceAtLeast(1)
+                            } else 0.0
+                            
+                            val totalScore = (titleSim * 0.7) + (genreOverlap * 0.3)
+                            fullAnime to totalScore
+                        }
+                    }.awaitAll().filterNotNull()
+                    .sortedByDescending { it.second }
+                    .map { it.first }
+                    .take(15)
+
                     updateSuccessState { state ->
-                        state.copy(suggestions = domainAnimes.distinctBy { it.id }.toImmutableList())
+                        state.copy(
+                            suggestions = (state.suggestions + domainAnimes)
+                                .distinctBy { it.id }
+                                .toImmutableList()
+                        )
                     }
-                } catch (e: Exception) {
-                    logcat(LogPriority.ERROR, e)
                 }
             }
         }

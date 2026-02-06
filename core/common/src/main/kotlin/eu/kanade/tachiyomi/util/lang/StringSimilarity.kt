@@ -52,4 +52,28 @@ object StringSimilarity {
 
         return ((matches / len1) + (matches / len2) + ((matches - transpositions / 2) / matches)) / 3.0
     }
+
+    /**
+     * Calculates the Sørensen–Dice coefficient between two strings.
+     * Often superior for anime titles as it handles bigrams and character order well.
+     */
+    fun diceCoefficient(s1: String, s2: String): Double {
+        val str1 = s1.lowercase().replace(Regex("[^a-z0-9]"), "")
+        val str2 = s2.lowercase().replace(Regex("[^a-z0-9]"), "")
+        
+        if (str1 == str2) return 1.0
+        if (str1.length < 2 || str2.length < 2) return 0.0
+
+        val s1Bigrams = str1.windowed(2)
+        val s2Bigrams = str2.windowed(2).toMutableList()
+
+        var matches = 0
+        for (bigram in s1Bigrams) {
+            if (s2Bigrams.remove(bigram)) {
+                matches++
+            }
+        }
+
+        return (2.0 * matches) / (s1Bigrams.size + str2.length - 1)
+    }
 }

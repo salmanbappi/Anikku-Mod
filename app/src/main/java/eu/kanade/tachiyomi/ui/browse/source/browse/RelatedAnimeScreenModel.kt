@@ -58,32 +58,49 @@ class RelatedAnimeScreenModel(
                 }
             }
 
-            // 2. Fallback search logic if source provides nothing
+            // 2. Hybrid Intelligence Fallback
             if (!suggestionsFound || state.value.items.isEmpty()) {
                 val source = sourceManager.get(anime.source) as? AnimeCatalogueSource ?: return@launchIO
-                val query = anime.genre?.firstOrNull() ?: anime.title.split(" ").take(2).joinToString(" ")
                 
-                try {
-                    val searchResult = source.getSearchAnime(1, query, source.getFilterList())
-                    val domainAnimes = searchResult.animes
-                        .filter { it.url != anime.url }
-                        .sortedByDescending { eu.kanade.tachiyomi.util.lang.StringSimilarity.jaroWinkler(anime.title, it.title) }
-                        .map { sAnime ->
-                            async {
-                                val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
-                                getAnime.await(localAnime.id)
-                            }
-                        }.awaitAll().filterNotNull()
+                // Wide Search Strategy
+                val queries = listOfNotNull(
+                    anime.genre?.firstOrNull(),
+                    anime.title.replace(Regex("[^a-zA-Z0-9 ]"), "").split(" ").take(2).joinToString(" ")
+                ).distinct()
+
+                val allResults = queries.flatMap { query ->
+                    try {
+                        source.getSearchAnime(1, query, source.getFilterList()).animes
+                    } catch (e: Exception) { emptyList() }
+                }.distinctBy { it.url }.filter { it.url != anime.url }
+
+                if (allResults.isNotEmpty()) {
+                    val domainAnimes = allResults.map { sAnime ->
+                        async {
+                            val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
+                            val fullAnime = getAnime.await(localAnime.id) ?: return@async null
+                            
+                            val titleSim = eu.kanade.tachiyomi.util.lang.StringSimilarity.diceCoefficient(anime.title, fullAnime.title)
+                            val genreOverlap = if (anime.genre != null && fullAnime.genre != null) {
+                                val intersect = anime.genre!!.intersect(fullAnime.genre!!.toSet()).size
+                                intersect.toDouble() / anime.genre!!.size.coerceAtLeast(1)
+                            } else 0.0
+                            
+                            val totalScore = (titleSim * 0.7) + (genreOverlap * 0.3)
+                            fullAnime to totalScore
+                        }
+                    }.awaitAll().filterNotNull()
+                    .sortedByDescending { it.second }
+                    .map { it.first }
+                    .take(24) // Show more in full screen
                     
                     if (domainAnimes.isNotEmpty()) {
                         mutableState.update { state ->
                             state.copy(
-                                items = state.items.put("Recommended", domainAnimes.toImmutableList()),
+                                items = state.items.put("Recommended Intelligence", domainAnimes.toImmutableList()),
                             )
                         }
                     }
-                } catch (e: Exception) {
-                    logcat(LogPriority.ERROR, e)
                 }
             }
         }
