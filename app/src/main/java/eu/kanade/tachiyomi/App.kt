@@ -129,10 +129,8 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
             // Eagerly initialize expensive singletons on background thread
             Injekt.get<NetworkHelper>()
             Injekt.get<SourceManager>()
-            Injekt.get<Database>()
             Injekt.get<DownloadManager>()
             Injekt.get<CustomAnimeRepository>()
-            Injekt.get<eu.kanade.tachiyomi.data.ai.AiManager>()
             
             val syncPreferences: SyncPreferences = Injekt.get()
             val syncTriggerOpt = syncPreferences.getSyncTriggerOptions()
