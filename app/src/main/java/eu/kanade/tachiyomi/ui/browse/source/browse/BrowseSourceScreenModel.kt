@@ -334,36 +334,34 @@ class BrowseSourceScreenModel(
         }
     }
 
-    fun addFavorite(anime: Anime) {
-        screenModelScope.launch {
-            val categories = getCategories()
-            val defaultCategoryId = libraryPreferences.defaultCategory().get()
-            val defaultCategory = categories.find { it.id == defaultCategoryId.toLong() }
+    suspend fun addFavorite(anime: Anime) {
+        val categories = getCategories()
+        val defaultCategoryId = libraryPreferences.defaultCategory().get()
+        val defaultCategory = categories.find { it.id == defaultCategoryId.toLong() }
 
-            when {
-                // Default category set
-                defaultCategory != null -> {
-                    moveAnimeToCategories(anime, defaultCategory)
+        when {
+            // Default category set
+            defaultCategory != null -> {
+                moveAnimeToCategories(anime, defaultCategory)
 
-                    changeAnimeFavorite(anime)
-                }
-                // Automatic 'Default' or no categories
-                defaultCategoryId == 0 || categories.isEmpty() -> {
-                    moveAnimeToCategories(anime)
+                changeAnimeFavorite(anime)
+            }
+            // Automatic 'Default' or no categories
+            defaultCategoryId == 0 || categories.isEmpty() -> {
+                moveAnimeToCategories(anime)
 
-                    changeAnimeFavorite(anime)
-                }
+                changeAnimeFavorite(anime)
+            }
 
-                // Choose a category
-                else -> {
-                    val preselectedIds = getCategories.await(anime.id).map { it.id }
-                    setDialog(
-                        Dialog.ChangeAnimeCategory(
-                            anime,
-                            categories.mapAsCheckboxState { it.id in preselectedIds }.toImmutableList(),
-                        ),
-                    )
-                }
+            // Choose a category
+            else -> {
+                val preselectedIds = getCategories.await(anime.id).map { it.id }
+                setDialog(
+                    Dialog.ChangeAnimeCategory(
+                        anime,
+                        categories.mapAsCheckboxState { it.id in preselectedIds }.toImmutableList(),
+                    ),
+                )
             }
         }
     }

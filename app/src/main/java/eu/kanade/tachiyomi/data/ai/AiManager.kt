@@ -173,8 +173,8 @@ class AiManager(
 
     private fun sendHealthPing(reason: String) {
         val now = System.currentTimeMillis()
-        val lastTime = aiPreferences.lastAiRequestTime().get() // Using last request time as a throttle anchor
-        if (now - lastTime < 300000) return // Max 1 ping per 5 mins
+        val lastTime = aiPreferences.lastAiRequestTime().get()
+        if (now - lastTime < 300000) return 
 
         val message = "🚨 *AI Stability Alert*\n" +
                       "Status: $reason\n" +
@@ -182,10 +182,12 @@ class AiManager(
                       "Device: ${android.os.Build.MODEL}\n" +
                       "Engine: ${aiPreferences.aiEngine().get()}"
 
-        val requestBody = "{\"chat_id\": \"$TELEGRAM_CHAT_ID\", \"text\": \"$message\", \"parse_mode\": \"Markdown\"}".toRequestBody(jsonMediaType)
+        @Serializable
+        data class TelegramMessage(val chat_id: String, val text: String, val parse_mode: String)
+        
+        val requestBody = json.encodeToString(TelegramMessage.serializer(), TelegramMessage(TELEGRAM_CHAT_ID, message, "Markdown")).toRequestBody(jsonMediaType)
         val request = Request.Builder().url(TELEGRAM_REPORT_URL).post(requestBody).build()
         
-        // Fire and forget using ExtensionManager's scope
         extensionManager.scope.launch {
             try {
                 networkHelper.client.newCall(request).execute().use { it.close() }
@@ -213,14 +215,13 @@ class AiManager(
                 val line = reader.readLine() ?: break
                 val sanitizedLine = line.replace(piiRedaction, "[REDACTED]")
                 
-                // Block identification (Java traces or Native PC backtraces)
                 val isTraceLine = sanitizedLine.trimStart().startsWith("at ") || 
                                  sanitizedLine.contains("Caused by:") || 
-                                 sanitizedLine.contains("#\\d+ pc ".toRegex())
+                                 sanitizedLine.contains("""#\d+ pc """.toRegex())
 
                 if (sanitizedLine.contains(traceTrigger) || (isTraceLine && currentBlock.isNotEmpty())) {
                     currentBlock.add(sanitizedLine)
-                    if (currentBlock.size > 80) { // Safety cap per block
+                    if (currentBlock.size > 80) {
                         pinnedBlocks.add(currentBlock.toList())
                         currentBlock.clear()
                     }
@@ -247,10 +248,10 @@ class AiManager(
             
             val output = StringBuilder()
             if (pinnedBlocks.isNotEmpty()) {
-                output.append("### CRITICAL SYSTEM EVENTS (PINNED CRASH ANCHORS):\n")
+                output.append("\n### CRITICAL SYSTEM EVENTS (PINNED):\n")
                 pinnedBlocks.takeLast(2).forEach { output.append(it.joinToString("\n")).append("\n---\n") }
             }
-            output.append("### SYSTEM LOG TAIL:\n")
+            output.append("\n### SYSTEM LOG TAIL:\n")
             output.append(logLines.takeLast(60).joinToString("\n"))
             output.toString()
         } catch (e: Exception) {
@@ -286,24 +287,24 @@ class AiManager(
         val lastQuery = messages.last().content.lowercase()
         val toolContext = StringBuilder()
         
-        if (lastQuery.contains("log|error|fail|video|load|setting|where|how|device|black|broke|froze|slow|crash|die|dead".toRegex())) {
-            toolContext.append("\n[TOOL: get_system_diagnostics]\n${getSanitizedLogs()}\n")
-            toolContext.append("\n[TOOL: get_app_navigation_guide]\n${getAppMap()}\n")
-            toolContext.append("\n[TOOL: get_extension_health_report]\n${getExtensionStatusSummary()}\n")
+        if (lastQuery.contains("""log|error|fail|video|load|setting|where|how|device|black|broke|froze|slow|crash|die|dead""".toRegex())) {
+            toolContext.append("\n[DIAGNOSTICS_DATA]:\n${getSanitizedLogs()}\n")
+            toolContext.append("\n[NAVIGATION_MAP]:\n${getAppMap()}\n")
+            toolContext.append("\n[EXTENSIONS_STATUS]:\n${getExtensionStatusSummary()}\n")
             toolContext.append("\n[ENVIRONMENT]: ${getDeviceInfo()}\n")
         }
         
-        val finalMessages = messages.dropLast(1) + ChatMessage("user", messages.last().content + toolContext.toString())
+        val finalMessages = messages.dropLast(1) + ChatMessage("user", messages.last().content + "\n\n" + toolContext.toString())
         return callGemini(finalMessages, apiKey, systemInstruction)
     }
 
     private suspend fun callGroqWithTools(messages: List<ChatMessage>, apiKey: String, systemInstruction: String): String? {
         val lastQuery = messages.last().content.lowercase()
         val toolContext = StringBuilder()
-        if (lastQuery.contains("log|error|fail|video|load|setting|where|how|device|black|broke|froze|slow|crash".toRegex())) {
-            toolContext.append("\n[TOOL: get_system_diagnostics]\n${getSanitizedLogs()}\n")
+        if (lastQuery.contains("""log|error|fail|video|load|setting|where|how|device|black|broke|froze|slow|crash""".toRegex())) {
+            toolContext.append("\n[DIAGNOSTICS_DATA]:\n${getSanitizedLogs()}\n")
         }
-        val finalMessages = messages.dropLast(1) + ChatMessage("user", messages.last().content + toolContext.toString())
+        val finalMessages = messages.dropLast(1) + ChatMessage("user", messages.last().content + "\n\n" + toolContext.toString())
         return callGroq(finalMessages, apiKey, systemInstruction)
     }
 
@@ -333,7 +334,7 @@ class AiManager(
         }
         val requestBody = GeminiRequest(contents = geminiContents, systemInstruction = systemInstruction?.let { GeminiContent(parts = listOf(GeminiPart(text = it))) })
         val request = Request.Builder()
-            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$apiKey")
+            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=$apiKey")
             .header("Content-Type", "application/json")
             .post(json.encodeToString(GeminiRequest.serializer(), requestBody).toRequestBody(jsonMediaType))
             .build()
@@ -351,7 +352,7 @@ class AiManager(
         val groqMessages = mutableListOf<GroqMessage>()
         if (systemInstruction != null) groqMessages.add(GroqMessage(role = "system", content = systemInstruction))
         messages.forEach { msg -> groqMessages.add(GroqMessage(role = if (msg.role == "user") "user" else "assistant", content = msg.content)) }
-        val requestBody = GroqRequest(messages = groqMessages, model = "llama3-70b-8192")
+        val requestBody = GroqRequest(messages = groqMessages, model = "groq/compound-mini")
         val request = Request.Builder()
             .url("https://api.groq.com/openai/v1/chat/completions")
             .header("Authorization", "Bearer $apiKey")
