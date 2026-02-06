@@ -38,6 +38,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AutoAwesome
@@ -299,12 +300,14 @@ class AiAssistantScreen : Screen() {
                 shape = RoundedCornerShape(24.dp, 24.dp, 4.dp, 24.dp),
                 modifier = Modifier.widthIn(min = 40.dp)
             ) {
-                Text(
-                    text = content,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                SelectionContainer {
+                    Text(
+                        text = content,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
             }
         }
     }
@@ -354,7 +357,9 @@ class AiAssistantScreen : Screen() {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Box(modifier = Modifier.padding(start = 4.dp, end = 8.dp)) {
-                    MarkdownRender(content = content)
+                    SelectionContainer {
+                        MarkdownRender(content = content)
+                    }
                 }
             }
         }
