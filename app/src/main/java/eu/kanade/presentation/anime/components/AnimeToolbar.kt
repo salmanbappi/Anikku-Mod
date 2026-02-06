@@ -172,16 +172,8 @@ fun AnimeToolbar(
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = if (isActionMode) {
-                    MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
-                } else {
-                    val alpha = backgroundAlphaProvider()
-                    if (alpha == 0f) {
-                        Color.Transparent
-                    } else {
-                        MaterialTheme.colorScheme.background.copy(alpha = alpha)
-                    }
-                },
+                containerColor = Color.Transparent,
+                scrolledContainerColor = Color.Transparent,
             ),
         )
     }
