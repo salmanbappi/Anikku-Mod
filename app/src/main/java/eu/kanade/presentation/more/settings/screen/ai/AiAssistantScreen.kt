@@ -157,7 +157,7 @@ class AiAssistantScreen : Screen() {
                         }
                         if (isLoading) {
                             item {
-                                ProcessingIndicator()
+                                ProcessingIndicator(input)
                             }
                         }
                     }
@@ -168,18 +168,17 @@ class AiAssistantScreen : Screen() {
                         isLoading = isLoading,
                         onSend = {
                             val userQuery = input
-                            input = ""
                             messages.add(AiManager.ChatMessage("user", userQuery))
                             isLoading = true
                             scope.launch {
                                 val response = aiManager.chatWithAssistant(userQuery, messages.dropLast(1))
                                 isLoading = false
+                                input = ""
                                 if (response != null) {
                                     messages.add(AiManager.ChatMessage("model", response))
                                 } else {
                                     messages.add(AiManager.ChatMessage("model", "Neural link unstable. Check API Key in Settings."))
                                 }
-                                // Refresh error count after chat
                                 errorCount = aiManager.getErrorCount()
                             }
                         }
@@ -366,14 +365,21 @@ class AiAssistantScreen : Screen() {
     }
 
     @Composable
-    private fun ProcessingIndicator() {
+    private fun ProcessingIndicator(query: String) {
+        val statusMessage = remember(query) {
+            when {
+                query.contains("log|error|fail|video|load|black|broke|froze|slow".toRegex(RegexOption.IGNORE_CASE)) -> "ANALYZING SYSTEM LOGS..."
+                query.contains("setting|where|how".toRegex(RegexOption.IGNORE_CASE)) -> "RETRIEVING APP MAP..."
+                else -> "SYNCHRONIZING DATA..."
+            }
+        }
         Row(
             modifier = Modifier.padding(start = 48.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = "SYNCHRONIZING DATA",
+                text = statusMessage,
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.primary,
                 fontFamily = FontFamily.Monospace,
