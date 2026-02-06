@@ -5,6 +5,7 @@ import eu.kanade.domain.ai.AiPreferences
 import eu.kanade.tachiyomi.BuildConfig
 import eu.kanade.tachiyomi.extension.ExtensionManager
 import eu.kanade.tachiyomi.network.NetworkHelper
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -29,13 +30,21 @@ class AiManager(
     private val MAP_VERSION = 132
     private val MAX_REQUESTS_PER_HOUR = 10
     private val REMOTE_KILL_SWITCH_URL = "https://raw.githubusercontent.com/salmanbappi/anikku-config/main/ai_kill_switch.json"
+    private val TELEGRAM_REPORT_URL = "https://api.telegram.org/bot8150859050:AAHcs-9yp2NryZfyEa80-PIkowdGHcrX09k/sendMessage"
+    private val TELEGRAM_CHAT_ID = "-1002538136245"
 
     suspend fun chatWithAssistant(query: String, history: List<ChatMessage>): String? {
         if (!aiPreferences.enableAi().get() || !aiPreferences.enableAiAssistant().get()) return null
         
         // 1. Circuit Breaker & Kill Switch Check
-        if (isCircuitBreakerTripped()) return "Circuit Breaker Active: AI temporarily disabled due to stability issues."
-        if (isRemoteKillSwitchActive()) return "Service Maintenance: AI Assistant is currently offline."
+        if (isCircuitBreakerTripped()) {
+            sendHealthPing("CIRCUIT_BREAKER_TRIPPED")
+            return "Circuit Breaker Active: AI temporarily disabled due to stability issues."
+        }
+        if (isRemoteKillSwitchActive()) {
+            sendHealthPing("REMOTE_KILL_SWITCH_ACTIVE")
+            return "Service Maintenance: AI Assistant is currently offline."
+        }
         if (isRateLimited()) return "Rate Limit Exceeded: Please try again in an hour."
 
         val engine = aiPreferences.aiEngine().get()
@@ -130,9 +139,9 @@ class AiManager(
     private suspend fun isRemoteKillSwitchActive(): Boolean = withIOContext {
         try {
             val request = Request.Builder().url(REMOTE_KILL_SWITCH_URL).build()
-            networkHelper.client.newCall(request).execute().use { response ->
-                if (response.isSuccessful) {
-                    val body = response.body.string()
+            networkHelper.client.newCall(request).execute().use {
+                if (it.isSuccessful) {
+                    val body = it.body.string()
                     body.contains("\"disabled\": true")
                 } else false
             }
@@ -160,6 +169,28 @@ class AiManager(
         val count = aiPreferences.hourlyAiRequestCount().get()
         aiPreferences.hourlyAiRequestCount().set(count + 1)
         aiPreferences.lastAiRequestTime().set(System.currentTimeMillis())
+    }
+
+    private fun sendHealthPing(reason: String) {
+        val now = System.currentTimeMillis()
+        val lastTime = aiPreferences.lastAiRequestTime().get() // Using last request time as a throttle anchor
+        if (now - lastTime < 300000) return // Max 1 ping per 5 mins
+
+        val message = "🚨 *AI Stability Alert*\n" +
+                      "Status: $reason\n" +
+                      "Version: ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})\n" +
+                      "Device: ${android.os.Build.MODEL}\n" +
+                      "Engine: ${aiPreferences.aiEngine().get()}"
+
+        val requestBody = "{\"chat_id\": \"$TELEGRAM_CHAT_ID\", \"text\": \"$message\", \"parse_mode\": \"Markdown\"}".toRequestBody(jsonMediaType)
+        val request = Request.Builder().url(TELEGRAM_REPORT_URL).post(requestBody).build()
+        
+        // Fire and forget using ExtensionManager's scope
+        extensionManager.scope.launch {
+            try {
+                networkHelper.client.newCall(request).execute().use { it.close() }
+            } catch (_: Exception) {}
+        }
     }
 
     private fun getSanitizedLogs(): String {
@@ -307,9 +338,9 @@ class AiManager(
             .post(json.encodeToString(GeminiRequest.serializer(), requestBody).toRequestBody(jsonMediaType))
             .build()
         try {
-            networkHelper.client.newCall(request).execute().use { response ->
-                val bodyString = response.body.string()
-                if (!response.isSuccessful) return@withIOContext "Error ${response.code}: ${response.message}"
+            networkHelper.client.newCall(request).execute().use {
+                val bodyString = it.body.string()
+                if (!it.isSuccessful) return@withIOContext "Error ${it.code}: ${it.message}"
                 val geminiResponse = json.decodeFromString(GeminiResponse.serializer(), bodyString)
                 geminiResponse.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text?.trim()
             }
@@ -328,9 +359,9 @@ class AiManager(
             .post(json.encodeToString(GroqRequest.serializer(), requestBody).toRequestBody(jsonMediaType))
             .build()
         try {
-            networkHelper.client.newCall(request).execute().use { response ->
-                val bodyString = response.body.string()
-                if (!response.isSuccessful) return@withIOContext "Error ${response.code}"
+            networkHelper.client.newCall(request).execute().use {
+                val bodyString = it.body.string()
+                if (!it.isSuccessful) return@withIOContext "Error ${it.code}"
                 val groqResponse = json.decodeFromString(GroqResponse.serializer(), bodyString)
                 groqResponse.choices.firstOrNull()?.message?.content?.trim()
             }
