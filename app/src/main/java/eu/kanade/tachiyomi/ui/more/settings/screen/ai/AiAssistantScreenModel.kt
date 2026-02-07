@@ -41,45 +41,57 @@ class AiAssistantScreenModel(
 
     init {
         screenModelScope.launchIO {
-            aiPreferences.activeSessionId().get().let { sessionId ->
-                if (sessionId != -1L) {
-                    val session = chatRepository.getSessionById(sessionId)
-                    if (session != null) {
-                        loadSession(sessionId)
-                    } else {
-                        createNewSession()
-                    }
-                } else {
-                    createNewSession()
+            val prefSessionId = aiPreferences.activeSessionId().get()
+            val allSessions = chatRepository.getSessions().firstOrNull().orEmpty()
+            
+            // Cleanup truly empty sessions on start (except pref active one)
+            val emptySessionIds = allSessions
+                .filter { it.messageCount == 0L && it.id != prefSessionId }
+                .map { it.id }
+            if (emptySessionIds.isNotEmpty()) {
+                chatRepository.deleteSessions(emptySessionIds)
+            }
+
+            val initialSession = when {
+                // 1. Try last active
+                prefSessionId != -1L && allSessions.any { it.id == prefSessionId } -> {
+                    allSessions.first { it.id == prefSessionId }
                 }
+                // 2. Try most recent with messages
+                allSessions.any { it.messageCount > 0 } -> {
+                    allSessions.first { it.messageCount > 0 }
+                }
+                // 3. Fallback to any session
+                allSessions.isNotEmpty() -> {
+                    allSessions.first()
+                }
+                // 4. Create new
+                else -> null
+            }
+
+            if (initialSession != null) {
+                switchSession(initialSession.id)
+            } else {
+                createNewSession()
             }
         }
 
-        // Auto-create session if list becomes empty (after filtering)
+        // Auto-create session ONLY if list becomes empty after filtering
+        // and we are not already initializing
         screenModelScope.launchIO {
             sessions.collectLatest { list ->
-                if (list.isEmpty()) {
+                if (list.isEmpty() && state.value.activeSessionId != null) {
                     createNewSession()
-                }
-            }
-        }
-        
-        // Cleanup truly empty sessions on start (except active one)
-        screenModelScope.launchIO {
-            chatRepository.getSessions().collectLatest { list ->
-                val activeId = aiPreferences.activeSessionId().get()
-                val emptySessionIds = list
-                    .filter { it.messageCount == 0L && it.id != activeId }
-                    .map { it.id }
-                if (emptySessionIds.isNotEmpty()) {
-                    chatRepository.deleteSessions(emptySessionIds)
                 }
             }
         }
     }
 
+    private var messageCollectionJob: kotlinx.coroutines.Job? = null
+
     private fun loadSession(sessionId: Long) {
-        screenModelScope.launchIO {
+        messageCollectionJob?.cancel()
+        messageCollectionJob = screenModelScope.launchIO {
             chatRepository.getMessagesBySessionId(sessionId).collectLatest { messages ->
                 mutableState.update { it.copy(activeSessionId = sessionId, messages = messages.toImmutableList()) }
             }
@@ -89,7 +101,8 @@ class AiAssistantScreenModel(
     fun createNewSession() {
         screenModelScope.launchIO {
             // Find existing empty session to reuse instead of creating a new one
-            val existingEmpty = sessions.value.firstOrNull { it.messageCount == 0L }
+            // Check repo directly because sessions.value is filtered
+            val existingEmpty = chatRepository.getSessions().firstOrNull()?.firstOrNull { it.messageCount == 0L }
 
             if (existingEmpty != null) {
                 switchSession(existingEmpty.id)
@@ -134,10 +147,11 @@ class AiAssistantScreenModel(
     }
 
     fun sendMessage(query: String) {
-        val sessionId = state.value.activeSessionId ?: return
         if (query.isBlank() || state.value.isLoading) return
 
         screenModelScope.launchIO {
+            val sessionId = state.value.activeSessionId ?: return@launchIO
+            
             // Check if session still exists
             if (chatRepository.getSessionById(sessionId) == null) {
                 createNewSession()
