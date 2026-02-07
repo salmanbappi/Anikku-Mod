@@ -54,11 +54,9 @@ fun SourceFilterSheet(
     onSave: () -> Unit,
     onFilter: () -> Unit,
     onUpdate: (AnimeFilter<*>) -> Unit,
-    // Saved Searches
-    savedSearches: ImmutableList<SavedSearch>,
-    currentSavedSearchId: Long?,
     onSavedSearchClick: (SavedSearch) -> Unit,
     onSavedSearchLongClick: (SavedSearch) -> Unit,
+    filtersId: Long = 0L,
 ) {
     AdaptiveSheet(onDismissRequest = onDismissRequest) {
         LazyColumn {
@@ -88,6 +86,7 @@ fun SourceFilterSheet(
                 FilterItem(
                     filter = filter,
                     onUpdate = { onUpdate(filter) },
+                    filtersId = filtersId,
                 )
             }
         }
@@ -175,7 +174,11 @@ private fun SavedSearches(
 }
 
 @Composable
-private fun FilterItem(filter: AnimeFilter<*>, onUpdate: () -> Unit) {
+private fun FilterItem(
+    filter: AnimeFilter<*>,
+    onUpdate: () -> Unit,
+    filtersId: Long = 0L,
+) {
     when (filter) {
         is AnimeFilter.Header -> {
             HeadingItem(filter.name)
@@ -254,7 +257,13 @@ private fun FilterItem(filter: AnimeFilter<*>, onUpdate: () -> Unit) {
                 Column {
                     filter.state
                         .filterIsInstance<AnimeFilter<*>>()
-                        .map { FilterItem(filter = it, onUpdate = onUpdate) }
+                        .map {
+                            FilterItem(
+                                filter = it,
+                                onUpdate = onUpdate,
+                                filtersId = filtersId,
+                            )
+                        }
                 }
             }
         }

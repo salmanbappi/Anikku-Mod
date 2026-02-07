@@ -413,25 +413,24 @@ data class BrowseSourceScreen(
         val onDismissRequest = { screenModel.setDialog(null) }
         when (val dialog = state.dialog) {
             is BrowseSourceScreenModel.Dialog.Filter -> {
-                key(state.filtersId) {
-                    SourceFilterSheet(
-                        onDismissRequest = onDismissRequest,
-                        filters = state.filters,
-                        onReset = screenModel::resetFilters,
-                        onSave = { screenModel.setDialog(BrowseSourceScreenModel.Dialog.SaveSearch) },
-                        onFilter = { screenModel.search(filters = state.filters) },
-                        onUpdate = screenModel::onFilterUpdate,
-                        savedSearches = state.savedSearches,
-                        currentSavedSearchId = state.currentSavedSearch?.id,
-                        onSavedSearchClick = {
-                            screenModel.loadSearch(it)
-                            onDismissRequest()
-                        },
-                        onSavedSearchLongClick = {
-                            screenModel.setDialog(BrowseSourceScreenModel.Dialog.DeleteSavedSearch(it))
-                        },
-                    )
-                }
+                SourceFilterSheet(
+                    onDismissRequest = onDismissRequest,
+                    filters = state.filters,
+                    onReset = screenModel::resetFilters,
+                    onSave = { screenModel.setDialog(BrowseSourceScreenModel.Dialog.SaveSearch) },
+                    onFilter = { screenModel.search(filters = state.filters) },
+                    onUpdate = screenModel::onFilterUpdate,
+                    savedSearches = state.savedSearches,
+                    currentSavedSearchId = state.currentSavedSearch?.id,
+                    onSavedSearchClick = {
+                        screenModel.loadSearch(it)
+                        onDismissRequest()
+                    },
+                    onSavedSearchLongClick = {
+                        screenModel.setDialog(BrowseSourceScreenModel.Dialog.DeleteSavedSearch(it))
+                    },
+                    filtersId = state.filtersId,
+                )
             }
             is BrowseSourceScreenModel.Dialog.DeleteSavedSearch -> {
                 AlertDialog(
