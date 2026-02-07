@@ -54,6 +54,9 @@ fun SourceFilterSheet(
     onSave: () -> Unit,
     onFilter: () -> Unit,
     onUpdate: (AnimeFilter<*>) -> Unit,
+    // Saved Searches
+    savedSearches: ImmutableList<SavedSearch>,
+    currentSavedSearchId: Long?,
     onSavedSearchClick: (SavedSearch) -> Unit,
     onSavedSearchLongClick: (SavedSearch) -> Unit,
     filtersId: Long = 0L,
