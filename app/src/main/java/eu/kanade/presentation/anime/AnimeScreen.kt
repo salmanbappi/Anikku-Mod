@@ -1188,6 +1188,7 @@ private fun SharedAnimeBottomActionMenu(
     onMarkPreviousAsSeenClicked: (Episode) -> Unit,
     onDownloadEpisode: ((List<EpisodeList.Item>, EpisodeDownloadAction) -> Unit)?,
     onMultiDeleteClicked: (List<Episode>) -> Unit,
+    onContinueWatching: () -> Unit,
     fillFraction: Float,
     alwaysUseExternalPlayer: Boolean,
     modifier: Modifier = Modifier,

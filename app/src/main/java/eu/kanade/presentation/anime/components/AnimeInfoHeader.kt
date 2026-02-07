@@ -596,8 +596,6 @@ private fun InfoChip(
     }
 }
 
-private val DISALLOWED_MARKDOWN_TYPES = emptySet<Any>()
-
 private val descriptionAnnotator = markdownAnnotator(
     annotate = { content, child ->
         if (child.type in DISALLOWED_MARKDOWN_TYPES) {
