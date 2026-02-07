@@ -49,6 +49,7 @@ import tachiyomi.domain.anime.interactor.GetAnimeWithEpisodes
 import tachiyomi.domain.anime.interactor.GetDuplicateLibraryAnime
 import tachiyomi.domain.anime.interactor.GetFavorites
 import tachiyomi.domain.anime.interactor.GetLibraryAnime
+import tachiyomi.domain.anime.interactor.CalculateUserAffinity
 import tachiyomi.domain.anime.interactor.NetworkToLocalAnime
 import tachiyomi.domain.anime.interactor.ResetViewerFlags
 import tachiyomi.domain.anime.interactor.SetAnimeEpisodeFlags
@@ -127,7 +128,7 @@ class DomainModule : InjektModule {
         addFactory { GetDuplicateLibraryAnime(get()) }
         addFactory { GetFavorites(get()) }
         addFactory { GetLibraryAnime(get()) }
-        addFactory<CalculateUserAffinity> { CalculateUserAffinity(get(), get(), get()) }
+        addFactory { CalculateUserAffinity(get(), get(), get()) }
         addFactory { GetAnimeWithEpisodes(get(), get()) }
         addFactory { GetAnimeByUrlAndSourceId(get()) }
         addFactory { GetAnime(get()) }
