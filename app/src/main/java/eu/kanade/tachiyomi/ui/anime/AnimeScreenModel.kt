@@ -135,6 +135,7 @@ data class SuggestionSection(
     val type: Type,
 ) : Serializable {
     enum class Type {
+        Franchise,
         Similarity,
         Tag,
         Source,
@@ -364,9 +365,10 @@ class AnimeScreenModel(
             val initialSections = SuggestionSection.Type.entries.map { type ->
                 SuggestionSection(
                     title = when (type) {
+                        SuggestionSection.Type.Franchise -> context.stringResource(SYMR.strings.related_mangas_website_suggestions)
                         SuggestionSection.Type.Similarity -> context.stringResource(SYMR.strings.relation_similar)
                         SuggestionSection.Type.Author -> context.stringResource(SYMR.strings.author_hint, anime.author ?: "")
-                        SuggestionSection.Type.Source -> context.stringResource(KMR.strings.related_mangas_website_suggestions)
+                        SuggestionSection.Type.Source -> "Recommended"
                         SuggestionSection.Type.Tag -> context.stringResource(SYMR.strings.az_recommends)
                         SuggestionSection.Type.Community -> context.stringResource(MR.strings.latest)
                     },
@@ -375,11 +377,13 @@ class AnimeScreenModel(
                 )
             }.toMutableList()
 
-            fun rankAndSortItems(items: List<Anime>, currentAnime: Anime): List<Anime> {
+            fun rankAndSortItems(items: List<Anime>, currentAnime: Anime, type: SuggestionSection.Type): List<Anime> {
+            fun rankAndSortItems(items: List<Anime>, currentAnime: Anime, type: SuggestionSection.Type): List<Anime> {
                 return items.distinctBy { it.id }
                     .filter { it.id != currentAnime.id }
                     .map { candidate ->
-                        // 1. Metadata Similarity (Already filtered by search query/overlap in logic below)
+                        // 1. Metadata Similarity
+                        val titleSim = eu.kanade.tachiyomi.util.lang.StringSimilarity.tokenSortRatio(currentAnime.title, candidate.title)
                         
                         // 2. User Affinity Score
                         var affinityScore = 0f
@@ -390,13 +394,15 @@ class AnimeScreenModel(
                             affinityScore += (affinityMap["studio:${author.trim().lowercase()}"] ?: 0f) * 1.5f
                         }
 
-                        // 3. Franchise Penalty (De-Sequelizer)
+                        // 3. Franchise Boost / Penalty
                         val isFranchise = library.any { lib ->
                             eu.kanade.tachiyomi.util.lang.StringSimilarity.tokenSortRatio(candidate.title, lib.anime.title) > 80
                         }
-                        val penalty = if (isFranchise) 0.2f else 1.0f
+                        
+                        val franchiseWeight = if (type == SuggestionSection.Type.Franchise) 2.5f else if (isFranchise) 0.5f else 1.0f
+                        val baseScore = 1.0f // Ensure non-zero ranking
 
-                        candidate to (affinityScore * penalty)
+                        candidate to ((baseScore + affinityScore) * (0.5f + titleSim.toFloat()) * franchiseWeight)
                     }
                     .sortedByDescending { it.second }
                     .map { it.first }
@@ -406,7 +412,7 @@ class AnimeScreenModel(
                 updateSuccessState { state ->
                     val index = initialSections.indexOfFirst { it.type == type }
                     if (index != -1) {
-                        initialSections[index] = initialSections[index].copy(items = rankAndSortItems(items, state.anime).toImmutableList())
+                        initialSections[index] = initialSections[index].copy(items = rankAndSortItems(items, state.anime, type).toImmutableList())
                     }
                     val finalSections = initialSections
                         .filter { it.items.isNotEmpty() }
@@ -417,12 +423,32 @@ class AnimeScreenModel(
                 }
             }
 
+            // 0. Franchise (Sequels, Prequels, OVAs) - Priority 0
+            launchIO {
+                val rootTitle = eu.kanade.tachiyomi.util.lang.StringSimilarity.getRootTitle(anime.title)
+                try {
+                    val searchResult = source.getSearchAnime(1, rootTitle, source.getFilterList())
+                    val domainAnimes = kotlinx.coroutines.coroutineScope {
+                        searchResult.animes
+                            .filter { it.url != anime.url }
+                            .map { sAnime ->
+                                async {
+                                    val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
+                                    getAnime.await(localAnime.id)
+                                }
+                            }.awaitAll().filterNotNull()
+                    }
+                    if (domainAnimes.isNotEmpty()) updateSection(SuggestionSection.Type.Franchise, domainAnimes)
+                } catch (e: Exception) {
+                    logcat(LogPriority.ERROR, e)
+                }
+            }
+
             // 1. Similar Titles (Waterfall loop for high density - priority 1)
             launchIO {
                 val titleKeywords = eu.kanade.tachiyomi.util.lang.StringSimilarity.getSearchKeywords(anime.title)
                 val queries = listOfNotNull(
-                    anime.title.replace(Regex("[^a-zA-Z0-9 ]"), " ").trim(), 
-                    titleKeywords.takeIf { it != anime.title }, 
+                    titleKeywords.takeIf { it.length > 3 },
                     anime.title.split(" ").firstOrNull()?.takeIf { it.length > 3 }
                 ).distinct()
 
@@ -444,15 +470,14 @@ class AnimeScreenModel(
                                             intersect.toDouble() / anime.genre!!.size.coerceAtLeast(1)
                                         } else 0.0
                                         
-                                        // Broadened threshold to 0.15 for better variety
                                         val totalScore = eu.kanade.tachiyomi.util.lang.StringSimilarity.adaptiveScore(titleSim, genreOverlap)
-                                        if (totalScore < 0.15) return@async null
+                                        if (totalScore < 0.1) return@async null // Relaxed even more
                                         fullAnime
                                     }
                                 }.awaitAll().filterNotNull()
                         }
                         allSimilar.addAll(domainAnimes)
-                        if (allSimilar.distinctBy { it.id }.size >= 15) break
+                        if (allSimilar.distinctBy { it.id }.size >= 20) break
                     } catch (e: Exception) {
                         logcat(LogPriority.ERROR, e)
                     }
@@ -460,23 +485,26 @@ class AnimeScreenModel(
                 if (allSimilar.isNotEmpty()) updateSection(SuggestionSection.Type.Similarity, allSimilar)
             }
 
-            // 2. More by Author
+            // 2. More by Author (Enhanced Multi-Author)
             launchIO {
-                val author = anime.author?.trim()
-                if (!author.isNullOrBlank() && author != "Unknown") {
-                    try {
-                        val searchResult = source.getSearchAnime(1, author, source.getFilterList())
-                        val domainAnimes = searchResult.animes
-                            .filter { it.url != anime.url }
-                            .map { sAnime ->
-                                val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
-                                getAnime.await(localAnime.id)
-                            }.filterNotNull().take(15)
-
-                        if (domainAnimes.isNotEmpty()) updateSection(SuggestionSection.Type.Author, domainAnimes)
-                    } catch (e: Exception) {
-                        logcat(LogPriority.ERROR, e)
+                val authors = anime.author?.split(",")?.map { it.trim() }?.filter { it.isNotBlank() && it != "Unknown" } ?: emptyList()
+                if (authors.isNotEmpty()) {
+                    val allAuthorAnimes = mutableListOf<Anime>()
+                    for (author in authors.take(2)) { // Search for first two studios/authors
+                        try {
+                            val searchResult = source.getSearchAnime(1, author, source.getFilterList())
+                            val domainAnimes = searchResult.animes
+                                .filter { it.url != anime.url }
+                                .map { sAnime ->
+                                    val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
+                                    getAnime.await(localAnime.id)
+                                }.filterNotNull()
+                            allAuthorAnimes.addAll(domainAnimes)
+                        } catch (e: Exception) {
+                            logcat(LogPriority.ERROR, e)
+                        }
                     }
+                    if (allAuthorAnimes.isNotEmpty()) updateSection(SuggestionSection.Type.Author, allAuthorAnimes)
                 }
             }
 
@@ -499,7 +527,7 @@ class AnimeScreenModel(
 
             // 4. Recommendations (Tag-based)
             launchIO {
-                val tags = anime.genre?.take(3) ?: emptyList()
+                val tags = anime.genre?.take(5) ?: emptyList()
                 if (tags.isNotEmpty()) {
                     val tagSuggestions = tags.map { tag ->
                         async {
@@ -516,7 +544,7 @@ class AnimeScreenModel(
                                 }
                             } catch (e: Exception) { emptyList<Anime>() }
                         }
-                    }.awaitAll().flatten().distinctBy { it.id }.take(20)
+                    }.awaitAll().flatten().distinctBy { it.id }.take(30)
 
                     if (tagSuggestions.isNotEmpty()) updateSection(SuggestionSection.Type.Tag, tagSuggestions)
                 }
