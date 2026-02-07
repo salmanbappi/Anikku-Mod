@@ -171,78 +171,88 @@ fun AnimeActionRow(
         }
     }
 
-    Row(modifier = modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp)) {
-        AnimeActionButton(
-            title = if (favorite) {
-                stringResource(MR.strings.in_library)
-            } else {
-                stringResource(MR.strings.add_to_library)
-            },
-            icon = if (favorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-            color = if (favorite) MaterialTheme.colorScheme.primary else defaultActionButtonColor,
-            onClick = onAddToLibraryClicked,
-            onLongClick = onEditCategory,
-        )
-        AnimeActionButton(
-            title = when (nextUpdateDays) {
-                null -> stringResource(MR.strings.not_applicable)
-                0 -> stringResource(MR.strings.manga_interval_expected_update_soon)
-                else -> pluralStringResource(
-                    MR.plurals.day,
-                    count = nextUpdateDays,
-                    nextUpdateDays,
-                )
-            },
-            icon = Icons.Default.HourglassEmpty,
-            color = if (isUserIntervalMode) MaterialTheme.colorScheme.primary else defaultActionButtonColor,
-            onClick = { onEditIntervalClicked?.invoke() },
-        )
-        AnimeActionButton(
-            title = if (trackingCount == 0 && localScore != null && localScore > 0) {
-                "Rated: ${localScore.toInt()}"
-            } else if (trackingCount == 0) {
-                stringResource(MR.strings.manga_tracking_tab)
-            } else {
-                pluralStringResource(MR.plurals.num_trackers, count = trackingCount, trackingCount)
-            },
-            icon = if (trackingCount == 0 && (localScore == null || localScore == 0.0)) {
-                Icons.Outlined.Sync
-            } else if (trackingCount > 0) {
-                Icons.Outlined.Done
-            } else {
-                null
-            },
-            color = if (trackingCount == 0 && localScore == null) defaultActionButtonColor else MaterialTheme.colorScheme.primary,
-            onClick = if (trackingCount == 0) (onLocalScoreClicked ?: onTrackingClicked) else onTrackingClicked,
-            iconContent = if (trackingCount == 0 && localScore != null && localScore > 0) {
-                {
-                    Box(
-                        modifier = Modifier
-                            .size(20.dp)
-                            .background(MaterialTheme.colorScheme.primary, CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = localScore.toInt().toString(),
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-            } else {
-                null
-            }
-        )
-
-        if (onWebViewClicked != null) {
+    Surface(
+        modifier = modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.6f),
+        shape = MaterialTheme.shapes.extraLarge,
+        tonalElevation = 2.dp
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             AnimeActionButton(
-                title = stringResource(MR.strings.action_web_view),
-                icon = Icons.Outlined.Public,
-                color = defaultActionButtonColor,
-                onClick = onWebViewClicked,
-                onLongClick = onWebViewLongClicked,
+                title = if (favorite) {
+                    stringResource(MR.strings.in_library)
+                } else {
+                    stringResource(MR.strings.add_to_library)
+                },
+                icon = if (favorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                color = if (favorite) MaterialTheme.colorScheme.primary else defaultActionButtonColor,
+                onClick = onAddToLibraryClicked,
+                onLongClick = onEditCategory,
             )
+            AnimeActionButton(
+                title = when (nextUpdateDays) {
+                    null -> stringResource(MR.strings.not_applicable)
+                    0 -> stringResource(MR.strings.manga_interval_expected_update_soon)
+                    else -> pluralStringResource(
+                        MR.plurals.day,
+                        count = nextUpdateDays,
+                        nextUpdateDays,
+                    )
+                },
+                icon = Icons.Default.HourglassEmpty,
+                color = if (isUserIntervalMode) MaterialTheme.colorScheme.primary else defaultActionButtonColor,
+                onClick = { onEditIntervalClicked?.invoke() },
+            )
+            AnimeActionButton(
+                title = if (trackingCount == 0 && localScore != null && localScore > 0) {
+                    "Rated: ${localScore.toInt()}"
+                } else if (trackingCount == 0) {
+                    stringResource(MR.strings.manga_tracking_tab)
+                } else {
+                    pluralStringResource(MR.plurals.num_trackers, count = trackingCount, trackingCount)
+                },
+                icon = if (trackingCount == 0 && (localScore == null || localScore == 0.0)) {
+                    Icons.Outlined.Sync
+                } else if (trackingCount > 0) {
+                    Icons.Outlined.Done
+                } else {
+                    null
+                },
+                color = if (trackingCount == 0 && localScore == null) defaultActionButtonColor else MaterialTheme.colorScheme.primary,
+                onClick = if (trackingCount == 0) (onLocalScoreClicked ?: onTrackingClicked) else onTrackingClicked,
+                iconContent = if (trackingCount == 0 && localScore != null && localScore > 0) {
+                    {
+                        Box(
+                            modifier = Modifier
+                                .size(20.dp)
+                                .background(MaterialTheme.colorScheme.primary, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = localScore.toInt().toString(),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                } else {
+                    null
+                }
+            )
+
+            if (onWebViewClicked != null) {
+                AnimeActionButton(
+                    title = stringResource(MR.strings.action_web_view),
+                    icon = Icons.Outlined.Public,
+                    color = defaultActionButtonColor,
+                    onClick = onWebViewClicked,
+                    onLongClick = onWebViewLongClicked,
+                )
+            }
         }
     }
 }
@@ -390,17 +400,17 @@ private fun AnimeAndSourceTitlesSmall(
     onCoverClick: () -> Unit,
     doSearch: (query: String, global: Boolean) -> Unit,
 ) {
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 16.dp, top = appBarPadding + 16.dp, end = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         AnimeCover.Book(
             modifier = Modifier
-                .sizeIn(maxWidth = 100.dp)
-                .align(Alignment.Top),
+                .width(140.dp)
+                .aspectRatio(AnimeCover.Book.ratio),
             data = anime.asAnimeCover(),
             contentDescription = stringResource(MR.strings.manga_cover),
             onClick = onCoverClick,
@@ -408,20 +418,17 @@ private fun AnimeAndSourceTitlesSmall(
                 eu.kanade.tachiyomi.util.system.CoverColorExtractor.extract(cover, result)
             },
         )
-        Column(
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-        ) {
-            AnimeContentInfo(
-                title = anime.title,
-                author = anime.author,
-                artist = anime.artist,
-                status = anime.status,
-                score = anime.score,
-                sourceName = sourceName,
-                isStubSource = isStubSource,
-                doSearch = doSearch,
-            )
-        }
+        AnimeContentInfo(
+            title = anime.title,
+            author = anime.author,
+            artist = anime.artist,
+            status = anime.status,
+            score = anime.score,
+            sourceName = sourceName,
+            isStubSource = isStubSource,
+            doSearch = doSearch,
+            textAlign = TextAlign.Center,
+        )
     }
 }
 
@@ -511,14 +518,15 @@ private fun ColumnScope.AnimeContentInfo(
         }
     }
 
-    Spacer(modifier = Modifier.height(2.dp))
+    Spacer(modifier = Modifier.height(8.dp))
 
     Row(
-        modifier = Modifier.secondaryItemAlpha(),
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = if (textAlign == TextAlign.Center) Arrangement.Center else Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(
-            imageVector = when (status) {
+        InfoChip(
+            icon = when (status) {
                 SAnime.ONGOING.toLong() -> Icons.Outlined.Schedule
                 SAnime.COMPLETED.toLong() -> Icons.Outlined.DoneAll
                 SAnime.LICENSED.toLong() -> Icons.Outlined.AttachMoney
@@ -527,60 +535,66 @@ private fun ColumnScope.AnimeContentInfo(
                 SAnime.ON_HIATUS.toLong() -> Icons.Outlined.Pause
                 else -> Icons.Outlined.Block
             },
-            contentDescription = null,
-            modifier = Modifier
-                .padding(end = 4.dp)
-                .size(16.dp),
+            text = when (status) {
+                SAnime.ONGOING.toLong() -> stringResource(MR.strings.ongoing)
+                SAnime.COMPLETED.toLong() -> stringResource(MR.strings.completed)
+                SAnime.LICENSED.toLong() -> stringResource(MR.strings.licensed)
+                SAnime.PUBLISHING_FINISHED.toLong() -> stringResource(MR.strings.publishing_finished)
+                SAnime.CANCELLED.toLong() -> stringResource(MR.strings.cancelled)
+                SAnime.ON_HIATUS.toLong() -> stringResource(MR.strings.on_hiatus)
+                else -> stringResource(MR.strings.unknown)
+            },
         )
-        ProvideTextStyle(MaterialTheme.typography.bodyMedium) {
-            Text(
-                text = when (status) {
-                    SAnime.ONGOING.toLong() -> stringResource(MR.strings.ongoing)
-                    SAnime.COMPLETED.toLong() -> stringResource(MR.strings.completed)
-                    SAnime.LICENSED.toLong() -> stringResource(MR.strings.licensed)
-                    SAnime.PUBLISHING_FINISHED.toLong() -> stringResource(MR.strings.publishing_finished)
-                    SAnime.CANCELLED.toLong() -> stringResource(MR.strings.cancelled)
-                    SAnime.ON_HIATUS.toLong() -> stringResource(MR.strings.on_hiatus)
-                    else -> stringResource(MR.strings.unknown)
-                },
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1,
+        
+        if (score != null && score > 0) {
+            Spacer(modifier = Modifier.width(8.dp))
+            InfoChip(
+                icon = Icons.Default.Star,
+                text = score.toString(),
+                iconTint = Color(0xFFFFD700) // Gold
             )
-            if (score != null && score > 0) {
-                DotSeparatorText()
-                Icon(
-                    imageVector = Icons.Default.Star,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = score.toString(),
-                    maxLines = 1,
-                )
-            }
-            DotSeparatorText()
-            if (isStubSource) {
-                Icon(
-                    imageVector = Icons.Filled.Warning,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(end = 4.dp)
-                        .size(16.dp),
-                    tint = MaterialTheme.colorScheme.error,
-                )
-            }
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+        InfoChip(
+            icon = if (isStubSource) Icons.Filled.Warning else Icons.Outlined.Public,
+            text = sourceName,
+            iconTint = if (isStubSource) MaterialTheme.colorScheme.error else null,
+            onClick = { doSearch(sourceName, false) }
+        )
+    }
+}
+
+@Composable
+private fun InfoChip(
+    icon: ImageVector,
+    text: String,
+    iconTint: Color? = null,
+    onClick: (() -> Unit)? = null,
+) {
+    Surface(
+        modifier = Modifier
+            .clip(CircleShape)
+            .clickableNoIndication(onClick = onClick ?: {}),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        shape = CircleShape,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+                tint = iconTint ?: MaterialTheme.colorScheme.primary
+            )
             Text(
-                text = sourceName,
-                modifier = Modifier.clickableNoIndication {
-                    doSearch(
-                        sourceName,
-                        false,
-                    )
-                },
-                overflow = TextOverflow.Ellipsis,
+                text = text,
+                style = MaterialTheme.typography.labelMedium,
                 maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
