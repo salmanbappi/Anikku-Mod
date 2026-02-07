@@ -393,24 +393,24 @@ private fun AnimeScreenSmallImpl(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.7f) // Increased for more immersion
+                    .fillMaxHeight(0.85f) // Deep immersion
                     .graphicsLayer { 
-                        translationY = backdropOffset - 16.dp.toPx()
-                        scaleX = 1.15f
-                        scaleY = 1.15f
+                        translationY = backdropOffset
+                        scaleX = 1.3f // Dynamic zoom feel
+                        scaleY = 1.3f
                     }
                     .drawWithContent {
                         drawContent()
-                        // Top scrim for readability - Minimal
+                        // Cinematic Top Scrim
                         drawRect(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    Color.Black.copy(alpha = 0.3f),
-                                    Color.Black.copy(alpha = 0.1f),
+                                    Color.Black.copy(alpha = 0.6f),
+                                    Color.Black.copy(alpha = 0.2f),
                                     Color.Transparent,
                                 ),
                                 startY = 0f,
-                                endY = 180.dp.toPx(),
+                                endY = 220.dp.toPx(),
                             ),
                         )
                         drawRect(
@@ -421,7 +421,8 @@ private fun AnimeScreenSmallImpl(
                             ),
                         )
                     }
-                    .alpha(0.45f), // Increased opacity for better color pop
+                    .blur(if (isFirstItemVisible) 0.dp else 12.dp) // Progressive blur
+                    .alpha(0.55f),
             )
             Scaffold(
                 containerColor = Color.Transparent,
@@ -807,24 +808,24 @@ fun AnimeScreenLargeImpl(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.75f) // Increased height
+                    .fillMaxHeight(0.9f)
                     .graphicsLayer { 
-                        translationY = backdropOffset - 16.dp.toPx()
-                        scaleX = 1.2f // Increased scale
-                        scaleY = 1.2f
+                        translationY = backdropOffset
+                        scaleX = 1.35f
+                        scaleY = 1.35f
                     }
                     .drawWithContent {
                         drawContent()
-                        // Top scrim for readability - Intensified
+                        // Intensified Cinematic Scrim
                         drawRect(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    Color.Black.copy(alpha = 0.8f), // Darker top
-                                    Color.Black.copy(alpha = 0.45f),
+                                    Color.Black.copy(alpha = 0.85f),
+                                    Color.Black.copy(alpha = 0.4f),
                                     Color.Transparent,
                                 ),
                                 startY = 0f,
-                                endY = 240.dp.toPx(),
+                                endY = 280.dp.toPx(),
                             ),
                         )
                         drawRect(
@@ -835,8 +836,8 @@ fun AnimeScreenLargeImpl(
                             ),
                         )
                     }
-                    .blur(16.dp)
-                    .alpha(0.5f), // Higher alpha
+                    .blur(20.dp)
+                    .alpha(0.6f),
             )
             Scaffold(
                 containerColor = Color.Transparent,
