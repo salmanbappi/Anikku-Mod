@@ -193,41 +193,42 @@ fun AnimeActionRow(
             color = MaterialTheme.colorScheme.surfaceContainer,
             shape = MaterialTheme.shapes.medium,
         ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            AnimeActionButton(
-                title = if (favorite) stringResource(MR.strings.in_library) else stringResource(MR.strings.add_to_library),
-                icon = if (favorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                color = if (favorite) MaterialTheme.colorScheme.primary else defaultActionButtonColor,
-                onClick = onAddToLibraryClicked,
-                onLongClick = onEditCategory,
-            )
-            AnimeActionButton(
-                title = if (trackingCount == 0 && localScore != null && localScore > 0) {
-                    "${localScore.toInt()}/10"
-                } else if (trackingCount == 0) {
-                    stringResource(MR.strings.manga_tracking_tab)
-                } else {
-                    pluralStringResource(MR.plurals.num_trackers, count = trackingCount, trackingCount)
-                },
-                icon = if (trackingCount == 0 && (localScore == null || localScore == 0.0)) {
-                    Icons.Outlined.Sync
-                } else if (trackingCount > 0) {
-                    Icons.Outlined.Done
-                } else null,
-                color = if (trackingCount == 0 && localScore == null) defaultActionButtonColor else MaterialTheme.colorScheme.primary,
-                onClick = if (trackingCount == 0) (onLocalScoreClicked ?: onTrackingClicked) else onTrackingClicked,
-            )
-            if (onWebViewClicked != null) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 AnimeActionButton(
-                    title = stringResource(MR.strings.action_web_view),
-                    icon = Icons.Outlined.Public,
-                    color = defaultActionButtonColor,
-                    onClick = onWebViewClicked,
-                    onLongClick = onWebViewLongClicked,
+                    title = if (favorite) stringResource(MR.strings.in_library) else stringResource(MR.strings.add_to_library),
+                    icon = if (favorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                    color = if (favorite) MaterialTheme.colorScheme.primary else defaultActionButtonColor,
+                    onClick = onAddToLibraryClicked,
+                    onLongClick = onEditCategory,
                 )
+                AnimeActionButton(
+                    title = if (trackingCount == 0 && localScore != null && localScore > 0) {
+                        "${localScore.toInt()}/10"
+                    } else if (trackingCount == 0) {
+                        stringResource(MR.strings.manga_tracking_tab)
+                    } else {
+                        pluralStringResource(MR.plurals.num_trackers, count = trackingCount, trackingCount)
+                    },
+                    icon = if (trackingCount == 0 && (localScore == null || localScore == 0.0)) {
+                        Icons.Outlined.Sync
+                    } else if (trackingCount > 0) {
+                        Icons.Outlined.Done
+                    } else null,
+                    color = if (trackingCount == 0 && localScore == null) defaultActionButtonColor else MaterialTheme.colorScheme.primary,
+                    onClick = if (trackingCount == 0) (onLocalScoreClicked ?: onTrackingClicked) else onTrackingClicked,
+                )
+                if (onWebViewClicked != null) {
+                    AnimeActionButton(
+                        title = stringResource(MR.strings.action_web_view),
+                        icon = Icons.Outlined.Public,
+                        color = defaultActionButtonColor,
+                        onClick = onWebViewClicked,
+                        onLongClick = onWebViewLongClicked,
+                    )
+                }
             }
         }
     }
@@ -552,7 +553,7 @@ private fun AnimeContentInfo(
             icon = if (isStubSource) Icons.Filled.Warning else if (sourceName.contains("Local")) Icons.Outlined.DoneAll else Icons.Outlined.Public,
             text = if (isStubSource) sourceName else if (sourceName.contains("Local")) stringResource(MR.strings.local_source) else "Global",
             iconTint = if (isStubSource) MaterialTheme.colorScheme.error else null,
-            onClick = { 
+            onClick = {
                 context.copyToClipboard(sourceName, sourceName)
                 context.toast(sourceName)
             }
@@ -594,6 +595,8 @@ private fun InfoChip(
         }
     }
 }
+
+private val DISALLOWED_MARKDOWN_TYPES = emptySet<Any>()
 
 private val descriptionAnnotator = markdownAnnotator(
     annotate = { content, child ->
@@ -748,5 +751,4 @@ private fun RowScope.AnimeActionButton(
             )
         }
     }
-}
 }
