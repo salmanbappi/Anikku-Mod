@@ -1,5 +1,6 @@
 package eu.kanade.presentation.anime.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
@@ -61,7 +62,10 @@ fun AnimeToolbar(
     backgroundAlphaProvider: () -> Float = titleAlphaProvider,
 ) {
     Column(
-        modifier = modifier,
+        modifier = modifier.background(
+            MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
+                .copy(alpha = backgroundAlphaProvider()),
+        ),
     ) {
         val isActionMode = actionModeCounter > 0
         TopAppBar(

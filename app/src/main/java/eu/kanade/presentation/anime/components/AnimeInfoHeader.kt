@@ -65,7 +65,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawWithContent
@@ -623,10 +622,29 @@ private fun AnimeSummary(
             },
             {
                 // actual: the actual displayed content
+                val backgroundColor = MaterialTheme.colorScheme.background
                 SelectionContainer {
                     MarkdownRender(
                         content = description,
-                        modifier = Modifier.secondaryItemAlpha(),
+                        modifier = Modifier
+                            .secondaryItemAlpha()
+                            .drawWithContent {
+                                drawContent()
+                                if (animProgress < 1f) {
+                                    val gradientHeight = 64.dp.toPx()
+                                    drawRect(
+                                        brush = Brush.verticalGradient(
+                                            colors = listOf(
+                                                Color.Transparent,
+                                                backgroundColor,
+                                            ),
+                                            startY = size.height - gradientHeight,
+                                            endY = size.height,
+                                        ),
+                                        alpha = 1f - animProgress,
+                                    )
+                                }
+                            },
                         annotator = descriptionAnnotator,
                     )
                 }
