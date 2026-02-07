@@ -584,11 +584,19 @@ private fun AnimeScreenSmallImpl(
                                                 horizontalArrangement = Arrangement.SpaceBetween,
                                                 verticalAlignment = Alignment.CenterVertically,
                                             ) {
-                                                Text(
-                                                    text = stringResource(KMR.strings.related_mangas_website_suggestions),
-                                                    style = MaterialTheme.typography.titleSmall,
-                                                    color = MaterialTheme.colorScheme.primary,
-                                                )
+                                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                                    Icon(
+                                                        imageVector = androidx.compose.material.icons.Icons.Default.AutoAwesome,
+                                                        contentDescription = null,
+                                                        tint = MaterialTheme.colorScheme.primary,
+                                                        modifier = Modifier.size(18.dp)
+                                                    )
+                                                    Text(
+                                                        text = "Discovery",
+                                                        style = MaterialTheme.typography.titleSmall,
+                                                        color = MaterialTheme.colorScheme.primary,
+                                                    )
+                                                }
                                                 TextButton(
                                                     onClick = onToggleDiscoveryExpansion,
                                                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
@@ -619,12 +627,30 @@ private fun AnimeScreenSmallImpl(
                                             } else {
                                                 state.suggestionSections.forEach { section ->
                                                     Column(modifier = Modifier.padding(top = 4.dp)) {
-                                                        Text(
-                                                            text = section.title,
-                                                            style = MaterialTheme.typography.labelSmall,
+                                                        Row(
                                                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp),
-                                                            color = MaterialTheme.colorScheme.secondary
-                                                        )
+                                                            verticalAlignment = Alignment.CenterVertically,
+                                                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                                        ) {
+                                                            val icon = when (section.type) {
+                                                                SuggestionSection.Type.Similarity -> androidx.compose.material.icons.Icons.Outlined.Compare
+                                                                SuggestionSection.Type.Author -> androidx.compose.material.icons.Icons.Outlined.Person
+                                                                SuggestionSection.Type.Source -> androidx.compose.material.icons.Icons.Outlined.Language
+                                                                SuggestionSection.Type.Tag -> androidx.compose.material.icons.Icons.Outlined.Label
+                                                                SuggestionSection.Type.Community -> androidx.compose.material.icons.Icons.Outlined.NewReleases
+                                                            }
+                                                            Icon(
+                                                                imageVector = icon,
+                                                                contentDescription = null,
+                                                                modifier = Modifier.size(14.dp),
+                                                                tint = MaterialTheme.colorScheme.secondary
+                                                            )
+                                                            Text(
+                                                                text = section.title,
+                                                                style = MaterialTheme.typography.labelSmall,
+                                                                color = MaterialTheme.colorScheme.secondary
+                                                            )
+                                                        }
                                                         androidx.compose.foundation.lazy.LazyRow(
                                                             contentPadding = PaddingValues(horizontal = 12.dp),
                                                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -1002,11 +1028,19 @@ fun AnimeScreenLargeImpl(
                                                 horizontalArrangement = Arrangement.SpaceBetween,
                                                 verticalAlignment = Alignment.CenterVertically,
                                             ) {
-                                                Text(
-                                                    text = stringResource(KMR.strings.related_mangas_website_suggestions),
-                                                    style = MaterialTheme.typography.titleSmall,
-                                                    color = MaterialTheme.colorScheme.primary,
-                                                )
+                                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                                    Icon(
+                                                        imageVector = androidx.compose.material.icons.Icons.Default.AutoAwesome,
+                                                        contentDescription = null,
+                                                        tint = MaterialTheme.colorScheme.primary,
+                                                        modifier = Modifier.size(18.dp)
+                                                    )
+                                                    Text(
+                                                        text = "Discovery",
+                                                        style = MaterialTheme.typography.titleSmall,
+                                                        color = MaterialTheme.colorScheme.primary,
+                                                    )
+                                                }
                                                 TextButton(
                                                     onClick = onToggleDiscoveryExpansion,
                                                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
@@ -1037,12 +1071,30 @@ fun AnimeScreenLargeImpl(
                                             } else {
                                                 state.suggestionSections.forEach { section ->
                                                     Column(modifier = Modifier.padding(top = 4.dp)) {
-                                                        Text(
-                                                            text = section.title,
-                                                            style = MaterialTheme.typography.labelSmall,
+                                                        Row(
                                                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp),
-                                                            color = MaterialTheme.colorScheme.secondary
-                                                        )
+                                                            verticalAlignment = Alignment.CenterVertically,
+                                                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                                        ) {
+                                                            val icon = when (section.type) {
+                                                                SuggestionSection.Type.Similarity -> androidx.compose.material.icons.Icons.Outlined.Compare
+                                                                SuggestionSection.Type.Author -> androidx.compose.material.icons.Icons.Outlined.Person
+                                                                SuggestionSection.Type.Source -> androidx.compose.material.icons.Icons.Outlined.Language
+                                                                SuggestionSection.Type.Tag -> androidx.compose.material.icons.Icons.Outlined.Label
+                                                                SuggestionSection.Type.Community -> androidx.compose.material.icons.Icons.Outlined.NewReleases
+                                                            }
+                                                            Icon(
+                                                                imageVector = icon,
+                                                                contentDescription = null,
+                                                                modifier = Modifier.size(14.dp),
+                                                                tint = MaterialTheme.colorScheme.secondary
+                                                            )
+                                                            Text(
+                                                                text = section.title,
+                                                                style = MaterialTheme.typography.labelSmall,
+                                                                color = MaterialTheme.colorScheme.secondary
+                                                            )
+                                                        }
                                                         androidx.compose.foundation.lazy.LazyRow(
                                                             contentPadding = PaddingValues(horizontal = 12.dp),
                                                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -1351,6 +1403,15 @@ private fun SuggestionItem(
             },
             coverBadgeStart = {
                 eu.kanade.presentation.browse.components.InLibraryBadge(enabled = anime.favorite)
+            },
+            coverBadgeEnd = {
+                if (anime.score != null && anime.score!! > 0) {
+                    tachiyomi.presentation.core.components.Badge(
+                        text = String.format("%.1f", anime.score),
+                        color = MaterialTheme.colorScheme.tertiaryContainer,
+                        textColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                    )
+                }
             },
             onClick = onClick,
             onLongClick = {},
