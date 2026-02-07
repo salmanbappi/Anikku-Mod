@@ -356,6 +356,7 @@ fun ExpandableAnimeDescription(
 }
 
 @Composable
+@Composable
 private fun AnimeAndSourceTitlesLarge(
     appBarPadding: Dp,
     anime: Anime,
@@ -364,14 +365,17 @@ private fun AnimeAndSourceTitlesLarge(
     onCoverClick: () -> Unit,
     doSearch: (query: String, global: Boolean) -> Unit,
 ) {
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 16.dp, top = appBarPadding + 16.dp, end = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalArrangement = Arrangement.spacedBy(24.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         AnimeCover.Book(
-            modifier = Modifier.fillMaxWidth(0.65f),
+            modifier = Modifier
+                .width(160.dp)
+                .aspectRatio(AnimeCover.Book.ratio),
             data = anime.asAnimeCover(),
             contentDescription = stringResource(MR.strings.manga_cover),
             onClick = onCoverClick,
@@ -379,18 +383,22 @@ private fun AnimeAndSourceTitlesLarge(
                 eu.kanade.tachiyomi.util.system.CoverColorExtractor.extract(cover, result)
             },
         )
-        Spacer(modifier = Modifier.height(16.dp))
-        AnimeContentInfo(
-            title = anime.title,
-            author = anime.author,
-            artist = anime.artist,
-            status = anime.status,
-            score = anime.score,
-            sourceName = sourceName,
-            isStubSource = isStubSource,
-            doSearch = doSearch,
-            textAlign = TextAlign.Center,
-        )
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            AnimeContentInfo(
+                title = anime.title,
+                author = anime.author,
+                artist = anime.artist,
+                status = anime.status,
+                score = anime.score,
+                sourceName = sourceName,
+                isStubSource = isStubSource,
+                doSearch = doSearch,
+                textAlign = TextAlign.Start,
+            )
+        }
     }
 }
 
@@ -403,16 +411,16 @@ private fun AnimeAndSourceTitlesSmall(
     onCoverClick: () -> Unit,
     doSearch: (query: String, global: Boolean) -> Unit,
 ) {
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 16.dp, top = appBarPadding + 16.dp, end = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         AnimeCover.Book(
             modifier = Modifier
-                .width(140.dp)
+                .width(100.dp)
                 .aspectRatio(AnimeCover.Book.ratio),
             data = anime.asAnimeCover(),
             contentDescription = stringResource(MR.strings.manga_cover),
@@ -421,22 +429,27 @@ private fun AnimeAndSourceTitlesSmall(
                 eu.kanade.tachiyomi.util.system.CoverColorExtractor.extract(cover, result)
             },
         )
-        AnimeContentInfo(
-            title = anime.title,
-            author = anime.author,
-            artist = anime.artist,
-            status = anime.status,
-            score = anime.score,
-            sourceName = sourceName,
-            isStubSource = isStubSource,
-            doSearch = doSearch,
-            textAlign = TextAlign.Center,
-        )
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            AnimeContentInfo(
+                title = anime.title,
+                author = anime.author,
+                artist = anime.artist,
+                status = anime.status,
+                score = anime.score,
+                sourceName = sourceName,
+                isStubSource = isStubSource,
+                doSearch = doSearch,
+                textAlign = TextAlign.Start,
+            )
+        }
     }
 }
 
 @Composable
-private fun ColumnScope.AnimeContentInfo(
+private fun AnimeContentInfo(
     title: String,
     author: String?,
     artist: String?,
@@ -451,6 +464,8 @@ private fun ColumnScope.AnimeContentInfo(
     Text(
         text = title.ifBlank { stringResource(MR.strings.unknown_title) },
         style = MaterialTheme.typography.titleLarge,
+        maxLines = 2,
+        overflow = TextOverflow.Ellipsis,
         modifier = Modifier.clickableNoIndication(
             onLongClick = {
                 if (title.isNotBlank()) {
@@ -464,8 +479,6 @@ private fun ColumnScope.AnimeContentInfo(
         ),
         textAlign = textAlign,
     )
-
-    Spacer(modifier = Modifier.height(2.dp))
 
     Row(
         modifier = Modifier.secondaryItemAlpha(),
@@ -481,6 +494,8 @@ private fun ColumnScope.AnimeContentInfo(
             text = author?.takeIf { it.isNotBlank() }
                 ?: stringResource(MR.strings.unknown_author),
             style = MaterialTheme.typography.titleSmall,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .clickableNoIndication(
                     onLongClick = {
@@ -511,6 +526,8 @@ private fun ColumnScope.AnimeContentInfo(
             Text(
                 text = artist,
                 style = MaterialTheme.typography.titleSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
                     .clickableNoIndication(
                         onLongClick = { context.copyToClipboard(artist, artist) },
@@ -521,12 +538,12 @@ private fun ColumnScope.AnimeContentInfo(
         }
     }
 
-    Spacer(modifier = Modifier.height(8.dp))
+    Spacer(modifier = Modifier.height(4.dp))
 
-    Row(
+    FlowRow(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = if (textAlign == TextAlign.Center) Arrangement.Center else Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically,
+        verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         InfoChip(
             icon = when (status) {
@@ -550,15 +567,15 @@ private fun ColumnScope.AnimeContentInfo(
         )
         
         if (score != null && score > 0) {
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(4.dp))
             InfoChip(
                 icon = Icons.Default.Star,
-                text = score.toString(),
+                text = String.format("%.1f", score),
                 iconTint = Color(0xFFFFD700) // Gold
             )
         }
 
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(4.dp))
         InfoChip(
             icon = if (isStubSource) Icons.Filled.Warning else if (sourceName.contains("Local")) Icons.Outlined.DoneAll else Icons.Outlined.Public,
             text = if (isStubSource) sourceName else if (sourceName.contains("Local")) stringResource(MR.strings.local_source) else "Global",
