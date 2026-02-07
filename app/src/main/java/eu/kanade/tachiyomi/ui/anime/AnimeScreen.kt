@@ -87,15 +87,12 @@ class AnimeScreen(
 
     override fun onProvideAssistUrl() = assistUrl
 
-    @Transient
-    private val sourcePreferences: SourcePreferences by injectLazy()
-
-    @Transient
-    private val uiPreferences: UiPreferences by injectLazy()
-
     @Composable
     @Suppress("MagicNumber", "LongMethod", "CyclomaticComplexMethod")
     override fun Content() {
+        val sourcePreferences: SourcePreferences by injectLazy()
+        val uiPreferences: UiPreferences by injectLazy()
+
         if (!ifSourcesLoaded()) {
             LoadingScreen()
             return

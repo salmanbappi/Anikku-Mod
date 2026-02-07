@@ -162,7 +162,10 @@ fun MoreSheet(
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
             ) {
-                items(Decoder.entries.minus(Decoder.Auto)) { decoder ->
+                items(
+                    items = Decoder.entries.minus(Decoder.Auto),
+                    key = { "decoder-${it.name}" }
+                ) { decoder ->
                     FilterChip(
                         selected = decoder == selectedDecoder,
                         onClick = { onSelectDecoder(decoder) },
@@ -175,7 +178,10 @@ fun MoreSheet(
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
             ) {
-                items(7) { page ->
+                items(
+                    count = 7,
+                    key = { "stats-page-$it" }
+                ) { page ->
                     FilterChip(
                         label = {
                             Text(
@@ -266,7 +272,10 @@ fun MoreSheet(
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
             ) {
-                items(AudioChannels.entries) {
+                items(
+                    items = AudioChannels.entries,
+                    key = { "audio-channels-${it.name}" }
+                ) {
                     FilterChip(
                         selected = audioChannels == it,
                         onClick = {
