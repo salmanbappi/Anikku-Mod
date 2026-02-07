@@ -193,35 +193,12 @@ class BrowseSourceScreenModel(
     }
 
     /**
-     * Updated to handle mutual exclusivity in filter groups
+     * Updated to correctly update filter state without aggressive clearing
      */
     fun onFilterUpdate(filter: AnimeSourceModelFilter<*>) {
         if (source !is CatalogueSource) return
 
-        val currentFilters = state.value.filters
-        if (filter is AnimeSourceModelFilter.Group<*>) {
-            // Check if this group has any active selections
-            val isNotEmpty = filter.state.any {
-                (it as? AnimeSourceModelFilter.CheckBox)?.state == true ||
-                    (it as? AnimeSourceModelFilter.TriState)?.state != AnimeSourceModelFilter.TriState.STATE_IGNORE
-            }
-
-            if (isNotEmpty) {
-                // Clear other groups
-                currentFilters.filterIsInstance<AnimeSourceModelFilter.Group<*>>()
-                    .filter { it != filter }
-                    .forEach { group ->
-                        group.state.forEach { subFilter ->
-                            when (subFilter) {
-                                is AnimeSourceModelFilter.CheckBox -> subFilter.state = false
-                                is AnimeSourceModelFilter.TriState -> subFilter.state = AnimeSourceModelFilter.TriState.STATE_IGNORE
-                                else -> {}
-                            }
-                        }
-                    }
-            }
-        }
-        mutableState.update { it.copy(filters = currentFilters) }
+        mutableState.update { it.copy(filters = it.filters) }
     }
 
     fun saveSearch(name: String) {
@@ -268,7 +245,8 @@ class BrowseSourceScreenModel(
 
     fun search(query: String? = null, filters: FilterList? = null) {
         val nextListing = Listing.Search(query, filters ?: state.value.filters)
-        if (state.value.listing == nextListing) return
+        // Force update by not checking equality for Search listings, 
+        // as FilterList is mutable and reference might be same
         mutableState.update { it.copy(listing = nextListing) }
     }
 
