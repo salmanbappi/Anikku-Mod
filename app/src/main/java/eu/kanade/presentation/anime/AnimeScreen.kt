@@ -647,11 +647,11 @@ private fun AnimeScreenSmallImpl(
                                                                 SuggestionSection.Type.Community -> androidx.compose.material.icons.Icons.Outlined.NewReleases
                                                             }
                                                             val label = when (section.type) {
-                                                                SuggestionSection.Type.Similarity -> "AI Recommendations"
+                                                                SuggestionSection.Type.Similarity -> stringResource(SYMR.strings.relation_similar)
                                                                 SuggestionSection.Type.Author -> section.title
                                                                 SuggestionSection.Type.Source -> section.title
-                                                                SuggestionSection.Type.Tag -> "Recommendations"
-                                                                SuggestionSection.Type.Community -> "What's New"
+                                                                SuggestionSection.Type.Tag -> stringResource(SYMR.strings.az_recommends)
+                                                                SuggestionSection.Type.Community -> stringResource(MR.strings.latest)
                                                             }
                                                             Icon(
                                                                 imageVector = icon,
@@ -1098,11 +1098,11 @@ fun AnimeScreenLargeImpl(
                                                                 SuggestionSection.Type.Community -> androidx.compose.material.icons.Icons.Outlined.NewReleases
                                                             }
                                                             val label = when (section.type) {
-                                                                SuggestionSection.Type.Similarity -> "AI Recommendations"
+                                                                SuggestionSection.Type.Similarity -> stringResource(SYMR.strings.relation_similar)
                                                                 SuggestionSection.Type.Author -> section.title
                                                                 SuggestionSection.Type.Source -> section.title
-                                                                SuggestionSection.Type.Tag -> "Recommendations"
-                                                                SuggestionSection.Type.Community -> "What's New"
+                                                                SuggestionSection.Type.Tag -> stringResource(SYMR.strings.az_recommends)
+                                                                SuggestionSection.Type.Community -> stringResource(MR.strings.latest)
                                                             }
                                                             Icon(
                                                                 imageVector = icon,
