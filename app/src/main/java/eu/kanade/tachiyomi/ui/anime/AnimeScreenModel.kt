@@ -319,77 +319,28 @@ class AnimeScreenModel(
         screenModelScope.launchIO {
             val source = sourceManager.get(anime.source) as? AnimeCatalogueSource ?: return@launchIO
             
-            // 1. Source-provided "Related" section
-            launchIO {
-                getRelatedAnime.subscribe(anime).collect { (_, animes) ->
-                    if (animes.isNotEmpty()) {
-                        val domainAnimes = kotlinx.coroutines.coroutineScope {
-                            animes.map { sAnime ->
-                                async {
-                                    val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
-                                    getAnime.await(localAnime.id)
-                                }
-                            }.awaitAll().filterNotNull()
-                        }
-                        
-                        updateSuccessState { state ->
-                            val newSection = SuggestionSection(
-                                title = context.stringResource(KMR.strings.related_mangas_website_suggestions),
-                                items = domainAnimes.toImmutableList(),
-                                type = SuggestionSection.Type.Source
-                            )
-                            val sections = state.suggestionSections.toMutableList()
-                            val index = sections.indexOfFirst { it.type == SuggestionSection.Type.Source }
-                            if (index != -1) sections[index] = newSection else sections.add(0, newSection)
-                            state.copy(
-                                suggestionSections = sections.toImmutableList(),
-                                suggestions = domainAnimes.toImmutableList() // Backwards compatibility
-                            )
+            // Helper to update and sort sections based on priority
+            fun updateAndSortSections(newSection: SuggestionSection) {
+                updateSuccessState { state ->
+                    val sections = state.suggestionSections.toMutableList()
+                    val index = sections.indexOfFirst { it.type == newSection.type }
+                    if (index != -1) sections[index] = newSection else sections.add(newSection)
+                    
+                    val sortedSections = sections.sortedBy { section ->
+                        when (section.type) {
+                            SuggestionSection.Type.Similarity -> 1
+                            SuggestionSection.Type.Author -> 2
+                            SuggestionSection.Type.Source -> 3
+                            SuggestionSection.Type.Tag -> 4
+                            SuggestionSection.Type.Community -> 5
                         }
                     }
+                    state.copy(suggestionSections = sortedSections.toImmutableList())
                 }
             }
 
-            // 2. Tag-based Recommendations
+            // 1. Hybrid Intelligence (Similarity) - Top Priority
             launchIO {
-                val tags = anime.genre?.take(3) ?: emptyList()
-                if (tags.isNotEmpty()) {
-                    val tagSuggestions = tags.map { tag ->
-                        async {
-                            try {
-                                val result = source.getSearchAnime(1, tag, source.getFilterList())
-                                result.animes
-                                    .filter { it.url != anime.url }
-                                    .map { sAnime ->
-                                        val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
-                                        getAnime.await(localAnime.id)
-                                    }.filterNotNull()
-                            } catch (e: Exception) { emptyList() }
-                        }
-                    }.awaitAll().flatten().distinctBy { it.id }.take(20)
-
-                    if (tagSuggestions.isNotEmpty()) {
-                        updateSuccessState { state ->
-                            val newSection = SuggestionSection(
-                                title = context.stringResource(SYMR.strings.az_recommends),
-                                items = tagSuggestions.toImmutableList(),
-                                type = SuggestionSection.Type.Tag
-                            )
-                            val sections = state.suggestionSections.toMutableList()
-                            val index = sections.indexOfFirst { it.type == SuggestionSection.Type.Tag }
-                            if (index != -1) sections[index] = newSection else {
-                                val sourceIndex = sections.indexOfFirst { it.type == SuggestionSection.Type.Source }
-                                sections.add(if (sourceIndex != -1) 1 else 0, newSection)
-                            }
-                            state.copy(suggestionSections = sections.toImmutableList())
-                        }
-                    }
-                }
-            }
-
-            // 3. Hybrid Intelligence (Similarity)
-            launchIO {
-                // TKE: Use meaningful keywords, not just the first words
                 val query = eu.kanade.tachiyomi.util.lang.StringSimilarity.getSearchKeywords(anime.title)
                 if (query.isNotBlank()) {
                     try {
@@ -419,17 +370,11 @@ class AnimeScreenModel(
                         }
 
                         if (domainAnimes.isNotEmpty()) {
-                            updateSuccessState { state ->
-                                val newSection = SuggestionSection(
-                                    title = context.stringResource(SYMR.strings.relation_similar),
-                                    items = domainAnimes.toImmutableList(),
-                                    type = SuggestionSection.Type.Similarity
-                                )
-                                val sections = state.suggestionSections.toMutableList()
-                                val index = sections.indexOfFirst { it.type == SuggestionSection.Type.Similarity }
-                                if (index != -1) sections[index] = newSection else sections.add(newSection)
-                                state.copy(suggestionSections = sections.toImmutableList())
-                            }
+                            updateAndSortSections(SuggestionSection(
+                                title = context.stringResource(SYMR.strings.relation_similar),
+                                items = domainAnimes.toImmutableList(),
+                                type = SuggestionSection.Type.Similarity
+                            ))
                         }
                     } catch (e: Exception) {
                         logcat(LogPriority.ERROR, e)
@@ -437,7 +382,7 @@ class AnimeScreenModel(
                 }
             }
 
-            // 4. More by Author
+            // 2. More by Author
             launchIO {
                 val author = anime.author?.trim()
                 if (!author.isNullOrBlank() && author != "Unknown") {
@@ -451,17 +396,11 @@ class AnimeScreenModel(
                             }.filterNotNull().take(15)
 
                         if (domainAnimes.isNotEmpty()) {
-                            updateSuccessState { state ->
-                                val newSection = SuggestionSection(
-                                    title = context.stringResource(SYMR.strings.author_hint, author),
-                                    items = domainAnimes.toImmutableList(),
-                                    type = SuggestionSection.Type.Author
-                                )
-                                val sections = state.suggestionSections.toMutableList()
-                                val index = sections.indexOfFirst { it.type == SuggestionSection.Type.Author }
-                                if (index != -1) sections[index] = newSection else sections.add(newSection)
-                                state.copy(suggestionSections = sections.toImmutableList())
-                            }
+                            updateAndSortSections(SuggestionSection(
+                                title = context.stringResource(SYMR.strings.author_hint, author),
+                                items = domainAnimes.toImmutableList(),
+                                type = SuggestionSection.Type.Author
+                            ))
                         }
                     } catch (e: Exception) {
                         logcat(LogPriority.ERROR, e)
@@ -469,11 +408,61 @@ class AnimeScreenModel(
                 }
             }
 
-            // 5. Community Trending (Trending on Source)
+            // 3. Source-provided "Related" section
+            launchIO {
+                getRelatedAnime.subscribe(anime).collect { (_, animes) ->
+                    if (animes.isNotEmpty()) {
+                        val domainAnimes = kotlinx.coroutines.coroutineScope {
+                            animes.map { sAnime ->
+                                async {
+                                    val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
+                                    getAnime.await(localAnime.id)
+                                }
+                            }.awaitAll().filterNotNull()
+                        }
+                        
+                        updateAndSortSections(SuggestionSection(
+                            title = context.stringResource(KMR.strings.related_mangas_website_suggestions),
+                            items = domainAnimes.toImmutableList(),
+                            type = SuggestionSection.Type.Source
+                        ))
+                    }
+                }
+            }
+
+            // 4. Tag-based Recommendations
+            launchIO {
+                val tags = anime.genre?.take(3) ?: emptyList()
+                if (tags.isNotEmpty()) {
+                    val tagSuggestions = tags.map { tag ->
+                        async {
+                            try {
+                                val result = source.getSearchAnime(1, tag, source.getFilterList())
+                                result.animes
+                                    .filter { it.url != anime.url }
+                                    .map { sAnime ->
+                                        val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
+                                        getAnime.await(localAnime.id)
+                                    }.filterNotNull()
+                            } catch (e: Exception) { emptyList() }
+                        }
+                    }.awaitAll().flatten().distinctBy { it.id }.take(20)
+
+                    if (tagSuggestions.isNotEmpty()) {
+                        updateAndSortSections(SuggestionSection(
+                            title = context.stringResource(SYMR.strings.az_recommends),
+                            items = tagSuggestions.toImmutableList(),
+                            type = SuggestionSection.Type.Tag
+                        ))
+                    }
+                }
+            }
+
+            // 5. Latest (Community Trending Replacement)
             launchIO {
                 try {
-                    val popularResult = source.getPopularAnime(1)
-                    val domainAnimes = popularResult.animes
+                    val latestResult = source.getLatestUpdates(1)
+                    val domainAnimes = latestResult.animes
                         .filter { it.url != anime.url }
                         .map { sAnime ->
                             val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
@@ -481,17 +470,11 @@ class AnimeScreenModel(
                         }.filterNotNull().take(15)
 
                     if (domainAnimes.isNotEmpty()) {
-                        updateSuccessState { state ->
-                            val newSection = SuggestionSection(
-                                title = context.stringResource(MR.strings.popular),
-                                items = domainAnimes.toImmutableList(),
-                                type = SuggestionSection.Type.Community
-                            )
-                            val sections = state.suggestionSections.toMutableList()
-                            val index = sections.indexOfFirst { it.type == SuggestionSection.Type.Community }
-                            if (index != -1) sections[index] = newSection else sections.add(newSection)
-                            state.copy(suggestionSections = sections.toImmutableList())
-                        }
+                        updateAndSortSections(SuggestionSection(
+                            title = context.stringResource(MR.strings.latest),
+                            items = domainAnimes.toImmutableList(),
+                            type = SuggestionSection.Type.Community
+                        ))
                     }
                 } catch (e: Exception) {
                     logcat(LogPriority.ERROR, e)
