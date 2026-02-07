@@ -399,48 +399,32 @@ private fun AnimeScreenSmallImpl(
                 backgroundColor.copy(alpha = 0.7f),
                 backgroundColor,
             )
-            coil3.compose.AsyncImage(
-                model = coil3.request.ImageRequest.Builder(context)
-                    .data(state.anime.asAnimeCover())
+            // Backdrop: 60:30:10 Design (60% Dominant Dark Surface)
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(state.anime)
                     .crossfade(true)
                     .build(),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.85f) // Deep immersion
-                    .graphicsLayer { 
-                        translationY = backdropOffset
-                        scaleX = 1.3f // Dynamic zoom feel
-                        scaleY = 1.3f
-                    }
-                    .drawWithContent {
-                        drawContent()
-                        // Cinematic Top Scrim
-                        drawRect(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Black.copy(alpha = 0.6f),
-                                    Color.Black.copy(alpha = 0.2f),
-                                    Color.Transparent,
-                                ),
-                                startY = 0f,
-                                endY = 220.dp.toPx(),
-                            ),
-                        )
-                        drawRect(
-                            brush = Brush.verticalGradient(
-                                colors = backdropGradientColors,
-                                startY = 0f,
-                                endY = size.height,
-                            ),
-                        )
-                    }
-                    .blur(if (isFirstItemVisible) 0.dp else 12.dp) // Progressive blur
-                    .alpha(0.45f), // Darkened for better contrast
+                    .fillMaxSize()
+                    .blur(40.dp) // High blur to remove distraction
+                    .alpha(0.15f), // Image as a subtle texture only
             )
-            // Extra scrim for vibrant images
-            Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.15f)))
+            // Dominant Gradient Scrim
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                                Color.Black,
+                            ),
+                        ),
+                    ),
+            )
             
             Scaffold(
                 containerColor = Color.Transparent,
