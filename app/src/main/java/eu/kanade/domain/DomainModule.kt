@@ -127,7 +127,7 @@ class DomainModule : InjektModule {
         addFactory { GetDuplicateLibraryAnime(get()) }
         addFactory { GetFavorites(get()) }
         addFactory { GetLibraryAnime(get()) }
-        addFactory { CalculateUserAffinity(get(), get(), get()) }
+        addFactory<CalculateUserAffinity> { CalculateUserAffinity(get(), get(), get()) }
         addFactory { GetAnimeWithEpisodes(get(), get()) }
         addFactory { GetAnimeByUrlAndSourceId(get()) }
         addFactory { GetAnime(get()) }

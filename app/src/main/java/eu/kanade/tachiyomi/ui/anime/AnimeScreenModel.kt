@@ -80,7 +80,7 @@ import tachiyomi.domain.track.interactor.GetTracks
 import tachiyomi.domain.track.interactor.GetTracksPerAnime
 import tachiyomi.domain.track.interactor.InsertTrack
 import tachiyomi.domain.track.model.Track
-import tachiyomi.domain.track.model.AutoTrackState
+import eu.kanade.tachiyomi.ui.anime.track.AutoTrackState
 import tachiyomi.domain.anime.interactor.GetDuplicateLibraryAnime
 import tachiyomi.domain.anime.interactor.SetAnimeEpisodeFlags
 import tachiyomi.domain.anime.interactor.SetCustomAnimeInfo
@@ -182,6 +182,7 @@ class AnimeScreenModel(
     private val networkToLocalAnime: NetworkToLocalAnime = Injekt.get(),
     private val getRelatedAnime: GetRelatedAnime = Injekt.get(),
     private val calculateUserAffinity: CalculateUserAffinity = Injekt.get(),
+    private val getLibraryAnime: GetLibraryAnime = Injekt.get(),
 ) : StateScreenModel<AnimeScreenModel.State>(State.Loading) {
 
     private val successState: State.Success?
@@ -374,9 +375,9 @@ class AnimeScreenModel(
                 )
             }.toMutableList()
 
-            fun rankAndSortItems(items: List<Anime>): List<Anime> {
+            fun rankAndSortItems(items: List<Anime>, currentAnime: Anime): List<Anime> {
                 return items.distinctBy { it.id }
-                    .filter { it.id != anime.id }
+                    .filter { it.id != currentAnime.id }
                     .map { candidate ->
                         // 1. Metadata Similarity (Already filtered by search query/overlap in logic below)
                         
@@ -405,7 +406,7 @@ class AnimeScreenModel(
                 updateSuccessState { state ->
                     val index = initialSections.indexOfFirst { it.type == type }
                     if (index != -1) {
-                        initialSections[index] = initialSections[index].copy(items = rankAndSortItems(items).toImmutableList())
+                        initialSections[index] = initialSections[index].copy(items = rankAndSortItems(items, anime).toImmutableList())
                     }
                     val finalSections = initialSections
                         .filter { it.items.isNotEmpty() }
