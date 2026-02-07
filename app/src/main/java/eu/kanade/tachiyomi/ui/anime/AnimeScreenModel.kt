@@ -315,15 +315,22 @@ class AnimeScreenModel(
         }
     }
 
-    // Simple in-memory cache to prevent nuking sources on configuration changes or quick navigation
+    private data class CachedSuggestions(
+        val sections: ImmutableList<SuggestionSection>,
+        val timestamp: Long,
+    )
+
     private companion object {
-        private val suggestionsCache = mutableMapOf<Long, ImmutableList<SuggestionSection>>()
+        // Limit to 50 anime to prevent OOM, LruCache is thread-safe
+        private val suggestionsCache = android.util.LruCache<Long, CachedSuggestions>(50)
+        private const val CACHE_TTL = 60 * 60 * 1000L // 1 hour
     }
 
     private suspend fun fetchSuggestions(anime: Anime) {
-        // Return cached results if available
-        suggestionsCache[anime.id]?.let { cached ->
-            updateSuccessState { it.copy(suggestionSections = cached) }
+        val now = System.currentTimeMillis()
+        val cached = suggestionsCache.get(anime.id)
+        if (cached != null && (now - cached.timestamp) < CACHE_TTL) {
+            updateSuccessState { it.copy(suggestionSections = cached.sections) }
             return
         }
 
@@ -352,7 +359,7 @@ class AnimeScreenModel(
                         initialSections[index] = initialSections[index].copy(items = items.toImmutableList())
                     }
                     val finalSections = initialSections.filter { it.items.isNotEmpty() }.toImmutableList()
-                    suggestionsCache[anime.id] = finalSections
+                    suggestionsCache.put(anime.id, CachedSuggestions(finalSections, System.currentTimeMillis()))
                     state.copy(suggestionSections = finalSections)
                 }
             }
