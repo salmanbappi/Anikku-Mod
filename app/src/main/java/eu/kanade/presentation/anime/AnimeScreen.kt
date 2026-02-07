@@ -393,8 +393,6 @@ private fun AnimeScreenSmallImpl(
             }
         }
 
-        Box(modifier = Modifier.fillMaxSize().background(backgroundColor)) {
-            val context = LocalContext.current
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -781,54 +779,11 @@ fun AnimeScreenLargeImpl(
             )
         }
 
-        Box(modifier = Modifier.fillMaxSize().background(backgroundColor)) {
-            val context = LocalContext.current
-            // Backdrop
-            val backdropGradientColors = listOf(
-                Color.Transparent,
-                backgroundColor.copy(alpha = 0.7f),
-                backgroundColor,
-            )
-            coil3.compose.AsyncImage(
-                model = coil3.request.ImageRequest.Builder(context)
-                    .data(state.anime.asAnimeCover())
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.9f)
-                    .graphicsLayer { 
-                        translationY = backdropOffset
-                        scaleX = 1.35f
-                        scaleY = 1.35f
-                    }
-                    .drawWithContent {
-                        drawContent()
-                        // Intensified Cinematic Scrim
-                        drawRect(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Black.copy(alpha = 0.85f),
-                                    Color.Black.copy(alpha = 0.4f),
-                                    Color.Transparent,
-                                ),
-                                startY = 0f,
-                                endY = 280.dp.toPx(),
-                            ),
-                        )
-                        drawRect(
-                            brush = Brush.verticalGradient(
-                                colors = backdropGradientColors,
-                                startY = 0f,
-                                endY = size.height,
-                            ),
-                        )
-                    }
-                    .blur(20.dp)
-                    .alpha(0.6f),
-            )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+        ) {
             Scaffold(
                 containerColor = Color.Transparent,
                 topBar = {
