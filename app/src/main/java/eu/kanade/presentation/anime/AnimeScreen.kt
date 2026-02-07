@@ -87,6 +87,8 @@ import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastMap
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
 import coil3.request.crossfade
 import eu.kanade.domain.source.service.SourcePreferences
 import eu.kanade.presentation.anime.components.AnimeActionRow
