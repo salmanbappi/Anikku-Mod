@@ -504,13 +504,16 @@ class AnimeScreenModel(
                         async {
                             try {
                                 val result = source.getSearchAnime(1, tag, source.getFilterList())
-                                result.animes
-                                    .filter { it.url != anime.url }
-                                    .map { sAnime ->
-                                        val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
-                                        getAnime.await(localAnime.id)
-                                    }.filterNotNull()
-                            } catch (e: Exception) { emptyList() }
+                                kotlinx.coroutines.coroutineScope {
+                                    val animes = result.animes.filter { it.url != anime.url }
+                                    animes.map { sAnime: SAnime ->
+                                        async {
+                                            val localAnime = networkToLocalAnime.await(sAnime.toDomainAnime(anime.source))
+                                            getAnime.await(localAnime.id)
+                                        }
+                                    }.awaitAll().filterNotNull()
+                                }
+                            } catch (e: Exception) { emptyList<Anime>() }
                         }
                     }.awaitAll().flatten().distinctBy { it.id }.take(20)
 
