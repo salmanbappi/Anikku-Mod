@@ -104,6 +104,7 @@ import tachiyomi.domain.storage.service.StoragePreferences
 import tachiyomi.domain.track.interactor.GetTracks
 import tachiyomi.i18n.MR
 import tachiyomi.i18n.kmk.KMR
+import tachiyomi.i18n.sy.SYMR
 import tachiyomi.source.local.LocalSource
 import tachiyomi.source.local.isLocal
 import uy.kohesive.injekt.Injekt
@@ -257,7 +258,7 @@ class AnimeScreenModel(
                         )
                     }
                     // If details were just loaded (genre added), retry suggestions
-                    if (oldAnime?.genre.isNullOrEmpty() && !anime.genre.isNullOrEmpty() && successState?.suggestions.isNullOrEmpty()) {
+                    if (oldAnime?.genre.isNullOrEmpty() && !anime.genre.isNullOrEmpty() && successState?.suggestionSections.isNullOrEmpty()) {
                         fetchSuggestions(anime)
                     }
                 }
@@ -369,7 +370,7 @@ class AnimeScreenModel(
                     if (tagSuggestions.isNotEmpty()) {
                         updateSuccessState { state ->
                             val newSection = SuggestionSection(
-                                title = context.stringResource(MR.strings.az_recommends),
+                                title = context.stringResource(SYMR.strings.az_recommends),
                                 items = tagSuggestions.toImmutableList(),
                                 type = SuggestionSection.Type.Tag
                             )
@@ -419,7 +420,7 @@ class AnimeScreenModel(
                         if (domainAnimes.isNotEmpty()) {
                             updateSuccessState { state ->
                                 val newSection = SuggestionSection(
-                                    title = context.stringResource(MR.strings.relation_similar),
+                                    title = context.stringResource(SYMR.strings.relation_similar),
                                     items = domainAnimes.toImmutableList(),
                                     type = SuggestionSection.Type.Similarity
                                 )
@@ -705,6 +706,31 @@ class AnimeScreenModel(
                 .flowWithLifecycle(lifecycle)
                 .collect { withUIContext { updateDownloadState(it) } }
         }
+    }
+
+    private fun observeTrackers() {
+        val anime = successState?.anime ?: return
+        screenModelScope.launchIO {
+            combine(getTracks.subscribe(anime.id).catch { logcat(LogPriority.ERROR, it) }, trackerManager.loggedInTrackersFlow()) { animeTracks, loggedInTrackers ->
+                val supportedTrackers = loggedInTrackers.filter { (it as? EnhancedTracker)?.accept(source!!) ?: true }
+                val supportedTrackerIds = supportedTrackers.map { it.id }.toHashSet()
+                val supportedTrackerTracks = animeTracks.filter { it.trackerId in supportedTrackerIds }
+                supportedTrackerTracks.size to supportedTrackers.isNotEmpty()
+            }.flowWithLifecycle(lifecycle).distinctUntilChanged().collectLatest { (trackingCount, hasLoggedInTrackers) ->
+                updateSuccessState { it.copy(trackingCount = trackingCount, hasLoggedInTrackers = hasLoggedInTrackers) }
+            }
+        }
+        screenModelScope.launchIO {
+            combine(getTracks.subscribe(anime.id).catch { logcat(LogPriority.ERROR, it) }, trackerManager.loggedInTrackersFlow()) { animeTracks, loggedInTrackers ->
+                loggedInTrackers.map { service -> TrackItem(animeTracks.find { it.trackerId == service.id }, service) }
+            }.distinctUntilChanged().collectLatest { trackItems -> updateAiringTime(anime, trackItems, manualFetch = false) }
+        }
+    }
+
+    private suspend fun updateAiringTime(anime: Anime, trackItems: List<TrackItem>, manualFetch: Boolean) {
+        val airingEpisodeData = AniChartApi().loadAiringTime(anime, trackItems, manualFetch)
+        setAnimeViewerFlags.awaitSetNextEpisodeAiring(anime.id, airingEpisodeData)
+        updateSuccessState { it.copy(nextAiringEpisode = airingEpisodeData) }
     }
 
     private fun updateDownloadState(download: Download) {

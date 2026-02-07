@@ -81,7 +81,6 @@ import androidx.compose.ui.util.fastMap
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.request.crossfade
-import eu.kanade.domain.ui.UiPreferences
 import eu.kanade.domain.source.service.SourcePreferences
 import eu.kanade.presentation.anime.components.AnimeActionRow
 import eu.kanade.presentation.anime.components.AnimeBottomActionMenu
@@ -333,6 +332,10 @@ private fun AnimeScreenSmallImpl(
     val episodes = remember(state) { state.processedEpisodes }
     val listItem = remember(state) { state.episodeListItems }
 
+    val isFirstItemVisible by remember {
+        derivedStateOf { episodeListState.firstVisibleItemIndex == 0 }
+    }
+
     val showSuggestions = sourcePreferences.relatedAnimeShowSource().collectAsState().value
 
     val isAnySelected by remember {
@@ -430,9 +433,6 @@ private fun AnimeScreenSmallImpl(
                 topBar = {
                     val selectedEpisodeCount: Int = remember(episodes) {
                         episodes.count { it.selected }
-                    }
-                    val isFirstItemVisible by remember {
-                        derivedStateOf { episodeListState.firstVisibleItemIndex == 0 }
                     }
                     val isFirstItemScrolled by remember {
                         derivedStateOf { episodeListState.firstVisibleItemScrollOffset > 0 }
