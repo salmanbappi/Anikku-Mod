@@ -58,7 +58,7 @@ private fun ExtensionFilterContent(
     ) {
         items(
             items = state.languages,
-            key = { it },
+            key = { "lang-$it" },
         ) { language ->
             SwitchPreferenceWidget(
                 modifier = Modifier.animateItem(),

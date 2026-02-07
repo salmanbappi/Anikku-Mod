@@ -37,7 +37,7 @@ fun LibraryCompactGrid(
         // recomposing when the list order changes or when individual items are updated.
         items(
             items = items,
-            key = { it.libraryAnime.anime.id },
+            key = { "anime-${it.libraryAnime.anime.id}" },
             contentType = { "anime_library_compact_grid_item" },
         ) { libraryItem ->
             val anime = libraryItem.libraryAnime.anime

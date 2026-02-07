@@ -93,8 +93,8 @@ fun InfrastructureScreen(
                                 item { EmptyState("No BDIX Nodes detected in your active extensions.") }
                             }
                             items(
-                                items = bdixNodes,
-                                key = { it.name } // Stable keys prevent jumping
+                                items = bdixNodes.distinctBy { it.name },
+                                key = { "node-${it.name}" } // Stable keys prevent jumping
                             ) { node ->
                                 SourceNodeAuditCard(node)
                             }
@@ -103,8 +103,8 @@ fun InfrastructureScreen(
                             item { InfrastructureHealthBoard(report.nodes) }
                             val globalNodes = report.nodes.filter { it.network.topology != "BDIX" }
                             items(
-                                items = globalNodes,
-                                key = { it.name }
+                                items = globalNodes.distinctBy { it.name },
+                                key = { "node-${it.name}" }
                             ) { node ->
                                 SourceNodeAuditCard(node)
                             }

@@ -60,7 +60,7 @@ private fun MigrateAnimeContent(
     ) {
         items(
             items = state.titles,
-            key = { it.id },
+            key = { "anime-${it.id}" },
         ) { anime ->
             MigrateAnimeItem(
                 anime = anime,

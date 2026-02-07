@@ -34,7 +34,7 @@ internal fun LibraryComfortableGrid(
 
         items(
             items = items,
-            key = { it.libraryAnime.anime.id },
+            key = { "anime-${it.libraryAnime.anime.id}" },
             contentType = { "anime_library_comfortable_grid_item" },
         ) { libraryItem ->
             val anime = libraryItem.libraryAnime.anime
