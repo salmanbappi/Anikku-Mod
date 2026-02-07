@@ -152,14 +152,22 @@ data class BrowseSourceScreen(
         val pagingFlow by screenModel.animePagerFlowFlow.collectAsState()
         val animeList = pagingFlow.collectAsLazyPagingItems()
 
+        val entries = screenModel.getColumnsPreferenceForCurrentOrientation(LocalConfiguration.current.orientation)
+
         Scaffold(
             topBar = {
                 Column(
                     modifier = Modifier
                         .background(MaterialTheme.colorScheme.surface)
-                        .onGloballyPositioned { layoutCoordinates ->
-                            topBarHeight = layoutCoordinates.size.height
-                        },
+                        .then(
+                            if (entries > 0) {
+                                Modifier.onGloballyPositioned { layoutCoordinates ->
+                                    topBarHeight = layoutCoordinates.size.height
+                                }
+                            } else {
+                                Modifier
+                            },
+                        ),
                 ) {
                     BrowseSourceToolbar(
                         searchQuery = state.toolbarQuery,
@@ -324,9 +332,6 @@ data class BrowseSourceScreen(
             },
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         ) { paddingValues ->
-            val pagingFlow by screenModel.animePagerFlowFlow.collectAsState()
-            val animeList = pagingFlow.collectAsLazyPagingItems()
-
             // Reactive Selection Engine: Observes load state to expand selection in 'Select All' mode.
             val isSelectAllMode = state.isSelectAllMode
             val targetCount = state.targetCount

@@ -574,50 +574,71 @@ private fun AnimeScreenSmallImpl(
                                                         )
                                                     }
 
-                            if (showSuggestions && state.suggestions.isNotEmpty()) {
-                                item(key = AnimeScreenItem.SUGGESTIONS, contentType = AnimeScreenItem.SUGGESTIONS) {
-                                    val navigator = LocalNavigator.currentOrThrow
-                                    Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(horizontal = 16.dp),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically,
-                                        ) {
-                                            Text(
-                                                text = stringResource(tachiyomi.i18n.kmk.KMR.strings.related_mangas_website_suggestions),
-                                                style = MaterialTheme.typography.titleMedium,
-                                            )
-                                            TextButton(onClick = { navigator.push(RelatedAnimeScreen(state.anime.id)) }) {
-                                                Text(text = stringResource(tachiyomi.i18n.MR.strings.label_more))
+                            if (showSuggestions && state.suggestionSections.isNotEmpty()) {
+                                state.suggestionSections.forEach { section ->
+                                    item(key = "suggestions-${section.type}", contentType = "suggestions") {
+                                        val navigator = LocalNavigator.currentOrThrow
+                                        Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(horizontal = 16.dp),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically,
+                                            ) {
+                                                Text(
+                                                    text = section.title,
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                )
+                                                TextButton(onClick = { 
+                                                    val relatedScreen = when (section.type) {
+                                                        SuggestionSection.Type.Source -> RelatedAnimeScreen(state.anime.id)
+                                                        SuggestionSection.Type.Author -> eu.kanade.tachiyomi.ui.browse.source.globalsearch.GlobalSearchScreen(state.anime.author!!)
+                                                        SuggestionSection.Type.Community -> eu.kanade.tachiyomi.ui.browse.source.browse.BrowseSourceScreen(state.source.id, null)
+                                                        else -> {
+                                                            // Fallback to global search for tag/similarity more
+                                                            val query = if (section.type == SuggestionSection.Type.Tag) {
+                                                                state.anime.genre?.firstOrNull() ?: state.anime.title
+                                                            } else state.anime.title
+                                                            eu.kanade.tachiyomi.ui.browse.source.globalsearch.GlobalSearchScreen(query)
+                                                        }
+                                                    }
+                                                    navigator.push(relatedScreen)
+                                                }) {
+                                                    Text(text = stringResource(tachiyomi.i18n.MR.strings.label_more))
+                                                }
                                             }
-                                        }
-                                        androidx.compose.foundation.lazy.LazyRow(
-                                            contentPadding = PaddingValues(horizontal = 16.dp),
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        ) {
-                                            items(
-                                                items = state.suggestions,
-                                                key = { "suggestion-${it.id}" },
-                                            ) { anime ->
-                                                Column(
-                                                    modifier = Modifier
-                                                        .width(96.dp)
-                                                        .clickableNoIndication { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(anime.id)) },
-                                                ) {
-                                                    eu.kanade.presentation.anime.components.AnimeCover.Book(
-                                                        data = anime.asAnimeCover(),
-                                                        contentDescription = "",
-                                                        modifier = Modifier.fillMaxWidth(),
-                                                    )
-                                                    Text(
-                                                        text = anime.title,
-                                                        style = MaterialTheme.typography.labelSmall,
-                                                        maxLines = 2,
-                                                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                                                        modifier = Modifier.padding(top = 4.dp),
-                                                    )
+                                            androidx.compose.foundation.lazy.LazyRow(
+                                                contentPadding = PaddingValues(horizontal = 16.dp),
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            ) {
+                                                items(
+                                                    items = section.items,
+                                                    key = { "suggestion-${section.type}-${it.id}" },
+                                                ) { anime ->
+                                                    Box(modifier = Modifier.width(112.dp)) {
+                                                        eu.kanade.presentation.library.components.AnimeComfortableGridItem(
+                                                            title = anime.title,
+                                                            coverData = remember(anime.id) {
+                                                                tachiyomi.domain.anime.model.AnimeCover(
+                                                                    animeId = anime.id,
+                                                                    sourceId = anime.source,
+                                                                    isAnimeFavorite = anime.favorite,
+                                                                    ogUrl = anime.thumbnailUrl,
+                                                                    lastModified = anime.coverLastModified,
+                                                                )
+                                                            },
+                                                            coverBadgeStart = {
+                                                                eu.kanade.presentation.browse.components.InLibraryBadge(enabled = anime.favorite)
+                                                            },
+                                                            onClick = { 
+                                                                navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(anime.id))
+                                                            },
+                                                            onLongClick = { 
+                                                                // Optional: Add to library on long press could be added here
+                                                            },
+                                                        )
+                                                    }
                                                 }
                                             }
                                         }
@@ -963,49 +984,67 @@ fun AnimeScreenLargeImpl(
                                     onCopyTagToClipboard = onCopyTagToClipboard,
                                 )
 
-                                if (showSuggestions && state.suggestions.isNotEmpty()) {
+                                if (showSuggestions && state.suggestionSections.isNotEmpty()) {
                                     val navigator = LocalNavigator.currentOrThrow
-                                    Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(horizontal = 16.dp),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically,
-                                        ) {
-                                            Text(
-                                                text = stringResource(tachiyomi.i18n.kmk.KMR.strings.related_mangas_website_suggestions),
-                                                style = MaterialTheme.typography.titleMedium,
-                                            )
-                                            TextButton(onClick = { navigator.push(RelatedAnimeScreen(state.anime.id)) }) {
-                                                Text(text = stringResource(tachiyomi.i18n.MR.strings.label_more))
+                                    state.suggestionSections.forEach { section ->
+                                        Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(horizontal = 16.dp),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically,
+                                            ) {
+                                                Text(
+                                                    text = section.title,
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                )
+                                                TextButton(onClick = { 
+                                                    val relatedScreen = when (section.type) {
+                                                        SuggestionSection.Type.Source -> RelatedAnimeScreen(state.anime.id)
+                                                        SuggestionSection.Type.Author -> eu.kanade.tachiyomi.ui.browse.source.globalsearch.GlobalSearchScreen(state.anime.author!!)
+                                                        SuggestionSection.Type.Community -> eu.kanade.tachiyomi.ui.browse.source.browse.BrowseSourceScreen(state.source.id, null)
+                                                        else -> {
+                                                            val query = if (section.type == SuggestionSection.Type.Tag) {
+                                                                state.anime.genre?.firstOrNull() ?: state.anime.title
+                                                            } else state.anime.title
+                                                            eu.kanade.tachiyomi.ui.browse.source.globalsearch.GlobalSearchScreen(query)
+                                                        }
+                                                    }
+                                                    navigator.push(relatedScreen)
+                                                }) {
+                                                    Text(text = stringResource(tachiyomi.i18n.MR.strings.label_more))
+                                                }
                                             }
-                                        }
-                                        androidx.compose.foundation.lazy.LazyRow(
-                                            contentPadding = PaddingValues(horizontal = 16.dp),
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        ) {
-                                            items(
-                                                items = state.suggestions,
-                                                key = { "suggestion-${it.id}" },
-                                            ) { anime ->
-                                                Column(
-                                                    modifier = Modifier
-                                                        .width(96.dp)
-                                                        .clickableNoIndication { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(anime.id)) },
-                                                ) {
-                                                    eu.kanade.presentation.anime.components.AnimeCover.Book(
-                                                        data = anime.asAnimeCover(),
-                                                        contentDescription = "",
-                                                        modifier = Modifier.fillMaxWidth(),
-                                                    )
-                                                    Text(
-                                                        text = anime.title,
-                                                        style = MaterialTheme.typography.labelSmall,
-                                                        maxLines = 2,
-                                                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                                                        modifier = Modifier.padding(top = 4.dp),
-                                                    )
+                                            androidx.compose.foundation.lazy.LazyRow(
+                                                contentPadding = PaddingValues(horizontal = 16.dp),
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            ) {
+                                                items(
+                                                    items = section.items,
+                                                    key = { "suggestion-${section.type}-${it.id}" },
+                                                ) { anime ->
+                                                    Box(modifier = Modifier.width(112.dp)) {
+                                                        eu.kanade.presentation.library.components.AnimeComfortableGridItem(
+                                                            title = anime.title,
+                                                            coverData = remember(anime.id) {
+                                                                tachiyomi.domain.anime.model.AnimeCover(
+                                                                    animeId = anime.id,
+                                                                    sourceId = anime.source,
+                                                                    isAnimeFavorite = anime.favorite,
+                                                                    ogUrl = anime.thumbnailUrl,
+                                                                    lastModified = anime.coverLastModified,
+                                                                )
+                                                            },
+                                                            coverBadgeStart = {
+                                                                eu.kanade.presentation.browse.components.InLibraryBadge(enabled = anime.favorite)
+                                                            },
+                                                            onClick = { 
+                                                                navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(anime.id))
+                                                            },
+                                                            onLongClick = { },
+                                                        )
+                                                    }
                                                 }
                                             }
                                         }
