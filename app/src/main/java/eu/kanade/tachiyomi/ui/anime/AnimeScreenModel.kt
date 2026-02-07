@@ -364,10 +364,19 @@ class AnimeScreenModel(
                 }
             }
 
-            // 1. Similar Titles (Honest name, single request)
+            // 1. Similar Titles (Safe waterfall loop: Exact -> Cleaned -> Keywords)
             launchIO {
-                val query = eu.kanade.tachiyomi.util.lang.StringSimilarity.getSearchKeywords(anime.title)
-                if (query.isNotBlank()) {
+                val titleKeywords = eu.kanade.tachiyomi.util.lang.StringSimilarity.getSearchKeywords(anime.title)
+                val queries = listOfNotNull(
+                    anime.title.replace(Regex("[^a-zA-Z0-9 ]"), " ").trim(), // Cleaned full title
+                    titleKeywords.takeIf { it != anime.title }, // Keywords if different
+                    anime.title.split(" ").firstOrNull()?.takeIf { it.length > 3 } // First word as fallback
+                ).distinct()
+
+                val allSimilarResults = mutableListOf<Anime>()
+                
+                for (query in queries) {
+                    if (allSimilarResults.size >= 10) break
                     try {
                         val searchResult = source.getSearchAnime(1, query, source.getFilterList())
                         val domainAnimes = kotlinx.coroutines.coroutineScope {
@@ -384,7 +393,7 @@ class AnimeScreenModel(
                                             intersect.toDouble() / anime.genre!!.size.coerceAtLeast(1)
                                         } else 0.0
                                         
-                                        // Reverted to strict 0.25 threshold
+                                        // Quality bar: 0.25
                                         val totalScore = eu.kanade.tachiyomi.util.lang.StringSimilarity.adaptiveScore(titleSim, genreOverlap)
                                         if (totalScore < 0.25) return@async null
                                         fullAnime to totalScore
@@ -392,13 +401,15 @@ class AnimeScreenModel(
                                 }.awaitAll().filterNotNull()
                                 .sortedByDescending { it.second }
                                 .map { it.first }
-                                .take(15)
                         }
-                        if (domainAnimes.isNotEmpty()) updateSection(SuggestionSection.Type.Similarity, domainAnimes)
+                        allSimilarResults.addAll(domainAnimes)
                     } catch (e: Exception) {
                         logcat(LogPriority.ERROR, e)
                     }
                 }
+
+                val finalSimilar = allSimilarResults.distinctBy { it.id }.take(20)
+                if (finalSimilar.isNotEmpty()) updateSection(SuggestionSection.Type.Similarity, finalSimilar)
             }
 
             // 2. More by Author

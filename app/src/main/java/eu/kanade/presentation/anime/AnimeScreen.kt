@@ -589,7 +589,7 @@ private fun AnimeScreenSmallImpl(
                                                 TextButton(
                                                     onClick = onToggleDiscoveryExpansion,
                                                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-                                                    modifier = Modifier.height(28.dp)
+                                                    modifier = Modifier.height(28.dp).alignByBaseline()
                                                 ) {
                                                     Text(
                                                         text = if (state.discoveryExpanded) "Collapse" else stringResource(tachiyomi.i18n.MR.strings.label_more),
@@ -1020,7 +1020,7 @@ fun AnimeScreenLargeImpl(
                                                 TextButton(
                                                     onClick = onToggleDiscoveryExpansion,
                                                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-                                                    modifier = Modifier.height(28.dp)
+                                                    modifier = Modifier.height(28.dp).alignByBaseline()
                                                 ) {
                                                     Text(
                                                         text = if (state.discoveryExpanded) "Collapse" else stringResource(tachiyomi.i18n.MR.strings.label_more),
