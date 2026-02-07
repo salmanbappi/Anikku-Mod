@@ -90,10 +90,13 @@ class AiAssistantScreenModel(
     private var messageCollectionJob: kotlinx.coroutines.Job? = null
 
     private fun loadSession(sessionId: Long) {
+        // Update ID immediately to prevent race conditions in sendMessage
+        mutableState.update { it.copy(activeSessionId = sessionId) }
+        
         messageCollectionJob?.cancel()
         messageCollectionJob = screenModelScope.launchIO {
             chatRepository.getMessagesBySessionId(sessionId).collectLatest { messages ->
-                mutableState.update { it.copy(activeSessionId = sessionId, messages = messages.toImmutableList()) }
+                mutableState.update { it.copy(messages = messages.toImmutableList()) }
             }
         }
     }

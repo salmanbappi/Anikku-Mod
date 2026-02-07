@@ -395,16 +395,16 @@ private fun AnimeScreenSmallImpl(
                     }
                     .drawWithContent {
                         drawContent()
-                        // Top scrim for readability - Intensified
+                        // Top scrim for readability - Minimal
                         drawRect(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    Color.Black.copy(alpha = 0.75f),
-                                    Color.Black.copy(alpha = 0.4f),
+                                    Color.Black.copy(alpha = 0.3f),
+                                    Color.Black.copy(alpha = 0.1f),
                                     Color.Transparent,
                                 ),
                                 startY = 0f,
-                                endY = 220.dp.toPx(),
+                                endY = 180.dp.toPx(),
                             ),
                         )
                         drawRect(
@@ -415,11 +415,11 @@ private fun AnimeScreenSmallImpl(
                             ),
                         )
                     }
-                    .blur(16.dp)
                     .alpha(0.45f), // Increased opacity for better color pop
             )
             Scaffold(
                 containerColor = Color.Transparent,
+                hazeEnabled = false,
                 topBar = {
                     val selectedEpisodeCount: Int = remember(episodes) {
                         episodes.count { it.selected }
