@@ -395,13 +395,7 @@ private fun AnimeScreenSmallImpl(
 
         Box(modifier = Modifier.fillMaxSize().background(backgroundColor)) {
             val context = LocalContext.current
-            // Backdrop with improved blending
-            val backdropGradientColors = listOf(
-                Color.Transparent,
-                backgroundColor.copy(alpha = 0.7f),
-                backgroundColor,
-            )
-            // Backdrop: 60:30:10 Design (60% Dominant Dark Surface)
+            // Backdrop: 60:30:10 Cinematic Design
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(state.anime)
@@ -411,24 +405,59 @@ private fun AnimeScreenSmallImpl(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxSize()
-                    .blur(40.dp) // High blur to remove distraction
-                    .alpha(0.15f), // Image as a subtle texture only
+                    .blur(16.dp) // Light blur for texture
+                    .alpha(0.35f),
             )
-            // Dominant Gradient Scrim
+            // Desaturated Color Overlay (The 60% Dominant)
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
                         Brush.verticalGradient(
                             colors = listOf(
-                                MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                                Color.Black,
+                                Color.Transparent,
+                                MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                                MaterialTheme.colorScheme.surface,
                             ),
                         ),
                     ),
             )
             
             Scaffold(
+                containerColor = Color.Transparent,
+                hazeEnabled = false,
+                topBar = {
+                    AnimeToolbar(
+                        title = state.anime.title,
+                        titleAlpha = if (isFirstItemVisible) 0f else 1f,
+                        backgroundAlpha = if (isFirstItemVisible) 0f else 1f,
+                        onBackClicked = onBackClicked,
+                        onShareClicked = onShareClicked,
+                        onDownloadClicked = onDownloadEpisode,
+                        onEditClicked = onEditIntervalClicked,
+                        onWebViewClicked = onWebViewClicked,
+                        onWebViewLongClicked = onWebViewLongClicked,
+                        onSearchClicked = onSearch,
+                        onEditCategoryClicked = onEditCategoryClicked,
+                        onMoreClicked = onMoreClicked,
+                        isAnySelected = isAnySelected,
+                        onSelectAll = onSelectAll,
+                        onInvertSelection = onInvertSelection,
+                    )
+                },
+                bottomBar = {
+                    val isWatching = remember(state.episodes) {
+                        state.episodes.fastAny { it.episode.seen }
+                    }
+                    AnimeBottomActionMenu(
+                        visible = !isAnySelected,
+                        modifier = Modifier.fillMaxWidth(),
+                        onContinueWatching = onContinueWatching,
+                        isWatching = isWatching,
+                    )
+                },
+                snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+            ) { contentPadding ->
                 containerColor = Color.Transparent,
                 hazeEnabled = false,
                 topBar = {

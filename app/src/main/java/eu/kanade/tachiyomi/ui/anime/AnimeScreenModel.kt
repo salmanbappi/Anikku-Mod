@@ -338,9 +338,7 @@ class AnimeScreenModel(
         screenModelScope.launchIO {
             val source = sourceManager.get(anime.source) as? AnimeCatalogueSource ?: return@launchIO
             
-            // Shared set to prevent duplicates across all sections
-            val usedIds = Collections.synchronizedSet(mutableSetOf(anime.id))
-
+            // Only deduplicate against the current anime itself to keep density high as requested
             val initialSections = SuggestionSection.Type.entries.map { type ->
                 SuggestionSection(
                     title = when (type) {
@@ -356,14 +354,10 @@ class AnimeScreenModel(
             }.toMutableList()
 
             fun updateSection(type: SuggestionSection.Type, items: List<Anime>) {
-                val uniqueItems = items.filter { usedIds.add(it.id) }
-                if (uniqueItems.isEmpty()) return
-
                 updateSuccessState { state ->
                     val index = initialSections.indexOfFirst { it.type == type }
                     if (index != -1) {
-                        val currentItems = initialSections[index].items
-                        initialSections[index] = initialSections[index].copy(items = (currentItems + uniqueItems).distinctBy { it.id }.toImmutableList())
+                        initialSections[index] = initialSections[index].copy(items = items.distinctBy { it.id }.filter { it.id != anime.id }.toImmutableList())
                     }
                     val finalSections = initialSections.filter { it.items.isNotEmpty() }.toImmutableList()
                     suggestionsCache.put(anime.id, CachedSuggestions(finalSections, System.currentTimeMillis()))
@@ -371,7 +365,7 @@ class AnimeScreenModel(
                 }
             }
 
-            // 1. Similar Titles (Safe waterfall loop: Exact -> Cleaned -> Keywords)
+            // 1. Similar Titles (Waterfall loop for high density)
             launchIO {
                 val titleKeywords = eu.kanade.tachiyomi.util.lang.StringSimilarity.getSearchKeywords(anime.title)
                 val queries = listOfNotNull(
@@ -380,6 +374,7 @@ class AnimeScreenModel(
                     anime.title.split(" ").firstOrNull()?.takeIf { it.length > 3 }
                 ).distinct()
 
+                val allSimilar = mutableListOf<Anime>()
                 for (query in queries) {
                     try {
                         val searchResult = source.getSearchAnime(1, query, source.getFilterList())
@@ -403,14 +398,13 @@ class AnimeScreenModel(
                                     }
                                 }.awaitAll().filterNotNull()
                         }
-                        if (domainAnimes.isNotEmpty()) {
-                            updateSection(SuggestionSection.Type.Similarity, domainAnimes)
-                            if (usedIds.size > 5) break // Found enough primary similar titles
-                        }
+                        allSimilar.addAll(domainAnimes)
+                        if (allSimilar.distinctBy { it.id }.size >= 15) break
                     } catch (e: Exception) {
                         logcat(LogPriority.ERROR, e)
                     }
                 }
+                if (allSimilar.isNotEmpty()) updateSection(SuggestionSection.Type.Similarity, allSimilar)
             }
 
             // 2. More by Author
@@ -450,13 +444,9 @@ class AnimeScreenModel(
                 }
             }
 
-            // 4. Recommendations (Tag-based) - Ensure unique results
+            // 4. Recommendations (Tag-based)
             launchIO {
-                // Take middle tags or less common ones for variety if density is high
-                val tags = anime.genre?.filter { it !in listOf("Action", "Comedy", "Drama") }?.take(2) 
-                    ?: anime.genre?.take(2) 
-                    ?: emptyList()
-                    
+                val tags = anime.genre?.take(3) ?: emptyList()
                 if (tags.isNotEmpty()) {
                     val tagSuggestions = tags.map { tag ->
                         async {
@@ -470,7 +460,7 @@ class AnimeScreenModel(
                                     }.filterNotNull()
                             } catch (e: Exception) { emptyList() }
                         }
-                    }.awaitAll().flatten().distinctBy { it.id }
+                    }.awaitAll().flatten().distinctBy { it.id }.take(20)
 
                     if (tagSuggestions.isNotEmpty()) updateSection(SuggestionSection.Type.Tag, tagSuggestions)
                 }
