@@ -237,16 +237,22 @@ class BrowseSourceScreenModel(
             it.copy(
                 filters = filters,
                 toolbarQuery = savedSearch.query,
-                listing = Listing.Search(query = savedSearch.query, filters = filters),
+                listing = Listing.Search(
+                    query = savedSearch.query,
+                    filters = filters,
+                    randomId = java.util.Random().nextLong(),
+                ),
                 currentSavedSearch = savedSearch,
             )
         }
     }
 
     fun search(query: String? = null, filters: FilterList? = null) {
-        val nextListing = Listing.Search(query, filters ?: state.value.filters)
-        // Force update by not checking equality for Search listings, 
-        // as FilterList is mutable and reference might be same
+        val nextListing = Listing.Search(
+            query = query,
+            filters = filters?.let { FilterList(it) } ?: FilterList(state.value.filters),
+            randomId = java.util.Random().nextLong(),
+        )
         mutableState.update { it.copy(listing = nextListing) }
     }
 
@@ -282,9 +288,17 @@ class BrowseSourceScreenModel(
         }
         mutableState.update {
             val listing = if (genreExists) {
-                Listing.Search(query = null, filters = defaultFilters)
+                Listing.Search(
+                    query = null,
+                    filters = defaultFilters,
+                    randomId = java.util.Random().nextLong(),
+                )
             } else {
-                Listing.Search(query = genreName, filters = defaultFilters)
+                Listing.Search(
+                    query = genreName,
+                    filters = defaultFilters,
+                    randomId = java.util.Random().nextLong(),
+                )
             }
             it.copy(
                 filters = defaultFilters,
@@ -500,7 +514,11 @@ class BrowseSourceScreenModel(
             query = GetRemoteAnime.QUERY_LATEST,
             filters = FilterList(),
         )
-        data class Search(override val query: String?, override val filters: FilterList) : Listing(
+        data class Search(
+            override val query: String?,
+            override val filters: FilterList,
+            val randomId: Long = Math.random().toLong(),
+        ) : Listing(
             query = query,
             filters = filters,
         )
