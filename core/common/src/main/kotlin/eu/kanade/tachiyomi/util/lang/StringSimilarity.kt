@@ -14,25 +14,37 @@ object StringSimilarity {
     private val SCALPEL_REGEX = Regex("[^a-z0-9\\s]")
     private val WHITESPACE_REGEX = Regex("\\s+")
 
-    private val FRANCHISE_SUFFIXES = Regex("(?i)\\s(season|part|cour|vol|volume|tv|ova|ona|movie|special|specials|extra|extras|s\\d+|v\\d+).*")
+    private val FRANCHISE_SUFFIXES = Regex("(?i)\\s(season|part|cour|vol|volume|tv|ova|ona|movie|special|specials|extra|extras|s\\d+|v\\d+|\\d+st|\\d+nd|\\d+rd|\\d+th|\\(\\d{4}\\)|\\[\\d{4}\\]).*")
+    private val YEAR_REGEX = Regex("\\s?\\(\\d{4}\\)|\\s?\\[\\d{4}\\]")
 
     /**
      * Extracts the "Root" title by stripping season, part, and media format indicators.
      * Useful for finding sequels, prequels, and related entries.
      */
     fun getRootTitle(title: String): String {
-        val root = title.lowercase()
+        val root = title.replace(YEAR_REGEX, "")
             .replace(FRANCHISE_SUFFIXES, "")
-            .replace(Regex("[^a-z0-9\\s]"), " ")
+            .replace(Regex("[^a-zA-Z0-9\\s]"), " ")
             .replace(WHITESPACE_REGEX, " ")
             .trim()
         
-        // Fallback: If stripping everything left us with too little, return first two words
-        return if (root.length < 4 || root.split(" ").size < 1) {
-            title.split(" ").take(2).joinToString(" ").lowercase().replace(SCALPEL_REGEX, " ").trim()
+        // Fallback: If stripping everything left us with too little, return first three words
+        return if (root.length < 3 || root.split(" ").size < 1) {
+            title.split(" ").take(3).joinToString(" ").lowercase().replace(SCALPEL_REGEX, " ").trim()
         } else {
-            root
+            root.lowercase()
         }
+    }
+
+    /**
+     * Cleans a title for better search results.
+     */
+    fun cleanTitle(title: String): String {
+        return title.replace(YEAR_REGEX, "")
+            .replace(Regex("[^a-zA-Z0-9\\s]"), " ")
+            .replace(WHITESPACE_REGEX, " ")
+            .trim()
+            .lowercase()
     }
 
     /**
