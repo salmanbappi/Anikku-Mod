@@ -133,8 +133,6 @@ import tachiyomi.presentation.core.components.VerticalFastScroller
 import tachiyomi.presentation.core.components.material.ExtendedFloatingActionButton
 import tachiyomi.presentation.core.components.material.PullRefresh
 import tachiyomi.presentation.core.components.material.AnimeEpisodeListItem
-import tachiyomi.presentation.core.components.material.ExtendedFloatingActionButton
-import tachiyomi.presentation.core.components.material.ExtendedFloatingActionButton
 import tachiyomi.presentation.core.components.material.Scaffold
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.clickableNoIndication
@@ -432,8 +430,11 @@ private fun AnimeScreenSmallImpl(
             Scaffold(
                 containerColor = Color.Transparent,
                 floatingActionButton = {
+                    val isFABVisible = remember(episodes) {
+                        episodes.fastAny { !it.episode.seen } && !isAnySelected
+                    }
                     AnimatedVisibility(
-                        visible = !isAnySelected,
+                        visible = isFABVisible,
                         enter = fadeIn(),
                         exit = fadeOut(),
                     ) {
@@ -448,7 +449,7 @@ private fun AnimeScreenSmallImpl(
                                 Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = null)
                             },
                             onClick = onContinueWatching,
-                            expanded = isFirstItemVisible,
+                            expanded = episodeListState.shouldExpandFAB(),
                         )
                     }
                 },
@@ -878,8 +879,11 @@ fun AnimeScreenLargeImpl(
             Scaffold(
                 containerColor = Color.Transparent,
                 floatingActionButton = {
+                    val isFABVisible = remember(episodes) {
+                        episodes.fastAny { !it.episode.seen } && !isAnySelected
+                    }
                     AnimatedVisibility(
-                        visible = !isAnySelected,
+                        visible = isFABVisible,
                         enter = fadeIn(),
                         exit = fadeOut(),
                     ) {
@@ -894,7 +898,7 @@ fun AnimeScreenLargeImpl(
                                 Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = null)
                             },
                             onClick = onContinueWatching,
-                            expanded = infoScrollState.value == 0,
+                            expanded = episodeListState.shouldExpandFAB(),
                         )
                     }
                 },
