@@ -132,6 +132,9 @@ import tachiyomi.presentation.core.components.TwoPanelBox
 import tachiyomi.presentation.core.components.VerticalFastScroller
 import tachiyomi.presentation.core.components.material.ExtendedFloatingActionButton
 import tachiyomi.presentation.core.components.material.PullRefresh
+import tachiyomi.presentation.core.components.material.AnimeEpisodeListItem
+import tachiyomi.presentation.core.components.material.ExtendedFloatingActionButton
+import tachiyomi.presentation.core.components.material.ExtendedFloatingActionButton
 import tachiyomi.presentation.core.components.material.Scaffold
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.clickableNoIndication
@@ -382,24 +385,73 @@ private fun AnimeScreenSmallImpl(
             )
         }
 
-        val backdropOffset by remember {
-            derivedStateOf {
-                val scrollOffset = if (episodeListState.firstVisibleItemIndex == 0) {
-                    episodeListState.firstVisibleItemScrollOffset.toFloat()
-                } else {
-                    2000f
-                }
-                -scrollOffset
-            }
-        }
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),
         ) {
+            // Backdrop
+            val context = LocalContext.current
+            AsyncImage(
+                model = remember(state.anime.id) {
+                    ImageRequest.Builder(context)
+                        .data(state.anime.asAnimeCover())
+                        .crossfade(true)
+                        .build()
+                },
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(280.dp)
+                    .graphicsLayer {
+                        translationY = backdropOffset
+                    }
+                    .alpha(0.35f)
+                    .blur(24.dp),
+                contentScale = ContentScale.Crop,
+            )
+
+            // Gradient overlay (Clear at top, background color at bottom)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(280.dp)
+                    .graphicsLayer {
+                        translationY = backdropOffset
+                    }
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                MaterialTheme.colorScheme.background,
+                            ),
+                        ),
+                    ),
+            )
+
             Scaffold(
                 containerColor = Color.Transparent,
+                floatingActionButton = {
+                    AnimatedVisibility(
+                        visible = !isAnySelected,
+                        enter = fadeIn(),
+                        exit = fadeOut(),
+                    ) {
+                        val isWatching = remember(state.episodes) {
+                            state.episodes.fastAny { it.episode.seen }
+                        }
+                        ExtendedFloatingActionButton(
+                            text = {
+                                Text(text = stringResource(if (isWatching) MR.strings.action_resume else MR.strings.action_start))
+                            },
+                            icon = {
+                                Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = null)
+                            },
+                            onClick = onContinueWatching,
+                            expanded = isFirstItemVisible,
+                        )
+                    }
+                },
                 topBar = {
                     val selectedEpisodeCount: Int = remember(episodes) {
                         episodes.count { it.selected }
@@ -784,8 +836,68 @@ fun AnimeScreenLargeImpl(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),
         ) {
+            // Backdrop
+            val context = LocalContext.current
+            AsyncImage(
+                model = remember(state.anime.id) {
+                    ImageRequest.Builder(context)
+                        .data(state.anime.asAnimeCover())
+                        .crossfade(true)
+                        .build()
+                },
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(440.dp)
+                    .graphicsLayer {
+                        translationY = backdropOffset
+                    }
+                    .alpha(0.35f)
+                    .blur(24.dp),
+                contentScale = ContentScale.Crop,
+            )
+
+            // Gradient overlay (Clear at top, background color at bottom)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(440.dp)
+                    .graphicsLayer {
+                        translationY = backdropOffset
+                    }
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                MaterialTheme.colorScheme.background,
+                            ),
+                        ),
+                    ),
+            )
+
             Scaffold(
                 containerColor = Color.Transparent,
+                floatingActionButton = {
+                    AnimatedVisibility(
+                        visible = !isAnySelected,
+                        enter = fadeIn(),
+                        exit = fadeOut(),
+                    ) {
+                        val isWatching = remember(state.episodes) {
+                            state.episodes.fastAny { it.episode.seen }
+                        }
+                        ExtendedFloatingActionButton(
+                            text = {
+                                Text(text = stringResource(if (isWatching) MR.strings.action_resume else MR.strings.action_start))
+                            },
+                            icon = {
+                                Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = null)
+                            },
+                            onClick = onContinueWatching,
+                            expanded = infoScrollState.value == 0,
+                        )
+                    }
+                },
                 topBar = {
                     val selectedEpisodeCount = remember(episodes) {
                         episodes.count { it.selected }
