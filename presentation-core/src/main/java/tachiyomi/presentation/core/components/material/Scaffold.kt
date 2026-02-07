@@ -123,6 +123,7 @@ fun Scaffold(
     containerColor: Color = MaterialTheme.colorScheme.background,
     contentColor: Color = contentColorFor(containerColor),
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
+    hazeEnabled: Boolean = true,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     // Tachiyomi: Handle consumed window insets
@@ -145,14 +146,18 @@ fun Scaffold(
             fabPosition = floatingActionButtonPosition,
             topBar = {
                 Box(
-                    modifier = Modifier.hazeChild(
-                        state = hazeState,
-                        style = HazeDefaults.style(
-                            backgroundColor = Color.Transparent,
-                            blurRadius = 24.dp,
-                            tint = HazeTint(Color.Transparent),
-                        ),
-                    )
+                    modifier = if (hazeEnabled) {
+                        Modifier.hazeChild(
+                            state = hazeState,
+                            style = HazeDefaults.style(
+                                backgroundColor = Color.Transparent,
+                                blurRadius = 24.dp,
+                                tint = HazeTint(Color.Transparent),
+                            ),
+                        )
+                    } else {
+                        Modifier
+                    }
                 ) {
                     topBar(topBarScrollBehavior)
                 }
@@ -160,20 +165,24 @@ fun Scaffold(
             startBar = startBar,
             bottomBar = {
                 Box(
-                    modifier = Modifier.hazeChild(
-                        state = hazeState,
-                        style = HazeDefaults.style(
-                            backgroundColor = Color.Transparent,
-                            blurRadius = 24.dp,
-                            tint = HazeTint(Color.Transparent),
-                        ),
-                    )
+                    modifier = if (hazeEnabled) {
+                        Modifier.hazeChild(
+                            state = hazeState,
+                            style = HazeDefaults.style(
+                                backgroundColor = Color.Transparent,
+                                blurRadius = 24.dp,
+                                tint = HazeTint(Color.Transparent),
+                            ),
+                        )
+                    } else {
+                        Modifier
+                    }
                 ) {
                     bottomBar()
                 }
             },
             content = {
-                Box(modifier = Modifier.haze(hazeState)) {
+                Box(modifier = if (hazeEnabled) Modifier.haze(hazeState) else Modifier) {
                     content(it)
                 }
             },
