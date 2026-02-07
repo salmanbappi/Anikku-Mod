@@ -599,7 +599,7 @@ private fun AnimeScreenSmallImpl(
                                                         modifier = Modifier.size(18.dp)
                                                     )
                                                     Text(
-                                                        text = "Discovery",
+                                                        text = "Recommended for you",
                                                         style = MaterialTheme.typography.titleSmall,
                                                         color = MaterialTheme.colorScheme.primary,
                                                     )
@@ -646,6 +646,13 @@ private fun AnimeScreenSmallImpl(
                                                                 SuggestionSection.Type.Tag -> androidx.compose.material.icons.Icons.Outlined.Label
                                                                 SuggestionSection.Type.Community -> androidx.compose.material.icons.Icons.Outlined.NewReleases
                                                             }
+                                                            val label = when (section.type) {
+                                                                SuggestionSection.Type.Similarity -> "AI Recommendations"
+                                                                SuggestionSection.Type.Author -> section.title
+                                                                SuggestionSection.Type.Source -> section.title
+                                                                SuggestionSection.Type.Tag -> "Recommendations"
+                                                                SuggestionSection.Type.Community -> "What's New"
+                                                            }
                                                             Icon(
                                                                 imageVector = icon,
                                                                 contentDescription = null,
@@ -653,7 +660,7 @@ private fun AnimeScreenSmallImpl(
                                                                 tint = MaterialTheme.colorScheme.secondary
                                                             )
                                                             Text(
-                                                                text = section.title,
+                                                                text = label,
                                                                 style = MaterialTheme.typography.labelSmall,
                                                                 color = MaterialTheme.colorScheme.secondary
                                                             )
@@ -1043,7 +1050,7 @@ fun AnimeScreenLargeImpl(
                                                         modifier = Modifier.size(18.dp)
                                                     )
                                                     Text(
-                                                        text = "Discovery",
+                                                        text = "Recommended for you",
                                                         style = MaterialTheme.typography.titleSmall,
                                                         color = MaterialTheme.colorScheme.primary,
                                                     )
@@ -1090,6 +1097,13 @@ fun AnimeScreenLargeImpl(
                                                                 SuggestionSection.Type.Tag -> androidx.compose.material.icons.Icons.Outlined.Label
                                                                 SuggestionSection.Type.Community -> androidx.compose.material.icons.Icons.Outlined.NewReleases
                                                             }
+                                                            val label = when (section.type) {
+                                                                SuggestionSection.Type.Similarity -> "AI Recommendations"
+                                                                SuggestionSection.Type.Author -> section.title
+                                                                SuggestionSection.Type.Source -> section.title
+                                                                SuggestionSection.Type.Tag -> "Recommendations"
+                                                                SuggestionSection.Type.Community -> "What's New"
+                                                            }
                                                             Icon(
                                                                 imageVector = icon,
                                                                 contentDescription = null,
@@ -1097,7 +1111,7 @@ fun AnimeScreenLargeImpl(
                                                                 tint = MaterialTheme.colorScheme.secondary
                                                             )
                                                             Text(
-                                                                text = section.title,
+                                                                text = label,
                                                                 style = MaterialTheme.typography.labelSmall,
                                                                 color = MaterialTheme.colorScheme.secondary
                                                             )
