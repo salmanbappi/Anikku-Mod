@@ -395,37 +395,13 @@ private fun AnimeScreenSmallImpl(
 
         Box(modifier = Modifier.fillMaxSize().background(backgroundColor)) {
             val context = LocalContext.current
-            // Backdrop: 60:30:10 Cinematic Design
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(state.anime)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .blur(16.dp) // Light blur for texture
-                    .alpha(0.35f),
-            )
-            // Desaturated Color Overlay (The 60% Dominant)
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
-                                MaterialTheme.colorScheme.surface,
-                            ),
-                        ),
-                    ),
-            )
-            
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+        ) {
             Scaffold(
                 containerColor = Color.Transparent,
-                hazeEnabled = false,
                 topBar = {
                     AnimeToolbar(
                         title = state.anime.title,
@@ -577,7 +553,7 @@ private fun AnimeScreenSmallImpl(
                                     val navigator = LocalNavigator.currentOrThrow
                                     Surface(
                                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                                        color = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.4f),
+                                        color = MaterialTheme.colorScheme.surfaceContainer,
                                         shape = MaterialTheme.shapes.medium,
                                     ) {
                                         Column(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)) {
@@ -1008,7 +984,7 @@ fun AnimeScreenLargeImpl(
                                     val navigator = LocalNavigator.currentOrThrow
                                     Surface(
                                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                                        color = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.4f),
+                                        color = MaterialTheme.colorScheme.surfaceContainer,
                                         shape = MaterialTheme.shapes.medium,
                                     ) {
                                         Column(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)) {
