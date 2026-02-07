@@ -31,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -412,23 +413,25 @@ data class BrowseSourceScreen(
         val onDismissRequest = { screenModel.setDialog(null) }
         when (val dialog = state.dialog) {
             is BrowseSourceScreenModel.Dialog.Filter -> {
-                SourceFilterSheet(
-                    onDismissRequest = onDismissRequest,
-                    filters = state.filters,
-                    onReset = screenModel::resetFilters,
-                    onSave = { screenModel.setDialog(BrowseSourceScreenModel.Dialog.SaveSearch) },
-                    onFilter = { screenModel.search(filters = state.filters) },
-                    onUpdate = screenModel::onFilterUpdate,
-                    savedSearches = state.savedSearches,
-                    currentSavedSearchId = state.currentSavedSearch?.id,
-                    onSavedSearchClick = {
-                        screenModel.loadSearch(it)
-                        onDismissRequest()
-                    },
-                    onSavedSearchLongClick = {
-                        screenModel.setDialog(BrowseSourceScreenModel.Dialog.DeleteSavedSearch(it))
-                    },
-                )
+                key(state.filtersId) {
+                    SourceFilterSheet(
+                        onDismissRequest = onDismissRequest,
+                        filters = state.filters,
+                        onReset = screenModel::resetFilters,
+                        onSave = { screenModel.setDialog(BrowseSourceScreenModel.Dialog.SaveSearch) },
+                        onFilter = { screenModel.search(filters = state.filters) },
+                        onUpdate = screenModel::onFilterUpdate,
+                        savedSearches = state.savedSearches,
+                        currentSavedSearchId = state.currentSavedSearch?.id,
+                        onSavedSearchClick = {
+                            screenModel.loadSearch(it)
+                            onDismissRequest()
+                        },
+                        onSavedSearchLongClick = {
+                            screenModel.setDialog(BrowseSourceScreenModel.Dialog.DeleteSavedSearch(it))
+                        },
+                    )
+                }
             }
             is BrowseSourceScreenModel.Dialog.DeleteSavedSearch -> {
                 AlertDialog(
