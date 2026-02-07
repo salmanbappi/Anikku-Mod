@@ -198,7 +198,7 @@ class BrowseSourceScreenModel(
     fun onFilterUpdate(filter: AnimeSourceModelFilter<*>) {
         if (source !is CatalogueSource) return
 
-        mutableState.update { it.copy(filters = it.filters) }
+        mutableState.update { it.copy(filtersId = java.util.Random().nextLong()) }
     }
 
     fun saveSearch(name: String) {
@@ -551,6 +551,7 @@ class BrowseSourceScreenModel(
     data class State(
         val listing: Listing,
         val filters: FilterList = FilterList(),
+        val filtersId: Long = java.util.Random().nextLong(),
         val toolbarQuery: String? = null,
         val savedSearches: ImmutableList<SavedSearch> = persistentListOf(),
         val currentSavedSearch: SavedSearch? = null,
