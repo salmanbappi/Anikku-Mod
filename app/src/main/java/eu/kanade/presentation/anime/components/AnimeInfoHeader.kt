@@ -749,3 +749,4 @@ private fun RowScope.AnimeActionButton(
         }
     }
 }
+}
