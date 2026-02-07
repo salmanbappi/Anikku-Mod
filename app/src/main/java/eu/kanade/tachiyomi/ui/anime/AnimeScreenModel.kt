@@ -452,7 +452,7 @@ class AnimeScreenModel(
                         if (domainAnimes.isNotEmpty()) {
                             updateSuccessState { state ->
                                 val newSection = SuggestionSection(
-                                    title = context.stringResource(MR.strings.author_hint, author),
+                                    title = context.stringResource(SYMR.strings.author_hint, author),
                                     items = domainAnimes.toImmutableList(),
                                     type = SuggestionSection.Type.Author
                                 )
@@ -706,31 +706,6 @@ class AnimeScreenModel(
                 .flowWithLifecycle(lifecycle)
                 .collect { withUIContext { updateDownloadState(it) } }
         }
-    }
-
-    private fun observeTrackers() {
-        val anime = successState?.anime ?: return
-        screenModelScope.launchIO {
-            combine(getTracks.subscribe(anime.id).catch { logcat(LogPriority.ERROR, it) }, trackerManager.loggedInTrackersFlow()) { animeTracks, loggedInTrackers ->
-                val supportedTrackers = loggedInTrackers.filter { (it as? EnhancedTracker)?.accept(source!!) ?: true }
-                val supportedTrackerIds = supportedTrackers.map { it.id }.toHashSet()
-                val supportedTrackerTracks = animeTracks.filter { it.trackerId in supportedTrackerIds }
-                supportedTrackerTracks.size to supportedTrackers.isNotEmpty()
-            }.flowWithLifecycle(lifecycle).distinctUntilChanged().collectLatest { (trackingCount, hasLoggedInTrackers) ->
-                updateSuccessState { it.copy(trackingCount = trackingCount, hasLoggedInTrackers = hasLoggedInTrackers) }
-            }
-        }
-        screenModelScope.launchIO {
-            combine(getTracks.subscribe(anime.id).catch { logcat(LogPriority.ERROR, it) }, trackerManager.loggedInTrackersFlow()) { animeTracks, loggedInTrackers ->
-                loggedInTrackers.map { service -> TrackItem(animeTracks.find { it.trackerId == service.id }, service) }
-            }.distinctUntilChanged().collectLatest { trackItems -> updateAiringTime(anime, trackItems, manualFetch = false) }
-        }
-    }
-
-    private suspend fun updateAiringTime(anime: Anime, trackItems: List<TrackItem>, manualFetch: Boolean) {
-        val airingEpisodeData = AniChartApi().loadAiringTime(anime, trackItems, manualFetch)
-        setAnimeViewerFlags.awaitSetNextEpisodeAiring(anime.id, airingEpisodeData)
-        updateSuccessState { it.copy(nextAiringEpisode = airingEpisodeData) }
     }
 
     private fun updateDownloadState(download: Download) {
