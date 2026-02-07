@@ -111,6 +111,7 @@ import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import java.util.Calendar
 import kotlin.math.floor
+import java.io.Serializable
 
 import eu.kanade.tachiyomi.animesource.AnimeCatalogueSource
 import eu.kanade.tachiyomi.animesource.model.AnimeFilterList
@@ -120,7 +121,7 @@ data class SuggestionSection(
     val title: String,
     val items: ImmutableList<Anime>,
     val type: Type,
-) {
+) : Serializable {
     enum class Type {
         Source,
         Tag,
@@ -1069,6 +1070,10 @@ class AnimeScreenModel(
         data object FullCover : Dialog
     }
 
+    fun toggleDiscoveryExpansion() {
+        updateSuccessState { it.copy(discoveryExpanded = !it.discoveryExpanded) }
+    }
+
     fun dismissDialog() = updateSuccessState { it.copy(dialog = null) }
     fun showDeleteEpisodeDialog(episodes: List<Episode>) = updateSuccessState { it.copy(dialog = Dialog.DeleteEpisodes(episodes)) }
     fun showSettingsDialog() = updateSuccessState { it.copy(dialog = Dialog.SettingsSheet) }
@@ -1096,6 +1101,7 @@ class AnimeScreenModel(
             val nextAiringEpisode: Pair<Int, Long> = Pair(anime.nextEpisodeToAir, anime.nextEpisodeAiringAt),
             val suggestions: ImmutableList<Anime> = persistentListOf(),
             val suggestionSections: ImmutableList<SuggestionSection> = persistentListOf(),
+            val discoveryExpanded: Boolean = false,
         ) : State {
             val processedEpisodes by lazy { episodes.applyFilters(anime).toList() }
             val episodeListItems by lazy {
@@ -1141,10 +1147,17 @@ class AnimeScreenModel(
 }
 
 @Immutable
-sealed class EpisodeList {
+
+sealed class EpisodeList : Serializable {
+
     @Immutable data class MissingCount(val id: String, val count: Int) : EpisodeList()
+
     @Immutable data class Item(val episode: Episode, val downloadState: Download.State, val downloadProgress: Int, var fileSize: Long? = null, val selected: Boolean = false) : EpisodeList() {
+
         val id = episode.id
+
         val isDownloaded = downloadState == Download.State.DOWNLOADED
+
     }
+
 }

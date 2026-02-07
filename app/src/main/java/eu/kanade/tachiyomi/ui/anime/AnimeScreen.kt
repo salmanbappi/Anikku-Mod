@@ -87,7 +87,10 @@ class AnimeScreen(
 
     override fun onProvideAssistUrl() = assistUrl
 
+    @Transient
     private val sourcePreferences: SourcePreferences by injectLazy()
+
+    @Transient
     private val uiPreferences: UiPreferences by injectLazy()
 
     @Composable
@@ -221,6 +224,7 @@ class AnimeScreen(
             onAllEpisodeSelected = screenModel::toggleAllSelection,
             onInvertSelection = screenModel::invertSelection,
             onLocalScoreClicked = screenModel::showLocalScoreDialog,
+            onToggleDiscoveryExpansion = screenModel::toggleDiscoveryExpansion,
         )
 
         val onDismissRequest = {

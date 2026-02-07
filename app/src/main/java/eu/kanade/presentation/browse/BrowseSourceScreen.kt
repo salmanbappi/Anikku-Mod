@@ -100,9 +100,10 @@ fun BrowseSourceContent(
     ) { state ->
         when (state) {
             "Error" -> {
+                val currentError = errorState as? LoadState.Error
                 EmptyScreen(
                     modifier = Modifier.padding(contentPadding),
-                    message = getErrorMessage(errorState as LoadState.Error),
+                    message = if (currentError != null) getErrorMessage(currentError) else "Unknown Error",
                     actions = if (source is LocalSource) {
                         persistentListOf(
                             EmptyScreenAction(
