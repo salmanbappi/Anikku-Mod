@@ -195,12 +195,12 @@ fun TrackerSearch(
                     ) {
                         items(
                             items = availableTracks,
-                            key = { it.hashCode() },
-                        ) {
+                            key = { "track-${it.hashCode()}" },
+                        ) { searchResult ->
                             SearchResultItem(
-                                trackSearch = it,
-                                selected = it == selected,
-                                onClick = { onSelectedChange(it) },
+                                trackSearch = searchResult,
+                                selected = searchResult == selected,
+                                onClick = { onSelectedChange(searchResult) },
                             )
                         }
                     }

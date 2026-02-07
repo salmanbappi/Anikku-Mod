@@ -143,6 +143,7 @@ fun AnimeScreen(
     showNextEpisodeAirTime: Boolean,
     alwaysUseExternalPlayer: Boolean,
     showFileSize: Boolean,
+    autoExpandDescription: Boolean,
     onBackClicked: () -> Unit,
     onEpisodeClicked: (episode: Episode, alt: Boolean) -> Unit,
     onDownloadEpisode: ((List<EpisodeList.Item>, EpisodeDownloadAction) -> Unit)?,
@@ -175,12 +176,15 @@ fun AnimeScreen(
     onLocalScoreClicked: () -> Unit,
 ) {
     val sourcePreferences: SourcePreferences by injectLazy()
+    val uiPreferences: UiPreferences by injectLazy()
     val context = LocalContext.current
     val onCopyTagToClipboard: (tag: String) -> Unit = {
         if (it.isNotEmpty()) {
             context.copyToClipboard(it, it)
         }
     }
+
+    val autoExpandDescription by uiPreferences.autoExpandAnimeDescription().collectAsState()
 
     val navigator = LocalNavigator.currentOrThrow
     val onSettingsClicked: (() -> Unit)? = {
@@ -198,6 +202,7 @@ fun AnimeScreen(
             showNextEpisodeAirTime = showNextEpisodeAirTime,
             alwaysUseExternalPlayer = alwaysUseExternalPlayer,
             showFileSize = showFileSize,
+            autoExpandDescription = autoExpandDescription,
             onBackClicked = onBackClicked,
             onEpisodeClicked = onEpisodeClicked,
             onDownloadEpisode = onDownloadEpisode,
@@ -207,7 +212,7 @@ fun AnimeScreen(
             onTrackingClicked = onTrackingClicked,
             onTagSearch = onTagSearch,
             onCopyTagToClipboard = onCopyTagToClipboard,
-            onFilterClicked = onFilterButtonClicked,
+            onFilterClicked = onFilterClicked,
             onRefresh = onRefresh,
             onContinueWatching = onContinueWatching,
             onSearch = onSearch,
@@ -242,6 +247,7 @@ fun AnimeScreen(
             showNextEpisodeAirTime = showNextEpisodeAirTime,
             alwaysUseExternalPlayer = alwaysUseExternalPlayer,
             showFileSize = showFileSize,
+            autoExpandDescription = autoExpandDescription,
             onBackClicked = onBackClicked,
             onEpisodeClicked = onEpisodeClicked,
             onDownloadEpisode = onDownloadEpisode,
@@ -290,6 +296,7 @@ private fun AnimeScreenSmallImpl(
     showNextEpisodeAirTime: Boolean,
     alwaysUseExternalPlayer: Boolean,
     showFileSize: Boolean,
+    autoExpandDescription: Boolean,
     onBackClicked: () -> Unit,
     onEpisodeClicked: (Episode, Boolean) -> Unit,
     onDownloadEpisode: ((List<EpisodeList.Item>, EpisodeDownloadAction) -> Unit)?,
@@ -559,7 +566,7 @@ private fun AnimeScreenSmallImpl(
                                                     item(key = AnimeScreenItem.DESCRIPTION_WITH_TAG, contentType = AnimeScreenItem.DESCRIPTION_WITH_TAG) {
                                                         ExpandableAnimeDescription(
                                                             modifier = Modifier.padding(vertical = 8.dp),
-                                                            defaultExpandState = state.isFromSource,
+                                                            defaultExpandState = autoExpandDescription,
                                                             description = state.anime.description,
                                                             tagsProvider = { state.anime.genre },
                                                             onTagSearch = onTagSearch,
@@ -682,6 +689,7 @@ fun AnimeScreenLargeImpl(
     showNextEpisodeAirTime: Boolean,
     alwaysUseExternalPlayer: Boolean,
     showFileSize: Boolean,
+    autoExpandDescription: Boolean,
     onBackClicked: () -> Unit,
     onEpisodeClicked: (Episode, Boolean) -> Unit,
     onDownloadEpisode: ((List<EpisodeList.Item>, EpisodeDownloadAction) -> Unit)?,
@@ -948,7 +956,7 @@ fun AnimeScreenLargeImpl(
                                     onLocalScoreClicked = onLocalScoreClicked,
                                 )
                                 ExpandableAnimeDescription(
-                                    defaultExpandState = true,
+                                    defaultExpandState = autoExpandDescription,
                                     description = state.anime.description,
                                     tagsProvider = { state.anime.genre },
                                     onTagSearch = onTagSearch,
@@ -1284,8 +1292,8 @@ private fun LazyListScope.sharedEpisodeItems(
         items = episodes,
         key = { item ->
             when (item) {
-                is EpisodeList.Item -> item.episode.id
-                is EpisodeList.MissingCount -> item.id
+                is EpisodeList.Item -> "episode-${item.episode.id}"
+                is EpisodeList.MissingCount -> "missing-${item.id}"
             }
         },
     ) { item ->

@@ -73,6 +73,9 @@ import tachiyomi.domain.episode.model.Episode
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.screens.LoadingScreen
+import eu.kanade.domain.ui.UiPreferences
+import eu.kanade.domain.source.service.SourcePreferences
+import uy.kohesive.injekt.injectLazy
 
 class AnimeScreen(
     private val animeId: Long,
@@ -82,6 +85,9 @@ class AnimeScreen(
     private var assistUrl: String? = null
 
     override fun onProvideAssistUrl() = assistUrl
+
+    private val sourcePreferences: SourcePreferences by injectLazy()
+    private val uiPreferences: UiPreferences by injectLazy()
 
     @Composable
     @Suppress("MagicNumber", "LongMethod", "CyclomaticComplexMethod")
@@ -121,6 +127,8 @@ class AnimeScreen(
             }
         }
 
+        val autoExpandDescription by uiPreferences.autoExpandAnimeDescription().collectAsState()
+
         AnimeScreen(
             state = successState,
             snackbarHostState = screenModel.snackbarHostState,
@@ -130,9 +138,8 @@ class AnimeScreen(
             episodeSwipeEndAction = screenModel.episodeSwipeEndAction,
             showNextEpisodeAirTime = screenModel.showNextEpisodeAirTime,
             alwaysUseExternalPlayer = screenModel.alwaysUseExternalPlayer,
-            // AM (FILE_SIZE) -->
             showFileSize = screenModel.showFileSize,
-            // <-- AM (FILE_SIZE)
+            autoExpandDescription = autoExpandDescription,
             onBackClicked = { navigator.pop() },
             onEpisodeClicked = { episode, alt ->
                 scope.launchIO {

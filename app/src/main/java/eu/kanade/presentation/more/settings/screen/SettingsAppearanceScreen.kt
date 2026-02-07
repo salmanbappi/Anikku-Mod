@@ -193,6 +193,11 @@ object SettingsAppearanceScreen : SearchableSettings {
                     title = "Dynamic Manga Theme",
                     subtitle = "Adapts app colors to the current manga cover",
                 ),
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = uiPreferences.autoExpandAnimeDescription(),
+                    title = "Auto-expand details",
+                    subtitle = "Expand anime description by default",
+                ),
             ),
         )
     }

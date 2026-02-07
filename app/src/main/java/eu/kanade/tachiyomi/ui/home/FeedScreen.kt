@@ -86,7 +86,7 @@ fun FeedScreen(
             ) {
                 items(
                     items = state.items,
-                    key = { it.feed.id },
+                    key = { "feed-${it.feed.id}" },
                 ) { item ->
                     val title = item.savedSearch?.name ?: "${item.source.name} (${tachiyomi.domain.source.model.FeedSavedSearch.Type.from(item.feed.type).name})"
                     FeedIsland(
@@ -129,8 +129,8 @@ private fun FeedIsland(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(
-                    items = animeList,
-                    key = { it.id },
+                    items = animeList.distinctBy { it.id },
+                    key = { "anime-${it.id}" },
                 ) { anime ->
                     FeedCard(
                         anime = anime,

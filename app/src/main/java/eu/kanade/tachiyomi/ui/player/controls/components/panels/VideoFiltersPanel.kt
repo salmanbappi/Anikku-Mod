@@ -409,7 +409,7 @@ fun Anime4KCard() {
                 ) {
                     items(
                         items = Anime4KManager.Mode.entries,
-                        key = { it.name }
+                        key = { "anime4k-mode-${it.name}" }
                     ) { mode ->
                         if (mode == Anime4KManager.Mode.OFF) return@items
                         InputChip(
@@ -432,7 +432,7 @@ fun Anime4KCard() {
                 ) {
                     items(
                         items = Anime4KManager.Quality.entries,
-                        key = { it.name }
+                        key = { "anime4k-quality-${it.name}" }
                     ) { quality ->
                         val label = when (quality) {
                             Anime4KManager.Quality.FAST -> stringResource(MR.strings.anime4k_quality_fast)

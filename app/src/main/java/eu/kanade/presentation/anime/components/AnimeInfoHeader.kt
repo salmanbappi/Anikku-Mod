@@ -323,8 +323,8 @@ fun ExpandableAnimeDescription(
                         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
                     ) {
                         items(
-                            items = tags,
-                            key = { it },
+                            items = tags.distinct(),
+                            key = { "tag-$it" },
                         ) {
                             TagsChip(
                                 modifier = DefaultTagChipModifier,

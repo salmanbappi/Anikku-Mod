@@ -41,7 +41,7 @@ fun GlobalSearchCardRow(
     ) {
         items(
             items = titles,
-            key = { it.id },
+            key = { "anime-${it.id}" },
         ) {
             val title by getAnime(it)
             AnimeItem(

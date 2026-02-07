@@ -101,7 +101,6 @@ fun PlaybackSpeedSheet(
                 ) {
                     items(
                         playbackSpeedPresets.map { it.toFloat() }.sorted(),
-                        key = { it },
                     ) {
                         InputChip(
                             selected = speed == it,

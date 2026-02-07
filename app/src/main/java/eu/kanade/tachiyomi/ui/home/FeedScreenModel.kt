@@ -93,7 +93,7 @@ class FeedScreenModel(
                                         feed = feed,
                                         source = source,
                                         savedSearch = savedSearches.find { it.id == feed.savedSearch },
-                                        animeList = animeList.toImmutableList(),
+                                        animeList = animeList.distinctBy { it.id }.toImmutableList(),
                                     )
                                 } else {
                                     null
