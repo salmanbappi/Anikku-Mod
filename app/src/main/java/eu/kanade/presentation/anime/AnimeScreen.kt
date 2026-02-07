@@ -1,9 +1,7 @@
 package eu.kanade.presentation.anime
 
 import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.foundation.shape.RectangleShape
 import androidx.compose.foundation.shape.ZeroCornerSize
-import androidx.compose.foundation.shape.asCornerSize
 import androidx.activity.compose.BackHandler
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -564,7 +562,7 @@ private fun AnimeScreenSmallImpl(
                                         Surface(
                                             modifier = Modifier.padding(horizontal = 16.dp).padding(top = 8.dp),
                                             color = MaterialTheme.colorScheme.surfaceContainer,
-                                            shape = MaterialTheme.shapes.medium.copy(bottomStart = RectangleShape.asCornerSize(), bottomEnd = RectangleShape.asCornerSize()),
+                                            shape = MaterialTheme.shapes.medium.copy(bottomStart = ZeroCornerSize, bottomEnd = ZeroCornerSize),
                                         ) {
                                             DiscoveryHeader(modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp), expanded = true, onToggle = onToggleDiscoveryExpansion)
                                         }
