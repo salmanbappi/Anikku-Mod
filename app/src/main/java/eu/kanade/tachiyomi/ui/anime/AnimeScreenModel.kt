@@ -319,12 +319,18 @@ class AnimeScreenModel(
         screenModelScope.launchIO {
             val source = sourceManager.get(anime.source) as? AnimeCatalogueSource ?: return@launchIO
             
-            // Helper to update and sort sections based on priority
+            // Helper to update and strictly sort sections based on priority
             fun updateAndSortSections(newSection: SuggestionSection) {
                 updateSuccessState { state ->
                     val sections = state.suggestionSections.toMutableList()
                     val index = sections.indexOfFirst { it.type == newSection.type }
-                    if (index != -1) sections[index] = newSection else sections.add(newSection)
+                    if (index != -1) {
+                        // Merge items to avoid duplicates if we retry search with broader queries
+                        val mergedItems = (sections[index].items + newSection.items).distinctBy { it.id }.toImmutableList()
+                        sections[index] = newSection.copy(items = mergedItems)
+                    } else {
+                        sections.add(newSection)
+                    }
                     
                     val sortedSections = sections.sortedBy { section ->
                         when (section.type) {
@@ -339,10 +345,20 @@ class AnimeScreenModel(
                 }
             }
 
-            // 1. Hybrid Intelligence (Similarity) - Top Priority
+            // 1. Hybrid Intelligence (Similarity) - Enhanced
             launchIO {
-                val query = eu.kanade.tachiyomi.util.lang.StringSimilarity.getSearchKeywords(anime.title)
-                if (query.isNotBlank()) {
+                // Try multiple query variations to get more results
+                val titleKeywords = eu.kanade.tachiyomi.util.lang.StringSimilarity.getSearchKeywords(anime.title)
+                val queries = listOfNotNull(
+                    anime.title.replace(Regex("[^a-zA-Z0-9 ]"), " ").trim(), // Cleaned full title
+                    titleKeywords.takeIf { it != anime.title }, // Keywords if different
+                    anime.title.split(" ").firstOrNull()?.takeIf { it.length > 3 } // First word as fallback
+                ).distinct()
+
+                val allSimilarResults = mutableListOf<Anime>()
+                
+                for (query in queries) {
+                    if (allSimilarResults.size >= 10) break
                     try {
                         val searchResult = source.getSearchAnime(1, query, source.getFilterList())
                         val domainAnimes = kotlinx.coroutines.coroutineScope {
@@ -359,26 +375,28 @@ class AnimeScreenModel(
                                             intersect.toDouble() / anime.genre!!.size.coerceAtLeast(1)
                                         } else 0.0
                                         
+                                        // Lowered threshold to 0.15 for better variety
                                         val totalScore = eu.kanade.tachiyomi.util.lang.StringSimilarity.adaptiveScore(titleSim, genreOverlap)
-                                        if (totalScore < 0.25) return@async null
+                                        if (totalScore < 0.15) return@async null
                                         fullAnime to totalScore
                                     }
                                 }.awaitAll().filterNotNull()
                                 .sortedByDescending { it.second }
                                 .map { it.first }
-                                .take(15)
                         }
-
-                        if (domainAnimes.isNotEmpty()) {
-                            updateAndSortSections(SuggestionSection(
-                                title = context.stringResource(SYMR.strings.relation_similar),
-                                items = domainAnimes.toImmutableList(),
-                                type = SuggestionSection.Type.Similarity
-                            ))
-                        }
+                        allSimilarResults.addAll(domainAnimes)
                     } catch (e: Exception) {
                         logcat(LogPriority.ERROR, e)
                     }
+                }
+
+                val finalSimilar = allSimilarResults.distinctBy { it.id }.take(20)
+                if (finalSimilar.isNotEmpty()) {
+                    updateAndSortSections(SuggestionSection(
+                        title = context.stringResource(SYMR.strings.relation_similar),
+                        items = finalSimilar.toImmutableList(),
+                        type = SuggestionSection.Type.Similarity
+                    ))
                 }
             }
 
@@ -430,7 +448,7 @@ class AnimeScreenModel(
                 }
             }
 
-            // 4. Tag-based Recommendations
+            // 4. Tag-based Recommendations (See Recommendations)
             launchIO {
                 val tags = anime.genre?.take(3) ?: emptyList()
                 if (tags.isNotEmpty()) {
@@ -458,7 +476,7 @@ class AnimeScreenModel(
                 }
             }
 
-            // 5. Latest (Community Trending Replacement)
+            // 5. Latest Updates
             launchIO {
                 try {
                     val latestResult = source.getLatestUpdates(1)
