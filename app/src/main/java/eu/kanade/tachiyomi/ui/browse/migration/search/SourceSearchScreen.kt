@@ -167,6 +167,7 @@ data class SourceSearchScreen(
                     onSavedSearchLongClick = {
                         screenModel.setDialog(BrowseSourceScreenModel.Dialog.DeleteSavedSearch(it))
                     },
+                    filtersId = state.filtersId,
                 )
             }
             is BrowseSourceScreenModel.Dialog.DeleteSavedSearch -> {
