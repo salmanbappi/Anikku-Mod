@@ -525,11 +525,16 @@ private fun AnimeContentInfo(
             },
         )
         
-        if (score != null && score > 0) {
+        val scoreText = remember(score) {
+            if (score != null && score > 0) {
+                String.format("%.1f", score)
+            } else null
+        }
+        if (scoreText != null) {
             Spacer(modifier = Modifier.width(4.dp))
             InfoChip(
                 icon = Icons.Default.Star,
-                text = String.format("%.1f", score),
+                text = scoreText,
                 iconTint = Color(0xFFFFD700) // Gold
             )
         }
@@ -602,98 +607,62 @@ private fun AnimeSummary(
     expanded: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val animProgress by animateFloatAsState(if (expanded) 1f else 0f)
-    Layout(
-        modifier = modifier.clipToBounds(),
-        contents = listOf(
-            {
-                Text(
-                    text = "\n\n", // Shows at least 3 lines
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            },
-            {
-                // expanded: calculate maximum size when expanded
-                MarkdownRender(
-                    content = description,
-                    modifier = Modifier.secondaryItemAlpha(),
-                    annotator = descriptionAnnotator,
-                )
-            },
-            {
-                // actual: the actual displayed content
-                val backgroundColor = MaterialTheme.colorScheme.background
-                SelectionContainer {
-                    MarkdownRender(
-                        content = description,
-                        modifier = Modifier
-                            .secondaryItemAlpha()
-                            .drawWithContent {
-                                drawContent()
-                                if (animProgress < 1f) {
-                                    val gradientHeight = 64.dp.toPx()
-                                    drawRect(
-                                        brush = Brush.verticalGradient(
-                                            colors = listOf(
-                                                Color.Transparent,
-                                                backgroundColor,
-                                            ),
-                                            startY = size.height - gradientHeight,
-                                            endY = size.height,
-                                        ),
-                                        alpha = 1f - animProgress,
-                                    )
-                                }
-                            },
-                        annotator = descriptionAnnotator,
-                    )
-                }
-            },
-            {
-                Box(
-                    contentAlignment = Alignment.Center,
-                ) {
-                    val image = AnimatedImageVector.animatedVectorResource(R.drawable.anim_caret_down)
-                    Icon(
-                        painter = rememberAnimatedVectorPainter(image, !expanded),
-                        contentDescription = stringResource(
-                            if (expanded) MR.strings.manga_info_collapse else MR.strings.manga_info_expand,
-                        ),
-                        tint = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.background(
-                            brush = Brush.radialGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.background.copy(alpha = 0.8f),
-                                    Color.Transparent,
+    val backgroundColor = MaterialTheme.colorScheme.background
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .animateContentSize()
+            .clipToBounds(),
+    ) {
+        SelectionContainer {
+            MarkdownRender(
+                content = description,
+                modifier = Modifier
+                    .secondaryItemAlpha()
+                    .padding(bottom = if (expanded) 0.dp else 24.dp)
+                    .drawWithContent {
+                        drawContent()
+                        if (!expanded) {
+                            val gradientHeight = 48.dp.toPx()
+                            drawRect(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        backgroundColor,
+                                    ),
+                                    startY = size.height - gradientHeight,
+                                    endY = size.height,
                                 ),
-                                radius = 40f,
-                            ),
+                            )
+                        }
+                    },
+                annotator = descriptionAnnotator,
+            )
+        }
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            backgroundColor.copy(alpha = if (expanded) 0f else 0.8f),
                         ),
-                    )
-                }
-            },
-        ),
-    ) { (shrunk, expanded, actual, scrim), constraints ->
-        val shrunkHeight = shrunk.single()
-            .measure(constraints)
-            .height
-        val expandedHeight = expanded.single()
-            .measure(constraints)
-            .height
-        val heightDelta = expandedHeight - shrunkHeight
-        val scrimHeight = 24.dp.roundToPx()
-
-        val actualPlaceable = actual.single()
-            .measure(constraints)
-        val scrimPlaceable = scrim.single()
-            .measure(Constraints.fixed(width = constraints.maxWidth, height = scrimHeight))
-
-        val currentHeight = shrunkHeight + ((heightDelta + scrimHeight) * animProgress).roundToInt()
-        layout(constraints.maxWidth, currentHeight) {
-            actualPlaceable.place(0, 0)
-
-            val scrimY = currentHeight - scrimHeight
-            scrimPlaceable.place(0, scrimY)
+                    ),
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            val image = AnimatedImageVector.animatedVectorResource(R.drawable.anim_caret_down)
+            Icon(
+                painter = rememberAnimatedVectorPainter(image, !expanded),
+                contentDescription = stringResource(
+                    if (expanded) MR.strings.manga_info_collapse else MR.strings.manga_info_expand,
+                ),
+                tint = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.size(24.dp),
+            )
         }
     }
 }

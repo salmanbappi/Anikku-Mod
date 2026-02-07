@@ -1,5 +1,9 @@
 package eu.kanade.presentation.anime
 
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RectangleShape
+import androidx.compose.foundation.shape.ZeroCornerSize
+import androidx.compose.foundation.shape.asCornerSize
 import androidx.activity.compose.BackHandler
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -527,48 +531,17 @@ private fun AnimeScreenSmallImpl(
                             }
 
                             if (showSuggestions && state.suggestionSections.isNotEmpty()) {
-                                item(key = "discovery-section", contentType = "discovery") {
-                                    val navigator = LocalNavigator.currentOrThrow
-                                    Surface(
-                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                                        color = MaterialTheme.colorScheme.surfaceContainer,
-                                        shape = MaterialTheme.shapes.medium,
-                                    ) {
-                                        Column(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)) {
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(horizontal = 12.dp)
-                                                    .padding(bottom = 8.dp),
-                                                horizontalArrangement = Arrangement.SpaceBetween,
-                                                verticalAlignment = Alignment.CenterVertically,
-                                            ) {
-                                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                                    Icon(
-                                                        imageVector = androidx.compose.material.icons.Icons.Default.AutoAwesome,
-                                                        contentDescription = null,
-                                                        tint = MaterialTheme.colorScheme.primary,
-                                                        modifier = Modifier.size(16.dp)
-                                                    )
-                                                    Text(
-                                                        text = "Recommended for you",
-                                                        style = MaterialTheme.typography.titleSmall,
-                                                        color = MaterialTheme.colorScheme.primary,
-                                                    )
-                                                }
-                                                TextButton(
-                                                    onClick = onToggleDiscoveryExpansion,
-                                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-                                                    modifier = Modifier.height(28.dp).alignByBaseline()
-                                                ) {
-                                                    Text(
-                                                        text = if (state.discoveryExpanded) "Collapse" else stringResource(tachiyomi.i18n.MR.strings.label_more),
-                                                        style = MaterialTheme.typography.labelMedium
-                                                    )
-                                                }
-                                            }
-                                            
-                                            if (!state.discoveryExpanded) {
+                                if (!state.discoveryExpanded) {
+                                    item(key = "discovery-section-collapsed", contentType = "discovery") {
+                                        val navigator = LocalNavigator.currentOrThrow
+                                        Surface(
+                                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                                            color = MaterialTheme.colorScheme.surfaceContainer,
+                                            shape = MaterialTheme.shapes.medium,
+                                        ) {
+                                            Column(modifier = Modifier.padding(vertical = 12.dp)) {
+                                                DiscoveryHeader(expanded = false, onToggle = onToggleDiscoveryExpansion)
+                                                
                                                 val combinedItems = remember(state.suggestionSections) {
                                                     state.suggestionSections.flatMap { it.items.take(3) }.distinctBy { it.id }.take(15)
                                                 }
@@ -578,60 +551,82 @@ private fun AnimeScreenSmallImpl(
                                                 ) {
                                                     items(
                                                         items = combinedItems,
-                                                        key = { anime -> "suggestion-combined-${anime.id}-${anime.url.hashCode()}" },
+                                                        key = { anime -> "suggestion-combined-${anime.id}" },
                                                     ) { anime ->
                                                         SuggestionItem(anime = anime, onClick = { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(anime.id)) })
                                                     }
                                                 }
-                                            } else {
-                                                state.suggestionSections.forEach { section ->
-                                                    Column(modifier = Modifier.padding(top = 4.dp)) {
-                                                        Row(
-                                                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp),
-                                                            verticalAlignment = Alignment.CenterVertically,
-                                                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                                        ) {
-                                                            val icon = when (section.type) {
-                                                                SuggestionSection.Type.Similarity -> androidx.compose.material.icons.Icons.Outlined.Compare
-                                                                SuggestionSection.Type.Author -> androidx.compose.material.icons.Icons.Outlined.Person
-                                                                SuggestionSection.Type.Source -> androidx.compose.material.icons.Icons.Outlined.Language
-                                                                SuggestionSection.Type.Tag -> androidx.compose.material.icons.Icons.Outlined.Label
-                                                                SuggestionSection.Type.Community -> androidx.compose.material.icons.Icons.Outlined.NewReleases
-                                                            }
-                                                            val label = when (section.type) {
-                                                                SuggestionSection.Type.Similarity -> stringResource(SYMR.strings.relation_similar)
-                                                                SuggestionSection.Type.Author -> section.title
-                                                                SuggestionSection.Type.Source -> section.title
-                                                                SuggestionSection.Type.Tag -> stringResource(SYMR.strings.az_recommends)
-                                                                SuggestionSection.Type.Community -> stringResource(MR.strings.latest)
-                                                            }
-                                                            Icon(
-                                                                imageVector = icon,
-                                                                contentDescription = null,
-                                                                modifier = Modifier.size(14.dp),
-                                                                tint = MaterialTheme.colorScheme.secondary
-                                                            )
-                                                            Text(
-                                                                text = label,
-                                                                style = MaterialTheme.typography.labelSmall,
-                                                                color = MaterialTheme.colorScheme.secondary
-                                                            )
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    item(key = "discovery-header-expanded", contentType = "discovery-header") {
+                                        Surface(
+                                            modifier = Modifier.padding(horizontal = 16.dp).padding(top = 8.dp),
+                                            color = MaterialTheme.colorScheme.surfaceContainer,
+                                            shape = MaterialTheme.shapes.medium.copy(bottomStart = RectangleShape.asCornerSize(), bottomEnd = RectangleShape.asCornerSize()),
+                                        ) {
+                                            DiscoveryHeader(modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp), expanded = true, onToggle = onToggleDiscoveryExpansion)
+                                        }
+                                    }
+                                    
+                                    state.suggestionSections.forEach { section ->
+                                        item(key = "discovery-section-${section.type}", contentType = "discovery-row") {
+                                            val navigator = LocalNavigator.currentOrThrow
+                                            Surface(
+                                                modifier = Modifier.padding(horizontal = 16.dp),
+                                                color = MaterialTheme.colorScheme.surfaceContainer,
+                                            ) {
+                                                Column(modifier = Modifier.padding(bottom = 12.dp)) {
+                                                    Row(
+                                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                                                        verticalAlignment = Alignment.CenterVertically,
+                                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                                    ) {
+                                                        val icon = when (section.type) {
+                                                            SuggestionSection.Type.Similarity -> androidx.compose.material.icons.Icons.Outlined.Compare
+                                                            SuggestionSection.Type.Author -> androidx.compose.material.icons.Icons.Outlined.Person
+                                                            SuggestionSection.Type.Source -> androidx.compose.material.icons.Icons.Outlined.Language
+                                                            SuggestionSection.Type.Tag -> androidx.compose.material.icons.Icons.Outlined.Label
+                                                            SuggestionSection.Type.Community -> androidx.compose.material.icons.Icons.Outlined.NewReleases
                                                         }
-                                                        androidx.compose.foundation.lazy.LazyRow(
-                                                            contentPadding = PaddingValues(horizontal = 12.dp),
-                                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                                        ) {
-                                                            items(
-                                                                items = section.items,
-                                                                key = { anime -> "suggestion-${section.type}-${anime.id}-${anime.url.hashCode()}" },
-                                                            ) { anime ->
-                                                                SuggestionItem(anime = anime, onClick = { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(anime.id)) })
-                                                            }
+                                                        val label = when (section.type) {
+                                                            SuggestionSection.Type.Similarity -> stringResource(SYMR.strings.relation_similar)
+                                                            SuggestionSection.Type.Author -> section.title
+                                                            SuggestionSection.Type.Source -> section.title
+                                                            SuggestionSection.Type.Tag -> stringResource(SYMR.strings.az_recommends)
+                                                            SuggestionSection.Type.Community -> stringResource(MR.strings.latest)
+                                                        }
+                                                        Icon(
+                                                            imageVector = icon,
+                                                            contentDescription = null,
+                                                            modifier = Modifier.size(14.dp),
+                                                            tint = MaterialTheme.colorScheme.secondary
+                                                        )
+                                                        Text(
+                                                            text = label,
+                                                            style = MaterialTheme.typography.labelSmall,
+                                                            color = MaterialTheme.colorScheme.secondary
+                                                        )
+                                                    }
+                                                    androidx.compose.foundation.lazy.LazyRow(
+                                                        contentPadding = PaddingValues(horizontal = 12.dp),
+                                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                                    ) {
+                                                        items(
+                                                            items = section.items,
+                                                            key = { anime -> "suggestion-${section.type}-${anime.id}" },
+                                                        ) { anime ->
+                                                            SuggestionItem(anime = anime, onClick = { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(anime.id)) })
                                                         }
                                                     }
                                                 }
                                             }
                                         }
+                                    }
+                                    
+                                    item(key = "discovery-footer-expanded") {
+                                        Spacer(modifier = Modifier.height(8.dp))
                                     }
                                 }
                             }
@@ -945,39 +940,8 @@ fun AnimeScreenLargeImpl(
                                         color = MaterialTheme.colorScheme.surfaceContainer,
                                         shape = MaterialTheme.shapes.medium,
                                     ) {
-                                        Column(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)) {
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(horizontal = 12.dp)
-                                                    .padding(bottom = 8.dp),
-                                                horizontalArrangement = Arrangement.SpaceBetween,
-                                                verticalAlignment = Alignment.CenterVertically,
-                                            ) {
-                                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                                    Icon(
-                                                        imageVector = androidx.compose.material.icons.Icons.Default.AutoAwesome,
-                                                        contentDescription = null,
-                                                        tint = MaterialTheme.colorScheme.primary,
-                                                        modifier = Modifier.size(16.dp)
-                                                    )
-                                                    Text(
-                                                        text = "Recommended for you",
-                                                        style = MaterialTheme.typography.titleSmall,
-                                                        color = MaterialTheme.colorScheme.primary,
-                                                    )
-                                                }
-                                                TextButton(
-                                                    onClick = onToggleDiscoveryExpansion,
-                                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-                                                    modifier = Modifier.height(28.dp).alignByBaseline()
-                                                ) {
-                                                    Text(
-                                                        text = if (state.discoveryExpanded) "Collapse" else stringResource(tachiyomi.i18n.MR.strings.label_more),
-                                                        style = MaterialTheme.typography.labelMedium
-                                                    )
-                                                }
-                                            }
+                                        Column(modifier = Modifier.padding(vertical = 12.dp)) {
+                                            DiscoveryHeader(expanded = state.discoveryExpanded, onToggle = onToggleDiscoveryExpansion)
                                             
                                             if (!state.discoveryExpanded) {
                                                 val combinedItems = remember(state.suggestionSections) {
@@ -989,7 +953,7 @@ fun AnimeScreenLargeImpl(
                                                 ) {
                                                     items(
                                                         items = combinedItems,
-                                                        key = { anime -> "suggestion-combined-${anime.id}-${anime.url.hashCode()}" },
+                                                        key = { anime -> "suggestion-combined-large-${anime.id}" },
                                                     ) { anime ->
                                                         SuggestionItem(anime = anime, onClick = { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(anime.id)) })
                                                     }
@@ -1034,7 +998,7 @@ fun AnimeScreenLargeImpl(
                                                         ) {
                                                             items(
                                                                 items = section.items,
-                                                                key = { anime -> "suggestion-${section.type}-${anime.id}-${anime.url.hashCode()}" },
+                                                                key = { anime -> "suggestion-large-${section.type}-${anime.id}" },
                                                             ) { anime ->
                                                                 SuggestionItem(anime = anime, onClick = { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(anime.id)) })
                                                             }
@@ -1324,6 +1288,11 @@ private fun SuggestionItem(
     onClick: () -> Unit,
 ) {
     Box(modifier = Modifier.width(112.dp)) {
+        val scoreText = remember(anime.score) {
+            if (anime.score != null && anime.score!! > 0) {
+                String.format("%.1f", anime.score)
+            } else null
+        }
         eu.kanade.presentation.library.components.AnimeComfortableGridItem(
             title = anime.title,
             coverData = remember(anime.id) {
@@ -1339,9 +1308,9 @@ private fun SuggestionItem(
                 eu.kanade.presentation.browse.components.InLibraryBadge(enabled = anime.favorite)
             },
             coverBadgeEnd = {
-                if (anime.score != null && anime.score!! > 0) {
+                if (scoreText != null) {
                     tachiyomi.presentation.core.components.Badge(
-                        text = String.format("%.1f", anime.score),
+                        text = scoreText,
                         color = MaterialTheme.colorScheme.tertiaryContainer,
                         textColor = MaterialTheme.colorScheme.onTertiaryContainer,
                     )
@@ -1350,6 +1319,46 @@ private fun SuggestionItem(
             onClick = onClick,
             onLongClick = {},
         )
+    }
+}
+
+@Composable
+private fun DiscoveryHeader(
+    modifier: Modifier = Modifier,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp)
+            .padding(bottom = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Icon(
+                imageVector = androidx.compose.material.icons.Icons.Default.AutoAwesome,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(16.dp)
+            )
+            Text(
+                text = "Recommended for you",
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary,
+            )
+        }
+        TextButton(
+            onClick = onToggle,
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+            modifier = Modifier.height(28.dp).alignByBaseline()
+        ) {
+            Text(
+                text = if (expanded) "Collapse" else stringResource(tachiyomi.i18n.MR.strings.label_more),
+                style = MaterialTheme.typography.labelMedium
+            )
+        }
     }
 }
 
