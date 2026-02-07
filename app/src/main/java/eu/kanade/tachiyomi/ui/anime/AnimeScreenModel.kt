@@ -126,6 +126,7 @@ import kotlin.math.floor
 
 import eu.kanade.tachiyomi.animesource.AnimeCatalogueSource
 import eu.kanade.tachiyomi.animesource.model.AnimeFilterList
+import eu.kanade.tachiyomi.animesource.model.SAnime
 
 @Immutable
 data class SuggestionSection(
