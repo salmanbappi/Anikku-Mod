@@ -356,7 +356,6 @@ fun ExpandableAnimeDescription(
 }
 
 @Composable
-@Composable
 private fun AnimeAndSourceTitlesLarge(
     appBarPadding: Dp,
     anime: Anime,
