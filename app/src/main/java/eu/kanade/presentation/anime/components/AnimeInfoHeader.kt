@@ -91,6 +91,7 @@ import eu.kanade.presentation.components.DropdownMenu
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.source.model.SAnime
 import eu.kanade.tachiyomi.util.system.copyToClipboard
+import eu.kanade.tachiyomi.util.system.toast
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.anime.model.asAnimeCover
 import tachiyomi.i18n.MR
@@ -559,10 +560,13 @@ private fun ColumnScope.AnimeContentInfo(
 
         Spacer(modifier = Modifier.width(8.dp))
         InfoChip(
-            icon = if (isStubSource) Icons.Filled.Warning else Icons.Outlined.Public,
-            text = sourceName,
+            icon = if (isStubSource) Icons.Filled.Warning else if (sourceName.contains("Local")) Icons.Outlined.DoneAll else Icons.Outlined.Public,
+            text = if (isStubSource) sourceName else if (sourceName.contains("Local")) stringResource(MR.strings.local_source) else "Global",
             iconTint = if (isStubSource) MaterialTheme.colorScheme.error else null,
-            onClick = { doSearch(sourceName, false) }
+            onClick = { 
+                context.copyToClipboard(sourceName, sourceName)
+                context.toast(sourceName)
+            }
         )
     }
 }
