@@ -365,7 +365,7 @@ class AnimeScreenModel(
                 }
             }
 
-            // 1. Similar Titles (Waterfall loop for high density)
+            // 1. Similar Titles (Waterfall loop for high density - priority 1)
             launchIO {
                 val titleKeywords = eu.kanade.tachiyomi.util.lang.StringSimilarity.getSearchKeywords(anime.title)
                 val queries = listOfNotNull(
@@ -392,8 +392,9 @@ class AnimeScreenModel(
                                             intersect.toDouble() / anime.genre!!.size.coerceAtLeast(1)
                                         } else 0.0
                                         
+                                        // Broadened threshold to 0.15 for better variety
                                         val totalScore = eu.kanade.tachiyomi.util.lang.StringSimilarity.adaptiveScore(titleSim, genreOverlap)
-                                        if (totalScore < 0.25) return@async null
+                                        if (totalScore < 0.15) return@async null
                                         fullAnime
                                     }
                                 }.awaitAll().filterNotNull()

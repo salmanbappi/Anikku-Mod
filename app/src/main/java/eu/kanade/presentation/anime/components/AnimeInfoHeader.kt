@@ -171,11 +171,28 @@ fun AnimeActionRow(
 ) {
     val defaultActionButtonColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
 
-    Surface(
+    Column(
         modifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-        color = MaterialTheme.colorScheme.surfaceContainer,
-        shape = MaterialTheme.shapes.medium,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        // High-priority Play Action (Restored to previous good location)
+        androidx.compose.material3.Button(
+            onClick = onContinueWatching,
+            modifier = Modifier.fillMaxWidth().height(48.dp),
+            shape = MaterialTheme.shapes.medium,
+        ) {
+            Icon(Icons.Default.PlayArrow, null)
+            Spacer(Modifier.width(8.dp))
+            Text(
+                text = stringResource(if (isWatching) MR.strings.action_resume else MR.strings.action_start),
+                style = MaterialTheme.typography.titleSmall
+            )
+        }
+
+        Surface(
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            shape = MaterialTheme.shapes.medium,
+        ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically

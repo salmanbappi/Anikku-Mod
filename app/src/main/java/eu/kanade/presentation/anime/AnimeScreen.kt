@@ -420,7 +420,7 @@ private fun AnimeScreenSmallImpl(
                     AnimeToolbar(
                         title = state.anime.title,
                         titleAlphaProvider = { animatedTitleAlpha },
-                        backgroundAlphaProvider = { animatedBgAlpha },
+                        backgroundAlphaProvider = { 0f }, // Completely transparent
                         hasFilters = state.filterActive,
                         onBackClicked = internalOnBackPressed,
                         onClickFilter = onFilterClicked,
@@ -810,7 +810,7 @@ fun AnimeScreenLargeImpl(
                         modifier = Modifier.onSizeChanged { topBarHeight = it.height },
                         title = state.anime.title,
                         titleAlphaProvider = { if (isAnySelected) 1f else animatedTitleAlpha },
-                        backgroundAlphaProvider = { animatedBgAlpha },
+                        backgroundAlphaProvider = { 0f }, // Completely transparent
                         hasFilters = state.filterActive,
                         onBackClicked = internalOnBackPressed,
                         onClickFilter = onFilterButtonClicked,
@@ -1188,14 +1188,10 @@ private fun SharedAnimeBottomActionMenu(
     onMarkPreviousAsSeenClicked: (Episode) -> Unit,
     onDownloadEpisode: ((List<EpisodeList.Item>, EpisodeDownloadAction) -> Unit)?,
     onMultiDeleteClicked: (List<Episode>) -> Unit,
-    onContinueWatching: () -> Unit,
     fillFraction: Float,
     alwaysUseExternalPlayer: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val isWatching = remember(selected) {
-        selected.isEmpty() // Placeholder logic for now, handled by visibility
-    }
     AnimeBottomActionMenu(
         visible = selected.isNotEmpty(),
         modifier = modifier.fillMaxWidth(fillFraction),
@@ -1235,9 +1231,7 @@ private fun SharedAnimeBottomActionMenu(
         }.takeIf { !alwaysUseExternalPlayer && selected.size == 1 },
         onInternalClicked = {
             onEpisodeClicked(selected.fastMap { it.episode }.first(), true)
-        }.takeIf { alwaysUseExternalPlayer && selected.size == 1 },
-        onContinueWatching = onContinueWatching,
-        isWatching = false, // Not used in selection mode
+        }.takeIf { alwaysUseExternalPlayer && selected.size == 1 }
     )
 }
 
