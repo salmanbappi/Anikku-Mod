@@ -256,6 +256,9 @@ class LibraryPreferences(
     fun groupLibraryBy() = preferenceStore.getInt("group_anime_library_by", LibraryGroup.BY_DEFAULT)
     // SY <--
 
+    fun userAffinityMap() = preferenceStore.getString("user_affinity_map", "{}")
+    fun lastAffinityUpdate() = preferenceStore.getLong("last_affinity_update", 0L)
+
     companion object {
         const val DEVICE_ONLY_ON_WIFI = "wifi"
         const val DEVICE_NETWORK_NOT_METERED = "network_not_metered"
