@@ -80,7 +80,6 @@ import tachiyomi.domain.track.interactor.GetTracks
 import tachiyomi.domain.track.interactor.GetTracksPerAnime
 import tachiyomi.domain.track.interactor.InsertTrack
 import tachiyomi.domain.track.model.Track
-import eu.kanade.domain.track.model.AutoTrackState
 import tachiyomi.domain.anime.interactor.GetDuplicateLibraryAnime
 import tachiyomi.domain.anime.interactor.SetAnimeEpisodeFlags
 import tachiyomi.domain.anime.interactor.SetCustomAnimeInfo
@@ -406,7 +405,7 @@ class AnimeScreenModel(
                 updateSuccessState { state ->
                     val index = initialSections.indexOfFirst { it.type == type }
                     if (index != -1) {
-                        initialSections[index] = initialSections[index].copy(items = rankAndSortItems(items, anime).toImmutableList())
+                        initialSections[index] = initialSections[index].copy(items = rankAndSortItems(items, state.anime).toImmutableList())
                     }
                     val finalSections = initialSections
                         .filter { it.items.isNotEmpty() }
