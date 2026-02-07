@@ -1325,6 +1325,7 @@ private fun SuggestionItem(
                 eu.kanade.presentation.browse.components.InLibraryBadge(enabled = anime.favorite)
             },
             onClick = onClick,
+            onLongClick = {},
         )
     }
 }
@@ -1346,8 +1347,8 @@ private fun LazyListScope.sharedEpisodeItems(
         items = episodes,
         key = { item ->
             when (item) {
-                is EpisodeList.Item -> "episode-${item.id}-${item.episode.dateUpload}"
-                is EpisodeList.MissingCount -> "missing-${item.id}"
+                is EpisodeList.Item -> "ep-${item.episode.id}"
+                is EpisodeList.MissingCount -> "ms-${item.id}"
             }
         },
     ) { item ->
