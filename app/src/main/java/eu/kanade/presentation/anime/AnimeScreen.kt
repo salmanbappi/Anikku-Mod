@@ -132,7 +132,6 @@ import tachiyomi.presentation.core.components.TwoPanelBox
 import tachiyomi.presentation.core.components.VerticalFastScroller
 import tachiyomi.presentation.core.components.material.ExtendedFloatingActionButton
 import tachiyomi.presentation.core.components.material.PullRefresh
-import tachiyomi.presentation.core.components.material.AnimeEpisodeListItem
 import tachiyomi.presentation.core.components.material.Scaffold
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.clickableNoIndication
@@ -347,48 +346,58 @@ private fun AnimeScreenSmallImpl(
     val episodes = remember(state) { state.processedEpisodes }
     val listItem = remember(state) { state.episodeListItems }
 
-    val isFirstItemVisible by remember {
-        derivedStateOf { episodeListState.firstVisibleItemIndex == 0 }
-    }
-
-    val showSuggestions = sourcePreferences.relatedAnimeShowSource().collectAsState().value
-
-    val isAnySelected by remember {
-        derivedStateOf { episodes.fastAny { it.selected } }
-    }
-
-    val internalOnBackPressed = {
-        if (isAnySelected) {
-            onAllEpisodeSelected(false)
-        } else {
-            onBackClicked()
-        }
-    }
-    BackHandler(onBack = internalOnBackPressed)
-
-    val vibrantColors by CoverColorObserver.vibrantColors.collectAsState()
-    val vibrantColor = vibrantColors[state.anime.id] ?: state.anime.asAnimeCover().vibrantCoverColor
-
-    DynamicTachiyomiTheme(colorSeed = vibrantColor) {
-        val backgroundColor = MaterialTheme.colorScheme.background
-        val isLight = backgroundColor.luminance() > 0.5f
-        val context = LocalContext.current
-
-        LaunchedEffect(backgroundColor) {
-            val activity = context as? ComponentActivity ?: return@LaunchedEffect
-            val lightStyle = SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.BLACK)
-            val darkStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
-            activity.enableEdgeToEdge(
-                statusBarStyle = if (isLight) lightStyle else darkStyle,
-            )
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-        ) {
-            // Backdrop
+            val isFirstItemVisible by remember {
+                derivedStateOf { episodeListState.firstVisibleItemIndex == 0 }
+            }
+    
+            val backdropOffset by remember {
+                derivedStateOf {
+                    val scrollOffset = if (episodeListState.firstVisibleItemIndex == 0) {
+                        episodeListState.firstVisibleItemScrollOffset.toFloat()
+                    } else {
+                        2000f
+                    }
+                    -scrollOffset
+                }
+            }
+    
+            val showSuggestions = sourcePreferences.relatedAnimeShowSource().collectAsState().value
+    
+            val isAnySelected by remember {
+                derivedStateOf { episodes.fastAny { it.selected } }
+            }
+    
+            val internalOnBackPressed = {
+                if (isAnySelected) {
+                    onAllEpisodeSelected(false)
+                } else {
+                    onBackClicked()
+                }
+            }
+            BackHandler(onBack = internalOnBackPressed)
+    
+            val vibrantColors by CoverColorObserver.vibrantColors.collectAsState()
+            val vibrantColor = vibrantColors[state.anime.id] ?: state.anime.asAnimeCover().vibrantCoverColor
+    
+            DynamicTachiyomiTheme(colorSeed = vibrantColor) {
+                val backgroundColor = MaterialTheme.colorScheme.background
+                val isLight = backgroundColor.luminance() > 0.5f
+                val context = LocalContext.current
+    
+                LaunchedEffect(backgroundColor) {
+                    val activity = context as? ComponentActivity ?: return@LaunchedEffect
+                    val lightStyle = SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.BLACK)
+                    val darkStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+                    activity.enableEdgeToEdge(
+                        statusBarStyle = if (isLight) lightStyle else darkStyle,
+                    )
+                }
+    
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background),
+                ) {            // Backdrop
             val context = LocalContext.current
             AsyncImage(
                 model = remember(state.anime.id) {
