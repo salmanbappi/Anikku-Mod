@@ -65,16 +65,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -87,9 +84,6 @@ import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastMap
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import eu.kanade.domain.source.service.SourcePreferences
 import eu.kanade.presentation.anime.components.AnimeActionRow
 import eu.kanade.presentation.anime.components.AnimeBottomActionMenu
@@ -350,17 +344,6 @@ private fun AnimeScreenSmallImpl(
                 derivedStateOf { episodeListState.firstVisibleItemIndex == 0 }
             }
     
-            val backdropOffset by remember {
-                derivedStateOf {
-                    val scrollOffset = if (episodeListState.firstVisibleItemIndex == 0) {
-                        episodeListState.firstVisibleItemScrollOffset.toFloat()
-                    } else {
-                        2000f
-                    }
-                    -scrollOffset
-                }
-            }
-    
             val showSuggestions = sourcePreferences.relatedAnimeShowSource().collectAsState().value
     
             val isAnySelected by remember {
@@ -393,52 +376,21 @@ private fun AnimeScreenSmallImpl(
                     )
                 }
     
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.background),
-                ) {            // Backdrop
-            val context = LocalContext.current
-            AsyncImage(
-                model = remember(state.anime.id) {
-                    ImageRequest.Builder(context)
-                        .data(state.anime.asAnimeCover())
-                        .crossfade(true)
-                        .build()
-                },
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(280.dp)
-                    .graphicsLayer {
-                        translationY = backdropOffset
-                    }
-                    .alpha(0.35f)
-                    .blur(24.dp),
-                contentScale = ContentScale.Crop,
-            )
-
-            // Gradient overlay (Clear at top, background color at bottom)
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(280.dp)
-                    .graphicsLayer {
-                        translationY = backdropOffset
-                    }
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                MaterialTheme.colorScheme.background,
-                            ),
-                        ),
-                    ),
-            )
-
-            Scaffold(
-                containerColor = Color.Transparent,
-                floatingActionButton = {
+                        Box(
+    
+                            modifier = Modifier
+    
+                                .fillMaxSize()
+    
+                                .background(MaterialTheme.colorScheme.background),
+    
+                        ) {
+    
+                            Scaffold(
+    
+                                hazeEnabled = false,
+    
+                                floatingActionButton = {
                     val isFABVisible = remember(episodes) {
                         episodes.fastAny { !it.episode.seen } && !isAnySelected
                     }
@@ -482,7 +434,7 @@ private fun AnimeScreenSmallImpl(
                     AnimeToolbar(
                         title = state.anime.title,
                         titleAlphaProvider = { animatedTitleAlpha },
-                        backgroundAlphaProvider = { 0f }, // Completely transparent
+                        backgroundAlphaProvider = { animatedBgAlpha },
                         hasFilters = state.filterActive,
                         onBackClicked = internalOnBackPressed,
                         onClickFilter = onFilterClicked,
@@ -809,10 +761,8 @@ fun AnimeScreenLargeImpl(
     val episodeListState = rememberLazyListState()
     val infoScrollState = rememberScrollState()
 
-    val backdropOffset by remember {
-        derivedStateOf {
-            -infoScrollState.value.toFloat()
-        }
+    val isFirstItemVisible by remember {
+        derivedStateOf { episodeListState.firstVisibleItemIndex == 0 }
     }
 
     val internalOnBackPressed = {
@@ -846,47 +796,8 @@ fun AnimeScreenLargeImpl(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),
         ) {
-            // Backdrop
-            val context = LocalContext.current
-            AsyncImage(
-                model = remember(state.anime.id) {
-                    ImageRequest.Builder(context)
-                        .data(state.anime.asAnimeCover())
-                        .crossfade(true)
-                        .build()
-                },
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(440.dp)
-                    .graphicsLayer {
-                        translationY = backdropOffset
-                    }
-                    .alpha(0.35f)
-                    .blur(24.dp),
-                contentScale = ContentScale.Crop,
-            )
-
-            // Gradient overlay (Clear at top, background color at bottom)
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(440.dp)
-                    .graphicsLayer {
-                        translationY = backdropOffset
-                    }
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                MaterialTheme.colorScheme.background,
-                            ),
-                        ),
-                    ),
-            )
-
             Scaffold(
-                containerColor = Color.Transparent,
+                hazeEnabled = false,
                 floatingActionButton = {
                     val isFABVisible = remember(episodes) {
                         episodes.fastAny { !it.episode.seen } && !isAnySelected
@@ -935,7 +846,7 @@ fun AnimeScreenLargeImpl(
                         modifier = Modifier.onSizeChanged { topBarHeight = it.height },
                         title = state.anime.title,
                         titleAlphaProvider = { if (isAnySelected) 1f else animatedTitleAlpha },
-                        backgroundAlphaProvider = { 0f }, // Completely transparent
+                        backgroundAlphaProvider = { animatedBgAlpha },
                         hasFilters = state.filterActive,
                         onBackClicked = internalOnBackPressed,
                         onClickFilter = onFilterButtonClicked,
