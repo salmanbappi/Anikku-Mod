@@ -403,40 +403,6 @@ private fun AnimeScreenSmallImpl(
             Scaffold(
                 containerColor = Color.Transparent,
                 topBar = {
-                    AnimeToolbar(
-                        title = state.anime.title,
-                        titleAlpha = if (isFirstItemVisible) 0f else 1f,
-                        backgroundAlpha = if (isFirstItemVisible) 0f else 1f,
-                        onBackClicked = onBackClicked,
-                        onShareClicked = onShareClicked,
-                        onDownloadClicked = onDownloadEpisode,
-                        onEditClicked = onEditIntervalClicked,
-                        onWebViewClicked = onWebViewClicked,
-                        onWebViewLongClicked = onWebViewLongClicked,
-                        onSearchClicked = onSearch,
-                        onEditCategoryClicked = onEditCategoryClicked,
-                        onMoreClicked = onMoreClicked,
-                        isAnySelected = isAnySelected,
-                        onSelectAll = onSelectAll,
-                        onInvertSelection = onInvertSelection,
-                    )
-                },
-                bottomBar = {
-                    val isWatching = remember(state.episodes) {
-                        state.episodes.fastAny { it.episode.seen }
-                    }
-                    AnimeBottomActionMenu(
-                        visible = !isAnySelected,
-                        modifier = Modifier.fillMaxWidth(),
-                        onContinueWatching = onContinueWatching,
-                        isWatching = isWatching,
-                    )
-                },
-                snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-            ) { contentPadding ->
-                containerColor = Color.Transparent,
-                hazeEnabled = false,
-                topBar = {
                     val selectedEpisodeCount: Int = remember(episodes) {
                         episodes.count { it.selected }
                     }
@@ -448,7 +414,6 @@ private fun AnimeScreenSmallImpl(
                         animationSpec = androidx.compose.animation.core.tween(200),
                         label = "Top Bar Title",
                     )
-                    // Ensure the background color is truly transparent when at the top
                     val animatedBgAlpha by animateFloatAsState(
                         targetValue = if (!isFirstItemVisible || isFirstItemScrolled) 1f else 0f,
                         animationSpec = androidx.compose.animation.core.tween(200),
@@ -487,6 +452,7 @@ private fun AnimeScreenSmallImpl(
                         onMarkPreviousAsSeenClicked = onMarkPreviousAsSeenClicked,
                         onDownloadEpisode = onDownloadEpisode,
                         onMultiDeleteClicked = onMultiDeleteClicked,
+                        onContinueWatching = onContinueWatching,
                         fillFraction = 1f,
                         alwaysUseExternalPlayer = alwaysUseExternalPlayer,
                     )
@@ -923,6 +889,7 @@ fun AnimeScreenLargeImpl(
                             onMarkPreviousAsSeenClicked = onMarkPreviousAsSeenClicked,
                             onDownloadEpisode = onDownloadEpisode,
                             onMultiDeleteClicked = onMultiDeleteClicked,
+                            onContinueWatching = onContinueWatching,
                             fillFraction = 0.5f,
                             alwaysUseExternalPlayer = alwaysUseExternalPlayer,
                         )
@@ -1266,10 +1233,14 @@ private fun SharedAnimeBottomActionMenu(
     onMarkPreviousAsSeenClicked: (Episode) -> Unit,
     onDownloadEpisode: ((List<EpisodeList.Item>, EpisodeDownloadAction) -> Unit)?,
     onMultiDeleteClicked: (List<Episode>) -> Unit,
+    onContinueWatching: () -> Unit,
     fillFraction: Float,
     alwaysUseExternalPlayer: Boolean,
     modifier: Modifier = Modifier,
 ) {
+    val isWatching = remember(selected) {
+        selected.isEmpty() // Placeholder logic for now, handled by visibility
+    }
     AnimeBottomActionMenu(
         visible = selected.isNotEmpty(),
         modifier = modifier.fillMaxWidth(fillFraction),
@@ -1310,6 +1281,8 @@ private fun SharedAnimeBottomActionMenu(
         onInternalClicked = {
             onEpisodeClicked(selected.fastMap { it.episode }.first(), true)
         }.takeIf { alwaysUseExternalPlayer && selected.size == 1 },
+        onContinueWatching = onContinueWatching,
+        isWatching = false, // Not used in selection mode
     )
 }
 
