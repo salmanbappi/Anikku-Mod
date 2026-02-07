@@ -41,6 +41,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
@@ -99,7 +100,7 @@ fun AnimeCompactGridItem(
                 AnimeCover.Book(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .alpha(if (isSelected) GRID_SELECTED_COVER_ALPHA else coverAlpha),
+                        .graphicsLayer { alpha = if (isSelected) GRID_SELECTED_COVER_ALPHA else coverAlpha },
                     data = coverData,
                 )
             },
@@ -206,7 +207,7 @@ fun AnimeComfortableGridItem(
                     AnimeCover.Book(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .alpha(if (isSelected) GRID_SELECTED_COVER_ALPHA else coverAlpha),
+                            .graphicsLayer { alpha = if (isSelected) GRID_SELECTED_COVER_ALPHA else coverAlpha },
                         data = coverData,
                     )
                 },
@@ -312,7 +313,10 @@ private fun GridItemSelectable(
     )
     Box(
         modifier = modifier
-            .scale(scale)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
             .clip(MaterialTheme.shapes.medium)
             .combinedClickable(
                 onClick = {
@@ -386,18 +390,19 @@ fun AnimeListItem(
     containerHeight: Int = 0,
 ) {
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
+    val density = LocalDensity.current
+    val height by remember(entries, containerHeight, density) {
+        androidx.compose.runtime.mutableStateOf(
+            when (entries) {
+                0 -> 76.dp
+                else -> with(density) { (containerHeight / entries).toDp() } - (3 / entries).dp
+            }
+        )
+    }
     Row(
         modifier = Modifier
             .selectedBackground(isSelected)
-            .height(
-                when (entries) {
-                    0 -> 76.dp
-                    else -> {
-                        val density = LocalDensity.current
-                        with(density) { (containerHeight / entries).toDp() } - (3 / entries).dp
-                    }
-                },
-            )
+            .height(height)
             .combinedClickable(
                 onClick = {
                     haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
@@ -414,7 +419,7 @@ fun AnimeListItem(
         AnimeCover.Book(
             modifier = Modifier
                 .fillMaxHeight()
-                .alpha(coverAlpha),
+                .graphicsLayer { alpha = coverAlpha },
             data = coverData,
         )
         Text(
