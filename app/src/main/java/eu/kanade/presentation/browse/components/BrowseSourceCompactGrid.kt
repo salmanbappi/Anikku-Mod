@@ -27,6 +27,7 @@ fun BrowseSourceCompactGrid(
     favoriteIds: Set<Long> = emptySet(),
     onBatchIncrement: (Int) -> Unit = {},
 ) {
+    val selectionIds = remember(selection) { selection.map { it.id }.toSet() }
     LazyVerticalGrid(
         columns = columns,
         contentPadding = contentPadding + PaddingValues(8.dp),
@@ -41,14 +42,18 @@ fun BrowseSourceCompactGrid(
 
         items(
             count = animeList.itemCount,
-            key = { index -> animeList.peek(index)?.id ?: "placeholder_$index" },
+            key = { index -> 
+                val anime = animeList.peek(index)
+                if (anime != null) "anime-${anime.id}" else "placeholder_$index"
+            },
         ) { index ->
             val anime = animeList[index] ?: return@items
             onBatchIncrement(index)
             val isFavorite = remember(anime.id, favoriteIds) { anime.id in favoriteIds }
             BrowseSourceCompactGridItem(
-                anime = anime.copy(favorite = isFavorite),
-                isSelected = selection.any { it.id == anime.id },
+                anime = anime,
+                isFavorite = isFavorite,
+                isSelected = anime.id in selectionIds,
                 onClick = { onAnimeClick(anime) },
                 onLongClick = { onAnimeLongClick(anime) },
             )
@@ -65,22 +70,25 @@ fun BrowseSourceCompactGrid(
 @Composable
 internal fun BrowseSourceCompactGridItem(
     anime: Anime,
+    isFavorite: Boolean,
     isSelected: Boolean = false,
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = onClick,
 ) {
     AnimeCompactGridItem(
         title = anime.title,
-        coverData = AnimeCover(
-            animeId = anime.id,
-            sourceId = anime.source,
-            isAnimeFavorite = anime.favorite,
-            ogUrl = anime.thumbnailUrl,
-            lastModified = anime.coverLastModified,
-        ),
-        coverAlpha = if (anime.favorite) CommonAnimeItemDefaults.BrowseFavoriteCoverAlpha else 1f,
+        coverData = remember(anime.id, isFavorite) {
+            AnimeCover(
+                animeId = anime.id,
+                sourceId = anime.source,
+                isAnimeFavorite = isFavorite,
+                ogUrl = anime.thumbnailUrl,
+                lastModified = anime.coverLastModified,
+            )
+        },
+        coverAlpha = if (isFavorite) CommonAnimeItemDefaults.BrowseFavoriteCoverAlpha else 1f,
         coverBadgeStart = {
-            InLibraryBadge(enabled = anime.favorite)
+            InLibraryBadge(enabled = isFavorite)
         },
         onLongClick = onLongClick,
         onClick = onClick,

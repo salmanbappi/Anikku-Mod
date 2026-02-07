@@ -31,12 +31,16 @@ fun BrowseSourceList(
     onBatchIncrement: (Int) -> Unit = {},
 ) {
     var containerHeight by remember { mutableIntStateOf(0) }
+    val selectionIds = remember(selection) { selection.map { it.id }.toSet() }
     LazyColumn(
         contentPadding = contentPadding + PaddingValues(vertical = 8.dp),
-        modifier = Modifier
-            .onGloballyPositioned { layoutCoordinates ->
+        modifier = if (entries > 0) {
+            Modifier.onGloballyPositioned { layoutCoordinates ->
                 containerHeight = layoutCoordinates.size.height - topBarHeight
-            },
+            }
+        } else {
+            Modifier
+        },
     ) {
         item {
             if (animeList.loadState.prepend is LoadState.Loading) {
@@ -46,14 +50,18 @@ fun BrowseSourceList(
 
         items(
             count = animeList.itemCount,
-            key = { index -> animeList.peek(index)?.id ?: "placeholder_$index" },
+            key = { index -> 
+                val anime = animeList.peek(index)
+                if (anime != null) "anime-${anime.id}" else "placeholder_$index"
+            },
         ) { index ->
             val anime = animeList[index] ?: return@items
             onBatchIncrement(index)
             val isFavorite = remember(anime.id, favoriteIds) { anime.id in favoriteIds }
             BrowseSourceListItem(
-                anime = anime.copy(favorite = isFavorite),
-                isSelected = selection.any { it.id == anime.id },
+                anime = anime,
+                isFavorite = isFavorite,
+                isSelected = anime.id in selectionIds,
                 onClick = { onAnimeClick(anime) },
                 onLongClick = { onAnimeLongClick(anime) },
                 entries = entries,
@@ -72,6 +80,7 @@ fun BrowseSourceList(
 @Composable
 internal fun BrowseSourceListItem(
     anime: Anime,
+    isFavorite: Boolean,
     isSelected: Boolean = false,
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = onClick,
@@ -81,16 +90,18 @@ internal fun BrowseSourceListItem(
     AnimeListItem(
         title = anime.title,
         isSelected = isSelected,
-        coverData = AnimeCover(
-            animeId = anime.id,
-            sourceId = anime.source,
-            isAnimeFavorite = anime.favorite,
-            ogUrl = anime.thumbnailUrl,
-            lastModified = anime.coverLastModified,
-        ),
-        coverAlpha = if (anime.favorite) CommonAnimeItemDefaults.BrowseFavoriteCoverAlpha else 1f,
+        coverData = remember(anime.id, isFavorite) {
+            AnimeCover(
+                animeId = anime.id,
+                sourceId = anime.source,
+                isAnimeFavorite = isFavorite,
+                ogUrl = anime.thumbnailUrl,
+                lastModified = anime.coverLastModified,
+            )
+        },
+        coverAlpha = if (isFavorite) CommonAnimeItemDefaults.BrowseFavoriteCoverAlpha else 1f,
         badge = {
-            InLibraryBadge(enabled = anime.favorite)
+            InLibraryBadge(enabled = isFavorite)
         },
         onLongClick = onLongClick,
         onClick = onClick,
