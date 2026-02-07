@@ -173,7 +173,7 @@ fun AnimeActionRow(
 
     Surface(
         modifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.45f),
+        color = MaterialTheme.colorScheme.surfaceContainer,
         shape = MaterialTheme.shapes.medium,
     ) {
         Row(
@@ -554,7 +554,7 @@ private fun InfoChip(
         modifier = Modifier
             .clip(MaterialTheme.shapes.small)
             .clickableNoIndication(onClick = onClick ?: {}),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.7f),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
         shape = MaterialTheme.shapes.small,
     ) {
         Row(
