@@ -175,20 +175,6 @@ fun AnimeActionRow(
         modifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // High-priority Play Action (Restored to previous good location)
-        androidx.compose.material3.Button(
-            onClick = onContinueWatching,
-            modifier = Modifier.fillMaxWidth().height(48.dp),
-            shape = MaterialTheme.shapes.medium,
-        ) {
-            Icon(Icons.Default.PlayArrow, null)
-            Spacer(Modifier.width(8.dp))
-            Text(
-                text = stringResource(if (isWatching) MR.strings.action_resume else MR.strings.action_start),
-                style = MaterialTheme.typography.titleSmall
-            )
-        }
-
         Surface(
             color = MaterialTheme.colorScheme.surfaceContainer,
             shape = MaterialTheme.shapes.medium,

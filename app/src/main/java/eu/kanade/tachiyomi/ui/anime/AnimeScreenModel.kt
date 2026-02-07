@@ -124,9 +124,9 @@ data class SuggestionSection(
     val type: Type,
 ) : Serializable {
     enum class Type {
-        Source,
-        Tag,
         Similarity,
+        Tag,
+        Source,
         Author,
         Community,
     }
@@ -359,7 +359,10 @@ class AnimeScreenModel(
                     if (index != -1) {
                         initialSections[index] = initialSections[index].copy(items = items.distinctBy { it.id }.filter { it.id != anime.id }.toImmutableList())
                     }
-                    val finalSections = initialSections.filter { it.items.isNotEmpty() }.toImmutableList()
+                    val finalSections = initialSections
+                        .filter { it.items.isNotEmpty() }
+                        .sortedBy { it.type }
+                        .toImmutableList()
                     suggestionsCache.put(anime.id, CachedSuggestions(finalSections, System.currentTimeMillis()))
                     state.copy(suggestionSections = finalSections)
                 }
