@@ -98,20 +98,12 @@ import tachiyomi.domain.episode.model.Episode
 import tachiyomi.domain.episode.model.EpisodeUpdate
 import tachiyomi.domain.episode.service.calculateChapterGap
 import tachiyomi.domain.episode.service.getEpisodeSort
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import tachiyomi.domain.library.model.LibraryAnime
 import tachiyomi.domain.library.service.LibraryPreferences
-import tachiyomi.domain.source.service.SourceManager
-import tachiyomi.domain.source.interactor.GetRelatedAnime
-import tachiyomi.domain.storage.service.StoragePreferences
-import tachiyomi.domain.track.interactor.GetTracks
-import tachiyomi.i18n.MR
-import tachiyomi.i18n.kmk.KMR
-import tachiyomi.i18n.sy.SYMR
-import tachiyomi.source.local.LocalSource
-import tachiyomi.source.local.isLocal
-import uy.kohesive.injekt.Injekt
-import uy.kohesive.injekt.api.get
-import java.util.Calendar
-import kotlin.math.floor
 import java.io.Serializable
 
 import eu.kanade.tachiyomi.animesource.AnimeCatalogueSource
@@ -170,6 +162,7 @@ class AnimeScreenModel(
     private val getAnime: GetAnime = Injekt.get(),
     private val networkToLocalAnime: NetworkToLocalAnime = Injekt.get(),
     private val getRelatedAnime: GetRelatedAnime = Injekt.get(),
+    private val calculateUserAffinity: CalculateUserAffinity = Injekt.get(),
 ) : StateScreenModel<AnimeScreenModel.State>(State.Loading) {
 
     private val successState: State.Success?
@@ -336,8 +329,17 @@ class AnimeScreenModel(
         }
 
         screenModelScope.launchIO {
-            val source = sourceManager.get(anime.source) as? AnimeCatalogueSource ?: return@launchIO
+            // Update affinity vector in background if needed
+            calculateUserAffinity.await()
             
+            val source = sourceManager.get(anime.source) as? AnimeCatalogueSource ?: return@launchIO
+            val library = getLibraryAnime.await()
+            
+            val affinityMap = try {
+                val json = Json.parseToJsonElement(libraryPreferences.userAffinityMap().get()).jsonObject
+                json.mapValues { it.value.jsonPrimitive.float }
+            } catch (e: Exception) { emptyMap<String, Float>() }
+
             // Only deduplicate against the current anime itself to keep density high as requested
             val initialSections = SuggestionSection.Type.entries.map { type ->
                 SuggestionSection(
@@ -353,11 +355,38 @@ class AnimeScreenModel(
                 )
             }.toMutableList()
 
+            fun rankAndSortItems(items: List<Anime>): List<Anime> {
+                return items.distinctBy { it.id }
+                    .filter { it.id != anime.id }
+                    .map { candidate ->
+                        // 1. Metadata Similarity (Already filtered by search query/overlap in logic below)
+                        
+                        // 2. User Affinity Score
+                        var affinityScore = 0f
+                        candidate.genre?.forEach { tag ->
+                            affinityScore += affinityMap[tag.trim().lowercase()] ?: 0f
+                        }
+                        candidate.author?.split(",")?.forEach { author ->
+                            affinityScore += (affinityMap["studio:${author.trim().lowercase()}"] ?: 0f) * 1.5f
+                        }
+
+                        // 3. Franchise Penalty (De-Sequelizer)
+                        val isFranchise = library.any { lib ->
+                            eu.kanade.tachiyomi.util.lang.StringSimilarity.tokenSortRatio(candidate.title, lib.anime.title) > 80
+                        }
+                        val penalty = if (isFranchise) 0.2f else 1.0f
+
+                        candidate to (affinityScore * penalty)
+                    }
+                    .sortedByDescending { it.second }
+                    .map { it.first }
+            }
+
             fun updateSection(type: SuggestionSection.Type, items: List<Anime>) {
                 updateSuccessState { state ->
                     val index = initialSections.indexOfFirst { it.type == type }
                     if (index != -1) {
-                        initialSections[index] = initialSections[index].copy(items = items.distinctBy { it.id }.filter { it.id != anime.id }.toImmutableList())
+                        initialSections[index] = initialSections[index].copy(items = rankAndSortItems(items).toImmutableList())
                     }
                     val finalSections = initialSections
                         .filter { it.items.isNotEmpty() }
