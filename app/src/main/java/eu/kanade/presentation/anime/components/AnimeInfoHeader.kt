@@ -162,99 +162,72 @@ fun AnimeActionRow(
     onTrackingClicked: () -> Unit,
     onEditIntervalClicked: (() -> Unit)?,
     onEditCategory: (() -> Unit)?,
+    onContinueWatching: () -> Unit,
+    isWatching: Boolean,
     localScore: Double? = null,
     onLocalScoreClicked: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val defaultActionButtonColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
 
-    val nextUpdateDays = remember(nextUpdate) {
-        nextUpdate?.let {
-            ChronoUnit.DAYS.between(Instant.now(), it).toInt().coerceAtLeast(0)
-        }
-    }
-
-    Surface(
-        modifier = modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.6f),
-        shape = MaterialTheme.shapes.extraLarge,
-        tonalElevation = 2.dp
+    Column(
+        modifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
+        // Standardized Primary Action
+        androidx.compose.material3.Button(
+            onClick = onContinueWatching,
+            modifier = Modifier.fillMaxWidth().height(44.dp),
+            shape = MaterialTheme.shapes.medium,
         ) {
-            AnimeActionButton(
-                title = if (favorite) {
-                    stringResource(MR.strings.in_library)
-                } else {
-                    stringResource(MR.strings.add_to_library)
-                },
-                icon = if (favorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                color = if (favorite) MaterialTheme.colorScheme.primary else defaultActionButtonColor,
-                onClick = onAddToLibraryClicked,
-                onLongClick = onEditCategory,
+            Icon(Icons.Default.PlayArrow, null, modifier = Modifier.size(20.dp))
+            Spacer(Modifier.width(8.dp))
+            Text(
+                text = stringResource(if (isWatching) MR.strings.action_resume else MR.strings.action_start),
+                style = MaterialTheme.typography.titleSmall
             )
-            AnimeActionButton(
-                title = when (nextUpdateDays) {
-                    null -> stringResource(MR.strings.not_applicable)
-                    0 -> stringResource(MR.strings.manga_interval_expected_update_soon)
-                    else -> pluralStringResource(
-                        MR.plurals.day,
-                        count = nextUpdateDays,
-                        nextUpdateDays,
-                    )
-                },
-                icon = Icons.Default.HourglassEmpty,
-                color = if (isUserIntervalMode) MaterialTheme.colorScheme.primary else defaultActionButtonColor,
-                onClick = { onEditIntervalClicked?.invoke() },
-            )
-            AnimeActionButton(
-                title = if (trackingCount == 0 && localScore != null && localScore > 0) {
-                    "Rated: ${localScore.toInt()}"
-                } else if (trackingCount == 0) {
-                    stringResource(MR.strings.manga_tracking_tab)
-                } else {
-                    pluralStringResource(MR.plurals.num_trackers, count = trackingCount, trackingCount)
-                },
-                icon = if (trackingCount == 0 && (localScore == null || localScore == 0.0)) {
-                    Icons.Outlined.Sync
-                } else if (trackingCount > 0) {
-                    Icons.Outlined.Done
-                } else {
-                    null
-                },
-                color = if (trackingCount == 0 && localScore == null) defaultActionButtonColor else MaterialTheme.colorScheme.primary,
-                onClick = if (trackingCount == 0) (onLocalScoreClicked ?: onTrackingClicked) else onTrackingClicked,
-                iconContent = if (trackingCount == 0 && localScore != null && localScore > 0) {
-                    {
-                        Box(
-                            modifier = Modifier
-                                .size(20.dp)
-                                .background(MaterialTheme.colorScheme.primary, CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = localScore.toInt().toString(),
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                } else {
-                    null
-                }
-            )
+        }
 
-            if (onWebViewClicked != null) {
+        Surface(
+            color = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.45f),
+            shape = MaterialTheme.shapes.medium,
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 AnimeActionButton(
-                    title = stringResource(MR.strings.action_web_view),
-                    icon = Icons.Outlined.Public,
-                    color = defaultActionButtonColor,
-                    onClick = onWebViewClicked,
-                    onLongClick = onWebViewLongClicked,
+                    title = if (favorite) stringResource(MR.strings.in_library) else stringResource(MR.strings.add_to_library),
+                    icon = if (favorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                    color = if (favorite) MaterialTheme.colorScheme.primary else defaultActionButtonColor,
+                    onClick = onAddToLibraryClicked,
+                    onLongClick = onEditCategory,
                 )
+                AnimeActionButton(
+                    title = if (trackingCount == 0 && localScore != null && localScore > 0) {
+                        "${localScore.toInt()}/10"
+                    } else if (trackingCount == 0) {
+                        stringResource(MR.strings.manga_tracking_tab)
+                    } else {
+                        pluralStringResource(MR.plurals.num_trackers, count = trackingCount, trackingCount)
+                    },
+                    icon = if (trackingCount == 0 && (localScore == null || localScore == 0.0)) {
+                        Icons.Outlined.Sync
+                    } else if (trackingCount > 0) {
+                        Icons.Outlined.Done
+                    } else null,
+                    color = if (trackingCount == 0 && localScore == null) defaultActionButtonColor else MaterialTheme.colorScheme.primary,
+                    onClick = if (trackingCount == 0) (onLocalScoreClicked ?: onTrackingClicked) else onTrackingClicked,
+                )
+                if (onWebViewClicked != null) {
+                    AnimeActionButton(
+                        title = stringResource(MR.strings.action_web_view),
+                        icon = Icons.Outlined.Public,
+                        color = defaultActionButtonColor,
+                        onClick = onWebViewClicked,
+                        onLongClick = onWebViewLongClicked,
+                    )
+                }
             }
         }
     }
