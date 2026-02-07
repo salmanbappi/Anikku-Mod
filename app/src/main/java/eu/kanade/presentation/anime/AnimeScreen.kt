@@ -436,8 +436,11 @@ private fun AnimeScreenSmallImpl(
                         )
                     }
                     .blur(if (isFirstItemVisible) 0.dp else 12.dp) // Progressive blur
-                    .alpha(0.55f),
+                    .alpha(0.45f), // Darkened for better contrast
             )
+            // Extra scrim for vibrant images
+            Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.15f)))
+            
             Scaffold(
                 containerColor = Color.Transparent,
                 hazeEnabled = false,
@@ -497,32 +500,6 @@ private fun AnimeScreenSmallImpl(
                     )
                 },
                 snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-                floatingActionButton = {
-                    val isFABVisible = remember(episodes) {
-                        episodes.fastAny { !it.episode.seen } && !isAnySelected
-                    }
-                    AnimatedVisibility(
-                        visible = isFABVisible,
-                        enter = fadeIn() + androidx.compose.animation.scaleIn(),
-                        exit = fadeOut() + androidx.compose.animation.scaleOut(),
-                    ) {
-                        ExtendedFloatingActionButton(
-                            text = {
-                                val isWatching = remember(state.episodes) {
-                                    state.episodes.fastAny { it.episode.seen }
-                                }
-                                Text(
-                                    text = stringResource(
-                                        if (isWatching) MR.strings.action_resume else MR.strings.action_start,
-                                    ),
-                                )
-                            },
-                            icon = { Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = null) },
-                            onClick = onContinueWatching,
-                            expanded = episodeListState.shouldExpandFAB(),
-                        )
-                    }
-                },
             ) { contentPadding ->
                 val topPadding = contentPadding.calculateTopPadding()
                 PullRefresh(
@@ -558,8 +535,10 @@ private fun AnimeScreenSmallImpl(
                                 )
                             }
                             item(key = AnimeScreenItem.ACTION_ROW, contentType = AnimeScreenItem.ACTION_ROW) {
+                                val isWatching = remember(state.episodes) {
+                                    state.episodes.fastAny { it.episode.seen }
+                                }
                                 AnimeActionRow(
-                                    modifier = Modifier.padding(top = 8.dp),
                                     favorite = state.anime.favorite,
                                     trackingCount = state.trackingCount,
                                     nextUpdate = nextUpdate,
@@ -570,6 +549,8 @@ private fun AnimeScreenSmallImpl(
                                     onTrackingClicked = onTrackingClicked,
                                     onEditIntervalClicked = onEditIntervalClicked,
                                     onEditCategory = onEditCategoryClicked,
+                                    onContinueWatching = onContinueWatching,
+                                    isWatching = isWatching,
                                     localScore = state.anime.score,
                                     onLocalScoreClicked = onLocalScoreClicked,
                                 )
@@ -579,15 +560,16 @@ private fun AnimeScreenSmallImpl(
                                 item(key = "discovery-section", contentType = "discovery") {
                                     val navigator = LocalNavigator.currentOrThrow
                                     Surface(
-                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                                         color = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.4f),
-                                        shape = MaterialTheme.shapes.large,
+                                        shape = MaterialTheme.shapes.medium,
                                     ) {
-                                        Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                                        Column(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)) {
                                             Row(
                                                 modifier = Modifier
                                                     .fillMaxWidth()
-                                                    .padding(horizontal = 12.dp),
+                                                    .padding(horizontal = 12.dp)
+                                                    .padding(bottom = 8.dp),
                                                 horizontalArrangement = Arrangement.SpaceBetween,
                                                 verticalAlignment = Alignment.CenterVertically,
                                             ) {
@@ -596,7 +578,7 @@ private fun AnimeScreenSmallImpl(
                                                         imageVector = androidx.compose.material.icons.Icons.Default.AutoAwesome,
                                                         contentDescription = null,
                                                         tint = MaterialTheme.colorScheme.primary,
-                                                        modifier = Modifier.size(18.dp)
+                                                        modifier = Modifier.size(16.dp)
                                                     )
                                                     Text(
                                                         text = "Recommended for you",
@@ -607,7 +589,7 @@ private fun AnimeScreenSmallImpl(
                                                 TextButton(
                                                     onClick = onToggleDiscoveryExpansion,
                                                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-                                                    modifier = Modifier.height(32.dp)
+                                                    modifier = Modifier.height(28.dp)
                                                 ) {
                                                     Text(
                                                         text = if (state.discoveryExpanded) "Collapse" else stringResource(tachiyomi.i18n.MR.strings.label_more),
@@ -955,32 +937,6 @@ fun AnimeScreenLargeImpl(
                     }
                 },
                 snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-                floatingActionButton = {
-                    val isFABVisible = remember(episodes) {
-                        episodes.fastAny { !it.episode.seen } && !isAnySelected
-                    }
-                    AnimatedVisibility(
-                        visible = isFABVisible,
-                        enter = fadeIn() + androidx.compose.animation.scaleIn(),
-                        exit = fadeOut() + androidx.compose.animation.scaleOut(),
-                    ) {
-                        ExtendedFloatingActionButton(
-                            text = {
-                                val isWatching = remember(state.episodes) {
-                                    state.episodes.fastAny { it.episode.seen }
-                                }
-                                Text(
-                                    text = stringResource(
-                                        if (isWatching) MR.strings.action_resume else MR.strings.action_start,
-                                    ),
-                                )
-                            },
-                            icon = { Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = null) },
-                            onClick = onContinueWatching,
-                            expanded = episodeListState.shouldExpandFAB(),
-                        )
-                    }
-                },
             ) { contentPadding ->
                 PullRefresh(
                     refreshing = state.isRefreshingData,
@@ -1012,6 +968,9 @@ fun AnimeScreenLargeImpl(
                                     onCoverClick = onCoverClicked,
                                     doSearch = onSearch,
                                 )
+                                val isWatching = remember(state.episodes) {
+                                    state.episodes.fastAny { it.episode.seen }
+                                }
                                 AnimeActionRow(
                                     favorite = state.anime.favorite,
                                     trackingCount = state.trackingCount,
@@ -1023,6 +982,8 @@ fun AnimeScreenLargeImpl(
                                     onTrackingClicked = onTrackingClicked,
                                     onEditIntervalClicked = onEditIntervalClicked,
                                     onEditCategory = onEditCategoryClicked,
+                                    onContinueWatching = onContinueWatching,
+                                    isWatching = isWatching,
                                     localScore = state.anime.score,
                                     onLocalScoreClicked = onLocalScoreClicked,
                                 )
@@ -1030,15 +991,16 @@ fun AnimeScreenLargeImpl(
                                 if (showSuggestions && state.suggestionSections.isNotEmpty()) {
                                     val navigator = LocalNavigator.currentOrThrow
                                     Surface(
-                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                                         color = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.4f),
-                                        shape = MaterialTheme.shapes.large,
+                                        shape = MaterialTheme.shapes.medium,
                                     ) {
-                                        Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                                        Column(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)) {
                                             Row(
                                                 modifier = Modifier
                                                     .fillMaxWidth()
-                                                    .padding(horizontal = 12.dp),
+                                                    .padding(horizontal = 12.dp)
+                                                    .padding(bottom = 8.dp),
                                                 horizontalArrangement = Arrangement.SpaceBetween,
                                                 verticalAlignment = Alignment.CenterVertically,
                                             ) {
@@ -1047,7 +1009,7 @@ fun AnimeScreenLargeImpl(
                                                         imageVector = androidx.compose.material.icons.Icons.Default.AutoAwesome,
                                                         contentDescription = null,
                                                         tint = MaterialTheme.colorScheme.primary,
-                                                        modifier = Modifier.size(18.dp)
+                                                        modifier = Modifier.size(16.dp)
                                                     )
                                                     Text(
                                                         text = "Recommended for you",
@@ -1058,7 +1020,7 @@ fun AnimeScreenLargeImpl(
                                                 TextButton(
                                                     onClick = onToggleDiscoveryExpansion,
                                                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-                                                    modifier = Modifier.height(32.dp)
+                                                    modifier = Modifier.height(28.dp)
                                                 ) {
                                                     Text(
                                                         text = if (state.discoveryExpanded) "Collapse" else stringResource(tachiyomi.i18n.MR.strings.label_more),
