@@ -113,6 +113,7 @@ class RelatedAnimeScreen(val animeId: Long) : Screen() {
                 items(animes, key = { "anime-${it.id}" }) { anime ->
                     BrowseSourceComfortableGridItem(
                         anime = anime,
+                        isFavorite = anime.favorite,
                         onClick = { onAnimeClick(anime) },
                     )
                 }

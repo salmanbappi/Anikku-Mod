@@ -1,0 +1,37 @@
+{
+  "project_name": "Anikku",
+  "tech_stacks": {
+    "language": ["Kotlin", "Java"],
+    "frameworks": ["Android SDK", "Jetpack Compose", "SQLDelight", "Voyager", "Injekt", "Coil", "MPV"],
+    "build_system": "Gradle (KTS)",
+    "architecture": "Multi-module Clean Architecture",
+    "libraries": [
+      "Jsoup",
+      "OkHttp",
+      "Coroutines",
+      "Serialization",
+      "Timber",
+      "Logcat",
+      "Paging",
+      "WorkManager",
+      "Moko Resources",
+      "Flexible Adapter",
+      "Material Design 3",
+      "Haze",
+      "MaterialKolor"
+    ]
+  },
+  "features": [
+    "Anime streaming via multiple sources",
+    "Library management (Favorites, Categories)",
+    "Global and source-specific search",
+    "Trackers integration (MAL, AniList, etc.)",
+    "Downloads and offline viewing",
+    "Advanced video player with mpv/ffmpeg",
+    "Torrent support via TorrentServer",
+    "Backup and Restore",
+    "Extensible via extensions",
+    "Customizable UI themes"
+  ],
+  "testing_frameworks": ["JUnit", "Detekt", "Lint", "Espresso"]
+}
