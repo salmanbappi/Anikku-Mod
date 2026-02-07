@@ -81,6 +81,7 @@ import androidx.compose.ui.util.fastMap
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.request.crossfade
+import eu.kanade.domain.ui.UiPreferences
 import eu.kanade.domain.source.service.SourcePreferences
 import eu.kanade.presentation.anime.components.AnimeActionRow
 import eu.kanade.presentation.anime.components.AnimeBottomActionMenu
@@ -103,6 +104,7 @@ import eu.kanade.tachiyomi.source.getNameForAnimeInfo
 import eu.kanade.tachiyomi.source.model.SAnime
 import eu.kanade.tachiyomi.ui.anime.AnimeScreenModel
 import eu.kanade.tachiyomi.ui.anime.EpisodeList
+import eu.kanade.tachiyomi.ui.anime.SuggestionSection
 import eu.kanade.tachiyomi.ui.browse.extension.details.SourcePreferencesScreen
 import eu.kanade.tachiyomi.ui.browse.source.browse.RelatedAnimeScreen
 import eu.kanade.tachiyomi.util.system.CoverColorObserver
@@ -176,15 +178,12 @@ fun AnimeScreen(
     onLocalScoreClicked: () -> Unit,
 ) {
     val sourcePreferences: SourcePreferences by injectLazy()
-    val uiPreferences: UiPreferences by injectLazy()
     val context = LocalContext.current
     val onCopyTagToClipboard: (tag: String) -> Unit = {
         if (it.isNotEmpty()) {
             context.copyToClipboard(it, it)
         }
     }
-
-    val autoExpandDescription by uiPreferences.autoExpandAnimeDescription().collectAsState()
 
     val navigator = LocalNavigator.currentOrThrow
     val onSettingsClicked: (() -> Unit)? = {
@@ -212,7 +211,7 @@ fun AnimeScreen(
             onTrackingClicked = onTrackingClicked,
             onTagSearch = onTagSearch,
             onCopyTagToClipboard = onCopyTagToClipboard,
-            onFilterClicked = onFilterClicked,
+            onFilterClicked = onFilterButtonClicked,
             onRefresh = onRefresh,
             onContinueWatching = onContinueWatching,
             onSearch = onSearch,

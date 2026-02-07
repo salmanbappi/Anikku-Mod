@@ -1,0 +1,52 @@
+[
+  {
+    "id": "TC001",
+    "title": "verify_multisource_anime_streaming_functionality",
+    "description": "Test the streaming functionality from multiple anime sources through the extension architecture to ensure seamless playback without errors."
+  },
+  {
+    "id": "TC002",
+    "title": "validate_library_management_features",
+    "description": "Verify the ability to add anime to favorites, organize them into categories, and manage the library effectively."
+  },
+  {
+    "id": "TC003",
+    "title": "test_global_and_source_specific_search",
+    "description": "Ensure the global search bar queries all installed streaming sources simultaneously and returns accurate results."
+  },
+  {
+    "id": "TC004",
+    "title": "check_tracker_integration_and_sync",
+    "description": "Validate integration with tracking services like MyAnimeList and AniList, ensuring automatic synchronization of watch progress and status."
+  },
+  {
+    "id": "TC005",
+    "title": "verify_download_and_offline_viewing_capabilities",
+    "description": "Test downloading episodes with multi-threaded support and verify offline viewing functionality without errors."
+  },
+  {
+    "id": "TC006",
+    "title": "validate_advanced_video_player_features",
+    "description": "Test the MPV-based video player for gesture controls, haptic feedback, custom playback speeds, and torrent streaming support."
+  },
+  {
+    "id": "TC007",
+    "title": "test_torrent_support_functionality",
+    "description": "Verify the TorrentServer component's ability to handle torrent streaming and content consumption correctly."
+  },
+  {
+    "id": "TC008",
+    "title": "verify_backup_and_restore_functionality",
+    "description": "Test the backup and restore procedures to ensure user data, settings, and progress are preserved accurately and reliably."
+  },
+  {
+    "id": "TC009",
+    "title": "validate_ui_theme_customization_and_persistence",
+    "description": "Ensure UI themes apply properly, customization options work as expected, and settings persist across app sessions."
+  },
+  {
+    "id": "TC010",
+    "title": "check_performance_and_ui_rendering_stability",
+    "description": "Verify no duplicate key crashes during list rendering and maintain frame time below 16 milliseconds for smooth 60fps animation."
+  }
+]

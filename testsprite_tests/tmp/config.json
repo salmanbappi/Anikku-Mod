@@ -1,0 +1,16 @@
+{
+  "status": "init",
+  "scope": "codebase",
+  "type": "backend",
+  "localEndpoint": "http://localhost:8080/",
+  "serverPort": 41753,
+  "executionArgs": {
+    "projectName": "Anikku",
+    "projectPath": "/data/data/com.termux/files/home/workspace/Anikku",
+    "testIds": [],
+    "additionalInstruction": "Verify that the duplicate key issues are resolved and the auto-expand description preference works correctly.",
+    "envs": {
+      "API_KEY": "sk-user-g3DBu7ul6pmk7uTfsZSp_kjiVvSyAituBKjOTWff5EHHZmpChnvYOpp37UQ1Z8Q9gDiLXlDBa5z_iXUFWiSChhul-Y4pR8PTQwgQNsMR5tuLdRR3QsK8Vc379TK7xp313Co"
+    }
+  }
+}

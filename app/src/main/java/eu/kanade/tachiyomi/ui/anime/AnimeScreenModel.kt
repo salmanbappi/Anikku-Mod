@@ -103,6 +103,7 @@ import tachiyomi.domain.source.interactor.GetRelatedAnime
 import tachiyomi.domain.storage.service.StoragePreferences
 import tachiyomi.domain.track.interactor.GetTracks
 import tachiyomi.i18n.MR
+import tachiyomi.i18n.kmk.KMR
 import tachiyomi.source.local.LocalSource
 import tachiyomi.source.local.isLocal
 import uy.kohesive.injekt.Injekt
@@ -368,7 +369,7 @@ class AnimeScreenModel(
                     if (tagSuggestions.isNotEmpty()) {
                         updateSuccessState { state ->
                             val newSection = SuggestionSection(
-                                title = context.stringResource(MR.strings.recommends),
+                                title = context.stringResource(MR.strings.az_recommends),
                                 items = tagSuggestions.toImmutableList(),
                                 type = SuggestionSection.Type.Tag
                             )
@@ -418,7 +419,7 @@ class AnimeScreenModel(
                         if (domainAnimes.isNotEmpty()) {
                             updateSuccessState { state ->
                                 val newSection = SuggestionSection(
-                                    title = context.stringResource(MR.strings.similar),
+                                    title = context.stringResource(MR.strings.relation_similar),
                                     items = domainAnimes.toImmutableList(),
                                     type = SuggestionSection.Type.Similarity
                                 )
@@ -450,7 +451,7 @@ class AnimeScreenModel(
                         if (domainAnimes.isNotEmpty()) {
                             updateSuccessState { state ->
                                 val newSection = SuggestionSection(
-                                    title = context.stringResource(MR.strings.more_by_author, author),
+                                    title = context.stringResource(MR.strings.author_hint, author),
                                     items = domainAnimes.toImmutableList(),
                                     type = SuggestionSection.Type.Author
                                 )
@@ -480,7 +481,7 @@ class AnimeScreenModel(
                     if (domainAnimes.isNotEmpty()) {
                         updateSuccessState { state ->
                             val newSection = SuggestionSection(
-                                title = context.stringResource(MR.strings.label_popular),
+                                title = context.stringResource(MR.strings.popular),
                                 items = domainAnimes.toImmutableList(),
                                 type = SuggestionSection.Type.Community
                             )

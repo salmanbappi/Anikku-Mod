@@ -73,6 +73,7 @@ import tachiyomi.domain.episode.model.Episode
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.screens.LoadingScreen
+import tachiyomi.presentation.core.util.collectAsState
 import eu.kanade.domain.ui.UiPreferences
 import eu.kanade.domain.source.service.SourcePreferences
 import uy.kohesive.injekt.injectLazy
