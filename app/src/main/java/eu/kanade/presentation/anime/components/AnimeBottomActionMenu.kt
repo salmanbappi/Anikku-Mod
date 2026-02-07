@@ -88,6 +88,8 @@ fun AnimeBottomActionMenu(
     onDeleteClicked: (() -> Unit)? = null,
     onExternalClicked: (() -> Unit)? = null,
     onInternalClicked: (() -> Unit)? = null,
+    onContinueWatching: (() -> Unit)? = null,
+    isWatching: Boolean = false,
 ) {
     AnimatedVisibility(
         visible = visible,
@@ -127,7 +129,25 @@ fun AnimeBottomActionMenu(
                             .asPaddingValues(),
                     )
                     .padding(horizontal = 8.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
+                if (onContinueWatching != null) {
+                    androidx.compose.material3.Button(
+                        onClick = onContinueWatching,
+                        modifier = Modifier.weight(if (confirm.any { it }) 0.001f else 2f).height(48.dp).padding(horizontal = 4.dp),
+                        shape = MaterialTheme.shapes.medium,
+                    ) {
+                        Icon(Icons.Default.PlayArrow, null)
+                        if (!confirm.any { it }) {
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                text = stringResource(if (isWatching) MR.strings.action_resume else MR.strings.action_start),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                }
                 if (onBookmarkClicked != null) {
                     Button(
                         title = stringResource(MR.strings.action_bookmark_episode),
