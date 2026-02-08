@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -76,6 +77,24 @@ enum class AnimeCover(val ratio: Float) {
         val isSuccess = state is AsyncImagePainter.State.Success
         val isError = state is AsyncImagePainter.State.Error
 
+        LaunchedEffect(state) {
+            val currentState = state
+            if (currentState is AsyncImagePainter.State.Success) {
+                val cover = when (data) {
+                    is Anime -> data.asAnimeCover()
+                    is DomainMangaCover -> data
+                    else -> null
+                }
+                if (cover != null) {
+                    eu.kanade.tachiyomi.util.system.CoverColorExtractor.extract(cover, currentState)
+                }
+                if (onCoverLoaded != null) {
+                    if (data is Anime) onCoverLoaded(data.asAnimeCover(), currentState)
+                    if (data is DomainMangaCover) onCoverLoaded(data, currentState)
+                }
+            }
+        }
+
         Box(
             modifier = modifier
                 .aspectRatio(ratio)
@@ -104,23 +123,7 @@ enum class AnimeCover(val ratio: Float) {
                     .fillMaxSize()
                     .alpha(if (isSuccess) alpha else 1f),
                 contentScale = scale,
-                onState = { newState ->
-                    state = newState
-                    if (newState is AsyncImagePainter.State.Success) {
-                        val cover = when (data) {
-                            is Anime -> data.asAnimeCover()
-                            is DomainMangaCover -> data
-                            else -> null
-                        }
-                        if (cover != null) {
-                            eu.kanade.tachiyomi.util.system.CoverColorExtractor.extract(cover, newState)
-                        }
-                        if (onCoverLoaded != null) {
-                            if (data is Anime) onCoverLoaded(data.asAnimeCover(), newState)
-                            if (data is DomainMangaCover) onCoverLoaded(data, newState)
-                        }
-                    }
-                },
+                onState = { state = it },
             )
 
             if (state is AsyncImagePainter.State.Loading) {
