@@ -615,29 +615,35 @@ private fun AnimeSummary(
             .clipToBounds(),
     ) {
         SelectionContainer {
-            MarkdownRender(
-                content = description,
+            Box(
                 modifier = Modifier
-                    .secondaryItemAlpha()
-                    .padding(bottom = if (expanded) 0.dp else 24.dp)
-                    .drawWithContent {
-                        drawContent()
-                        if (!expanded) {
-                            val gradientHeight = 48.dp.toPx()
-                            drawRect(
-                                brush = Brush.verticalGradient(
-                                    colors = listOf(
-                                        Color.Transparent,
-                                        backgroundColor,
+                    .fillMaxWidth()
+                    .then(if (!expanded) Modifier.height(112.dp) else Modifier),
+            ) {
+                MarkdownRender(
+                    content = description,
+                    modifier = Modifier
+                        .secondaryItemAlpha()
+                        .padding(bottom = if (expanded) 0.dp else 24.dp)
+                        .drawWithContent {
+                            drawContent()
+                            if (!expanded) {
+                                val gradientHeight = 48.dp.toPx()
+                                drawRect(
+                                    brush = Brush.verticalGradient(
+                                        colors = listOf(
+                                            Color.Transparent,
+                                            backgroundColor,
+                                        ),
+                                        startY = size.height - gradientHeight,
+                                        endY = size.height,
                                     ),
-                                    startY = size.height - gradientHeight,
-                                    endY = size.height,
-                                ),
-                            )
-                        }
-                    },
-                annotator = descriptionAnnotator,
-            )
+                                )
+                            }
+                        },
+                    annotator = descriptionAnnotator,
+                )
+            }
         }
 
         Box(
