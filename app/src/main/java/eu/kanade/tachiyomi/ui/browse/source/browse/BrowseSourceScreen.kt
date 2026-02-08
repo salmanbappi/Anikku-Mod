@@ -1,5 +1,6 @@
 package eu.kanade.tachiyomi.ui.browse.source.browse
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -114,11 +115,13 @@ data class BrowseSourceScreen(
         val navigator = LocalNavigator.currentOrThrow
         val navigateUp: () -> Unit = {
             when {
+                state.selectionMode -> screenModel.clearSelection()
                 !state.isUserQuery && state.toolbarQuery != null -> screenModel.setToolbarQuery(null)
-
                 else -> navigator.pop()
             }
         }
+
+        BackHandler(enabled = state.selectionMode, onBack = navigateUp)
 
         if (screenModel.source is StubSource) {
             MissingSourceScreen(
