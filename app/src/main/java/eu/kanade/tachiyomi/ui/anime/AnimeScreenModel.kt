@@ -127,22 +127,7 @@ import kotlin.math.floor
 import eu.kanade.tachiyomi.animesource.AnimeCatalogueSource
 import eu.kanade.tachiyomi.animesource.model.AnimeFilterList
 import eu.kanade.tachiyomi.animesource.model.SAnime
-
-@Immutable
-data class SuggestionSection(
-    val title: String,
-    val items: ImmutableList<Anime>,
-    val type: Type,
-) : Serializable {
-    enum class Type {
-        Franchise,
-        Similarity,
-        Tag,
-        Source,
-        Author,
-        Community,
-    }
-}
+import eu.kanade.domain.episode.model.applyFilters
 
 class AnimeScreenModel(
     private val context: Context,
@@ -1146,30 +1131,6 @@ class AnimeScreenModel(
             val airingEpisodeNumber: Double get() = nextAiringEpisode.first.toDouble()
             val airingTime: Long get() = nextAiringEpisode.second.times(1000L).minus(Calendar.getInstance().timeInMillis)
             val filterActive: Boolean get() = anime.episodesFiltered()
-            private fun List<EpisodeList.Item>.applyFilters(anime: Anime): Sequence<EpisodeList.Item> {
-                val isLocalAnime = anime.isLocal()
-                val unseenFilter = anime.unseenFilter
-                val downloadedFilter = anime.downloadedFilter
-                val bookmarkedFilter = anime.bookmarkedFilter
-                val fillermarkedFilter = anime.fillermarkedFilter
-                return asSequence().filter { applyFilter(unseenFilter) { !it.episode.seen } }.filter { applyFilter(bookmarkedFilter) { it.episode.bookmark } }.filter { applyFilter(fillermarkedFilter) { it.episode.fillermark } }.filter { applyFilter(downloadedFilter) { it.isDownloaded || isLocalAnime } }.sortedWith { e1, e2 -> getEpisodeSort(anime).invoke(e1.episode, e2.episode) }
-            }
         }
     }
-}
-
-@Immutable
-
-sealed class EpisodeList : Serializable {
-
-    @Immutable data class MissingCount(val id: String, val count: Int) : EpisodeList()
-
-    @Immutable data class Item(val episode: Episode, val downloadState: Download.State, val downloadProgress: Int, var fileSize: Long? = null, val selected: Boolean = false) : EpisodeList() {
-
-        val id = episode.id
-
-        val isDownloaded = downloadState == Download.State.DOWNLOADED
-
-    }
-
 }
