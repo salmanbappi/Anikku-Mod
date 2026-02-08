@@ -1,14 +1,12 @@
 package eu.kanade.presentation.browse.components
 
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -29,7 +27,7 @@ fun BrowseSourceList(
     favoriteIds: Set<Long> = emptySet(),
     onBatchIncrement: (Int) -> Unit = {},
 ) {
-    androidx.compose.foundation.layout.BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val containerHeight = constraints.maxHeight
         val selectionIds = remember(selection) { selection.map { it.id }.toSet() }
         LazyColumn(
