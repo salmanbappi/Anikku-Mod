@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -44,7 +45,7 @@ internal fun LibraryList(
             }
         }
 
-        androidx.compose.foundation.lazy.itemsIndexed(
+        itemsIndexed(
             items = items,
             key = { index, it -> "anime-${it.libraryAnime.anime.id}-$index" },
             contentType = { _, _ -> "anime_library_list_item" },

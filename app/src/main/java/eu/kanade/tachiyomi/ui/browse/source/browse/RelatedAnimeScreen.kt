@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.Icon
@@ -110,7 +111,7 @@ class RelatedAnimeScreen(val animeId: Long) : Screen() {
                         modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
                     )
                 }
-                items(animes, key = { "anime-$keyword-${it.id}" }) { anime ->
+                itemsIndexed(animes, key = { index, it -> "anime-$keyword-${it.id}-$index" }) { _, anime ->
                     BrowseSourceComfortableGridItem(
                         anime = anime,
                         isFavorite = anime.favorite,

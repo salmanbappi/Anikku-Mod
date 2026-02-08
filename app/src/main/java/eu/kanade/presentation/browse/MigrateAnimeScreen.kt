@@ -3,6 +3,7 @@ package eu.kanade.presentation.browse
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import eu.kanade.presentation.anime.components.BaseAnimeListItem
@@ -58,7 +59,7 @@ private fun MigrateAnimeContent(
     FastScrollLazyColumn(
         contentPadding = contentPadding,
     ) {
-        androidx.compose.foundation.lazy.itemsIndexed(
+        itemsIndexed(
             items = state.titles,
             key = { index, it -> "anime-${it.id}-$index" },
         ) { _, anime ->
