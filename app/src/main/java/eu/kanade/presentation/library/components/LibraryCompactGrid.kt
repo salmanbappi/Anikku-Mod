@@ -38,9 +38,9 @@ fun LibraryCompactGrid(
         // recomposing when the list order changes or when individual items are updated.
         itemsIndexed(
             items = items,
-            key = { index, it -> "anime-${it.libraryAnime.anime.id}-$index" },
-            contentType = { _, _ -> "anime_library_compact_grid_item" },
-        ) { _, libraryItem ->
+            key = { index: Int, it: eu.kanade.tachiyomi.ui.library.LibraryItem -> "anime-${it.libraryAnime.anime.id}-$index" },
+            contentType = { _: Int, _: eu.kanade.tachiyomi.ui.library.LibraryItem -> "anime_library_compact_grid_item" },
+        ) { _: Int, libraryItem: eu.kanade.tachiyomi.ui.library.LibraryItem ->
             val anime = libraryItem.libraryAnime.anime
             AnimeCompactGridItem(
                 isSelected = libraryItem.libraryAnime.id in selectedIds,

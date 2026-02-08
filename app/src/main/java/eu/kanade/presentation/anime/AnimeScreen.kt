@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -549,8 +550,8 @@ private fun AnimeScreenSmallImpl(
                                                 ) {
                                                     itemsIndexed(
                                                         items = combinedItems,
-                                                        key = { index, anime -> "suggestion-combined-${anime.id}-$index" },
-                                                    ) { _, anime ->
+                                                        key = { index: Int, anime: tachiyomi.domain.anime.model.Anime -> "suggestion-combined-${anime.id}-$index" },
+                                                    ) { _: Int, anime: tachiyomi.domain.anime.model.Anime ->
                                                         SuggestionItem(anime = anime, onClick = { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(anime.id)) })
                                                     }
                                                 }
@@ -615,8 +616,8 @@ private fun AnimeScreenSmallImpl(
                                                     ) {
                                                         itemsIndexed(
                                                             items = section.items,
-                                                            key = { index, anime -> "suggestion-${section.type}-${anime.id}-$index" },
-                                                        ) { _, anime ->
+                                                            key = { index: Int, anime: tachiyomi.domain.anime.model.Anime -> "suggestion-${section.type}-${anime.id}-$index" },
+                                                        ) { _: Int, anime: tachiyomi.domain.anime.model.Anime ->
                                                             SuggestionItem(anime = anime, onClick = { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(anime.id)) })
                                                         }
                                                     }
@@ -953,8 +954,8 @@ fun AnimeScreenLargeImpl(
                                                 ) {
                                                     itemsIndexed(
                                                         items = combinedItems,
-                                                        key = { index, anime -> "suggestion-combined-large-${anime.id}-$index" },
-                                                    ) { _, anime ->
+                                                        key = { index: Int, anime: tachiyomi.domain.anime.model.Anime -> "suggestion-combined-large-${anime.id}-$index" },
+                                                    ) { _: Int, anime: tachiyomi.domain.anime.model.Anime ->
                                                         SuggestionItem(anime = anime, onClick = { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(anime.id)) })
                                                     }
                                                 }
@@ -1000,8 +1001,8 @@ fun AnimeScreenLargeImpl(
                                                         ) {
                                                             itemsIndexed(
                                                                 items = section.items,
-                                                                key = { index, anime -> "suggestion-large-${section.type}-${anime.id}-$index" },
-                                                            ) { _, anime ->
+                                                                key = { index: Int, anime: tachiyomi.domain.anime.model.Anime -> "suggestion-large-${section.type}-${anime.id}-$index" },
+                                                            ) { _: Int, anime: tachiyomi.domain.anime.model.Anime ->
                                                                 SuggestionItem(anime = anime, onClick = { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(anime.id)) })
                                                             }
                                                         }
@@ -1377,15 +1378,15 @@ private fun LazyListScope.sharedEpisodeItems(
     onEpisodeSelected: (EpisodeList.Item, Boolean, Boolean, Boolean) -> Unit,
     onEpisodeSwipe: (EpisodeList.Item, LibraryPreferences.EpisodeSwipeAction) -> Unit,
 ) {
-    items(
+    itemsIndexed(
         items = episodes,
-        key = { item ->
+        key = { index, item ->
             when (item) {
-                is EpisodeList.Item -> "ep-${item.episode.id}"
-                is EpisodeList.MissingCount -> "ms-${item.id}"
+                is EpisodeList.Item -> "ep-${item.episode.id}-$index"
+                is EpisodeList.MissingCount -> "ms-${item.id}-$index"
             }
         },
-    ) { item ->
+    ) { _, item ->
         EpisodeItemWrapper(
             item = item,
             anime = anime,

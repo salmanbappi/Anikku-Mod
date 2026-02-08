@@ -42,8 +42,8 @@ fun GlobalSearchCardRow(
     ) {
         itemsIndexed(
             items = titles,
-            key = { index, it -> "anime-${it.id}-$index" },
-        ) { _, it ->
+            key = { index: Int, it: tachiyomi.domain.anime.model.Anime -> "anime-${it.id}-$index" },
+        ) { _: Int, it: tachiyomi.domain.anime.model.Anime ->
             val title by getAnime(it)
             AnimeItem(
                 title = title.title,

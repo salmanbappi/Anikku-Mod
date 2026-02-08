@@ -61,8 +61,8 @@ private fun MigrateAnimeContent(
     ) {
         itemsIndexed(
             items = state.titles,
-            key = { index, it -> "anime-${it.id}-$index" },
-        ) { _, anime ->
+            key = { index: Int, it: tachiyomi.domain.anime.model.Anime -> "anime-${it.id}-$index" },
+        ) { _: Int, anime: tachiyomi.domain.anime.model.Anime ->
             MigrateAnimeItem(
                 anime = anime,
                 onClickItem = onClickItem,
