@@ -29,18 +29,13 @@ fun BrowseSourceList(
     favoriteIds: Set<Long> = emptySet(),
     onBatchIncrement: (Int) -> Unit = {},
 ) {
-    var containerHeight by remember { mutableIntStateOf(0) }
-    val selectionIds = remember(selection) { selection.map { it.id }.toSet() }
-    LazyColumn(
-        contentPadding = contentPadding + PaddingValues(vertical = 8.dp),
-        modifier = if (entries > 0) {
-            Modifier.onGloballyPositioned { layoutCoordinates ->
-                containerHeight = layoutCoordinates.size.height
-            }
-        } else {
-            Modifier
-        },
-    ) {
+    androidx.compose.foundation.layout.BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val containerHeight = constraints.maxHeight
+        val selectionIds = remember(selection) { selection.map { it.id }.toSet() }
+        LazyColumn(
+            contentPadding = contentPadding + PaddingValues(vertical = 8.dp),
+            modifier = Modifier.fillMaxSize(),
+        ) {
         item {
             if (animeList.loadState.prepend is LoadState.Loading) {
                 BrowseSourceLoadingItem()
@@ -75,6 +70,7 @@ fun BrowseSourceList(
             }
         }
     }
+}
 }
 
 @Composable

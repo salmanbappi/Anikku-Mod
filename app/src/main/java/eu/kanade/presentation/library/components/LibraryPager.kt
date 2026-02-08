@@ -43,16 +43,13 @@ fun LibraryPager(
     onLongClickAnime: (LibraryAnime) -> Unit,
     onClickContinueWatching: ((LibraryAnime) -> Unit)?,
 ) {
-    var containerHeight by remember { mutableIntStateOf(0) }
-    HorizontalPager(
-        modifier = Modifier
-            .fillMaxSize()
-            .onGloballyPositioned { layoutCoordinates ->
-                containerHeight = layoutCoordinates.size.height
-            },
-        state = state,
-        verticalAlignment = Alignment.Top,
-    ) { page ->
+    androidx.compose.foundation.layout.BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val containerHeight = constraints.maxHeight
+        HorizontalPager(
+            modifier = Modifier.fillMaxSize(),
+            state = state,
+            verticalAlignment = Alignment.Top,
+        ) { page ->
         if (page !in ((state.currentPage - 1)..(state.currentPage + 1))) {
             // To make sure only one offscreen page is being composed
             return@HorizontalPager
@@ -119,6 +116,7 @@ fun LibraryPager(
             else -> {}
         }
     }
+}
 }
 
 @Composable
