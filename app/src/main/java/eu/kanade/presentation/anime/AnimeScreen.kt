@@ -582,7 +582,7 @@ private fun AnimeScreenSmallImpl(
                                                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                                                     ) {
                                                         val icon = when (section.type) {
-                                                            SuggestionSection.Type.Franchise -> androidx.compose.material.icons.Icons.Outlined.Layers
+                                                            SuggestionSection.Type.Franchise -> androidx.compose.material.icons.Icons.Filled.AutoAwesome
                                                             SuggestionSection.Type.Similarity -> androidx.compose.material.icons.Icons.Outlined.Compare
                                                             SuggestionSection.Type.Author -> androidx.compose.material.icons.Icons.Outlined.Person
                                                             SuggestionSection.Type.Source -> androidx.compose.material.icons.Icons.Outlined.Language
@@ -967,6 +967,7 @@ fun AnimeScreenLargeImpl(
                                                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                                                         ) {
                                                             val icon = when (section.type) {
+                                                                SuggestionSection.Type.Franchise -> androidx.compose.material.icons.Icons.Filled.AutoAwesome
                                                                 SuggestionSection.Type.Similarity -> androidx.compose.material.icons.Icons.Outlined.Compare
                                                                 SuggestionSection.Type.Author -> androidx.compose.material.icons.Icons.Outlined.Person
                                                                 SuggestionSection.Type.Source -> androidx.compose.material.icons.Icons.Outlined.Language
@@ -974,6 +975,7 @@ fun AnimeScreenLargeImpl(
                                                                 SuggestionSection.Type.Community -> androidx.compose.material.icons.Icons.Outlined.NewReleases
                                                             }
                                                             val label = when (section.type) {
+                                                                SuggestionSection.Type.Franchise -> stringResource(KMR.strings.related_mangas_website_suggestions)
                                                                 SuggestionSection.Type.Similarity -> stringResource(SYMR.strings.relation_similar)
                                                                 SuggestionSection.Type.Author -> section.title
                                                                 SuggestionSection.Type.Source -> section.title
