@@ -362,15 +362,21 @@ private fun GridItemSelectable(
 private fun Modifier.selectedOutline(
     isSelected: Boolean,
     color: Color,
-) = composed {
+) = this.drawBehind {
     if (isSelected) {
-        Modifier.border(
-            width = 2.dp,
+        val strokeWidth = 2.dp.toPx()
+        val halfStrokeWidth = strokeWidth / 2
+        val cornerRadius = 12.dp.toPx() // Medium shape roughly 12dp
+        drawRoundRect(
             color = color,
-            shape = MaterialTheme.shapes.medium,
+            topLeft = androidx.compose.ui.geometry.Offset(halfStrokeWidth, halfStrokeWidth),
+            size = androidx.compose.ui.geometry.Size(
+                size.width - strokeWidth,
+                size.height - strokeWidth,
+            ),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(cornerRadius, cornerRadius),
+            style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth),
         )
-    } else {
-        Modifier
     }
 }
 
