@@ -44,11 +44,11 @@ internal fun LibraryList(
             }
         }
 
-        items(
+        androidx.compose.foundation.lazy.itemsIndexed(
             items = items,
-            key = { "anime-${it.libraryAnime.anime.id}" },
-            contentType = { "anime_library_list_item" },
-        ) { libraryItem ->
+            key = { index, it -> "anime-${it.libraryAnime.anime.id}-$index" },
+            contentType = { _, _ -> "anime_library_list_item" },
+        ) { _, libraryItem ->
             val anime = libraryItem.libraryAnime.anime
             AnimeListItem(
                 isSelected = libraryItem.libraryAnime.id in selectedIds,

@@ -35,11 +35,11 @@ fun LibraryCompactGrid(
 
         // Rationale: Using the anime ID as a stable key prevents the entire grid from 
         // recomposing when the list order changes or when individual items are updated.
-        items(
+        itemsIndexed(
             items = items,
-            key = { "anime-${it.libraryAnime.anime.id}" },
-            contentType = { "anime_library_compact_grid_item" },
-        ) { libraryItem ->
+            key = { index, it -> "anime-${it.libraryAnime.anime.id}-$index" },
+            contentType = { _, _ -> "anime_library_compact_grid_item" },
+        ) { _, libraryItem ->
             val anime = libraryItem.libraryAnime.anime
             AnimeCompactGridItem(
                 isSelected = libraryItem.libraryAnime.id in selectedIds,

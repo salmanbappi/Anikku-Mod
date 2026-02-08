@@ -110,7 +110,7 @@ class RelatedAnimeScreen(val animeId: Long) : Screen() {
                         modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
                     )
                 }
-                items(animes, key = { "anime-${it.id}" }) { anime ->
+                items(animes, key = { "anime-$keyword-${it.id}" }) { anime ->
                     BrowseSourceComfortableGridItem(
                         anime = anime,
                         isFavorite = anime.favorite,

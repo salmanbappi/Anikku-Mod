@@ -547,10 +547,10 @@ private fun AnimeScreenSmallImpl(
                                                     contentPadding = PaddingValues(horizontal = 12.dp),
                                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                                                 ) {
-                                                    items(
+                                                    itemsIndexed(
                                                         items = combinedItems,
-                                                        key = { anime -> "suggestion-combined-${anime.id}" },
-                                                    ) { anime ->
+                                                        key = { index, anime -> "suggestion-combined-${anime.id}-$index" },
+                                                    ) { _, anime ->
                                                         SuggestionItem(anime = anime, onClick = { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(anime.id)) })
                                                     }
                                                 }
@@ -613,10 +613,10 @@ private fun AnimeScreenSmallImpl(
                                                         contentPadding = PaddingValues(horizontal = 12.dp),
                                                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                                                     ) {
-                                                        items(
+                                                        itemsIndexed(
                                                             items = section.items,
-                                                            key = { anime -> "suggestion-${section.type}-${anime.id}" },
-                                                        ) { anime ->
+                                                            key = { index, anime -> "suggestion-${section.type}-${anime.id}-$index" },
+                                                        ) { _, anime ->
                                                             SuggestionItem(anime = anime, onClick = { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(anime.id)) })
                                                         }
                                                     }
@@ -951,10 +951,10 @@ fun AnimeScreenLargeImpl(
                                                     contentPadding = PaddingValues(horizontal = 12.dp),
                                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                                                 ) {
-                                                    items(
+                                                    itemsIndexed(
                                                         items = combinedItems,
-                                                        key = { anime -> "suggestion-combined-large-${anime.id}" },
-                                                    ) { anime ->
+                                                        key = { index, anime -> "suggestion-combined-large-${anime.id}-$index" },
+                                                    ) { _, anime ->
                                                         SuggestionItem(anime = anime, onClick = { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(anime.id)) })
                                                     }
                                                 }
@@ -998,10 +998,10 @@ fun AnimeScreenLargeImpl(
                                                             contentPadding = PaddingValues(horizontal = 12.dp),
                                                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                                                         ) {
-                                                            items(
+                                                            itemsIndexed(
                                                                 items = section.items,
-                                                                key = { anime -> "suggestion-large-${section.type}-${anime.id}" },
-                                                            ) { anime ->
+                                                                key = { index, anime -> "suggestion-large-${section.type}-${anime.id}-$index" },
+                                                            ) { _, anime ->
                                                                 SuggestionItem(anime = anime, onClick = { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(anime.id)) })
                                                             }
                                                         }

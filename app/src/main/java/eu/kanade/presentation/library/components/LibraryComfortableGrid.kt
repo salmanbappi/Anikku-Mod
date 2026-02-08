@@ -32,11 +32,11 @@ internal fun LibraryComfortableGrid(
     ) {
         globalSearchItem(searchQuery, onGlobalSearchClicked)
 
-        items(
+        itemsIndexed(
             items = items,
-            key = { "anime-${it.libraryAnime.anime.id}" },
-            contentType = { "anime_library_comfortable_grid_item" },
-        ) { libraryItem ->
+            key = { index, it -> "anime-${it.libraryAnime.anime.id}-$index" },
+            contentType = { _, _ -> "anime_library_comfortable_grid_item" },
+        ) { _, libraryItem ->
             val anime = libraryItem.libraryAnime.anime
             AnimeComfortableGridItem(
                 isSelected = libraryItem.libraryAnime.id in selectedIds,

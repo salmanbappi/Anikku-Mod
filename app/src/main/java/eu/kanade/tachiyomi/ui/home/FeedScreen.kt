@@ -128,10 +128,10 @@ private fun FeedIsland(
                 contentPadding = PaddingValues(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(
+                androidx.compose.foundation.lazy.itemsIndexed(
                     items = animeList.distinctBy { it.id },
-                    key = { "anime-${it.id}" },
-                ) { anime ->
+                    key = { index, anime -> "anime-${anime.id}-$index" },
+                ) { _, anime ->
                     FeedCard(
                         anime = anime,
                         onClick = { onAnimeClick(anime) }
