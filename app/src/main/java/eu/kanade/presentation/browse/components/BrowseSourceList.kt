@@ -27,48 +27,55 @@ fun BrowseSourceList(
     favoriteIds: Set<Long> = emptySet(),
     onBatchIncrement: (Int) -> Unit = {},
 ) {
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        val containerHeight = constraints.maxHeight
-        val selectionIds = remember(selection) { selection.map { it.id }.toSet() }
+    val selectionIds = remember(selection) { selection.map { it.id }.toSet() }
+    val content: @Composable (Int) -> Unit = { containerHeight ->
         LazyColumn(
             contentPadding = contentPadding + PaddingValues(vertical = 8.dp),
             modifier = Modifier.fillMaxSize(),
         ) {
-        item {
-            if (animeList.loadState.prepend is LoadState.Loading) {
-                BrowseSourceLoadingItem()
+            item {
+                if (animeList.loadState.prepend is LoadState.Loading) {
+                    BrowseSourceLoadingItem()
+                }
             }
-        }
 
-        items(
-            count = animeList.itemCount,
-            key = { index -> 
-                val anime = animeList.peek(index)
-                if (anime != null) "anime-${anime.id}-$index" else "placeholder_$index"
-            },
-            contentType = { "anime" },
-        ) { index ->
-            val anime = animeList[index] ?: return@items
-            onBatchIncrement(index)
-            val isFavorite = remember(anime.id, favoriteIds) { anime.id in favoriteIds }
-            BrowseSourceListItem(
-                anime = anime,
-                isFavorite = isFavorite,
-                isSelected = anime.id in selectionIds,
-                onClick = { onAnimeClick(anime) },
-                onLongClick = { onAnimeLongClick(anime) },
-                entries = entries,
-                containerHeight = containerHeight,
-            )
-        }
+            items(
+                count = animeList.itemCount,
+                key = { index -> 
+                    val anime = animeList.peek(index)
+                    if (anime != null) "anime-${anime.id}-$index" else "placeholder_$index"
+                },
+                contentType = { "anime" },
+            ) { index ->
+                val anime = animeList[index] ?: return@items
+                onBatchIncrement(index)
+                val isFavorite = remember(anime.id, favoriteIds) { anime.id in favoriteIds }
+                BrowseSourceListItem(
+                    anime = anime,
+                    isFavorite = isFavorite,
+                    isSelected = anime.id in selectionIds,
+                    onClick = { onAnimeClick(anime) },
+                    onLongClick = { onAnimeLongClick(anime) },
+                    entries = entries,
+                    containerHeight = containerHeight,
+                )
+            }
 
-        item {
-            if (animeList.loadState.refresh is LoadState.Loading || animeList.loadState.append is LoadState.Loading) {
-                BrowseSourceLoadingItem()
+            item {
+                if (animeList.loadState.refresh is LoadState.Loading || animeList.loadState.append is LoadState.Loading) {
+                    BrowseSourceLoadingItem()
+                }
             }
         }
     }
-}
+
+    if (entries > 0) {
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            content(constraints.maxHeight)
+        }
+    } else {
+        content(0)
+    }
 }
 
 @Composable
