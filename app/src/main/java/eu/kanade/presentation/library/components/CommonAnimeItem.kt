@@ -312,13 +312,14 @@ private fun GridItemSelectable(
         if (isSelected) 0.95f else 1f,
         label = "selection_scale",
     )
+    val shape = MaterialTheme.shapes.medium
     Box(
         modifier = modifier
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
             }
-            .clip(MaterialTheme.shapes.medium)
+            .clip(shape)
             .combinedClickable(
                 onClick = {
                     haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
@@ -329,7 +330,13 @@ private fun GridItemSelectable(
                     onLongClick()
                 },
             )
-            .selectedOutline(isSelected = isSelected, color = MaterialTheme.colorScheme.primary)
+            .then(
+                if (isSelected) {
+                    Modifier.border(2.dp, MaterialTheme.colorScheme.primary, shape)
+                } else {
+                    Modifier
+                },
+            )
             .padding(4.dp),
     ) {
         val contentColor = if (isSelected) {
@@ -353,30 +360,6 @@ private fun GridItemSelectable(
                     .background(MaterialTheme.colorScheme.surface, CircleShape),
             )
         }
-    }
-}
-
-/**
- * @see GridItemSelectable
- */
-private fun Modifier.selectedOutline(
-    isSelected: Boolean,
-    color: Color,
-) = this.drawBehind {
-    if (isSelected) {
-        val strokeWidth = 2.dp.toPx()
-        val halfStrokeWidth = strokeWidth / 2
-        val cornerRadius = 12.dp.toPx() // Medium shape roughly 12dp
-        drawRoundRect(
-            color = color,
-            topLeft = androidx.compose.ui.geometry.Offset(halfStrokeWidth, halfStrokeWidth),
-            size = androidx.compose.ui.geometry.Size(
-                size.width - strokeWidth,
-                size.height - strokeWidth,
-            ),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(cornerRadius, cornerRadius),
-            style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth),
-        )
     }
 }
 
