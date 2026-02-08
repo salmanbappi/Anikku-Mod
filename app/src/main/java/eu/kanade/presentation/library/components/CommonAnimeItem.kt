@@ -392,13 +392,11 @@ fun AnimeListItem(
 ) {
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     val density = LocalDensity.current
-    val height by remember(entries, containerHeight, density) {
-        androidx.compose.runtime.mutableStateOf(
-            when (entries) {
-                0 -> 76.dp
-                else -> with(density) { (containerHeight / entries).toDp() } - (3 / entries).dp
-            }
-        )
+    val height = remember(entries, containerHeight, density) {
+        when (entries) {
+            0 -> 76.dp
+            else -> with(density) { (containerHeight / entries).toDp() } - (3 / entries).dp
+        }
     }
     Row(
         modifier = Modifier
