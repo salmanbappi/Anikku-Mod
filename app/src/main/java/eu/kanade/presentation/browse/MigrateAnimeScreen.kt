@@ -58,10 +58,10 @@ private fun MigrateAnimeContent(
     FastScrollLazyColumn(
         contentPadding = contentPadding,
     ) {
-        items(
+        androidx.compose.foundation.lazy.itemsIndexed(
             items = state.titles,
-            key = { "anime-${it.id}" },
-        ) { anime ->
+            key = { index, it -> "anime-${it.id}-$index" },
+        ) { _, anime ->
             MigrateAnimeItem(
                 anime = anime,
                 onClickItem = onClickItem,

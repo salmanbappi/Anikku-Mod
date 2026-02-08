@@ -149,7 +149,6 @@ data class BrowseSourceScreen(
             assistUrl = (screenModel.source as? HttpSource)?.baseUrl
         }
 
-        var topBarHeight by remember { mutableIntStateOf(0) }
         val pagingFlow by screenModel.animePagerFlowFlow.collectAsState()
         val animeList = pagingFlow.collectAsLazyPagingItems()
 
@@ -158,17 +157,7 @@ data class BrowseSourceScreen(
         Scaffold(
             topBar = {
                 Column(
-                    modifier = Modifier
-                        .background(MaterialTheme.colorScheme.surface)
-                        .then(
-                            if (entries > 0) {
-                                Modifier.onGloballyPositioned { layoutCoordinates ->
-                                    topBarHeight = layoutCoordinates.size.height
-                                }
-                            } else {
-                                Modifier
-                            },
-                        ),
+                    modifier = Modifier.background(MaterialTheme.colorScheme.surface),
                 ) {
                     BrowseSourceToolbar(
                         searchQuery = state.toolbarQuery,
@@ -382,7 +371,6 @@ data class BrowseSourceScreen(
                 animeList = animeList,
                 columns = screenModel.getColumnsPreference(LocalConfiguration.current.orientation),
                 entries = screenModel.getColumnsPreferenceForCurrentOrientation(LocalConfiguration.current.orientation),
-                topBarHeight = topBarHeight,
                 displayMode = screenModel.displayMode,
                 snackbarHostState = snackbarHostState,
                 contentPadding = paddingValues,

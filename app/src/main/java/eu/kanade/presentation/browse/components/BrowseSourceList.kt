@@ -22,7 +22,6 @@ import tachiyomi.presentation.core.util.plus
 fun BrowseSourceList(
     animeList: LazyPagingItems<Anime>,
     entries: Int,
-    topBarHeight: Int,
     contentPadding: PaddingValues,
     onAnimeClick: (Anime) -> Unit,
     onAnimeLongClick: (Anime) -> Unit,
@@ -36,7 +35,7 @@ fun BrowseSourceList(
         contentPadding = contentPadding + PaddingValues(vertical = 8.dp),
         modifier = if (entries > 0) {
             Modifier.onGloballyPositioned { layoutCoordinates ->
-                containerHeight = layoutCoordinates.size.height - topBarHeight
+                containerHeight = layoutCoordinates.size.height
             }
         } else {
             Modifier
@@ -52,7 +51,7 @@ fun BrowseSourceList(
             count = animeList.itemCount,
             key = { index -> 
                 val anime = animeList.peek(index)
-                if (anime != null) "anime-${anime.id}" else "placeholder_$index"
+                if (anime != null) "anime-${anime.id}-$index" else "placeholder_$index"
             },
             contentType = { "anime" },
         ) { index ->

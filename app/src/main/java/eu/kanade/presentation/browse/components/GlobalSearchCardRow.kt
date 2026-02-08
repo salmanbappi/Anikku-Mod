@@ -39,10 +39,10 @@ fun GlobalSearchCardRow(
         contentPadding = PaddingValues(MaterialTheme.padding.small),
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
     ) {
-        items(
+        androidx.compose.foundation.lazy.itemsIndexed(
             items = titles,
-            key = { "anime-${it.id}" },
-        ) {
+            key = { index, it -> "anime-${it.id}-$index" },
+        ) { _, it ->
             val title by getAnime(it)
             AnimeItem(
                 title = title.title,

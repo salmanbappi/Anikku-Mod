@@ -121,7 +121,7 @@ enum class AnimeCover(val ratio: Float) {
                 contentDescription = contentDescription,
                 modifier = Modifier
                     .fillMaxSize()
-                    .alpha(if (isSuccess) alpha else 1f),
+                    .graphicsLayer { this.alpha = if (isSuccess) alpha else 1f },
                 contentScale = scale,
                 onState = { state = it },
             )
