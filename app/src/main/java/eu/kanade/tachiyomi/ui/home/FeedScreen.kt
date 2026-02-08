@@ -131,8 +131,8 @@ private fun FeedIsland(
             ) {
                 itemsIndexed(
                     items = animeList.distinctBy { it.id },
-                    key = { index, anime -> "anime-${anime.id}-$index" },
-                ) { _, anime ->
+                    key = { index: Int, anime: tachiyomi.domain.anime.model.Anime -> "anime-${anime.id}-$index" },
+                ) { _: Int, anime: tachiyomi.domain.anime.model.Anime ->
                     FeedCard(
                         anime = anime,
                         onClick = { onAnimeClick(anime) }

@@ -111,7 +111,10 @@ class RelatedAnimeScreen(val animeId: Long) : Screen() {
                         modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
                     )
                 }
-                itemsIndexed(animes, key = { index, it -> "anime-$keyword-${it.id}-$index" }) { _, anime ->
+                itemsIndexed(
+                    items = animes,
+                    key = { index: Int, it: tachiyomi.domain.anime.model.Anime -> "anime-$keyword-${it.id}-$index" },
+                ) { _: Int, anime: tachiyomi.domain.anime.model.Anime ->
                     BrowseSourceComfortableGridItem(
                         anime = anime,
                         isFavorite = anime.favorite,
