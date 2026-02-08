@@ -73,11 +73,11 @@ enum class AnimeCover(val ratio: Float) {
         // KMK <--
     ) {
         val context = LocalContext.current
-        var state by remember { mutableStateOf<AsyncImagePainter.State>(AsyncImagePainter.State.Empty) }
+        var state by remember(data) { mutableStateOf<AsyncImagePainter.State>(AsyncImagePainter.State.Empty) }
         val isSuccess = state is AsyncImagePainter.State.Success
         val isError = state is AsyncImagePainter.State.Error
 
-        LaunchedEffect(state) {
+        LaunchedEffect(state, data) {
             val currentState = state
             if (currentState is AsyncImagePainter.State.Success) {
                 val cover = when (data) {
