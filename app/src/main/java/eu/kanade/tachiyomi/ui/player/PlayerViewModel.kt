@@ -542,6 +542,15 @@ class PlayerViewModel @JvmOverloads constructor(
     fun updatePlayBackPos(pos: Float) {
         onSecondReached(pos.toInt(), duration.value.toInt())
         _pos.update { pos }
+        
+        // SY -->
+        if (pos > 15f && !incognitoMode && trackPreferences.autoTrackWhenWatching().get()) {
+            val anime = currentAnime.value ?: return
+            viewModelScope.launchNonCancellable {
+                trackEpisode.trackStatus(activity, anime.id, eu.kanade.tachiyomi.data.track.local.LocalTracker.WATCHING)
+            }
+        }
+        // SY <--
     }
 
     fun updateReadAhead(value: Long) {
