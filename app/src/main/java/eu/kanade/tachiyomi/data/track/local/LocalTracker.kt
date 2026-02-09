@@ -21,9 +21,35 @@ class LocalTracker(id: Long) : BaseTracker(id, "Local Metadata"), AnimeTracker {
 
     override suspend fun refresh(track: Track): Track = track
 
-    override suspend fun update(track: Track, didWatchEpisode: Boolean): Track = track
+    override suspend fun update(track: Track, didWatchEpisode: Boolean): Track {
+        if (didWatchEpisode) {
+            val isCompleted = track.status == COMPLETED
+            val isFinishing = track.last_episode_seen.toLong() == track.total_episodes && track.total_episodes > 0
+            
+            if (isFinishing) {
+                track.status = COMPLETED
+                track.finished_watching_date = System.currentTimeMillis()
+            } else {
+                // Transition to Watching if not already, or if rewatching from start
+                if (track.status != WATCHING) {
+                    track.status = WATCHING
+                    if (track.last_episode_seen == 1.0) {
+                        track.started_watching_date = System.currentTimeMillis()
+                        // Clear finish date on rewatch
+                        track.finished_watching_date = 0L
+                    }
+                }
+            }
+        }
+        return track
+    }
 
-    override suspend fun bind(track: Track, hasSeenEpisodes: Boolean): Track = track
+    override suspend fun bind(track: Track, hasSeenEpisodes: Boolean): Track {
+        if (track.status != COMPLETED) {
+            track.status = if (hasSeenEpisodes) WATCHING else PLAN_TO_WATCH
+        }
+        return track
+    }
 
     override fun getStatusListAnime(): List<Long> = listOf(
         WATCHING,

@@ -663,6 +663,22 @@ class LibraryScreenModel(
                     )
                 }
                 updateAnime.awaitAll(toDelete)
+
+                // SY -->
+                if (Injekt.get<TrackPreferences>().autoTrackWhenWatching().get()) {
+                    animeToDelete.forEach { anime ->
+                        val tracks = getTracks.await(anime.id)
+                        val localTrack = tracks.find { it.trackerId == TrackerManager.LOCAL }
+                        if (localTrack != null) {
+                            when {
+                                localTrack.lastEpisodeSeen == 0.0 -> Injekt.get<tachiyomi.domain.track.interactor.DeleteTrack>().await(anime.id, TrackerManager.LOCAL)
+                                localTrack.status == eu.kanade.tachiyomi.data.track.local.LocalTracker.COMPLETED -> {}
+                                else -> insertTrack.await(localTrack.copy(status = eu.kanade.tachiyomi.data.track.local.LocalTracker.DROPPED))
+                            }
+                        }
+                    }
+                }
+                // SY <--
             }
 
             if (deleteEpisodes) {
@@ -872,12 +888,22 @@ class LibraryScreenModel(
         tracks: Map<Long, List<Track>>,
     ): AnimeLibraryMap {
         val context = preferences.context
+        val thirtyDaysAgo = System.currentTimeMillis() - (30L * 24 * 60 * 60 * 1000L)
+        
         return when (groupType) {
             LibraryGroup.BY_TRACK_STATUS -> {
                 libraryAnime.groupBy { item ->
-                    val status = tracks[item.libraryAnime.anime.id]?.firstNotNullOfOrNull { track ->
+                    val trackStatus = tracks[item.libraryAnime.anime.id]?.firstNotNullOfOrNull { track ->
                         TrackStatus.parseTrackerStatus(track.trackerId, track.status)
                     } ?: TrackStatus.OTHER
+
+                    val status = if (trackStatus == TrackStatus.WATCHING && 
+                        item.libraryAnime.lastSeen < thirtyDaysAgo && 
+                        item.libraryAnime.unseenCount > 0) {
+                        TrackStatus.PAUSED
+                    } else {
+                        trackStatus
+                    }
 
                     status.int
                 }.mapKeys { (id) ->

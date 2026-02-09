@@ -205,6 +205,8 @@
     <string name="pref_storage_location_info_anime">Used for automatic backups, episode downloads, and local source.</string>
     <string name="tracking_info_anime">One-way sync to update the episode progress in external tracker services. Set up tracking for individual entries from their tracking button.</string>
     <string name="pref_create_folder_per_anime">Save screenshots into separate folders</string>
+    <string name="pref_auto_track_when_watching">Auto track when watching</string>
+    <string name="pref_auto_track_when_watching_summary">Automatically track anime in local tracker when watching, even if not in library</string>
 
     <!-- Advanced Settings -->
     <string name="clean_up_downloaded_episodes">Clean up downloaded episodes</string>
