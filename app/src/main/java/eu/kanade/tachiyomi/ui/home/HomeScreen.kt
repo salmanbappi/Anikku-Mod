@@ -58,8 +58,6 @@ import eu.kanade.tachiyomi.ui.download.DownloadQueueScreen
 import eu.kanade.tachiyomi.ui.history.HistoryTab
 import eu.kanade.tachiyomi.ui.library.LibraryTab
 import eu.kanade.tachiyomi.ui.more.MoreTab
-import eu.kanade.tachiyomi.ui.player.CastManager
-import eu.kanade.tachiyomi.ui.player.cast.CastMiniController
 import eu.kanade.tachiyomi.ui.updates.UpdatesTab
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
@@ -106,12 +104,6 @@ object HomeScreen : Screen() {
         val context = LocalContext.current
         val activity = context as? ComponentActivity
         val preferences = Injekt.get<PreferenceStore>()
-        val castManager = remember { CastManager(activity!!, preferences) }
-
-        LaunchedEffect(Unit) {
-            castManager.startDeviceDiscovery()
-            castManager.reconnect()
-        }
 
         TabNavigator(
             tab = defaultTab,
@@ -136,21 +128,6 @@ object HomeScreen : Screen() {
                     bottomBar = {
                         if (!isTabletUi()) {
                             Column {
-                                val castState by castManager.castState.collectAsState()
-                                val isConnected = castState == CastManager.CastState.CONNECTED
-                                AnimatedVisibility(
-                                    visible = isConnected,
-                                    enter = expandVertically(),
-                                    exit = shrinkVertically(),
-                                ) {
-                                    CastMiniController(
-                                        castManager = castManager,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                                    )
-                                }
-
                                 var bottomNavVisible by rememberSaveable { mutableStateOf(true) }
                                 LaunchedEffect(Unit) {
                                     showBottomNavEvent.receiveAsFlow().collectLatest { bottomNavVisible = it }
