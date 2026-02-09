@@ -285,6 +285,7 @@ class PlayerViewModel @JvmOverloads constructor(
     private val _isSeekingForwards = MutableStateFlow(false)
     val isSeekingForwards = _isSeekingForwards.asStateFlow()
 
+    private var hasTriggeredWatching = false
     private var timerJob: Job? = null
     private val _remainingTime = MutableStateFlow(0)
     val remainingTime = _remainingTime.asStateFlow()
@@ -544,7 +545,8 @@ class PlayerViewModel @JvmOverloads constructor(
         _pos.update { pos }
         
         // SY -->
-        if (pos > 15f && !incognitoMode && trackPreferences.autoTrackWhenWatching().get()) {
+        if (pos > 15f && !hasTriggeredWatching && !incognitoMode && trackPreferences.autoTrackWhenWatching().get()) {
+            hasTriggeredWatching = true
             val anime = currentAnime.value ?: return
             viewModelScope.launchNonCancellable {
                 trackEpisode.trackStatus(activity, anime.id, eu.kanade.tachiyomi.data.track.local.LocalTracker.WATCHING)

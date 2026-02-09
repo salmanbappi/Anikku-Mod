@@ -9,7 +9,10 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import tachiyomi.domain.episode.interactor.GetEpisodesByAnimeId
 import tachiyomi.i18n.MR
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
 import tachiyomi.domain.track.model.Track as DomainAnimeTrack
 
 class LocalTracker(id: Long) : BaseTracker(id, "Local Metadata"), AnimeTracker {
@@ -23,19 +26,21 @@ class LocalTracker(id: Long) : BaseTracker(id, "Local Metadata"), AnimeTracker {
 
     override suspend fun update(track: Track, didWatchEpisode: Boolean): Track {
         if (didWatchEpisode) {
-            val isCompleted = track.status == COMPLETED
-            val isFinishing = track.last_episode_seen.toLong() == track.total_episodes && track.total_episodes > 0
+            val episodes = Injekt.get<tachiyomi.domain.episode.interactor.GetEpisodesByAnimeId>().await(track.anime_id)
+            val totalEpisodes = episodes.size.toLong()
+            
+            // Use 0.01 epsilon to handle potential floating point precision issues
+            val isFinishing = track.last_episode_seen >= (totalEpisodes - 0.01) && totalEpisodes > 0
             
             if (isFinishing) {
                 track.status = COMPLETED
+                track.total_episodes = totalEpisodes
                 track.finished_watching_date = System.currentTimeMillis()
             } else {
-                // Transition to Watching if not already, or if rewatching from start
                 if (track.status != WATCHING) {
                     track.status = WATCHING
-                    if (track.last_episode_seen == 1.0) {
+                    if (track.last_episode_seen <= 1.01) {
                         track.started_watching_date = System.currentTimeMillis()
-                        // Clear finish date on rewatch
                         track.finished_watching_date = 0L
                     }
                 }
