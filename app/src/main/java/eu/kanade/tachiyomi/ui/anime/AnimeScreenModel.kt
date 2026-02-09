@@ -602,8 +602,10 @@ class AnimeScreenModel(
                         val localTrack = tracks.find { it.trackerId == TrackerManager.LOCAL }
                         if (localTrack != null) {
                             when {
-                                // If never started, just delete the track to keep history clean
-                                localTrack.lastEpisodeSeen == 0.0 -> deleteTrack.await(anime.id, TrackerManager.LOCAL)
+                                // If never started, or it's a 1-episode series (movie) not completed, delete track
+                                localTrack.lastEpisodeSeen == 0.0 || (localTrack.totalEpisodes == 1L && localTrack.status != eu.kanade.tachiyomi.data.track.local.LocalTracker.COMPLETED) -> {
+                                    deleteTrack.await(anime.id, TrackerManager.LOCAL)
+                                }
                                 // If already completed, leave it as completed
                                 localTrack.status == eu.kanade.tachiyomi.data.track.local.LocalTracker.COMPLETED -> {}
                                 // Otherwise, mark as dropped
@@ -644,10 +646,18 @@ class AnimeScreenModel(
                     val tracks = getTracks.await(anime.id)
                     var localTrack = tracks.find { it.trackerId == TrackerManager.LOCAL }
                     if (localTrack == null) {
+                        val episodes = getEpisodesByAnimeId.await(anime.id)
+                        val seenCount = episodes.count { it.seen }
                         val dbTrack = eu.kanade.tachiyomi.data.database.models.Track.create(TrackerManager.LOCAL).apply {
                             this.anime_id = anime.id
                             this.title = anime.title
-                            this.status = eu.kanade.tachiyomi.data.track.local.LocalTracker.PLAN_TO_WATCH
+                            this.last_episode_seen = seenCount.toDouble()
+                            this.total_episodes = episodes.size.toLong()
+                            this.status = when {
+                                seenCount == episodes.size && episodes.isNotEmpty() -> eu.kanade.tachiyomi.data.track.local.LocalTracker.COMPLETED
+                                seenCount > 0 -> eu.kanade.tachiyomi.data.track.local.LocalTracker.WATCHING
+                                else -> eu.kanade.tachiyomi.data.track.local.LocalTracker.PLAN_TO_WATCH
+                            }
                         }
                         localTrack = dbTrack.toDomainTrack(idRequired = false)
                     } else if (localTrack.status == eu.kanade.tachiyomi.data.track.local.LocalTracker.DROPPED) {
