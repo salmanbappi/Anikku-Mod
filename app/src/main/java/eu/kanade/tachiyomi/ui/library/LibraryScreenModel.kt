@@ -16,6 +16,8 @@ import eu.kanade.core.preference.asState
 import eu.kanade.core.util.fastFilterNot
 import eu.kanade.core.util.fastPartition
 import eu.kanade.domain.anime.interactor.UpdateAnime
+import eu.kanade.domain.track.model.toDomainTrack
+import eu.kanade.domain.track.service.TrackPreferences
 import eu.kanade.domain.base.BasePreferences
 import eu.kanade.domain.episode.interactor.SetSeenStatus
 import eu.kanade.presentation.anime.DownloadAction
@@ -74,8 +76,10 @@ import tachiyomi.domain.library.model.LibrarySort
 import tachiyomi.domain.library.model.sort
 import tachiyomi.domain.library.service.LibraryPreferences
 import tachiyomi.domain.source.service.SourceManager
+import tachiyomi.domain.track.interactor.DeleteTrack
 import tachiyomi.domain.track.interactor.GetTracks
 import tachiyomi.domain.track.interactor.GetTracksPerAnime
+import tachiyomi.domain.track.interactor.InsertTrack
 import tachiyomi.domain.track.model.Track
 import tachiyomi.i18n.sy.SYMR
 import tachiyomi.source.local.LocalSource
@@ -101,6 +105,7 @@ class LibraryScreenModel(
     private val setAnimeCategories: SetAnimeCategories = Injekt.get(),
     private val preferences: BasePreferences = Injekt.get(),
     private val libraryPreferences: LibraryPreferences = Injekt.get(),
+    private val trackPreferences: TrackPreferences = Injekt.get(),
     private val coverCache: CoverCache = Injekt.get(),
     private val sourceManager: SourceManager = Injekt.get(),
     private val downloadManager: DownloadManager = Injekt.get(),
@@ -108,6 +113,8 @@ class LibraryScreenModel(
     private val trackerManager: TrackerManager = Injekt.get(),
     // SY -->
     private val getTracks: GetTracks = Injekt.get(),
+    private val insertTrack: InsertTrack = Injekt.get(),
+    private val deleteTrack: DeleteTrack = Injekt.get(),
     // SY <--
 ) : StateScreenModel<LibraryScreenModel.State>(State()) {
 
@@ -665,13 +672,13 @@ class LibraryScreenModel(
                 updateAnime.awaitAll(toDelete)
 
                 // SY -->
-                if (Injekt.get<TrackPreferences>().autoTrackWhenWatching().get()) {
+                if (trackPreferences.autoTrackWhenWatching().get()) {
                     animeToDelete.forEach { anime ->
                         val tracks = getTracks.await(anime.id)
                         val localTrack = tracks.find { it.trackerId == TrackerManager.LOCAL }
                         if (localTrack != null) {
                             when {
-                                localTrack.lastEpisodeSeen == 0.0 -> Injekt.get<tachiyomi.domain.track.interactor.DeleteTrack>().await(anime.id, TrackerManager.LOCAL)
+                                localTrack.lastEpisodeSeen == 0.0 -> deleteTrack.await(anime.id, TrackerManager.LOCAL)
                                 localTrack.status == eu.kanade.tachiyomi.data.track.local.LocalTracker.COMPLETED -> {}
                                 else -> insertTrack.await(localTrack.copy(status = eu.kanade.tachiyomi.data.track.local.LocalTracker.DROPPED))
                             }
