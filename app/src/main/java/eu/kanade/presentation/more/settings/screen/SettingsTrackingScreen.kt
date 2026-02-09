@@ -137,7 +137,7 @@ object SettingsTrackingScreen : SearchableSettings {
             Preference.PreferenceItem.SwitchPreference(
                 pref = trackPreferences.autoTrackWhenWatching(),
                 title = stringResource(MR.strings.pref_auto_track_when_watching),
-                summary = stringResource(MR.strings.pref_auto_track_when_watching_summary),
+                subtitle = stringResource(MR.strings.pref_auto_track_when_watching_summary),
             ),
             Preference.PreferenceItem.SwitchPreference(
                 pref = trackPreferences.showNextEpisodeAiringTime(),

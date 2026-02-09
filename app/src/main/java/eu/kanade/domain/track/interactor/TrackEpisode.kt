@@ -15,6 +15,7 @@ import logcat.LogPriority
 import tachiyomi.core.common.util.lang.withNonCancellableContext
 import tachiyomi.core.common.util.system.logcat
 import tachiyomi.domain.anime.interactor.GetAnime
+import tachiyomi.domain.episode.interactor.GetEpisodesByAnimeId
 import tachiyomi.domain.track.interactor.GetTracks
 import tachiyomi.domain.track.interactor.InsertTrack
 
@@ -25,6 +26,7 @@ class TrackEpisode(
     private val delayedTrackingStore: DelayedTrackingStore,
     private val trackPreferences: TrackPreferences,
     private val getAnime: GetAnime,
+    private val getEpisodesByAnimeId: GetEpisodesByAnimeId,
 ) {
 
     suspend fun await(context: Context, animeId: Long, episodeNumber: Double, setupJobOnFailure: Boolean = true) {
@@ -33,11 +35,12 @@ class TrackEpisode(
             if (tracks.isEmpty()) {
                 if (trackPreferences.autoTrackWhenWatching().get()) {
                     val anime = getAnime.await(animeId) ?: return@withNonCancellableContext
+                    val episodes = getEpisodesByAnimeId.await(animeId)
                     val localTrack = eu.kanade.tachiyomi.data.database.models.Track.create(TrackerManager.LOCAL).apply {
                         this.anime_id = animeId
                         this.title = anime.title
                         this.last_episode_seen = episodeNumber
-                        this.total_episodes = anime.totalEpisodes.toInt()
+                        this.total_episodes = episodes.size.toLong()
                         this.status = LocalTracker.WATCHING
                     }.toDomainTrack(idRequired = false)!!
                     insertTrack.await(localTrack)

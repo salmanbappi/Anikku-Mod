@@ -113,6 +113,7 @@ import tachiyomi.domain.library.service.LibraryPreferences
 import tachiyomi.domain.source.interactor.GetRelatedAnime
 import tachiyomi.domain.source.service.SourceManager
 import tachiyomi.domain.storage.service.StoragePreferences
+import tachiyomi.domain.track.interactor.DeleteTrack
 import tachiyomi.i18n.MR
 import tachiyomi.i18n.kmk.KMR
 import tachiyomi.i18n.sy.SYMR
@@ -157,6 +158,7 @@ class AnimeScreenModel(
     private val getCategories: GetCategories = Injekt.get(),
     private val getTracks: GetTracks = Injekt.get(),
     private val insertTrack: InsertTrack = Injekt.get(),
+    private val deleteTrack: DeleteTrack = Injekt.get(),
     private val addTracks: AddTracks = Injekt.get(),
     private val setAnimeCategories: SetAnimeCategories = Injekt.get(),
     private val animeRepository: AnimeRepository = Injekt.get(),
@@ -601,7 +603,7 @@ class AnimeScreenModel(
                         if (localTrack != null) {
                             when {
                                 // If never started, just delete the track to keep history clean
-                                localTrack.lastEpisodeSeen == 0.0 -> Injekt.get<tachiyomi.domain.track.interactor.DeleteTrack>().await(anime.id, TrackerManager.LOCAL)
+                                localTrack.lastEpisodeSeen == 0.0 -> deleteTrack.await(anime.id, TrackerManager.LOCAL)
                                 // If already completed, leave it as completed
                                 localTrack.status == eu.kanade.tachiyomi.data.track.local.LocalTracker.COMPLETED -> {}
                                 // Otherwise, mark as dropped
