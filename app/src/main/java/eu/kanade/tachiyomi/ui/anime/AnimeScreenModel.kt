@@ -646,7 +646,7 @@ class AnimeScreenModel(
                     val tracks = getTracks.await(anime.id)
                     var localTrack = tracks.find { it.trackerId == TrackerManager.LOCAL }
                     if (localTrack == null) {
-                        val episodes = getEpisodesByAnimeId.await(anime.id)
+                        val episodes = getAnimeAndEpisodes.awaitChapters(anime.id)
                         val seenCount = episodes.count { it.seen }
                         val dbTrack = eu.kanade.tachiyomi.data.database.models.Track.create(TrackerManager.LOCAL).apply {
                             this.anime_id = anime.id
@@ -654,7 +654,7 @@ class AnimeScreenModel(
                             this.last_episode_seen = seenCount.toDouble()
                             this.total_episodes = episodes.size.toLong()
                             this.status = when {
-                                seenCount == episodes.size && episodes.isNotEmpty() -> eu.kanade.tachiyomi.data.track.local.LocalTracker.COMPLETED
+                                episodes.isNotEmpty() && (seenCount == episodes.size) -> eu.kanade.tachiyomi.data.track.local.LocalTracker.COMPLETED
                                 seenCount > 0 -> eu.kanade.tachiyomi.data.track.local.LocalTracker.WATCHING
                                 else -> eu.kanade.tachiyomi.data.track.local.LocalTracker.PLAN_TO_WATCH
                             }
