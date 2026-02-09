@@ -12,6 +12,7 @@ import eu.kanade.presentation.more.stats.data.*
 import eu.kanade.tachiyomi.network.model.*
 import eu.kanade.tachiyomi.data.download.DownloadManager
 import eu.kanade.tachiyomi.data.track.AnimeTracker
+import eu.kanade.tachiyomi.data.track.TrackStatus
 import eu.kanade.tachiyomi.data.track.TrackerManager
 import eu.kanade.tachiyomi.source.model.SAnime
 import kotlinx.coroutines.flow.update
@@ -150,13 +151,41 @@ class StatsScreenModel(
             )
 
             // Status Breakdown
-            val statusBreakdown = StatsData.StatusBreakdown(
-                completedCount = distinctLibraryAnime.count { it.hasStarted && it.unseenCount == 0L && it.totalEpisodes > 0 },
-                ongoingCount = distinctLibraryAnime.count { it.hasStarted && it.unseenCount > 0L && it.anime.status.toInt() == SAnime.ONGOING },
-                droppedCount = animeTrackMap.values.flatten().count { it.status == 4L }, // Universal DROPPED code
-                onHoldCount = animeTrackMap.values.flatten().count { it.status == 3L }, // Universal ON_HOLD code
-                planToWatchCount = distinctLibraryAnime.count { !it.hasStarted },
-            )
+            val statusBreakdown = run {
+                var completed = 0
+                var ongoing = 0
+                var dropped = 0
+                var onHold = 0
+                var planned = 0
+
+                val thirtyDaysAgo = System.currentTimeMillis() - (30L * 24 * 60 * 60 * 1000L)
+
+                distinctLibraryAnime.forEach { libraryAnime ->
+                    val tracks = animeTrackMap[libraryAnime.id] ?: emptyList()
+                    val parsedStatuses = tracks.mapNotNull {
+                        TrackStatus.parseTrackerStatus(it.trackerId, it.status)
+                    }
+
+                    val isDropped = parsedStatuses.any { it == TrackStatus.DROPPED }
+                    val isOnHold = parsedStatuses.any { it == TrackStatus.PAUSED } || 
+                                   (libraryAnime.hasStarted && libraryAnime.lastSeen < thirtyDaysAgo && libraryAnime.unseenCount > 0)
+
+                    when {
+                        isDropped -> dropped++
+                        isOnHold -> onHold++
+                        libraryAnime.hasStarted && libraryAnime.unseenCount == 0L && libraryAnime.totalEpisodes > 0 -> completed++
+                        libraryAnime.hasStarted -> ongoing++
+                        else -> planned++
+                    }
+                }
+                StatsData.StatusBreakdown(
+                    completedCount = completed,
+                    ongoingCount = ongoing,
+                    droppedCount = dropped,
+                    onHoldCount = onHold,
+                    planToWatchCount = planned,
+                )
+            }
 
             mutableState.update {
                 StatsScreenState.SuccessAnime(

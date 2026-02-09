@@ -595,6 +595,20 @@ class AnimeScreenModel(
             val anime = state.anime
             if (isFavorited) {
                 if (updateAnime.awaitUpdateFavorite(anime.id, false)) {
+                    if (trackPreferences.autoTrackWhenWatching().get()) {
+                        val tracks = getTracks.await(anime.id)
+                        val localTrack = tracks.find { it.trackerId == TrackerManager.LOCAL }
+                        if (localTrack != null) {
+                            when {
+                                // If never started, just delete the track to keep history clean
+                                localTrack.lastEpisodeSeen == 0.0 -> Injekt.get<tachiyomi.domain.track.interactor.DeleteTrack>().await(anime.id, TrackerManager.LOCAL)
+                                // If already completed, leave it as completed
+                                localTrack.status == eu.kanade.tachiyomi.data.track.local.LocalTracker.COMPLETED -> {}
+                                // Otherwise, mark as dropped
+                                else -> insertTrack.await(localTrack.copy(status = eu.kanade.tachiyomi.data.track.local.LocalTracker.DROPPED))
+                            }
+                        }
+                    }
                     if (anime.removeCovers() != anime) {
                         updateAnime.awaitUpdateCoverLastModified(anime.id)
                     }
@@ -624,6 +638,21 @@ class AnimeScreenModel(
                     }
                 }
                 addTracks.bindEnhancedTrackers(anime, state.source)
+                if (trackPreferences.autoTrackWhenWatching().get()) {
+                    val tracks = getTracks.await(anime.id)
+                    var localTrack = tracks.find { it.trackerId == TrackerManager.LOCAL }
+                    if (localTrack == null) {
+                        val dbTrack = eu.kanade.tachiyomi.data.database.models.Track.create(TrackerManager.LOCAL).apply {
+                            this.anime_id = anime.id
+                            this.title = anime.title
+                            this.status = eu.kanade.tachiyomi.data.track.local.LocalTracker.PLAN_TO_WATCH
+                        }
+                        localTrack = dbTrack.toDomainTrack(idRequired = false)
+                    } else if (localTrack.status == eu.kanade.tachiyomi.data.track.local.LocalTracker.DROPPED) {
+                        localTrack = localTrack.copy(status = eu.kanade.tachiyomi.data.track.local.LocalTracker.PLAN_TO_WATCH)
+                    }
+                    localTrack?.let { insertTrack.await(it) }
+                }
                 if (autoOpenTrack) showTrackDialog()
             }
         }

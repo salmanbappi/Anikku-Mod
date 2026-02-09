@@ -40,6 +40,8 @@ class TrackPreferences(
 
     fun trackOnAddingToLibrary() = preferenceStore.getBoolean("track_on_adding_to_library", true)
 
+    fun autoTrackWhenWatching() = preferenceStore.getBoolean("pref_auto_track_when_watching", true)
+
     fun showNextEpisodeAiringTime() = preferenceStore.getBoolean(
         "show_next_episode_airing_time",
         true,

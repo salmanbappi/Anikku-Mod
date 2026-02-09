@@ -135,6 +135,11 @@ object SettingsTrackingScreen : SearchableSettings {
                 title = stringResource(MR.strings.pref_track_on_add_library),
             ),
             Preference.PreferenceItem.SwitchPreference(
+                pref = trackPreferences.autoTrackWhenWatching(),
+                title = stringResource(MR.strings.pref_auto_track_when_watching),
+                summary = stringResource(MR.strings.pref_auto_track_when_watching_summary),
+            ),
+            Preference.PreferenceItem.SwitchPreference(
                 pref = trackPreferences.showNextEpisodeAiringTime(),
                 title = stringResource(MR.strings.pref_show_next_episode_airing_time),
             ),

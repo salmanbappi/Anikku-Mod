@@ -6,12 +6,15 @@ import eu.kanade.domain.track.model.toDomainTrack
 import eu.kanade.domain.track.service.DelayedTrackingUpdateJob
 import eu.kanade.domain.track.store.DelayedTrackingStore
 import eu.kanade.tachiyomi.data.track.TrackerManager
+import eu.kanade.domain.track.service.TrackPreferences
+import eu.kanade.tachiyomi.data.track.local.LocalTracker
 import eu.kanade.tachiyomi.util.system.isOnline
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import logcat.LogPriority
 import tachiyomi.core.common.util.lang.withNonCancellableContext
 import tachiyomi.core.common.util.system.logcat
+import tachiyomi.domain.anime.interactor.GetAnime
 import tachiyomi.domain.track.interactor.GetTracks
 import tachiyomi.domain.track.interactor.InsertTrack
 
@@ -20,12 +23,27 @@ class TrackEpisode(
     private val trackerManager: TrackerManager,
     private val insertTrack: InsertTrack,
     private val delayedTrackingStore: DelayedTrackingStore,
+    private val trackPreferences: TrackPreferences,
+    private val getAnime: GetAnime,
 ) {
 
     suspend fun await(context: Context, animeId: Long, episodeNumber: Double, setupJobOnFailure: Boolean = true) {
         withNonCancellableContext {
             val tracks = getTracks.await(animeId)
-            if (tracks.isEmpty()) return@withNonCancellableContext
+            if (tracks.isEmpty()) {
+                if (trackPreferences.autoTrackWhenWatching().get()) {
+                    val anime = getAnime.await(animeId) ?: return@withNonCancellableContext
+                    val localTrack = eu.kanade.tachiyomi.data.database.models.Track.create(TrackerManager.LOCAL).apply {
+                        this.anime_id = animeId
+                        this.title = anime.title
+                        this.last_episode_seen = episodeNumber
+                        this.total_episodes = anime.totalEpisodes.toInt()
+                        this.status = LocalTracker.WATCHING
+                    }.toDomainTrack(idRequired = false)!!
+                    insertTrack.await(localTrack)
+                }
+                return@withNonCancellableContext
+            }
 
             tracks.mapNotNull { track ->
                 val service = trackerManager.get(track.trackerId)
