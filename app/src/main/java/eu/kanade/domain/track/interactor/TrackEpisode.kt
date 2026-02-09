@@ -41,7 +41,11 @@ class TrackEpisode(
                         this.title = anime.title
                         this.last_episode_seen = episodeNumber
                         this.total_episodes = episodes.size.toLong()
-                        this.status = LocalTracker.WATCHING
+                        this.status = if (episodeNumber >= episodes.size && episodes.isNotEmpty()) {
+                            eu.kanade.tachiyomi.data.track.local.LocalTracker.COMPLETED
+                        } else {
+                            eu.kanade.tachiyomi.data.track.local.LocalTracker.WATCHING
+                        }
                     }.toDomainTrack(idRequired = false)!!
                     insertTrack.await(localTrack)
                 }
@@ -98,18 +102,26 @@ class TrackEpisode(
             }
 
             tracks.forEach { track ->
-                val service = trackerManager.get(track.trackerId)
-                if (service == null || !service.isLoggedIn || track.status == status) return@forEach
+                val service = trackerManager.get(track.trackerId) ?: return@forEach
+                if (!service.isLoggedIn) return@forEach
+                
+                val trackerStatus = when (status) {
+                    eu.kanade.tachiyomi.data.track.local.LocalTracker.WATCHING -> service.animeService.getWatchingStatus()
+                    eu.kanade.tachiyomi.data.track.local.LocalTracker.COMPLETED -> service.animeService.getCompletionStatus()
+                    // Fallback to local status if not specialized in interface
+                    else -> status
+                }
+
+                if (track.status == trackerStatus) return@forEach
                 
                 runCatching {
-                    val updatedTrack = track.copy(status = status)
-                    // If moving back to Watching, clear finish date for rewatch
+                    val updatedTrack = track.copy(status = trackerStatus)
                     val finalTrack = if (status == eu.kanade.tachiyomi.data.track.local.LocalTracker.WATCHING) {
                         updatedTrack.copy(finishDate = 0L)
                     } else updatedTrack
 
-                    service.animeService.update(finalTrack.toDbTrack(), false)
-                    insertTrack.await(finalTrack)
+                    val dbTrack = service.animeService.update(finalTrack.toDbTrack(), false)
+                    insertTrack.await(dbTrack.toDomainTrack(idRequired = true)!!)
                 }
             }
         }

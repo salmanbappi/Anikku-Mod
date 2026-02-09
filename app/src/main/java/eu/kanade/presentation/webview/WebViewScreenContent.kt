@@ -213,6 +213,11 @@ fun WebViewScreenContent(
             onCreated = { webView ->
                 webView.setDefaultSettings()
 
+                // Fix flickering issues
+                webView.setLayerType(android.view.View.LAYER_TYPE_HARDWARE, null)
+                webView.isDrawingCacheEnabled = false
+                webView.setBackgroundColor(0)
+
                 // Debug mode (chrome://inspect/#devices)
                 if (isDebugBuildType &&
                     0 != webView.context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE
