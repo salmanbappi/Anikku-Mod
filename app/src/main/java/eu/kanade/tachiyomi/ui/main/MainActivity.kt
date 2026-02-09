@@ -147,8 +147,6 @@ class MainActivity : BaseActivity() {
 
         super.onCreate(savedInstanceState)
 
-        val didMigration = Migrator.awaitAndRelease()
-
         // Do not let the launcher create a new activity http://stackoverflow.com/questions/16283079
         if (!isTaskRoot) {
             finish()
@@ -161,6 +159,12 @@ class MainActivity : BaseActivity() {
             val incognito by preferences.incognitoMode().collectAsState()
             val downloadOnly by preferences.downloadedOnly().collectAsState()
             val indexingAnime by downloadCache.isInitializing.collectAsState()
+
+            var didMigration by remember { mutableStateOf(false) }
+            LaunchedEffect(Unit) {
+                didMigration = Migrator.await()
+                Migrator.release()
+            }
             
             val libraryUpdateProgress by remember {
                 eu.kanade.tachiyomi.data.library.LibraryUpdateProgress.getProgress(context)
@@ -278,7 +282,12 @@ class MainActivity : BaseActivity() {
                 ShowOnboarding()
             }
 
-            var showChangelog by remember { mutableStateOf(didMigration && !isDebugBuildType) }
+            var showChangelog by remember { mutableStateOf(false) }
+            LaunchedEffect(didMigration) {
+                if (didMigration && !isDebugBuildType) {
+                    showChangelog = true
+                }
+            }
             if (showChangelog) {
                 AlertDialog(
                     onDismissRequest = { showChangelog = false },

@@ -9,16 +9,18 @@ import androidx.palette.graphics.Palette
 import coil3.BitmapImage
 import coil3.asDrawable
 import coil3.compose.AsyncImagePainter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import tachiyomi.domain.anime.model.AnimeCover
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
 object CoverColorExtractor {
 
-    fun extract(
+    suspend fun extract(
         cover: AnimeCover,
         state: AsyncImagePainter.State.Success
-    ) {
+    ) = withContext(Dispatchers.Default) {
         val context = Injekt.get<Application>()
         val image = state.result.image
         
@@ -33,7 +35,7 @@ object CoverColorExtractor {
             }
         }
 
-        if (cover.vibrantCoverColor != null) return
+        if (cover.vibrantCoverColor != null) return@withContext
 
         Palette.from(bitmap).generate { palette ->
             palette?.let {
