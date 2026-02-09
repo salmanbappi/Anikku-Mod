@@ -166,9 +166,13 @@ class StatsScreenModel(
                         TrackStatus.parseTrackerStatus(it.trackerId, it.status)
                     }
 
-                    val isDropped = parsedStatuses.any { it == TrackStatus.DROPPED }
+                    val isStale = libraryAnime.hasStarted && libraryAnime.lastSeen < thirtyDaysAgo && libraryAnime.unseenCount > 0
+
+                    val isDropped = parsedStatuses.any { it == TrackStatus.DROPPED } || 
+                                   (isStale && !libraryAnime.anime.favorite)
+                    
                     val isOnHold = parsedStatuses.any { it == TrackStatus.PAUSED } || 
-                                   (libraryAnime.hasStarted && libraryAnime.lastSeen < thirtyDaysAgo && libraryAnime.unseenCount > 0)
+                                   (isStale && libraryAnime.anime.favorite)
 
                     when {
                         isDropped -> dropped++

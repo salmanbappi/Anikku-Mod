@@ -77,4 +77,41 @@ class TrackEpisode(
                 .forEach { logcat(LogPriority.INFO, it) }
         }
     }
+
+    suspend fun trackStatus(context: Context, animeId: Long, status: Long) {
+        withNonCancellableContext {
+            val tracks = getTracks.await(animeId)
+            if (tracks.isEmpty()) {
+                if (trackPreferences.autoTrackWhenWatching().get()) {
+                    val anime = getAnime.await(animeId) ?: return@withNonCancellableContext
+                    val episodes = getEpisodesByAnimeId.await(animeId)
+                    val localTrack = eu.kanade.tachiyomi.data.database.models.Track.create(TrackerManager.LOCAL).apply {
+                        this.anime_id = animeId
+                        this.title = anime.title
+                        this.last_episode_seen = 0.0
+                        this.total_episodes = episodes.size.toLong()
+                        this.status = status
+                    }.toDomainTrack(idRequired = false)!!
+                    insertTrack.await(localTrack)
+                }
+                return@withNonCancellableContext
+            }
+
+            tracks.forEach { track ->
+                val service = trackerManager.get(track.trackerId)
+                if (service == null || !service.isLoggedIn || track.status == status) return@forEach
+                
+                runCatching {
+                    val updatedTrack = track.copy(status = status)
+                    // If moving back to Watching, clear finish date for rewatch
+                    val finalTrack = if (status == eu.kanade.tachiyomi.data.track.local.LocalTracker.WATCHING) {
+                        updatedTrack.copy(finishDate = 0L)
+                    } else updatedTrack
+
+                    service.animeService.update(finalTrack.toDbTrack(), false)
+                    insertTrack.await(finalTrack)
+                }
+            }
+        }
+    }
 }

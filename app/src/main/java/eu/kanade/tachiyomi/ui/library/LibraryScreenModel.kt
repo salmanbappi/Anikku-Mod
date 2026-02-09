@@ -678,13 +678,11 @@ class LibraryScreenModel(
                         val localTrack = tracks.find { it.trackerId == TrackerManager.LOCAL }
                         if (localTrack != null) {
                             when {
-                                // If never started, or it's a 1-episode series (movie) not completed, delete track
-                                localTrack.lastEpisodeSeen == 0.0 || (localTrack.totalEpisodes == 1L && localTrack.status != eu.kanade.tachiyomi.data.track.local.LocalTracker.COMPLETED) -> {
-                                    deleteTrack.await(anime.id, TrackerManager.LOCAL)
-                                }
+                                // If never started, delete track
+                                localTrack.lastEpisodeSeen == 0.0 -> deleteTrack.await(anime.id, TrackerManager.LOCAL)
                                 // If already completed, leave it as completed
                                 localTrack.status == eu.kanade.tachiyomi.data.track.local.LocalTracker.COMPLETED -> {}
-                                // Otherwise, mark as dropped
+                                // Otherwise, mark as dropped (including movies with progress)
                                 else -> insertTrack.await(localTrack.copy(status = eu.kanade.tachiyomi.data.track.local.LocalTracker.DROPPED))
                             }
                         }
@@ -909,12 +907,14 @@ class LibraryScreenModel(
                         TrackStatus.parseTrackerStatus(track.trackerId, track.status)
                     } ?: TrackStatus.OTHER
 
-                    val status = if (trackStatus == TrackStatus.WATCHING && 
-                        item.libraryAnime.lastSeen < thirtyDaysAgo && 
-                        item.libraryAnime.unseenCount > 0) {
-                        TrackStatus.PAUSED
-                    } else {
-                        trackStatus
+                    val isStale = item.libraryAnime.hasStarted && 
+                                 item.libraryAnime.lastSeen < thirtyDaysAgo && 
+                                 item.libraryAnime.unseenCount > 0
+
+                    val status = when {
+                        trackStatus == TrackStatus.WATCHING && isStale && item.libraryAnime.anime.favorite -> TrackStatus.PAUSED
+                        trackStatus == TrackStatus.WATCHING && isStale && !item.libraryAnime.anime.favorite -> TrackStatus.DROPPED
+                        else -> trackStatus
                     }
 
                     status.int
