@@ -338,9 +338,6 @@ private fun AnimeAndSourceTitlesLarge(
             data = anime.asAnimeCover(),
             contentDescription = stringResource(MR.strings.manga_cover),
             onClick = onCoverClick,
-            onCoverLoaded = { cover, result ->
-                eu.kanade.tachiyomi.util.system.CoverColorExtractor.extract(cover, result)
-            },
         )
         Column(
             modifier = Modifier.weight(1f),
@@ -384,9 +381,6 @@ private fun AnimeAndSourceTitlesSmall(
             data = anime.asAnimeCover(),
             contentDescription = stringResource(MR.strings.manga_cover),
             onClick = onCoverClick,
-            onCoverLoaded = { cover, result ->
-                eu.kanade.tachiyomi.util.system.CoverColorExtractor.extract(cover, result)
-            },
         )
         Column(
             modifier = Modifier.weight(1f),
