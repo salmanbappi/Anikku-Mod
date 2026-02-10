@@ -50,6 +50,8 @@ class UiPreferences(
     fun dynamicMangaTheme() = preferenceStore.getBoolean("pref_dynamic_manga_theme", true)
 
     fun autoExpandAnimeDescription() = preferenceStore.getBoolean("pref_auto_expand_anime_description", false)
+
+    fun animeItemSpacing() = preferenceStore.getInt("pref_anime_item_spacing", 24)
     // SY <--
 
     companion object {
