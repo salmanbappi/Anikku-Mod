@@ -128,7 +128,8 @@ fun AnimeInfoBox(
 ) {
     Box(
         modifier = modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.05f)),
     ) {
         // Backdrop
         val backdropGradientColors = listOf(
@@ -151,7 +152,7 @@ fun AnimeInfoBox(
                     )
                 }
                 .blur(4.dp)
-                .alpha(0.2f),
+                .alpha(0.25f),
         )
 
         // Anime & source info
