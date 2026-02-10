@@ -525,8 +525,9 @@ private fun AnimeScreenSmallImpl(
                                     onEditCategory = onEditCategoryClicked,
                                     onContinueWatching = onContinueWatching,
                                     isWatching = isWatching,
-                                    localScore = state.anime.score,
+                                    localScore = state.totalScore,
                                     onLocalScoreClicked = onLocalScoreClicked,
+                                    mainTrackItem = remember(state.trackItems) { state.trackItems.find { it.tracker.id == 999L } ?: state.trackItems.firstOrNull() },
                                 )
                             }
 
@@ -932,8 +933,9 @@ fun AnimeScreenLargeImpl(
                                     onEditCategory = onEditCategoryClicked,
                                     onContinueWatching = onContinueWatching,
                                     isWatching = isWatching,
-                                    localScore = state.anime.score,
+                                    localScore = state.totalScore,
                                     onLocalScoreClicked = onLocalScoreClicked,
+                                    mainTrackItem = remember(state.trackItems) { state.trackItems.find { it.tracker.id == 999L } ?: state.trackItems.firstOrNull() },
                                 )
 
                                 if (showSuggestions && state.suggestionSections.isNotEmpty()) {

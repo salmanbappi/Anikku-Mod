@@ -154,7 +154,6 @@ fun AnimeInfoBox(
     }
 }
 
-@Composable
 fun AnimeActionRow(
     favorite: Boolean,
     trackingCount: Int,
@@ -170,6 +169,7 @@ fun AnimeActionRow(
     isWatching: Boolean,
     localScore: Double? = null,
     onLocalScoreClicked: (() -> Unit)? = null,
+    mainTrackItem: eu.kanade.tachiyomi.ui.anime.track.TrackItem? = null,
     modifier: Modifier = Modifier,
 ) {
     val defaultActionButtonColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
@@ -194,22 +194,31 @@ fun AnimeActionRow(
                     onLongClick = onEditCategory,
                 )
                 AnimeActionButton(
-                    title = if (localScore != null && localScore > 0) {
-                        "${localScore.toInt()}/10"
-                    } else if (trackingCount == 0) {
-                        stringResource(MR.strings.manga_tracking_tab)
-                    } else {
-                        pluralStringResource(MR.plurals.num_trackers, count = trackingCount, trackingCount)
+                    title = run {
+                        if (mainTrackItem?.track != null) {
+                            val status = (mainTrackItem.tracker as? eu.kanade.tachiyomi.data.track.AnimeTracker)?.getStatusForAnime(mainTrackItem.track.status)
+                            val statusText = status?.let { stringResource(it) } ?: ""
+                            val scoreText = if (localScore != null && localScore > 0) " • ${localScore.toInt()}/10" else ""
+                            statusText + scoreText
+                        } else if (localScore != null && localScore > 0) {
+                            "${localScore.toInt()}/10"
+                        } else if (trackingCount == 0) {
+                            stringResource(MR.strings.manga_tracking_tab)
+                        } else {
+                            pluralStringResource(MR.plurals.num_trackers, count = trackingCount, trackingCount)
+                        }
                     },
-                    icon = if ((localScore == null || localScore == 0.0) && trackingCount == 0) {
-                        Icons.Outlined.Sync
+                    icon = if (mainTrackItem?.track != null) {
+                        Icons.Outlined.Done
                     } else if (localScore != null && localScore > 0) {
                         Icons.Default.Star
-                    } else if (trackingCount > 0) {
+                    } else if (trackingCount == 0) {
+                        Icons.Outlined.Sync
+                    } else {
                         Icons.Outlined.Done
-                    } else null,
+                    },
                     color = if (trackingCount == 0 && (localScore == null || localScore == 0.0)) defaultActionButtonColor else MaterialTheme.colorScheme.primary,
-                    onClick = if (localScore != null && localScore > 0) onLocalScoreClicked ?: onTrackingClicked else if (trackingCount == 0) (onLocalScoreClicked ?: onTrackingClicked) else onTrackingClicked,
+                    onClick = onTrackingClicked,
                 )
                 if (onWebViewClicked != null) {
                     AnimeActionButton(
