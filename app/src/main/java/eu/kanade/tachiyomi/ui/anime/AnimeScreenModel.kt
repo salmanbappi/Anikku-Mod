@@ -1083,46 +1083,15 @@ class AnimeScreenModel(
         screenModelScope.launchIO {
             combine(getTracks.subscribe(anime.id).catch { logcat(LogPriority.ERROR, it) }, trackerManager.loggedInTrackersFlow()) { animeTracks, loggedInTrackers ->
                 loggedInTrackers.map { service -> TrackItem(animeTracks.find { it.trackerId == service.id }, service) }
-            }.distinctUntilChanged().collectLatest { trackItems -> updateAiringTime(anime, trackItems, manualFetch = false) }
+            }.distinctUntilChanged().collectLatest { trackItems -> 
+                updateSuccessState { it.copy(trackItems = trackItems) }
+                updateAiringTime(anime, trackItems, manualFetch = false) 
+            }
         }
     }
 
     private suspend fun updateAiringTime(anime: Anime, trackItems: List<TrackItem>, manualFetch: Boolean) {
-        val airingEpisodeData = AniChartApi().loadAiringTime(anime, trackItems, manualFetch)
-        setAnimeViewerFlags.awaitSetNextEpisodeAiring(anime.id, airingEpisodeData)
-        updateSuccessState { it.copy(nextAiringEpisode = airingEpisodeData) }
-    }
-
-    sealed interface Dialog {
-        data class ChangeCategory(val anime: Anime, val initialSelection: ImmutableList<CheckboxState<Category>>) : Dialog
-        data class DeleteEpisodes(val episodes: List<Episode>) : Dialog
-        data class DuplicateAnime(val anime: Anime, val duplicate: Anime) : Dialog
-        data class Migrate(val newAnime: Anime, val oldAnime: Anime) : Dialog
-        data class SetAnimeFetchInterval(val anime: Anime) : Dialog
-        data class ShowQualities(val episode: Episode, val anime: Anime, val source: Source) : Dialog
-        data class EditAnimeInfo(val anime: Anime) : Dialog
-        data class LocalScorePicker(val anime: Anime) : Dialog
-        data object ChangeAnimeSkipIntro : Dialog
-        data object SettingsSheet : Dialog
-        data object TrackSheet : Dialog
-        data object FullCover : Dialog
-    }
-
-    fun toggleDiscoveryExpansion() {
-        updateSuccessState { it.copy(discoveryExpanded = !it.discoveryExpanded) }
-    }
-
-    fun dismissDialog() = updateSuccessState { it.copy(dialog = null) }
-    fun showDeleteEpisodeDialog(episodes: List<Episode>) = updateSuccessState { it.copy(dialog = Dialog.DeleteEpisodes(episodes)) }
-    fun showSettingsDialog() = updateSuccessState { it.copy(dialog = Dialog.SettingsSheet) }
-    fun showTrackDialog() = updateSuccessState { it.copy(dialog = Dialog.TrackSheet) }
-    fun showCoverDialog() = updateSuccessState { it.copy(dialog = Dialog.FullCover) }
-    fun showEditAnimeInfoDialog() = updateSuccessState { it.copy(dialog = Dialog.EditAnimeInfo(it.anime)) }
-    fun showLocalScoreDialog() = updateSuccessState { it.copy(dialog = Dialog.LocalScorePicker(it.anime)) }
-    fun showMigrateDialog(duplicate: Anime) = updateSuccessState { it.copy(dialog = Dialog.Migrate(newAnime = it.anime, oldAnime = duplicate)) }
-    fun showAnimeSkipIntroDialog() = updateSuccessState { it.copy(dialog = Dialog.ChangeAnimeSkipIntro) }
-    private fun showQualitiesDialog(episode: Episode) = updateSuccessState { it.copy(dialog = Dialog.ShowQualities(episode, it.anime, it.source)) }
-
+...
     sealed interface State {
         @Immutable data object Loading : State
         @Immutable data class Success(
@@ -1141,6 +1110,13 @@ class AnimeScreenModel(
             val suggestionSections: ImmutableList<SuggestionSection> = persistentListOf(),
             val discoveryExpanded: Boolean = false,
         ) : State {
+            val totalScore: Double? by lazy {
+                val localTrackScore = trackItems.find { it.tracker.id == 999L }?.track?.score?.takeIf { it > 0 }
+                localTrackScore ?: anime.score ?: trackItems.mapNotNull { item ->
+                    item.track?.let { item.tracker.animeService.get10PointScore(it) }
+                }.filter { it > 0 }.average().takeIf { !it.isNaN() }
+            }
+
             val processedEpisodes by lazy { episodes.applyFilters(anime).toList() }
             val episodeListItems by lazy {
                 processedEpisodes.insertSeparators { before, after ->

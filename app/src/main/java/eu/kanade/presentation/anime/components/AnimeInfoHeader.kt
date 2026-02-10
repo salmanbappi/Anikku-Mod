@@ -116,6 +116,7 @@ fun AnimeInfoBox(
     isTabletUi: Boolean,
     appBarPadding: Dp,
     anime: Anime,
+    totalScore: Double?,
     sourceName: String,
     isStubSource: Boolean,
     onCoverClick: () -> Unit,
@@ -132,6 +133,7 @@ fun AnimeInfoBox(
                 AnimeAndSourceTitlesSmall(
                     appBarPadding = appBarPadding,
                     anime = anime,
+                    totalScore = totalScore,
                     sourceName = sourceName,
                     isStubSource = isStubSource,
                     onCoverClick = onCoverClick,
@@ -141,6 +143,7 @@ fun AnimeInfoBox(
                 AnimeAndSourceTitlesLarge(
                     appBarPadding = appBarPadding,
                     anime = anime,
+                    totalScore = totalScore,
                     sourceName = sourceName,
                     isStubSource = isStubSource,
                     onCoverClick = onCoverClick,
@@ -321,6 +324,7 @@ fun ExpandableAnimeDescription(
 private fun AnimeAndSourceTitlesLarge(
     appBarPadding: Dp,
     anime: Anime,
+    totalScore: Double?,
     sourceName: String,
     isStubSource: Boolean,
     onCoverClick: () -> Unit,
@@ -350,7 +354,7 @@ private fun AnimeAndSourceTitlesLarge(
                 author = anime.author,
                 artist = anime.artist,
                 status = anime.status,
-                score = anime.score,
+                score = totalScore,
                 sourceName = sourceName,
                 isStubSource = isStubSource,
                 doSearch = doSearch,
@@ -364,6 +368,7 @@ private fun AnimeAndSourceTitlesLarge(
 private fun AnimeAndSourceTitlesSmall(
     appBarPadding: Dp,
     anime: Anime,
+    totalScore: Double?,
     sourceName: String,
     isStubSource: Boolean,
     onCoverClick: () -> Unit,
@@ -393,7 +398,7 @@ private fun AnimeAndSourceTitlesSmall(
                 author = anime.author,
                 artist = anime.artist,
                 status = anime.status,
-                score = anime.score,
+                score = totalScore,
                 sourceName = sourceName,
                 isStubSource = isStubSource,
                 doSearch = doSearch,
