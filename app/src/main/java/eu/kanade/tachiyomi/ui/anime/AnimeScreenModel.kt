@@ -642,30 +642,28 @@ class AnimeScreenModel(
                     }
                 }
                 addTracks.bindEnhancedTrackers(anime, state.source)
-                if (trackPreferences.autoTrackWhenWatching().get()) {
-                    val tracks = getTracks.await(anime.id)
-                    var localTrack = tracks.find { it.trackerId == TrackerManager.LOCAL }
-                    if (localTrack == null) {
-                        val episodes = getAnimeAndEpisodes.awaitChapters(anime.id)
-                        val seenCount = episodes.count { it.seen }
-                        val dbTrack = eu.kanade.tachiyomi.data.database.models.Track.create(TrackerManager.LOCAL).apply {
-                            this.anime_id = anime.id
-                            this.title = anime.title
-                            this.last_episode_seen = seenCount.toDouble()
-                            this.total_episodes = episodes.size.toLong()
-                            this.status = when {
-                                episodes.isNotEmpty() && (seenCount == episodes.size) -> eu.kanade.tachiyomi.data.track.local.LocalTracker.COMPLETED
-                                seenCount > 0 -> eu.kanade.tachiyomi.data.track.local.LocalTracker.WATCHING
-                                else -> eu.kanade.tachiyomi.data.track.local.LocalTracker.PLAN_TO_WATCH
-                            }
+                
+                val tracks = getTracks.await(anime.id)
+                var localTrack = tracks.find { it.trackerId == TrackerManager.LOCAL }
+                if (localTrack == null) {
+                    val episodes = getAnimeAndEpisodes.awaitChapters(anime.id)
+                    val seenCount = episodes.count { it.seen }
+                    val dbTrack = eu.kanade.tachiyomi.data.database.models.Track.create(TrackerManager.LOCAL).apply {
+                        this.anime_id = anime.id
+                        this.title = anime.title
+                        this.last_episode_seen = seenCount.toDouble()
+                        this.total_episodes = episodes.size.toLong()
+                        this.status = when {
+                            episodes.isNotEmpty() && (seenCount == episodes.size) -> eu.kanade.tachiyomi.data.track.local.LocalTracker.COMPLETED
+                            seenCount > 0 -> eu.kanade.tachiyomi.data.track.local.LocalTracker.WATCHING
+                            else -> eu.kanade.tachiyomi.data.track.local.LocalTracker.PLAN_TO_WATCH
                         }
-                        localTrack = dbTrack.toDomainTrack(idRequired = false)
-                    } else if (localTrack.status == eu.kanade.tachiyomi.data.track.local.LocalTracker.DROPPED) {
-                        localTrack = localTrack.copy(status = eu.kanade.tachiyomi.data.track.local.LocalTracker.PLAN_TO_WATCH)
                     }
-                    localTrack?.let { insertTrack.await(it) }
+                    localTrack = dbTrack.toDomainTrack(idRequired = false)
+                } else if (localTrack.status == eu.kanade.tachiyomi.data.track.local.LocalTracker.DROPPED) {
+                    localTrack = localTrack.copy(status = eu.kanade.tachiyomi.data.track.local.LocalTracker.PLAN_TO_WATCH)
                 }
-                if (autoOpenTrack) showTrackDialog()
+                localTrack?.let { insertTrack.await(it) }
             }
         }
     }
