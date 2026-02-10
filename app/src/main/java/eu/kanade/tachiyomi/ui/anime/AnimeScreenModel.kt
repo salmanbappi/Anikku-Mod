@@ -1091,7 +1091,41 @@ class AnimeScreenModel(
     }
 
     private suspend fun updateAiringTime(anime: Anime, trackItems: List<TrackItem>, manualFetch: Boolean) {
-...
+        val airingEpisodeData = AniChartApi().loadAiringTime(anime, trackItems, manualFetch)
+        setAnimeViewerFlags.awaitSetNextEpisodeAiring(anime.id, airingEpisodeData)
+        updateSuccessState { it.copy(nextAiringEpisode = airingEpisodeData) }
+    }
+
+    sealed interface Dialog {
+        data class ChangeCategory(val anime: Anime, val initialSelection: ImmutableList<CheckboxState<Category>>) : Dialog
+        data class DeleteEpisodes(val episodes: List<Episode>) : Dialog
+        data class DuplicateAnime(val anime: Anime, val duplicate: Anime) : Dialog
+        data class Migrate(val newAnime: Anime, val oldAnime: Anime) : Dialog
+        data class SetAnimeFetchInterval(val anime: Anime) : Dialog
+        data class ShowQualities(val episode: Episode, val anime: Anime, val source: Source) : Dialog
+        data class EditAnimeInfo(val anime: Anime) : Dialog
+        data class LocalScorePicker(val anime: Anime) : Dialog
+        data object ChangeAnimeSkipIntro : Dialog
+        data object SettingsSheet : Dialog
+        data object TrackSheet : Dialog
+        data object FullCover : Dialog
+    }
+
+    fun toggleDiscoveryExpansion() {
+        updateSuccessState { it.copy(discoveryExpanded = !it.discoveryExpanded) }
+    }
+
+    fun dismissDialog() = updateSuccessState { it.copy(dialog = null) }
+    fun showDeleteEpisodeDialog(episodes: List<Episode>) = updateSuccessState { it.copy(dialog = Dialog.DeleteEpisodes(episodes)) }
+    fun showSettingsDialog() = updateSuccessState { it.copy(dialog = Dialog.SettingsSheet) }
+    fun showTrackDialog() = updateSuccessState { it.copy(dialog = Dialog.TrackSheet) }
+    fun showCoverDialog() = updateSuccessState { it.copy(dialog = Dialog.FullCover) }
+    fun showEditAnimeInfoDialog() = updateSuccessState { it.copy(dialog = Dialog.EditAnimeInfo(it.anime)) }
+    fun showLocalScoreDialog() = updateSuccessState { it.copy(dialog = Dialog.LocalScorePicker(it.anime)) }
+    fun showMigrateDialog(duplicate: Anime) = updateSuccessState { it.copy(dialog = Dialog.Migrate(newAnime = it.anime, oldAnime = duplicate)) }
+    fun showAnimeSkipIntroDialog() = updateSuccessState { it.copy(dialog = Dialog.ChangeAnimeSkipIntro) }
+    private fun showQualitiesDialog(episode: Episode) = updateSuccessState { it.copy(dialog = Dialog.ShowQualities(episode, it.anime, it.source)) }
+
     sealed interface State {
         @Immutable data object Loading : State
         @Immutable data class Success(
