@@ -220,7 +220,7 @@ private fun <T> WheelPicker(
 }
 
 private fun LazyListState.snapOffsetForItem(itemInfo: LazyListItemInfo): Int {
-    val startScrollOffset = 0
+    val startScrollOffset = layoutInfo.beforeContentPadding
     val endScrollOffset = layoutInfo.let { it.viewportEndOffset - it.afterContentPadding }
     return startScrollOffset + (endScrollOffset - startScrollOffset - itemInfo.size) / 2
 }
