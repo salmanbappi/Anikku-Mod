@@ -122,6 +122,9 @@ object SettingsAppearanceScreen : SearchableSettings {
     private fun getDisplayGroup(
         uiPreferences: UiPreferences,
     ): Preference.PreferenceGroup {
+        val context = LocalContext.current
+        val navigator = LocalNavigator.currentOrThrow
+
         val now = remember { LocalDate.now() }
 
         val dateFormat by uiPreferences.dateFormat().collectAsState()
