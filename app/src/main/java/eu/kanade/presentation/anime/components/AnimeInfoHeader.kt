@@ -156,6 +156,7 @@ fun AnimeInfoBox(
     }
 }
 
+@Composable
 fun AnimeActionRow(
     favorite: Boolean,
     trackingCount: Int,

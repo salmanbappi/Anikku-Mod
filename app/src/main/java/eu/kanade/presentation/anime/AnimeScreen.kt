@@ -825,9 +825,6 @@ fun AnimeScreenLargeImpl(
                     val selectedEpisodeCount = remember(episodes) {
                         episodes.count { it.selected }
                     }
-                    val isFirstItemVisible by remember {
-                        derivedStateOf { episodeListState.firstVisibleItemIndex == 0 }
-                    }
                     val isFirstItemScrolled by remember {
                         derivedStateOf { episodeListState.firstVisibleItemScrollOffset > 0 }
                     }
