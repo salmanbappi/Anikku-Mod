@@ -122,15 +122,15 @@ object SettingsAppearanceScreen : SearchableSettings {
     private fun getDisplayGroup(
         uiPreferences: UiPreferences,
     ): Preference.PreferenceGroup {
-        val context = LocalContext.current
-        val navigator = LocalNavigator.currentOrThrow
-
         val now = remember { LocalDate.now() }
 
         val dateFormat by uiPreferences.dateFormat().collectAsState()
         val formattedNow = remember(dateFormat) {
             UiPreferences.dateFormat(dateFormat).format(now)
         }
+
+        val animeItemSpacingPref = uiPreferences.animeItemSpacing()
+        val animeItemSpacing by animeItemSpacingPref.collectAsState()
 
         return Preference.PreferenceGroup(
             title = stringResource(MR.strings.pref_category_display),
@@ -199,14 +199,13 @@ object SettingsAppearanceScreen : SearchableSettings {
                     subtitle = "Expand anime description by default",
                 ),
                 Preference.PreferenceItem.SliderPreference(
-                    value = uiPreferences.animeItemSpacing().get(),
+                    value = animeItemSpacing,
                     min = 0,
-                    max = 100,
+                    max = 80,
                     title = "Anime action row spacing",
                     subtitle = "Adjust vertical spacing between cover and action buttons",
-                    onValueChanged = {
-                        uiPreferences.animeItemSpacing().set(it)
-                        true
+                    onValueChangeFinished = {
+                        animeItemSpacingPref.set(it)
                     },
                 ),
             ),
