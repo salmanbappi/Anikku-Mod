@@ -155,6 +155,8 @@ data class TrackInfoDialogHomeScreen(
             onNewSearch = {
                 if (it.tracker is EnhancedTracker) {
                     screenModel.registerEnhancedTracking(it)
+                } else if (it.tracker.id == TrackerManager.LOCAL) {
+                    screenModel.registerLocalTracking()
                 } else {
                     navigator.push(
                         TrackServiceSearchScreen(
@@ -233,6 +235,26 @@ data class TrackInfoDialogHomeScreen(
                 } catch (e: Exception) {
                     withUIContext { Injekt.get<Application>().toast(MR.strings.error_no_match) }
                 }
+            }
+        }
+
+        fun registerLocalTracking() {
+            screenModelScope.launchNonCancellable {
+                val anime = Injekt.get<GetAnime>().await(animeId) ?: return@launchNonCancellable
+                val episodes = Injekt.get<tachiyomi.domain.episode.interactor.GetEpisodesByAnimeId>().await(animeId)
+                val seenCount = episodes.count { it.seen }
+                val dbTrack = eu.kanade.tachiyomi.data.database.models.Track.create(TrackerManager.LOCAL).apply {
+                    this.anime_id = anime.id
+                    this.title = anime.title
+                    this.last_episode_seen = seenCount.toDouble()
+                    this.total_episodes = episodes.size.toLong()
+                    this.status = when {
+                        episodes.isNotEmpty() && (seenCount == episodes.size) -> eu.kanade.tachiyomi.data.track.local.LocalTracker.COMPLETED
+                        seenCount > 0 -> eu.kanade.tachiyomi.data.track.local.LocalTracker.WATCHING
+                        else -> eu.kanade.tachiyomi.data.track.local.LocalTracker.PLAN_TO_WATCH
+                    }
+                }
+                Injekt.get<InsertTrack>().await(dbTrack.toDomainTrack(idRequired = false)!!)
             }
         }
 

@@ -201,26 +201,19 @@ fun AnimeActionRow(
                         if (mainTrackItem?.track != null) {
                             val status = (mainTrackItem.tracker as? eu.kanade.tachiyomi.data.track.AnimeTracker)?.getStatusForAnime(mainTrackItem.track.status)
                             val statusText = status?.let { stringResource(it) } ?: ""
-                            val scoreText = if (localScore != null && localScore > 0) " • ${localScore.toInt()}/10" else ""
-                            statusText + scoreText
-                        } else if (localScore != null && localScore > 0) {
-                            "${localScore.toInt()}/10"
+                            statusText
                         } else if (trackingCount == 0) {
                             stringResource(MR.strings.manga_tracking_tab)
                         } else {
                             pluralStringResource(MR.plurals.num_trackers, count = trackingCount, trackingCount)
                         }
                     },
-                    icon = if (mainTrackItem?.track != null) {
+                    icon = if (mainTrackItem?.track != null || trackingCount > 0) {
                         Icons.Outlined.Done
-                    } else if (localScore != null && localScore > 0) {
-                        Icons.Default.Star
-                    } else if (trackingCount == 0) {
-                        Icons.Outlined.Sync
                     } else {
-                        Icons.Outlined.Done
+                        Icons.Outlined.Sync
                     },
-                    color = if (trackingCount == 0 && (localScore == null || localScore == 0.0)) defaultActionButtonColor else MaterialTheme.colorScheme.primary,
+                    color = if (trackingCount == 0) defaultActionButtonColor else MaterialTheme.colorScheme.primary,
                     onClick = onTrackingClicked,
                 )
                 if (onWebViewClicked != null) {
