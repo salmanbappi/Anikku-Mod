@@ -31,7 +31,7 @@ fun BrowseSourceToolbar(
     searchQuery: String?,
     onSearchQueryChange: (String?) -> Unit,
     source: Source?,
-    displayMode: LibraryDisplayMode,
+    displayMode: LibraryDisplayMode?,
     onDisplayModeChange: (LibraryDisplayMode) -> Unit,
     navigateUp: () -> Unit,
     onWebViewClick: () -> Unit,
@@ -48,6 +48,8 @@ fun BrowseSourceToolbar(
     val title = source?.name
     val isLocalSource = source is LocalSource
     val isConfigurableSource = source is ConfigurableSource
+
+    val mode = displayMode ?: LibraryDisplayMode.default
 
     var selectingDisplayMode by remember { mutableStateOf(false) }
 
@@ -87,7 +89,7 @@ fun BrowseSourceToolbar(
                             add(
                                 AppBar.Action(
                                     title = stringResource(MR.strings.action_display_mode),
-                                    icon = if (displayMode == LibraryDisplayMode.List) {
+                                    icon = if (mode == LibraryDisplayMode.List) {
                                         Icons.AutoMirrored.Filled.ViewList
                                     } else {
                                         Icons.Filled.ViewModule
@@ -129,21 +131,21 @@ fun BrowseSourceToolbar(
             ) {
                 RadioMenuItem(
                     text = { Text(text = stringResource(MR.strings.action_display_comfortable_grid)) },
-                    isChecked = displayMode == LibraryDisplayMode.ComfortableGrid,
+                    isChecked = mode == LibraryDisplayMode.ComfortableGrid,
                 ) {
                     selectingDisplayMode = false
                     onDisplayModeChange(LibraryDisplayMode.ComfortableGrid)
                 }
                 RadioMenuItem(
                     text = { Text(text = stringResource(MR.strings.action_display_grid)) },
-                    isChecked = displayMode == LibraryDisplayMode.CompactGrid,
+                    isChecked = mode == LibraryDisplayMode.CompactGrid,
                 ) {
                     selectingDisplayMode = false
                     onDisplayModeChange(LibraryDisplayMode.CompactGrid)
                 }
                 RadioMenuItem(
                     text = { Text(text = stringResource(MR.strings.action_display_list)) },
-                    isChecked = displayMode == LibraryDisplayMode.List,
+                    isChecked = mode == LibraryDisplayMode.List,
                 ) {
                     selectingDisplayMode = false
                     onDisplayModeChange(LibraryDisplayMode.List)
