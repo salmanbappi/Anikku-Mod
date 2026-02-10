@@ -90,7 +90,9 @@ import eu.kanade.presentation.anime.components.MarkdownRender
 import eu.kanade.presentation.anime.components.DISALLOWED_MARKDOWN_TYPES
 import eu.kanade.presentation.components.DropdownMenu
 import eu.kanade.tachiyomi.R
+import eu.kanade.tachiyomi.data.track.AnimeTracker
 import eu.kanade.tachiyomi.source.model.SAnime
+import eu.kanade.tachiyomi.ui.anime.track.TrackItem
 import eu.kanade.tachiyomi.util.system.copyToClipboard
 import eu.kanade.tachiyomi.util.system.toast
 import tachiyomi.domain.anime.model.Anime
