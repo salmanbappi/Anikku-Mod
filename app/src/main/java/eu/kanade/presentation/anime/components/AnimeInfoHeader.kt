@@ -177,8 +177,11 @@ fun AnimeActionRow(
 ) {
     val defaultActionButtonColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
 
+    val uiPreferences: eu.kanade.domain.ui.UiPreferences = Injekt.get()
+    val topPadding by uiPreferences.animeItemSpacing().collectAsState()
+
     Column(
-        modifier = modifier.padding(start = 16.dp, top = 18.dp, end = 16.dp, bottom = 4.dp),
+        modifier = modifier.padding(start = 16.dp, top = topPadding.dp, end = 16.dp, bottom = 4.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Surface(

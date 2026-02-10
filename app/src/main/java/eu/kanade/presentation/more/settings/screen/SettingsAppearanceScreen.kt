@@ -198,6 +198,17 @@ object SettingsAppearanceScreen : SearchableSettings {
                     title = "Auto-expand details",
                     subtitle = "Expand anime description by default",
                 ),
+                Preference.PreferenceItem.SliderPreference(
+                    value = uiPreferences.animeItemSpacing().get(),
+                    min = 0,
+                    max = 100,
+                    title = "Anime action row spacing",
+                    subtitle = "Adjust vertical spacing between cover and action buttons",
+                    onValueChanged = {
+                        uiPreferences.animeItemSpacing().set(it)
+                        true
+                    },
+                ),
             ),
         )
     }
