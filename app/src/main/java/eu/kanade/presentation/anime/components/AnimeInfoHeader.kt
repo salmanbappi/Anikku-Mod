@@ -191,20 +191,22 @@ fun AnimeActionRow(
                     onLongClick = onEditCategory,
                 )
                 AnimeActionButton(
-                    title = if (trackingCount == 0 && localScore != null && localScore > 0) {
+                    title = if (localScore != null && localScore > 0) {
                         "${localScore.toInt()}/10"
                     } else if (trackingCount == 0) {
                         stringResource(MR.strings.manga_tracking_tab)
                     } else {
                         pluralStringResource(MR.plurals.num_trackers, count = trackingCount, trackingCount)
                     },
-                    icon = if (trackingCount == 0 && (localScore == null || localScore == 0.0)) {
+                    icon = if ((localScore == null || localScore == 0.0) && trackingCount == 0) {
                         Icons.Outlined.Sync
+                    } else if (localScore != null && localScore > 0) {
+                        Icons.Default.Star
                     } else if (trackingCount > 0) {
                         Icons.Outlined.Done
                     } else null,
-                    color = if (trackingCount == 0 && localScore == null) defaultActionButtonColor else MaterialTheme.colorScheme.primary,
-                    onClick = if (trackingCount == 0) (onLocalScoreClicked ?: onTrackingClicked) else onTrackingClicked,
+                    color = if (trackingCount == 0 && (localScore == null || localScore == 0.0)) defaultActionButtonColor else MaterialTheme.colorScheme.primary,
+                    onClick = if (localScore != null && localScore > 0) onLocalScoreClicked ?: onTrackingClicked else if (trackingCount == 0) (onLocalScoreClicked ?: onTrackingClicked) else onTrackingClicked,
                 )
                 if (onWebViewClicked != null) {
                     AnimeActionButton(
