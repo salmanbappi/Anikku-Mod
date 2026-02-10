@@ -533,19 +533,25 @@ private fun AnimeScreenSmallImpl(
                             }
 
                             if (showSuggestions && state.suggestionSections.isNotEmpty()) {
-                                if (!state.discoveryExpanded) {
-                                    item(key = "discovery-section-collapsed", contentType = "discovery") {
-                                        val navigator = LocalNavigator.currentOrThrow
-                                        Surface(
-                                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                                            color = MaterialTheme.colorScheme.surfaceContainer,
-                                            shape = MaterialTheme.shapes.medium,
-                                        ) {
-                                            Column(modifier = Modifier.padding(vertical = 12.dp)) {
-                                                DiscoveryHeader(expanded = false, onToggle = onToggleDiscoveryExpansion)
-                                                
+                                item(key = "discovery-section-container", contentType = "discovery") {
+                                    val navigator = LocalNavigator.currentOrThrow
+                                    Surface(
+                                        modifier = Modifier
+                                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                                            .animateContentSize(),
+                                        color = MaterialTheme.colorScheme.surfaceContainer,
+                                        shape = MaterialTheme.shapes.medium,
+                                    ) {
+                                        Column(modifier = Modifier.padding(vertical = 12.dp)) {
+                                            DiscoveryHeader(
+                                                expanded = state.discoveryExpanded,
+                                                onToggle = onToggleDiscoveryExpansion
+                                            )
+
+                                            if (!state.discoveryExpanded) {
                                                 val combinedItems = remember(state.suggestionSections) {
-                                                    state.suggestionSections.flatMap { it.items.take(3) }.distinctBy { it.id }.take(15)
+                                                    state.suggestionSections.flatMap { it.items.take(3) }
+                                                        .distinctBy { it.id }.take(15)
                                                 }
                                                 androidx.compose.foundation.lazy.LazyRow(
                                                     contentPadding = PaddingValues(horizontal = 12.dp),
@@ -555,82 +561,66 @@ private fun AnimeScreenSmallImpl(
                                                         items = combinedItems,
                                                         key = { index: Int, anime: tachiyomi.domain.anime.model.Anime -> "suggestion-combined-${anime.id}-$index" },
                                                     ) { _: Int, anime: tachiyomi.domain.anime.model.Anime ->
-                                                        SuggestionItem(anime = anime, onClick = { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(anime.id)) })
+                                                        SuggestionItem(
+                                                            anime = anime,
+                                                            onClick = { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(anime.id)) }
+                                                        )
                                                     }
                                                 }
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    item(key = "discovery-header-expanded", contentType = "discovery-header") {
-                                        Surface(
-                                            modifier = Modifier.padding(horizontal = 16.dp).padding(top = 8.dp),
-                                            color = MaterialTheme.colorScheme.surfaceContainer,
-                                            shape = MaterialTheme.shapes.medium.copy(bottomStart = ZeroCornerSize, bottomEnd = ZeroCornerSize),
-                                        ) {
-                                            DiscoveryHeader(modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp), expanded = true, onToggle = onToggleDiscoveryExpansion)
-                                        }
-                                    }
-                                    
-                                    state.suggestionSections.forEach { section ->
-                                        item(key = "discovery-section-${section.type}", contentType = "discovery-row") {
-                                            val navigator = LocalNavigator.currentOrThrow
-                                            Surface(
-                                                modifier = Modifier.padding(horizontal = 16.dp),
-                                                color = MaterialTheme.colorScheme.surfaceContainer,
-                                            ) {
-                                                Column(modifier = Modifier.padding(bottom = 12.dp)) {
-                                                    Row(
-                                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                                                        verticalAlignment = Alignment.CenterVertically,
-                                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                                    ) {
-                                                        val icon = when (section.type) {
-                                                            SuggestionSection.Type.Franchise -> androidx.compose.material.icons.Icons.Filled.AutoAwesome
-                                                            SuggestionSection.Type.Similarity -> androidx.compose.material.icons.Icons.Outlined.Compare
-                                                            SuggestionSection.Type.Author -> androidx.compose.material.icons.Icons.Outlined.Person
-                                                            SuggestionSection.Type.Source -> androidx.compose.material.icons.Icons.Outlined.Language
-                                                            SuggestionSection.Type.Tag -> androidx.compose.material.icons.Icons.Outlined.Label
-                                                            SuggestionSection.Type.Community -> androidx.compose.material.icons.Icons.Outlined.NewReleases
+                                            } else {
+                                                state.suggestionSections.forEach { section ->
+                                                    Column(modifier = Modifier.padding(bottom = 12.dp)) {
+                                                        Row(
+                                                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                                                            verticalAlignment = Alignment.CenterVertically,
+                                                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                                        ) {
+                                                            val icon = when (section.type) {
+                                                                SuggestionSection.Type.Franchise -> androidx.compose.material.icons.Icons.Filled.AutoAwesome
+                                                                SuggestionSection.Type.Similarity -> androidx.compose.material.icons.Icons.Outlined.Compare
+                                                                SuggestionSection.Type.Author -> androidx.compose.material.icons.Icons.Outlined.Person
+                                                                SuggestionSection.Type.Source -> androidx.compose.material.icons.Icons.Outlined.Language
+                                                                SuggestionSection.Type.Tag -> androidx.compose.material.icons.Icons.Outlined.Label
+                                                                SuggestionSection.Type.Community -> androidx.compose.material.icons.Icons.Outlined.NewReleases
+                                                            }
+                                                            val label = when (section.type) {
+                                                                SuggestionSection.Type.Franchise -> stringResource(KMR.strings.related_mangas_website_suggestions)
+                                                                SuggestionSection.Type.Similarity -> stringResource(SYMR.strings.relation_similar)
+                                                                SuggestionSection.Type.Author -> section.title
+                                                                SuggestionSection.Type.Source -> section.title
+                                                                SuggestionSection.Type.Tag -> stringResource(SYMR.strings.az_recommends)
+                                                                SuggestionSection.Type.Community -> stringResource(MR.strings.latest)
+                                                            }
+                                                            Icon(
+                                                                imageVector = icon,
+                                                                contentDescription = null,
+                                                                modifier = Modifier.size(14.dp),
+                                                                tint = MaterialTheme.colorScheme.secondary
+                                                            )
+                                                            Text(
+                                                                text = label,
+                                                                style = MaterialTheme.typography.labelSmall,
+                                                                color = MaterialTheme.colorScheme.secondary
+                                                            )
                                                         }
-                                                        val label = when (section.type) {
-                                                            SuggestionSection.Type.Franchise -> stringResource(KMR.strings.related_mangas_website_suggestions)
-                                                            SuggestionSection.Type.Similarity -> stringResource(SYMR.strings.relation_similar)
-                                                            SuggestionSection.Type.Author -> section.title
-                                                            SuggestionSection.Type.Source -> section.title
-                                                            SuggestionSection.Type.Tag -> stringResource(SYMR.strings.az_recommends)
-                                                            SuggestionSection.Type.Community -> stringResource(MR.strings.latest)
-                                                        }
-                                                        Icon(
-                                                            imageVector = icon,
-                                                            contentDescription = null,
-                                                            modifier = Modifier.size(14.dp),
-                                                            tint = MaterialTheme.colorScheme.secondary
-                                                        )
-                                                        Text(
-                                                            text = label,
-                                                            style = MaterialTheme.typography.labelSmall,
-                                                            color = MaterialTheme.colorScheme.secondary
-                                                        )
-                                                    }
-                                                    androidx.compose.foundation.lazy.LazyRow(
-                                                        contentPadding = PaddingValues(horizontal = 12.dp),
-                                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                                    ) {
-                                                        itemsIndexed(
-                                                            items = section.items,
-                                                            key = { index: Int, anime: tachiyomi.domain.anime.model.Anime -> "suggestion-${section.type}-${anime.id}-$index" },
-                                                        ) { _: Int, anime: tachiyomi.domain.anime.model.Anime ->
-                                                            SuggestionItem(anime = anime, onClick = { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(anime.id)) })
+                                                        androidx.compose.foundation.lazy.LazyRow(
+                                                            contentPadding = PaddingValues(horizontal = 12.dp),
+                                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                                        ) {
+                                                            itemsIndexed(
+                                                                items = section.items,
+                                                                key = { index: Int, anime: tachiyomi.domain.anime.model.Anime -> "suggestion-${section.type}-${anime.id}-$index" },
+                                                            ) { _: Int, anime: tachiyomi.domain.anime.model.Anime ->
+                                                                SuggestionItem(
+                                                                    anime = anime,
+                                                                    onClick = { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(anime.id)) }
+                                                                )
+                                                            }
                                                         }
                                                     }
                                                 }
                                             }
                                         }
-                                    }
-                                    
-                                    item(key = "discovery-footer-expanded") {
-                                        Spacer(modifier = Modifier.height(8.dp))
                                     }
                                 }
                             }

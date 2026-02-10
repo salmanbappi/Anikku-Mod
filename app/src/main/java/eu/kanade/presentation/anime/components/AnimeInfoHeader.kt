@@ -624,17 +624,17 @@ private fun AnimeSummary(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .then(if (!expanded) Modifier.height(112.dp) else Modifier),
+                    .then(if (!expanded) Modifier.height(80.dp) else Modifier),
             ) {
                 MarkdownRender(
                     content = description,
                     modifier = Modifier
                         .secondaryItemAlpha()
-                        .padding(bottom = if (expanded) 0.dp else 24.dp)
+                        .padding(bottom = if (expanded) 24.dp else 0.dp)
                         .drawWithContent {
                             drawContent()
                             if (!expanded) {
-                                val gradientHeight = 48.dp.toPx()
+                                val gradientHeight = 24.dp.toPx()
                                 drawRect(
                                     brush = Brush.verticalGradient(
                                         colors = listOf(
@@ -656,13 +656,19 @@ private fun AnimeSummary(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            backgroundColor.copy(alpha = if (expanded) 0f else 0.8f),
-                        ),
-                    ),
+                .then(
+                    if (!expanded) {
+                        Modifier.background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    backgroundColor.copy(alpha = 0.8f),
+                                ),
+                            ),
+                        )
+                    } else {
+                        Modifier
+                    },
                 ),
             contentAlignment = Alignment.Center,
         ) {
