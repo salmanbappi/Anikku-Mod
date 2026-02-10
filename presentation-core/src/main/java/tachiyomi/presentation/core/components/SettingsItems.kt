@@ -188,17 +188,16 @@ fun SliderItem(
 ) {
     val haptic = LocalHapticFeedback.current
 
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
                 horizontal = SettingsItemsPaddings.Horizontal,
                 vertical = SettingsItemsPaddings.Vertical,
             ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(24.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Column(modifier = Modifier.weight(1f)) {
+        Column(modifier = Modifier.fillMaxWidth()) {
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyMedium,
@@ -213,7 +212,7 @@ fun SliderItem(
         }
 
         Row(
-            modifier = Modifier.weight(1.5f),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
