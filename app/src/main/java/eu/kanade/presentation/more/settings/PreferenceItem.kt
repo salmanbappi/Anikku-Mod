@@ -10,7 +10,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.unit.dp
 import eu.kanade.domain.connections.service.ConnectionsPreferences
@@ -81,16 +83,22 @@ internal fun PreferenceItem(
                 )
             }
             is Preference.PreferenceItem.SliderPreference -> {
-                // TODO: use different composable?
+                var sliderValue by androidx.compose.runtime.remember(item.value) { androidx.compose.runtime.mutableIntStateOf(item.value) }
                 SliderItem(
                     label = item.title,
                     min = item.min,
                     max = item.max,
-                    value = item.value,
-                    valueText = item.subtitle.takeUnless { it.isNullOrEmpty() } ?: item.value.toString(),
-                    onChange = {
+                    value = sliderValue,
+                    valueText = item.subtitle.takeUnless { it.isNullOrEmpty() } ?: sliderValue.toString(),
+                    onChange = { newValue ->
+                        sliderValue = newValue
                         scope.launch {
-                            item.onValueChanged(it)
+                            item.onValueChanged(newValue)
+                        }
+                    },
+                    onValueChangeFinished = {
+                        scope.launch {
+                            item.onValueChangeFinished?.invoke(sliderValue)
                         }
                     },
                 )

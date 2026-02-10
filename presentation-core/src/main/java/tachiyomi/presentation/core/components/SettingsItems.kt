@@ -184,6 +184,7 @@ fun SliderItem(
     onChange: (Int) -> Unit,
     max: Int,
     min: Int = 0,
+    onValueChangeFinished: (() -> Unit)? = null,
 ) {
     val haptic = LocalHapticFeedback.current
 
@@ -197,24 +198,42 @@ fun SliderItem(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(24.dp),
     ) {
-        Column(modifier = Modifier.weight(0.5f)) {
+        Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyMedium,
             )
-            Text(valueText)
+            if (valueText.isNotEmpty()) {
+                Text(
+                    text = valueText,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
 
-        Slider(
+        Row(
             modifier = Modifier.weight(1.5f),
-            value = value,
-            onValueChange = f@{
-                if (it == value) return@f
-                onChange(it)
-                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-            },
-            valueRange = min..max,
-        )
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Slider(
+                modifier = Modifier.weight(1f),
+                value = value,
+                onValueChange = f@{
+                    if (it == value) return@f
+                    onChange(it)
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                },
+                onValueChangeFinished = onValueChangeFinished,
+                valueRange = min..max,
+            )
+            Text(
+                text = value.toString(),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.widthIn(min = 24.dp),
+            )
+        }
     }
 }
 
