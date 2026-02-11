@@ -39,8 +39,9 @@ class BackupDecoder(
 
             try {
                 parser.decodeFromByteArray(Backup.serializer(), backupString)
-            } catch (_: SerializationException) {
-                throw IOException(context.stringResource(MR.strings.invalid_backup_file_unknown))
+            } catch (e: SerializationException) {
+                logcat(LogPriority.ERROR, e) { "Failed to decode backup" }
+                throw IOException(context.stringResource(MR.strings.invalid_backup_file_unknown) + ": " + e.message)
             }
         }
     }
