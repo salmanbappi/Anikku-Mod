@@ -10,9 +10,9 @@ import tachiyomi.domain.anime.model.CustomAnimeInfo
 @Serializable
 data class BackupAnime(
     // in 1.x some of these values have different names
-    @ProtoNumber(1) var source: Long,
+    @ProtoNumber(1) var source: Long = 0,
     // url is called key in 1.x
-    @ProtoNumber(2) var url: String,
+    @ProtoNumber(2) var url: String = "",
     @ProtoNumber(3) var title: String = "",
     @ProtoNumber(4) var artist: String? = null,
     @ProtoNumber(5) var author: String? = null,
@@ -39,6 +39,9 @@ data class BackupAnime(
     @ProtoNumber(106) var lastModifiedAt: Long = 0,
     @ProtoNumber(107) var favoriteModifiedAt: Long? = null,
     @ProtoNumber(109) var version: Long = 0,
+
+    @ProtoNumber(500) var id: Long = 0,
+    @ProtoNumber(501) var parentId: Long = 0,
 
     @ProtoNumber(602) var customStatus: Int = 0,
 
