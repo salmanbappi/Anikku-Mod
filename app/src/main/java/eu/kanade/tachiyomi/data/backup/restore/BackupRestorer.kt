@@ -73,12 +73,12 @@ class BackupRestorer(
         val backup = BackupDecoder(context).decode(uri)
 
         // SY -->
-        val backupAnime = backup.backupAnime + backup.backupManga
-        val backupAnimeCategories = backup.backupAnimeCategories + backup.backupCategories
+        val backupAnime = backup.backupAnime + backup.backupManga + backup.backupAnimeModern
+        val backupAnimeCategories = backup.backupAnimeCategories + backup.backupCategories + backup.backupCategoriesModern
         // SY <--
 
         // Store source mapping for error messages
-        val backupAnimeMaps = backup.backupSources + backup.backupMangaSources +
+        val backupAnimeMaps = backup.backupSources + backup.backupMangaSources + backup.backupSourcesModern +
             backup.backupBrokenAnimeSources.map { it.toBackupSource() } +
             backup.backupBrokenMangaSources.map { it.toBackupSource() }
         animeSourceMapping = backupAnimeMaps.associate { it.sourceId to it.name }
@@ -93,7 +93,7 @@ class BackupRestorer(
             restoreAmount += 1
         }
         if (options.extensionRepoSettings) {
-            restoreAmount += backup.backupAnimeExtensionRepo.size
+            restoreAmount += (backup.backupAnimeExtensionRepo + backup.backupExtensionRepoModern).size
         }
         if (options.customButtons) {
             restoreAmount += 1
@@ -121,13 +121,13 @@ class BackupRestorer(
                 restoreAnime(backupAnime, if (options.categories) backupAnimeCategories else emptyList())
             }
             if (options.extensionRepoSettings) {
-                restoreExtensionRepos(backup.backupAnimeExtensionRepo)
+                restoreExtensionRepos(backup.backupAnimeExtensionRepo + backup.backupExtensionRepoModern)
             }
             if (options.customButtons) {
-                restoreCustomButtons(backup.backupCustomButton)
+                restoreCustomButtons(backup.backupCustomButton + backup.backupCustomButtonModern)
             }
             if (options.extensions) {
-                restoreExtensions(backup.backupExtensions)
+                restoreExtensions(backup.backupExtensions + backup.backupExtensionsModern)
             }
 
             // TODO: optionally trigger online library + tracker update
@@ -157,8 +157,12 @@ class BackupRestorer(
             .forEach {
                 ensureActive()
 
+                // seasons/linked entries logic
+                val seasons = backupAnimes.filter { s -> s.parentId == it.id && it.id != 0L }
+
                 try {
-                    animeRestorer.restore(it, backupAnimeCategories)
+                    val customInfo = it.getCustomAnimeInfo()
+                    animeRestorer.restore(it, backupAnimeCategories, customInfo, seasons)
                 } catch (e: Exception) {
                     val sourceName = animeSourceMapping[it.source] ?: it.source.toString()
                     errors.add(Date() to "${it.title} [$sourceName]: ${e.message}")

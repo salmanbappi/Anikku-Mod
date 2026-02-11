@@ -61,6 +61,8 @@ class AnimeRestorer(
     suspend fun restore(
         backupAnime: BackupAnime,
         backupCategories: List<BackupCategory>,
+        customInfo: tachiyomi.domain.anime.model.CustomAnimeInfo? = null,
+        seasons: List<BackupAnime> = emptyList(),
     ) {
         handler.await(inTransaction = true) {
             val dbAnime = findExistingAnime(backupAnime)
@@ -71,6 +73,10 @@ class AnimeRestorer(
                 restoreExistingAnime(anime, dbAnime)
             }
 
+            if (customInfo != null) {
+                setCustomAnimeInfo.set(customInfo.copy(id = restoredAnime.id))
+            }
+
             restoreAnimeDetails(
                 anime = restoredAnime,
                 episodes = backupAnime.episodes,
@@ -79,6 +85,9 @@ class AnimeRestorer(
                 history = backupAnime.history,
                 tracks = backupAnime.tracking,
             )
+
+            // TODO: Restore seasons if/when domain model supports it
+            // seasons.forEach { ... }
 
             if (isSync) {
                 animesQueries.resetIsSyncing()

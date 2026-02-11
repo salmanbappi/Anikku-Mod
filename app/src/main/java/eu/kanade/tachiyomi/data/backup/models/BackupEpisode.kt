@@ -8,8 +8,8 @@ import tachiyomi.domain.episode.model.Episode
 data class BackupEpisode(
     // in 1.x some of these values have different names
     // url is called key in 1.x
-    @ProtoNumber(1) var url: String,
-    @ProtoNumber(2) var name: String,
+    @ProtoNumber(1) var url: String = "",
+    @ProtoNumber(2) var name: String = "",
     @ProtoNumber(3) var scanlator: String? = null,
     @ProtoNumber(4) var seen: Boolean = false,
     @ProtoNumber(5) var bookmark: Boolean = false,

@@ -17,6 +17,8 @@ data class BackupOptions(
     val sourceSettings: Boolean = true,
     val privateSettings: Boolean = false,
     val extensions: Boolean = false,
+    val seenEntries: Boolean = true,
+    val customInfo: Boolean = false,
 ) {
 
     fun asBooleanArray() = booleanArrayOf(
@@ -32,6 +34,8 @@ data class BackupOptions(
         sourceSettings,
         privateSettings,
         extensions,
+        seenEntries,
+        customInfo,
     )
 
     fun canCreate() = libraryEntries ||
@@ -73,8 +77,14 @@ data class BackupOptions(
             ),
             Entry(
                 label = MR.strings.non_library_settings,
-                getter = BackupOptions::readEntries,
-                setter = { options, enabled -> options.copy(readEntries = enabled) },
+                getter = BackupOptions::seenEntries,
+                setter = { options, enabled -> options.copy(seenEntries = enabled) },
+                enabled = { it.libraryEntries },
+            ),
+            Entry(
+                label = MR.strings.custom_entry_info,
+                getter = BackupOptions::customInfo,
+                setter = { options, enabled -> options.copy(customInfo = enabled) },
                 enabled = { it.libraryEntries },
             ),
         )
@@ -129,6 +139,8 @@ data class BackupOptions(
             sourceSettings = array[9],
             privateSettings = array[10],
             extensions = array[11],
+            seenEntries = array.getOrElse(12) { true },
+            customInfo = array.getOrElse(13) { false },
         )
     }
 

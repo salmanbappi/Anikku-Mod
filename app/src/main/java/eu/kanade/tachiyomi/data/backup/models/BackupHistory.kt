@@ -7,8 +7,8 @@ import java.util.Date
 
 @Serializable
 data class BackupHistory(
-    @ProtoNumber(1) var url: String,
-    @ProtoNumber(2) var lastRead: Long,
+    @ProtoNumber(1) var url: String = "",
+    @ProtoNumber(2) var lastRead: Long = 0,
     @ProtoNumber(3) var readDuration: Long = 0,
 ) {
     fun getHistoryImpl(): History {

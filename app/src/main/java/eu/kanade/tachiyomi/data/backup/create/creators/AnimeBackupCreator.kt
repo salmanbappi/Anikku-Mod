@@ -76,6 +76,7 @@ class AnimeBackupCreator(
 
 private fun Anime.toBackupAnime() =
     BackupAnime(
+        id = this.id,
         url = this.url,
         title = this.title,
         artist = this.artist,
