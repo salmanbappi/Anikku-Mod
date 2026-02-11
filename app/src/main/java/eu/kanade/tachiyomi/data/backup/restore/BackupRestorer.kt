@@ -72,12 +72,17 @@ class BackupRestorer(
     private suspend fun restoreFromFile(uri: Uri, options: RestoreOptions) {
         val backup = BackupDecoder(context).decode(uri)
 
+        // SY -->
+        val backupAnime = backup.backupAnime + backup.backupManga
+        val backupAnimeCategories = backup.backupAnimeCategories + backup.backupCategories
+        // SY <--
+
         // Store source mapping for error messages
         val backupAnimeMaps = backup.backupSources
         animeSourceMapping = backupAnimeMaps.associate { it.sourceId to it.name }
 
         if (options.libraryEntries) {
-            restoreAmount += backup.backupAnime.size
+            restoreAmount += backupAnime.size
         }
         if (options.categories) {
             restoreAmount += 2 // +2 for anime and manga categories
@@ -101,7 +106,7 @@ class BackupRestorer(
         coroutineScope {
             if (options.categories) {
                 restoreCategories(
-                    backupAnimeCategories = backup.backupAnimeCategories,
+                    backupAnimeCategories = backupAnimeCategories,
                 )
             }
             if (options.appSettings) {
@@ -111,7 +116,7 @@ class BackupRestorer(
                 restoreSourcePreferences(backup.backupSourcePreferences)
             }
             if (options.libraryEntries) {
-                restoreAnime(backup.backupAnime, if (options.categories) backup.backupAnimeCategories else emptyList())
+                restoreAnime(backupAnime, if (options.categories) backupAnimeCategories else emptyList())
             }
             if (options.extensionRepoSettings) {
                 restoreExtensionRepos(backup.backupAnimeExtensionRepo)
