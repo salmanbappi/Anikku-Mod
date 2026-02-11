@@ -17,7 +17,7 @@ import kotlinx.serialization.json.JsonElement
 const val RICH_PRESENCE_TAG = "discord_rpc"
 
 // Constant for application id
-private const val RICH_PRESENCE_APPLICATION_ID = "1173423931865170070"
+private const val RICH_PRESENCE_APPLICATION_ID = "1471263338934566972"
 
 const val DOWNLOAD_BUTTON_LABEL = "Download"
 const val DOWNLOAD_BUTTON_URL = "https://github.com/salmanbappi/Anikku-Mod/releases/latest"
@@ -189,16 +189,16 @@ enum class DiscordScreen(
 
 // Constants for standard Rich Presence image urls
 // change the image Urls used here to match animetail brown/ green theme, Luft
-private const val ANIMETAIL_IMAGE_URL = "emojis/1286834441981005824.webp?quality=lossless"
-private const val ANIMETAIL_PREVIEW_IMAGE_URL = "emojis/1286834519533420544.webp?quality=lossless"
+private const val ANIMETAIL_IMAGE_URL = "1770846946527"
+private const val ANIMETAIL_PREVIEW_IMAGE_URL = "1770846946527"
 private val ANIMETAIL_IMAGE = if (isPreviewBuildType) ANIMETAIL_PREVIEW_IMAGE_URL else ANIMETAIL_IMAGE_URL
-private const val LIBRARY_IMAGE_URL = "emojis/1235353629867638924.webp?quality=lossless"
-private const val UPDATES_IMAGE_URL = "emojis/1235354596570955917.webp?quality=lossless"
-private const val HISTORY_IMAGE_URL = "emojis/1235354299089817671.webp?quality=lossless"
-private const val BROWSE_IMAGE_URL = "emojis/1235354864419344455.webp?quality=lossless"
-private const val MORE_IMAGE_URL = "emojis/1235355169752088706.webp?quality=lossless"
-private const val WEBVIEW_IMAGE_URL = "emojis/1235355362169851996.webp?quality=lossless"
-private const val VIDEO_IMAGE_URL = "emojis/1235355607201218660.webp?quality=lossless"
-private const val MANGA_IMAGE_URL = "emojis/1235355804274659390.webp?quality=lossless"
+private const val LIBRARY_IMAGE_URL = "1770846946527"
+private const val UPDATES_IMAGE_URL = "1770846946527"
+private const val HISTORY_IMAGE_URL = "1770846946527"
+private const val BROWSE_IMAGE_URL = "1770846946527"
+private const val MORE_IMAGE_URL = "1770846946527"
+private const val WEBVIEW_IMAGE_URL = "1770846946527"
+private const val VIDEO_IMAGE_URL = "1770846946527"
+private const val MANGA_IMAGE_URL = "1770846946527"
 
 // <-- AM (DISCORD)

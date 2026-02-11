@@ -128,7 +128,7 @@ class DiscordRPCService : Service() {
                     value
                 }
             }
-        private const val RICH_PRESENCE_APPLICATION_ID = "1173423931865170070"
+        private const val RICH_PRESENCE_APPLICATION_ID = "1471263338934566972"
         private const val MP_PREFIX = "mp:"
         private const val EXTERNAL_PREFIX = "external/"
         private val json = Json {
@@ -214,8 +214,8 @@ class DiscordRPCService : Service() {
                     type = 3,
                     timestamps = timestamps,
                     assets = Activity.Assets(
-                        largeImage = "$MP_PREFIX$imageUrl",
-                        smallImage = "$MP_PREFIX${DiscordScreen.APP.imageUrl}",
+                        largeImage = imageUrl,
+                        smallImage = DiscordScreen.APP.imageUrl,
                         smallText = context.getString(DiscordScreen.APP.text),
                     ),
                     buttons = buttons,
@@ -277,8 +277,8 @@ class DiscordRPCService : Service() {
                     type = 3,
                     timestamps = Activity.Timestamps(start = sinceTime),
                     assets = Activity.Assets(
-                        largeImage = "$MP_PREFIX$imageUrl",
-                        smallImage = "$MP_PREFIX${DiscordScreen.APP.imageUrl}",
+                        largeImage = imageUrl,
+                        smallImage = DiscordScreen.APP.imageUrl,
                         smallText = context.getString(DiscordScreen.APP.text),
                     ),
                     buttons = buttons,
