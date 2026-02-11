@@ -292,9 +292,6 @@ class DiscordRPCService : Service() {
 
         private fun String.fixDiscordImage(): String {
             if (this.startsWith(MP_PREFIX)) return this
-            // If it's a numeric ID or the 'AniZen' portal asset, don't add mp:
-            if (this.toLongOrNull() != null || this == "AniZen") return this
-            // Otherwise add it (for external proxied URLs)
             return "$MP_PREFIX$this"
         }
 
