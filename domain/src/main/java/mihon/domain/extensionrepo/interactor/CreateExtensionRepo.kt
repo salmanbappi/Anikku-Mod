@@ -71,7 +71,7 @@ class CreateExtensionRepo(
     }
 
     companion object {
-        const val OFFICIAL_REPO_WEBSITE = "https://github.com/salmanbappi/Anikku-Mod"
+        const val OFFICIAL_REPO_WEBSITE = "https://github.com/salmanbappi/AniZen"
         const val OFFICIAL_REPO_BASE_URL = "https://raw.githubusercontent.com/anikku-app/extensions/repo"
 
         // cuong-tran's key

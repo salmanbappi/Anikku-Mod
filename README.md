@@ -50,9 +50,9 @@ A granular, card-based UI allows you to adjust **Sharpen, Blur, Grain, and Deban
 
 ## 📥 Downloads
 
-[**Download Latest Releases**](https://github.com/salmanbappi/Anikku-Mod/releases)
+[**Download Latest Releases**](https://github.com/salmanbappi/AniZen/releases)
 
-For experimental updates, check the [**Actions Tab**](https://github.com/salmanbappi/Anikku-Mod/actions) for the latest successful build.
+For experimental updates, check the [**Actions Tab**](https://github.com/salmanbappi/AniZen/actions) for the latest successful build.
 
 ---
 

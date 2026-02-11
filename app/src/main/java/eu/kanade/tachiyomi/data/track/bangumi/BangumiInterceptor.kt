@@ -35,7 +35,7 @@ class BangumiInterceptor(private val bangumi: Bangumi) : Interceptor {
         return originalRequest.newBuilder()
             .header(
                 "User-Agent",
-                "salmanbappi/Anikku-Mod/v${BuildConfig.VERSION_NAME} (Android) (https://github.com/salmanbappi/Anikku-Mod)",
+                "salmanbappi/AniZen/v${BuildConfig.VERSION_NAME} (Android) (https://github.com/salmanbappi/AniZen)",
             )
             .apply {
                 if (originalRequest.method == "GET") {

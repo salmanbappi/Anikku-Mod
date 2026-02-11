@@ -250,7 +250,7 @@ object AboutScreen : Screen() {
                             subtitle = "Source code",
                             icon = CustomIcons.Github,
                             iconTint = MaterialTheme.colorScheme.onSurface,
-                            onClick = { uriHandler.openUri("https://github.com/salmanbappi/Anikku-Mod") }
+                            onClick = { uriHandler.openUri("https://github.com/salmanbappi/AniZen") }
                         )
                     }
                 }
