@@ -38,20 +38,34 @@ data class BackupAnime(
     @ProtoNumber(105) var updateStrategy: UpdateStrategy = UpdateStrategy.ALWAYS_UPDATE,
     @ProtoNumber(106) var lastModifiedAt: Long = 0,
     @ProtoNumber(107) var favoriteModifiedAt: Long? = null,
+    // Mihon values start here
     @ProtoNumber(109) var version: Long = 0,
+    @ProtoNumber(110) var notes: String = "",
+    @ProtoNumber(111) var initialized: Boolean = false,
 
-    @ProtoNumber(500) var id: Long = 0,
-    @ProtoNumber(501) var parentId: Long = 0,
+    // AM (CUSTOM_INFORMATION) -->
+    // Bump values by 200
+    @ProtoNumber(200) var customStatus: Int = 0,
+    @ProtoNumber(201) var customTitle: String? = null,
+    @ProtoNumber(202) var customArtist: String? = null,
+    @ProtoNumber(203) var customAuthor: String? = null,
+    @ProtoNumber(204) var customDescription: String? = null,
+    @ProtoNumber(205) var customGenre: List<String>? = null,
+    // <-- AM (CUSTOM_INFORMATION)
 
-    @ProtoNumber(602) var customStatus: Int = 0,
+    // AY -->
+    // Aniyomi specific values
+    @ProtoNumber(500) var backgroundUrl: String? = null,
+    @ProtoNumber(502) var parentId: Long? = null,
+    @ProtoNumber(503) var id: Long? = null, // Used to associate seasons with parents.
+    // <-- AY
 
-    // J2K specific values
-    @ProtoNumber(800) var customTitle: String? = null,
-    @ProtoNumber(801) var customArtist: String? = null,
-    @ProtoNumber(802) var customAuthor: String? = null,
-    // skipping 803 due to using duplicate value in previous builds
-    @ProtoNumber(804) var customDescription: String? = null,
-    @ProtoNumber(805) var customGenre: List<String>? = null,
+    // J2K specific values (kept for compatibility)
+    @ProtoNumber(800) var customTitleJ2K: String? = null,
+    @ProtoNumber(801) var customArtistJ2K: String? = null,
+    @ProtoNumber(802) var customAuthorJ2K: String? = null,
+    @ProtoNumber(804) var customDescriptionJ2K: String? = null,
+    @ProtoNumber(805) var customGenreJ2K: List<String>? = null,
 ) {
     fun getAnimeImpl(): Anime {
         return Anime.create().copy(
@@ -80,21 +94,28 @@ data class BackupAnime(
     // SY -->
     @Suppress("ComplexCondition")
     fun getCustomAnimeInfo(): CustomAnimeInfo? {
-        if (customTitle != null ||
-            customArtist != null ||
-            customAuthor != null ||
-            customDescription != null ||
-            customGenre != null ||
-            customStatus != 0
+        val title = customTitle ?: customTitleJ2K
+        val author = customAuthor ?: customAuthorJ2K
+        val artist = customArtist ?: customArtistJ2K
+        val description = customDescription ?: customDescriptionJ2K
+        val genre = customGenre ?: customGenreJ2K
+        val status = customStatus.takeUnless { it == 0 }?.toLong()
+
+        if (title != null ||
+            artist != null ||
+            author != null ||
+            description != null ||
+            genre != null ||
+            status != null
         ) {
             return CustomAnimeInfo(
                 id = 0L,
-                title = customTitle,
-                author = customAuthor,
-                artist = customArtist,
-                description = customDescription,
-                genre = customGenre,
-                status = customStatus.takeUnless { it == 0 }?.toLong(),
+                title = title,
+                author = author,
+                artist = artist,
+                description = description,
+                genre = genre,
+                status = status,
             )
         }
         return null

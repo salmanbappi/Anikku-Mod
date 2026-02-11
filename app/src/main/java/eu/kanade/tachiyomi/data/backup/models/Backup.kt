@@ -7,6 +7,7 @@ import kotlinx.serialization.protobuf.ProtoNumber
 data class LegacyBackup(
     @ProtoNumber(3) val backupAnime: List<BackupAnime>,
     @ProtoNumber(4) var backupCategories: List<BackupCategory> = emptyList(),
+    // @ProtoNumber(100) var backupBrokenSources, legacy source model with non-compliant proto number,
     @ProtoNumber(103) var backupSources: List<BackupSource> = emptyList(),
     @ProtoNumber(104) var backupPreferences: List<BackupPreference> = emptyList(),
     @ProtoNumber(105) var backupSourcePreferences: List<BackupSourcePreferences> = emptyList(),

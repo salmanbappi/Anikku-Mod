@@ -1,20 +1,35 @@
 package eu.kanade.tachiyomi.data.backup
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.protobuf.ProtoBuf
+import kotlinx.serialization.protobuf.ProtoNumber
+
 object BackupDetector {
+    @Serializable
+    data class BackupDetector(
+        @ProtoNumber(103) val backupSources: List<DetectSource> = emptyList(),
+        @ProtoNumber(500) val isLegacy: Boolean = true,
+    ) {
+        @Serializable
+        data class DetectSource(
+            @ProtoNumber(1) val name: String = "",
+            @ProtoNumber(2) val sourceId: Long,
+        )
+    }
+
     /**
-     * Check if the backup is a legacy format (e.g. from older Aniyomi/Animiru versions).
-     * Legacy backups often have anime at field 3, while modern ones use 501.
+     * Try to guess if the backup is an old aniyomi/animiru backup.
+     *
+     * Returns true if it's (probably) an old aniyomi/animiru backup, or false if it's a
+     * new aniyomi/animiru backup.
      */
     fun isLegacyBackup(bytes: ByteArray): Boolean {
-        // Very basic heuristic: check if any of the first few hundred bytes match the tag for ID 3 (0x1A)
-        // or ID 1 (0x0A - manga). Modern backups would have ID 501 (0xAA 0x1F) or 500.
-        // For simplicity, we can also just try to decode a small portion or check the header.
-        // A more robust way is to check for the absence of field 500/501 tags.
-        
-        // Let's check the first 100 bytes for 0x1A (ID 3) or 0x0A (ID 1)
-        for (i in 0 until minOf(bytes.size, 100)) {
-            if (bytes[i].toInt() == 0x1A || bytes[i].toInt() == 0x0A) return true
+        return try {
+            val detect = ProtoBuf.decodeFromByteArray(BackupDetector.serializer(), bytes)
+            detect.isLegacy && detect.backupSources.isNotEmpty()
+        } catch (_: SerializationException) {
+            false
         }
-        return false
     }
 }
