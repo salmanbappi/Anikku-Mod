@@ -59,18 +59,20 @@ fun LibraryContent(
             end = contentPadding.calculateEndPadding(LocalLayoutDirection.current),
         ),
     ) {
-        val coercedCurrentPage = remember { currentPage().coerceAtMost(categories.lastIndex) }
-        val pagerState = rememberPagerState(coercedCurrentPage) { categories.size }
+        val pagerState = rememberPagerState(
+            initialPage = remember(categories) { currentPage().coerceAtMost(categories.lastIndex.coerceAtLeast(0)) },
+        ) { categories.size }
 
         val scope = rememberCoroutineScope()
         var isRefreshing by remember(pagerState.currentPage) { mutableStateOf(false) }
 
-        if (showPageTabs && categories.size > 1) {
-            LaunchedEffect(categories) {
-                if (categories.size <= pagerState.currentPage) {
-                    pagerState.scrollToPage(categories.size - 1)
-                }
+        LaunchedEffect(categories.size) {
+            if (pagerState.currentPage >= categories.size && categories.isNotEmpty()) {
+                pagerState.scrollToPage(categories.lastIndex)
             }
+        }
+
+        if (showPageTabs && categories.size > 1) {
             LibraryTabs(
                 categories = categories,
                 pagerState = pagerState,

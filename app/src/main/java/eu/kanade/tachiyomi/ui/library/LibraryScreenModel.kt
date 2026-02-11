@@ -331,10 +331,11 @@ class LibraryScreenModel(
             }
         }
 
+        val keys = this.keys
         fun LibrarySort.comparator(): Comparator<LibraryItem> = Comparator { i1, i2 ->
             // SY -->
             // Use groupSort when provided, otherwise use the sort from the category
-            val sort = groupSort ?: keys.find { it.id == i1.libraryAnime.category }!!.sort
+            val sort = groupSort ?: keys.find { it.id == i1.libraryAnime.category }?.sort ?: LibrarySort.default
             // SY <--
             when (sort.type) {
                 LibrarySort.Type.Alphabetical -> {
@@ -977,7 +978,13 @@ class LibraryScreenModel(
                 val groupedEntries = bigGroups.flatMap { it.second }
                 val defaultGroupEntries = defaultGroups.flatMap { it.second }.distinct().filterNot { it in groupedEntries }
 
-                (bigGroups + (defaultTag to defaultGroupEntries)).toMap().mapKeys { (genre, _) ->
+                val finalGroups = if (defaultGroupEntries.isNotEmpty()) {
+                    bigGroups + (defaultTag to defaultGroupEntries)
+                } else {
+                    bigGroups
+                }
+
+                finalGroups.toMap().mapKeys { (genre, _) ->
                     Category(
                         id = genre.hashCode().toLong(),
                         name = genre,
@@ -1019,7 +1026,7 @@ class LibraryScreenModel(
                 }
             }
             else -> emptyMap()
-        }.toSortedMap(compareBy { it.order })
+        }.filterValues { it.isNotEmpty() }.toSortedMap(compareBy { it.order })
     }
 
     @Immutable
