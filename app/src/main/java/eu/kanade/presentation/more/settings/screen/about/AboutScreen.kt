@@ -121,35 +121,33 @@ object AboutScreen : Screen() {
                             },
                         )
 
-                        if (updaterEnabled) {
-                            MoreItem(
-                                title = stringResource(MR.strings.check_for_updates),
-                                subtitle = if (isCheckingUpdates) "Checking..." else null,
-                                onClick = {
-                                    if (!isCheckingUpdates) {
-                                        scope.launch {
-                                            isCheckingUpdates = true
+                        MoreItem(
+                            title = stringResource(MR.strings.check_for_updates),
+                            subtitle = if (isCheckingUpdates) "Checking..." else null,
+                            onClick = {
+                                if (!isCheckingUpdates) {
+                                    scope.launch {
+                                        isCheckingUpdates = true
 
-                                            checkVersion(
-                                                context = context,
-                                                onAvailableUpdate = { result ->
-                                                    val updateScreen = NewUpdateScreen(
-                                                        versionName = result.release.version,
-                                                        changelogInfo = result.release.info,
-                                                        releaseLink = result.release.releaseLink,
-                                                        downloadLink = result.release.getDownloadLink(),
-                                                    )
-                                                    navigator.push(updateScreen)
-                                                },
-                                                onFinish = {
-                                                    isCheckingUpdates = false
-                                                },
-                                            )
-                                        }
+                                        checkVersion(
+                                            context = context,
+                                            onAvailableUpdate = { result ->
+                                                val updateScreen = NewUpdateScreen(
+                                                    versionName = result.release.version,
+                                                    changelogInfo = result.release.info,
+                                                    releaseLink = result.release.releaseLink,
+                                                    downloadLink = result.release.getDownloadLink(),
+                                                )
+                                                navigator.push(updateScreen)
+                                            },
+                                            onFinish = {
+                                                isCheckingUpdates = false
+                                            },
+                                        )
                                     }
-                                },
-                            )
-                        }
+                                }
+                            },
+                        )
 
                         // KMK -->
                         MoreItem(
