@@ -39,7 +39,7 @@ class BackupFileValidator(
             .distinct()
             .sorted()
 
-        val animeTrackers = backup.backupAnime
+        val animeTrackers = (backup.backupAnime + backup.backupManga)
             .flatMap { it.tracking }
             .map { it.syncId }
         val trackers = animeTrackers.distinct()
