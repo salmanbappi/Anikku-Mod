@@ -49,11 +49,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.collectAsState
+import eu.kanade.domain.ui.UiPreferences
 import eu.kanade.presentation.anime.components.AnimeCover
+import eu.kanade.presentation.anime.components.RatioSwitchToPanorama
+import eu.kanade.tachiyomi.util.system.CoverColorObserver
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.BadgeGroup
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.selectedBackground
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
 import tachiyomi.domain.anime.model.AnimeCover as EntryCoverModel
 
 object CommonAnimeItemDefaults {
@@ -96,15 +102,18 @@ fun AnimeCompactGridItem(
         onClick = onClick,
         onLongClick = onLongClick,
     ) {
+        val ratio = AnimeCover.getRatio(coverData.animeId)
         AnimeGridCover(
             cover = {
                 AnimeCover.Book(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .aspectRatio(ratio)
                         .graphicsLayer { alpha = if (isSelected) GRID_SELECTED_COVER_ALPHA else coverAlpha },
                     data = coverData,
                 )
             },
+            ratio = ratio,
             badgesStart = coverBadgeStart,
             badgesEnd = coverBadgeEnd,
             content = {
@@ -202,16 +211,19 @@ fun AnimeComfortableGridItem(
         onClick = onClick,
         onLongClick = onLongClick,
     ) {
+        val ratio = AnimeCover.getRatio(coverData.animeId)
         Column {
             AnimeGridCover(
                 cover = {
                     AnimeCover.Book(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .aspectRatio(ratio)
                             .graphicsLayer { alpha = if (isSelected) GRID_SELECTED_COVER_ALPHA else coverAlpha },
                         data = coverData,
                     )
                 },
+                ratio = ratio,
                 badgesStart = coverBadgeStart,
                 badgesEnd = coverBadgeEnd,
                 content = {
@@ -244,6 +256,7 @@ fun AnimeComfortableGridItem(
 @Composable
 private fun AnimeGridCover(
     modifier: Modifier = Modifier,
+    ratio: Float = AnimeCover.Book.ratio,
     cover: @Composable BoxScope.() -> Unit = {},
     badgesStart: (@Composable RowScope.() -> Unit)? = null,
     badgesEnd: (@Composable RowScope.() -> Unit)? = null,
@@ -252,7 +265,7 @@ private fun AnimeGridCover(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .aspectRatio(AnimeCover.Book.ratio),
+            .aspectRatio(ratio),
     ) {
         cover()
         content?.invoke(this)
@@ -406,9 +419,11 @@ fun AnimeListItem(
             .padding(horizontal = 16.dp, vertical = 3.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        val ratio = AnimeCover.getRatio(coverData.animeId)
         AnimeCover.Book(
             modifier = Modifier
                 .fillMaxHeight()
+                .aspectRatio(ratio)
                 .graphicsLayer { alpha = coverAlpha },
             data = coverData,
         )

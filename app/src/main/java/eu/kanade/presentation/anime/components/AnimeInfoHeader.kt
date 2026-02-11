@@ -96,6 +96,10 @@ import eu.kanade.tachiyomi.source.model.SAnime
 import eu.kanade.tachiyomi.ui.anime.track.TrackItem
 import eu.kanade.tachiyomi.util.system.copyToClipboard
 import eu.kanade.tachiyomi.util.system.toast
+import eu.kanade.domain.ui.UiPreferences
+import eu.kanade.presentation.anime.components.AnimeCover
+import eu.kanade.presentation.anime.components.RatioSwitchToPanorama
+import eu.kanade.tachiyomi.util.system.CoverColorObserver
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.anime.model.asAnimeCover
 import tachiyomi.i18n.MR
@@ -371,10 +375,11 @@ private fun AnimeAndSourceTitlesLarge(
         horizontalArrangement = Arrangement.spacedBy(24.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        val ratio = AnimeCover.getRatio(anime.id)
         AnimeCover.Book(
             modifier = Modifier
                 .width(160.dp)
-                .aspectRatio(AnimeCover.Book.ratio),
+                .aspectRatio(ratio),
             data = anime.asAnimeCover(),
             contentDescription = stringResource(MR.strings.manga_cover),
             onClick = onCoverClick,
@@ -415,10 +420,11 @@ private fun AnimeAndSourceTitlesSmall(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        val ratio = AnimeCover.getRatio(anime.id)
         AnimeCover.Book(
             modifier = Modifier
                 .width(100.dp)
-                .aspectRatio(AnimeCover.Book.ratio),
+                .aspectRatio(ratio),
             data = anime.asAnimeCover(),
             contentDescription = stringResource(MR.strings.manga_cover),
             onClick = onCoverClick,

@@ -35,6 +35,10 @@ object CoverColorExtractor {
             }
         }
 
+        val ratio = bitmap.width.toFloat() / bitmap.height.toFloat()
+        cover.ratio = ratio
+        CoverColorObserver.updateRatio(cover.animeId, ratio)
+
         if (cover.vibrantCoverColor != null) return@withContext
 
         Palette.from(bitmap).generate { palette ->

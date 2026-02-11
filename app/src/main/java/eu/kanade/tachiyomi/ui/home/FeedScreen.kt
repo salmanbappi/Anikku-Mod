@@ -152,10 +152,11 @@ private fun FeedCard(
         modifier = Modifier.width(100.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
+        val ratio = AnimeCover.getRatio(anime.id)
         AnimeCover.Book(
             data = anime,
             onClick = onClick,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().aspectRatio(ratio)
         )
         Text(
             text = anime.title,

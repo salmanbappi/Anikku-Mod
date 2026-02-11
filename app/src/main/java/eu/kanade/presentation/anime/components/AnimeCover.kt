@@ -36,6 +36,10 @@ import coil3.compose.AsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import eu.kanade.tachiyomi.R
+import eu.kanade.domain.ui.UiPreferences
+import eu.kanade.tachiyomi.util.system.CoverColorObserver
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.anime.model.asAnimeCover
 import tachiyomi.domain.anime.model.AnimeCover as DomainMangaCover
@@ -170,6 +174,16 @@ enum class AnimeCover(val ratio: Float) {
         val COVER_TEMPLATE_SIZE_BIG = 16.dp
         val COVER_TEMPLATE_SIZE_MEDIUM = 24.dp
         val COVER_TEMPLATE_SIZE_NORMAL = 32.dp
+
+        @Composable
+        fun getRatio(animeId: Long): Float {
+            val uiPreferences = remember { Injekt.get<UiPreferences>() }
+            val usePanorama by uiPreferences.panoramaCover().collectAsState()
+            if (!usePanorama) return Book.ratio
+            val ratios by CoverColorObserver.ratios.collectAsState()
+            val ratio = ratios[animeId] ?: Book.ratio
+            return if (ratio > RatioSwitchToPanorama) Panorama.ratio else Book.ratio
+        }
     }
 }
 
