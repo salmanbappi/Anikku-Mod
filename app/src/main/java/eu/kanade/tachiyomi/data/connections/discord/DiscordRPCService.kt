@@ -208,6 +208,7 @@ class DiscordRPCService : Service() {
 
             rpc!!.updateRPC(
                 activity = Activity(
+                    applicationId = RICH_PRESENCE_APPLICATION_ID,
                     name = name,
                     details = details,
                     state = state,
@@ -271,6 +272,7 @@ class DiscordRPCService : Service() {
 
             rpc!!.updateRPC(
                 activity = Activity(
+                    applicationId = RICH_PRESENCE_APPLICATION_ID,
                     name = name,
                     details = details,
                     state = state,
