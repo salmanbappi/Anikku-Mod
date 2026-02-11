@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import tachiyomi.domain.anime.model.Anime
+import tachiyomi.domain.anime.model.asAnimeCover
 import tachiyomi.presentation.core.components.material.padding
 
 @Composable
