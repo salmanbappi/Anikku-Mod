@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -152,11 +153,11 @@ private fun FeedCard(
         modifier = Modifier.width(100.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        val ratio = AnimeCover.getRatio(anime.id)
-        AnimeCover.Book(
+        val entry = AnimeCover.getEntry(anime.id)
+        entry(
             data = anime,
             onClick = onClick,
-            modifier = Modifier.fillMaxWidth().aspectRatio(ratio)
+            modifier = Modifier.fillMaxWidth()
         )
         Text(
             text = anime.title,

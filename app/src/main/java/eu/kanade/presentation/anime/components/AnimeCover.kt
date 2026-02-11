@@ -13,7 +13,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.collectAsState as collectAsStateFlow
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +35,7 @@ import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import tachiyomi.presentation.core.util.collectAsState as collectAsStatePref
 import eu.kanade.tachiyomi.R
 import eu.kanade.domain.ui.UiPreferences
 import eu.kanade.tachiyomi.util.system.CoverColorObserver
@@ -177,12 +178,17 @@ enum class AnimeCover(val ratio: Float) {
 
         @Composable
         fun getRatio(animeId: Long): Float {
+            return getEntry(animeId).ratio
+        }
+
+        @Composable
+        fun getEntry(animeId: Long): AnimeCover {
             val uiPreferences = remember { Injekt.get<UiPreferences>() }
-            val usePanorama by uiPreferences.panoramaCover().collectAsState()
-            if (!usePanorama) return Book.ratio
-            val ratios by CoverColorObserver.ratios.collectAsState()
+            val usePanorama = uiPreferences.panoramaCover().collectAsStatePref().value
+            if (!usePanorama) return Book
+            val ratios = CoverColorObserver.ratios.collectAsStateFlow().value
             val ratio = ratios[animeId] ?: Book.ratio
-            return if (ratio > RatioSwitchToPanorama) Panorama.ratio else Book.ratio
+            return if (ratio > RatioSwitchToPanorama) Panorama else Book
         }
     }
 }
