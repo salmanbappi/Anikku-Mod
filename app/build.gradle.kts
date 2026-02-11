@@ -24,6 +24,7 @@ if (Config.includeTelemetry && file("google-services.json").exists()) {
 
 
 
+
     android {
 
         namespace = "eu.kanade.tachiyomi"
@@ -34,7 +35,7 @@ if (Config.includeTelemetry && file("google-services.json").exists()) {
 
             create("release") {
 
-                storeFile = file("anikku-mod.jks")
+                storeFile = file("anizen.jks")
 
                 storePassword = "salman2005"
 
@@ -54,7 +55,7 @@ if (Config.includeTelemetry && file("google-services.json").exists()) {
         applicationId = "app.anizen"
 
         versionCode = 297
-        versionName = "0.1.298-MOD"
+        versionName = "0.1.298"
 
         manifestPlaceholders["author"] = "@salmanbappi"
 
@@ -232,10 +233,10 @@ dependencies {
     // KMK -->
     implementation(projects.i18nKmk)
     implementation(projects.i18nAnk)
-    // KMK <--
+    // KMK <-
     // SY -->
     implementation(projects.i18nSy)
-    // SY <--
+    // SY <-
     implementation(projects.core.archive)
     implementation(projects.core.common)
     implementation(projects.coreMetadata)
@@ -267,7 +268,7 @@ dependencies {
     implementation(libs.bundles.sqlite)
     // SY -->
     implementation(sylibs.sqlcipher)
-    // SY <--
+    // SY <-
 
     implementation(kotlinx.reflect)
     implementation(kotlinx.immutables)
@@ -349,7 +350,7 @@ dependencies {
     implementation(libs.haze)
     implementation(compose.colorpicker)
     implementation(projects.flagkit)
-    // KMK <--
+    // KMK <-
 
     // Logging
     implementation(libs.timber)

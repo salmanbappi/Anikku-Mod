@@ -6,10 +6,10 @@ GRADLE_FILE="app/build.gradle.kts"
 CURRENT_VC=$(grep "versionCode =" $GRADLE_FILE | sed 's/[^0-9]*//g')
 NEW_VC=$((CURRENT_VC + 1))
 
-# Extract current versionName (e.g., 0.1.8-MOD)
-CURRENT_VN=$(grep "versionName =" $GRADLE_FILE | cut -d'"' -f2)
+# Extract current versionName (e.g., 0.1.8)
+current_version=$(grep "versionName =" app/build.gradle.kts | sed 's/.*"\(.*\)".*/\1/')
 
-# Logic to bump versionName: increment the last digit of the semantic version part
+# Assumes format like X.Y.Z
 # Assumes format like X.Y.Z-MOD
 BASE_VN=$(echo $CURRENT_VN | cut -d'-' -f1)
 SUFFIX=$(echo $CURRENT_VN | cut -d'-' -f2-)
