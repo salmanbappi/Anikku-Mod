@@ -2,7 +2,9 @@ package eu.kanade.tachiyomi.data.backup.full.models
 
 import eu.kanade.tachiyomi.data.backup.models.BackupAnime
 import eu.kanade.tachiyomi.data.backup.models.BackupCategory
+import eu.kanade.tachiyomi.data.backup.models.BackupPreference
 import eu.kanade.tachiyomi.data.backup.models.BackupSource
+import eu.kanade.tachiyomi.data.backup.models.BrokenBackupAnimeSource
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.protobuf.ProtoNumber
 
