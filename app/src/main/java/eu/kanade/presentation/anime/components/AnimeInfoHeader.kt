@@ -96,7 +96,6 @@ import eu.kanade.tachiyomi.source.model.SAnime
 import eu.kanade.tachiyomi.ui.anime.track.TrackItem
 import eu.kanade.tachiyomi.util.system.copyToClipboard
 import eu.kanade.tachiyomi.util.system.toast
-import eu.kanade.domain.ui.UiPreferences
 import eu.kanade.presentation.anime.components.AnimeCover
 import eu.kanade.presentation.anime.components.RatioSwitchToPanorama
 import eu.kanade.tachiyomi.util.system.CoverColorObserver
