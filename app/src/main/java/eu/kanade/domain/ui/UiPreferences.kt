@@ -52,6 +52,8 @@ class UiPreferences(
     fun autoExpandAnimeDescription() = preferenceStore.getBoolean("pref_auto_expand_anime_description", false)
 
     fun animeItemSpacing() = preferenceStore.getInt("pref_anime_item_spacing", 24)
+
+    fun panoramaCover() = preferenceStore.getBoolean("pref_panorama_cover", false)
     // SY <--
 
     companion object {

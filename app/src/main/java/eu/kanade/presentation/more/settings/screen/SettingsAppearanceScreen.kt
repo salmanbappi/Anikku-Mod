@@ -197,6 +197,11 @@ object SettingsAppearanceScreen : SearchableSettings {
                     subtitle = "Adapts app colors to the current manga cover",
                 ),
                 Preference.PreferenceItem.SwitchPreference(
+                    pref = uiPreferences.panoramaCover(),
+                    title = stringResource(KMR.strings.pref_panorama_cover),
+                    subtitle = stringResource(KMR.strings.pref_panorama_cover_summary),
+                ),
+                Preference.PreferenceItem.SwitchPreference(
                     pref = uiPreferences.autoExpandAnimeDescription(),
                     title = "Auto-expand details",
                     subtitle = "Expand anime description by default",
