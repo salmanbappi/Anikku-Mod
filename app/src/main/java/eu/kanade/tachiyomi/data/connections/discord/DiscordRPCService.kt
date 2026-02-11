@@ -214,8 +214,8 @@ class DiscordRPCService : Service() {
                     type = 3,
                     timestamps = timestamps,
                     assets = Activity.Assets(
-                        largeImage = imageUrl,
-                        smallImage = DiscordScreen.APP.imageUrl,
+                        largeImage = "$MP_PREFIX$imageUrl",
+                        smallImage = "$MP_PREFIX${DiscordScreen.APP.imageUrl}",
                         smallText = context.getString(DiscordScreen.APP.text),
                     ),
                     buttons = buttons,
@@ -277,8 +277,8 @@ class DiscordRPCService : Service() {
                     type = 3,
                     timestamps = Activity.Timestamps(start = sinceTime),
                     assets = Activity.Assets(
-                        largeImage = imageUrl,
-                        smallImage = DiscordScreen.APP.imageUrl,
+                        largeImage = "$MP_PREFIX$imageUrl",
+                        smallImage = "$MP_PREFIX${DiscordScreen.APP.imageUrl}",
                         smallText = context.getString(DiscordScreen.APP.text),
                     ),
                     buttons = buttons,
