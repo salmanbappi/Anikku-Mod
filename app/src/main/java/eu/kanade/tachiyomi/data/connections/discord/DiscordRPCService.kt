@@ -214,8 +214,8 @@ class DiscordRPCService : Service() {
                     type = 3,
                     timestamps = timestamps,
                     assets = Activity.Assets(
-                        largeImage = "$MP_PREFIX$imageUrl",
-                        smallImage = "$MP_PREFIX${DiscordScreen.APP.imageUrl}",
+                        largeImage = imageUrl.fixDiscordImage(),
+                        smallImage = DiscordScreen.APP.imageUrl.fixDiscordImage(),
                         smallText = context.getString(DiscordScreen.APP.text),
                     ),
                     buttons = buttons,
@@ -277,8 +277,8 @@ class DiscordRPCService : Service() {
                     type = 3,
                     timestamps = Activity.Timestamps(start = sinceTime),
                     assets = Activity.Assets(
-                        largeImage = "$MP_PREFIX$imageUrl",
-                        smallImage = "$MP_PREFIX${DiscordScreen.APP.imageUrl}",
+                        largeImage = imageUrl.fixDiscordImage(),
+                        smallImage = DiscordScreen.APP.imageUrl.fixDiscordImage(),
                         smallText = context.getString(DiscordScreen.APP.text),
                     ),
                     buttons = buttons,
@@ -286,6 +286,14 @@ class DiscordRPCService : Service() {
                 ),
                 since = since,
             )
+        }
+
+        private fun String.fixDiscordImage(): String {
+            if (this.startsWith(MP_PREFIX)) return this
+            // If it's a numeric ID (portal asset), don't add mp:
+            if (this.toLongOrNull() != null) return this
+            // Otherwise add it
+            return "$MP_PREFIX$this"
         }
 
         @Suppress("SwallowedException", "TooGenericExceptionCaught", "CyclomaticComplexMethod")
