@@ -33,7 +33,7 @@ class MyAnimeListInterceptor(private val myanimelist: MyAnimeList) : Interceptor
         // Add the authorization header to the original request
         val authRequest = originalRequest.newBuilder()
             .addHeader("Authorization", "Bearer ${oauth!!.accessToken}")
-            .header("User-Agent", "Anikku v${BuildConfig.VERSION_NAME} (app.anikku)")
+            .header("User-Agent", "AniZen v${BuildConfig.VERSION_NAME} (app.anizen)")
             .build()
 
         return chain.proceed(authRequest)

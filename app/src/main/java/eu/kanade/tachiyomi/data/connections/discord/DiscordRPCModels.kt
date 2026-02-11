@@ -20,9 +20,9 @@ const val RICH_PRESENCE_TAG = "discord_rpc"
 private const val RICH_PRESENCE_APPLICATION_ID = "1173423931865170070"
 
 const val DOWNLOAD_BUTTON_LABEL = "Download"
-const val DOWNLOAD_BUTTON_URL = "https://anikku-app.github.io/download/"
+const val DOWNLOAD_BUTTON_URL = "https://github.com/salmanbappi/Anikku-Mod/releases/latest"
 const val DISCORD_BUTTON_LABEL = "Discord"
-const val DISCORD_BUTTON_URL = "https://discord.gg/85jB7V5AJR"
+const val DISCORD_BUTTON_URL = "https://discord.gg/8eQBJuWAY"
 
 @Serializable
 data class Activity(

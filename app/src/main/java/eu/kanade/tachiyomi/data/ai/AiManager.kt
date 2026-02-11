@@ -51,7 +51,7 @@ class AiManager(
 
         val customPrompt = aiPreferences.aiSystemPrompt().get()
         val defaultSystemInstruction = """
-            You are the 'Anikku System Assistant', a senior systems engineer.
+            You are the 'AniZen System Assistant', a senior systems engineer.
             You have access to native diagnostic tools for logs, system maps, and the user's anime library.
             
             OPERATIONAL PROTOCOLS:
@@ -289,7 +289,7 @@ class AiManager(
         return callGroq(finalMessages, apiKey, systemInstruction)
     }
 
-    private fun getDeviceInfo(): String = "Model: ${android.os.Build.MODEL}, SDK: ${android.os.Build.VERSION.SDK_INT}, App: Anikku"
+    private fun getDeviceInfo(): String = "Model: ${android.os.Build.MODEL}, SDK: ${android.os.Build.VERSION.SDK_INT}, App: AniZen"
 
     suspend fun getErrorCount(): Int = withIOContext {
         try {

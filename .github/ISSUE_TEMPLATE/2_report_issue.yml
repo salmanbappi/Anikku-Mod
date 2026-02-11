@@ -47,10 +47,10 @@ body:
         You can upload the crash log file as an attachment, or paste the crash logs in plain text if needed.
 
   - type: input
-    id: anikku-version
+    id: anizen-version
     attributes:
-      label: Anikku version
-      description: You can find your Anikku version in **More → About**.
+      label: AniZen version
+      description: You can find your AniZen version in **More → About**.
       placeholder: |
         Example: "0.1.2"
     validations:
@@ -93,9 +93,9 @@ body:
           required: true
         - label: I have written a short but informative title.
           required: true
-        - label: I have gone through the [FAQ](https://anikku-app.github.io/docs/faq/general) and [troubleshooting guide](https://anikku-app.github.io/docs/guides/troubleshooting/).
+        - label: I have searched the existing issues and discussions in https://github.com/salmanbappi/Anikku-Mod/discussions
           required: true
-        - label: I have updated the app to **[latest version](https://github.com/komikku-app/anikku/releases/latest)**.
+        - label: I have updated the app to **[latest version](https://github.com/salmanbappi/Anikku-Mod/releases/latest)**.
           required: true
         - label: I have filled out all of the requested information in this form, including specific version numbers.
           required: true
@@ -115,4 +115,4 @@ body:
         Add a :+1: [reaction] to [issues you find important].
 
         [reaction]: https://github.blog/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/
-        [issues you find important]: https://github.com/komikku-app/anikku/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc
+        [issues you find important]: https://github.com/salmanbappi/Anikku-Mod/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc

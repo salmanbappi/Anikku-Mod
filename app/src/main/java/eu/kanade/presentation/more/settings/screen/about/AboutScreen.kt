@@ -241,24 +241,18 @@ object AboutScreen : Screen() {
                 item {
                     MoreSection(title = "Links") {
                         MoreItem(
-                            title = stringResource(MR.strings.website),
-                            subtitle = "anikku-app.github.io",
-                            icon = Icons.Outlined.Public,
-                            onClick = { uriHandler.openUri("https://anikku-app.github.io") }
-                        )
-                        MoreItem(
                             title = "Discord",
                             subtitle = "Join our community",
                             icon = CustomIcons.Discord,
                             iconTint = Color(0xFF5865F2),
-                            onClick = { uriHandler.openUri("https://discord.gg/85jB7V5AJR") }
+                            onClick = { uriHandler.openUri("https://discord.gg/8eQBJuWAY") }
                         )
                         MoreItem(
                             title = "GitHub",
                             subtitle = "Source code",
                             icon = CustomIcons.Github,
                             iconTint = MaterialTheme.colorScheme.onSurface,
-                            onClick = { uriHandler.openUri("https://github.com/komikku-app/anikku") }
+                            onClick = { uriHandler.openUri("https://github.com/salmanbappi/Anikku-Mod") }
                         )
                     }
                 }

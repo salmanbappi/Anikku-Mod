@@ -2,4 +2,4 @@
 
 This module houses the string resources and translations.
 
-Original English strings are managed in `src/commonMain/moko-resources/base/`. Translations are done externally via Weblate. See [our website](https://anikku-app.github.io/docs/contribute#translation) for more details. 
+Original English strings are managed in `src/commonMain/moko-resources/base/`. Translations are done externally via Weblate. See [our GitHub](https://github.com/salmanbappi/Anikku-Mod) for more details. 
