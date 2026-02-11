@@ -3,6 +3,7 @@ package eu.kanade.tachiyomi.data.backup.create
 import dev.icerock.moko.resources.StringResource
 import kotlinx.collections.immutable.persistentListOf
 import tachiyomi.i18n.MR
+import tachiyomi.i18n.sy.SYMR
 
 data class BackupOptions(
     val libraryEntries: Boolean = true,
@@ -82,7 +83,7 @@ data class BackupOptions(
                 enabled = { it.libraryEntries },
             ),
             Entry(
-                label = MR.strings.custom_entry_info,
+                label = SYMR.strings.custom_entry_info,
                 getter = BackupOptions::customInfo,
                 setter = { options, enabled -> options.copy(customInfo = enabled) },
                 enabled = { it.libraryEntries },
