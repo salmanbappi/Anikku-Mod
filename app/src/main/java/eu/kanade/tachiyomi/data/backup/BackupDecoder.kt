@@ -5,10 +5,12 @@ import android.net.Uri
 import eu.kanade.tachiyomi.data.backup.models.Backup
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.protobuf.ProtoBuf
+import logcat.LogPriority
 import okio.buffer
 import okio.gzip
 import okio.source
 import tachiyomi.core.common.i18n.stringResource
+import tachiyomi.core.common.util.system.logcat
 import tachiyomi.i18n.MR
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
