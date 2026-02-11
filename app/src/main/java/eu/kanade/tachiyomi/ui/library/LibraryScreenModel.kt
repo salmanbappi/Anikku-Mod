@@ -965,10 +965,15 @@ class LibraryScreenModel(
                 val defaultTag = context.stringResource(SYMR.strings.ungrouped)
                 val tags = libraryAnime.flatMap { it.libraryAnime.anime.genre.orEmpty() }.distinct()
                 val groupedAnime = libraryAnime.flatMap { item ->
-                    item.libraryAnime.anime.genre?.map { it to item } ?: listOf(defaultTag to item)
+                    val genres = item.libraryAnime.anime.genre
+                    if (genres.isNullOrEmpty()) {
+                        listOf(defaultTag to item)
+                    } else {
+                        genres.map { it to item }
+                    }
                 }.groupBy({ it.first }, { it.second }).toList()
 
-                val (bigGroups, defaultGroups) = groupedAnime.partition { (genre, groups) -> genre != defaultTag && groups.size > 3 }
+                val (bigGroups, defaultGroups) = groupedAnime.partition { (genre, groups) -> genre != defaultTag }
                 val groupedEntries = bigGroups.flatMap { it.second }
                 val defaultGroupEntries = defaultGroups.flatMap { it.second }.distinct().filterNot { it in groupedEntries }
 
@@ -982,7 +987,7 @@ class LibraryScreenModel(
                     )
                 }
             }
-            else -> {
+            LibraryGroup.BY_STATUS -> {
                 libraryAnime.groupBy { item ->
                     item.libraryAnime.anime.status
                 }.mapKeys {
@@ -1013,6 +1018,7 @@ class LibraryScreenModel(
                     )
                 }
             }
+            else -> emptyMap()
         }.toSortedMap(compareBy { it.order })
     }
 
