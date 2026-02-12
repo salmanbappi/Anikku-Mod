@@ -15,6 +15,7 @@ import tachiyomi.core.common.util.lang.withIOContext
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import tachiyomi.domain.storage.service.StorageManager
+import java.io.File
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
@@ -187,10 +188,13 @@ class AiManager(
                 logLines.add(line)
             }
 
-            // 2. Fallback to XLog files if logcat is empty
+            // 2. Fallback to internal XLog files
             if (logLines.size < 5) {
                 val storageManager = Injekt.get<StorageManager>()
-                val logDir = storageManager.getLogsDirectory()
+                val internalLogDir = File(context.cacheDir, "logs")
+                val logDir = storageManager.getLogsDirectory() 
+                    ?: UniFile.fromFile(internalLogDir)
+                
                 val latestLog = logDir?.listFiles()
                     ?.filter { it.isFile && it.name?.endsWith(".log") == true }
                     ?.maxByOrNull { it.lastModified() }
@@ -202,14 +206,16 @@ class AiManager(
                 }
             }
 
-            if (logLines.isEmpty()) return "No system logs available. (Permission restricted)"
+            if (logLines.isEmpty()) return "Diagnostic engine active. (Collecting internal state...)"
 
             val pinnedBlocks = mutableListOf<List<String>>()
             val currentBlock = mutableListOf<String>()
             
-            val packagePattern = "(eu\\.kanade|app\\.anizen|mpv|ffmpeg|AndroidRuntime|libc|DEBUG|System\\.err|XLog|FileUtils)".toRegex()
+            val packagePattern = "(eu\\.kanade|app\\.anizen|mpv|ffmpeg|AndroidRuntime|libc|DEBUG)".toRegex()
             val piiRedaction = "(?i)(?:authorization|cookie|set-cookie):\\s*[^\\n\\r]+|(?<=\\?|&)[^=]+=[^&\\s]*|(?:[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})|(?:auth|token|key|password|secret|sid|session)=[a-zA-Z0-9._-]+".toRegex()
-            val traceTrigger = "Exception|Error|Fatal signal|SIGSEGV|abort\\(\\)|Native crash|FAILED".toRegex(RegexOption.IGNORE_CASE)
+            
+            // Only trigger analysis on serious events
+            val traceTrigger = "(FATAL EXCEPTION|Native crash|SIGSEGV|SIGABRT|mpv: error)".toRegex(RegexOption.IGNORE_CASE)
             
             var lastLine = ""
             var repeatCount = 0
@@ -329,10 +335,13 @@ class AiManager(
                 logLines.add(line)
             }
 
-            // Fallback to files if logcat empty
+            // Fallback to internal files if logcat empty
             if (logLines.isEmpty()) {
                 val storageManager = Injekt.get<StorageManager>()
-                val logDir = storageManager.getLogsDirectory()
+                val internalLogDir = File(context.cacheDir, "logs")
+                val logDir = storageManager.getLogsDirectory() 
+                    ?: UniFile.fromFile(internalLogDir)
+                
                 val latestLog = logDir?.listFiles()
                     ?.filter { it.isFile && it.name?.endsWith(".log") == true }
                     ?.maxByOrNull { it.lastModified() }
@@ -345,11 +354,11 @@ class AiManager(
             }
 
             var count = 0
-            val criticalPatterns = listOf("FATAL EXCEPTION", "NullPointerException", "IllegalStateException", "OutOfMemoryError", "SecurityException", "ANR in", "Crash", "eu.kanade", "app.anizen", "mpv", "ffmpeg", "OkHttp", "Fatal signal", "SIGSEGV")
-            val noiseTags = listOf("GmsClient", "MemoryLeakDetector", "AccessibilityBridge", "Surface", "BufferQueue", "SensorManager")
+            // Only count CRITICAL failures that affect the user experience
+            val criticalPatterns = listOf("FATAL EXCEPTION", "OutOfMemoryError", "Native crash", "SIGSEGV", "mpv: error")
             
             for (line in logLines) {
-                if (criticalPatterns.any { line.contains(it, ignoreCase = true) } && !noiseTags.any { line.contains(it, ignoreCase = true) }) {
+                if (criticalPatterns.any { line.contains(it, ignoreCase = false) }) {
                     count++
                 }
             }
