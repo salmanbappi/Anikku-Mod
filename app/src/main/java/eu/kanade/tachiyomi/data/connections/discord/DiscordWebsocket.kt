@@ -99,7 +99,9 @@ open class DiscordWebSocketImpl(
             op = OpCode.PRESENCE_UPDATE.value.toLong(),
             d = presence,
         )
-        webSocket?.send(json.encodeToString(response))
+        val jsonPayload = json.encodeToString(response)
+        log("Payload: $jsonPayload")
+        webSocket?.send(jsonPayload)
     }
 
     inner class Listener : WebSocketListener() {
