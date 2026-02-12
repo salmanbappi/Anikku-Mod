@@ -31,7 +31,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
-import sh.calvin.reorderable.reorderableDragHandle
+import sh.calvin.reorderable.draggableHandle
 import tachiyomi.domain.category.model.Category
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.Scaffold
@@ -98,6 +98,7 @@ fun CategoryScreen(
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
         }
 
+        // Reorderable list
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState,
