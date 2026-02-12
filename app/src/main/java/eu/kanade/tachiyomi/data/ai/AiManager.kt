@@ -5,6 +5,7 @@ import eu.kanade.domain.ai.AiPreferences
 import eu.kanade.tachiyomi.BuildConfig
 import eu.kanade.tachiyomi.extension.ExtensionManager
 import eu.kanade.tachiyomi.network.NetworkHelper
+import com.hippo.unifile.UniFile
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -203,7 +204,7 @@ class AiManager(
                 if (latestLog != null) {
                     try {
                         latestLog.openInputStream().bufferedReader().useLines { lines ->
-                            logLines.addAll(lines.takeLast(500).toList())
+                            logLines.addAll(lines.toList().takeLast(500))
                         }
                     } catch (e: Exception) {
                         logLines.add("Error reading internal log file: ${e.message}")
@@ -265,7 +266,7 @@ class AiManager(
                 pinnedBlocks.takeLast(2).forEach { output.append(it.joinToString("\n")).append("\n---\n") }
             }
             output.append("\n### SYSTEM LOG TAIL:\n")
-            output.append(logLines.takeLast(100).joinToString("\n"))
+            output.append(logLines.toList().takeLast(100).joinToString("\n"))
             output.toString()
         } catch (e: Exception) {
             "Diagnostic retrieval failed: ${e.message}"
@@ -360,8 +361,12 @@ class AiManager(
                     ?.maxByOrNull { it.lastModified() }
                 
                 if (latestLog != null) {
-                    latestLog.openInputStream().bufferedReader().useLines { lines ->
-                        logLines.addAll(lines.takeLast(200).toList())
+                    try {
+                        latestLog.openInputStream().bufferedReader().useLines { lines ->
+                            logLines.addAll(lines.toList().takeLast(200))
+                        }
+                    } catch (e: Exception) {
+                        logLines.add("Error reading internal log file: ${e.message}")
                     }
                 }
             }
