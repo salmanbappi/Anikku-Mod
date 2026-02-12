@@ -318,7 +318,7 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
 
         val storageManager = Injekt.get<StorageManager>()
         val logFolder = runCatching { storageManager.getLogsDirectory() }.getOrNull()
-            ?: UniFile.fromFile(File(cacheDir, "logs"))?.apply { mkdirs() }
+            ?: UniFile.fromFile(File(cacheDir, "logs"))?.apply { mkdir() }
 
         if (logFolder != null) {
             val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
