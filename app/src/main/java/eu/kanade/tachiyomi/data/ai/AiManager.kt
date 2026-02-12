@@ -14,6 +14,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import tachiyomi.core.common.util.lang.withIOContext
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
+import tachiyomi.domain.storage.service.StorageManager
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
@@ -31,12 +32,17 @@ class AiManager(
     private val MAP_VERSION = 132
     private val REMOTE_KILL_SWITCH_URL = "https://raw.githubusercontent.com/salmanbappi/anikku-config/main/ai_kill_switch.json"
 
+    fun resetCircuitBreaker() {
+        aiPreferences.isCircuitBreakerTripped().set(false)
+        aiPreferences.isRequestPending().set(false)
+    }
+
     suspend fun chatWithAssistant(query: String, history: List<ChatMessage>): String? {
         if (!aiPreferences.enableAi().get() || !aiPreferences.enableAiAssistant().get()) return null
         
         // 1. Stability & Kill Switch Check
         if (isCircuitBreakerTripped()) {
-            return "Stability Alert: AI temporarily disabled due to detected app instability. Check your settings to reset."
+            return "Stability Alert: AI temporarily disabled due to detected app instability. [RESET_REQUIRED]"
         }
         if (isRemoteKillSwitchActive()) {
             return "Service Maintenance: AI Assistant is currently offline."
@@ -171,22 +177,44 @@ class AiManager(
 
     private fun getSanitizedLogs(): String {
         return try {
-            val process = Runtime.getRuntime().exec("logcat -d -t 500 *:W")
-            val reader = BufferedReader(InputStreamReader(process.inputStream))
-            
             val logLines = mutableListOf<String>()
+            
+            // 1. Try Logcat (may fail on Android 13+)
+            val process = Runtime.getRuntime().exec("logcat -d -b main -t 500 *:W")
+            val reader = BufferedReader(InputStreamReader(process.inputStream))
+            while (true) {
+                val line = reader.readLine() ?: break
+                logLines.add(line)
+            }
+
+            // 2. Fallback to XLog files if logcat is empty
+            if (logLines.size < 5) {
+                val storageManager = Injekt.get<StorageManager>()
+                val logDir = storageManager.getLogsDirectory()
+                val latestLog = logDir?.listFiles()
+                    ?.filter { it.isFile && it.name?.endsWith(".log") == true }
+                    ?.maxByOrNull { it.lastModified() }
+                
+                if (latestLog != null) {
+                    latestLog.openInputStream().bufferedReader().useLines { lines ->
+                        logLines.addAll(lines.takeLast(500).toList())
+                    }
+                }
+            }
+
+            if (logLines.isEmpty()) return "No system logs available. (Permission restricted)"
+
             val pinnedBlocks = mutableListOf<List<String>>()
             val currentBlock = mutableListOf<String>()
             
-            val packagePattern = "(eu\\.kanade|app\\.anizen|mpv|ffmpeg|AndroidRuntime|libc|DEBUG)".toRegex()
+            val packagePattern = "(eu\\.kanade|app\\.anizen|mpv|ffmpeg|AndroidRuntime|libc|DEBUG|System\\.err|XLog|FileUtils)".toRegex()
             val piiRedaction = "(?i)(?:authorization|cookie|set-cookie):\\s*[^\\n\\r]+|(?<=\\?|&)[^=]+=[^&\\s]*|(?:[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})|(?:auth|token|key|password|secret|sid|session)=[a-zA-Z0-9._-]+".toRegex()
-            val traceTrigger = "Exception|Error|Fatal signal|SIGSEGV|abort\\(\\)|Native crash".toRegex(RegexOption.IGNORE_CASE)
+            val traceTrigger = "Exception|Error|Fatal signal|SIGSEGV|abort\\(\\)|Native crash|FAILED".toRegex(RegexOption.IGNORE_CASE)
             
             var lastLine = ""
             var repeatCount = 0
             
-            while (true) {
-                val line = reader.readLine() ?: break
+            for (line in logLines) {
                 val sanitizedLine = line.replace(piiRedaction, "[REDACTED]")
                 
                 val isTraceLine = sanitizedLine.trimStart().startsWith("at ") || 
@@ -293,14 +321,34 @@ class AiManager(
 
     suspend fun getErrorCount(): Int = withIOContext {
         try {
-            val process = Runtime.getRuntime().exec("logcat -d -t 200 *:E")
+            val logLines = mutableListOf<String>()
+            val process = Runtime.getRuntime().exec("logcat -d -b main -t 200 *:E")
             val reader = BufferedReader(InputStreamReader(process.inputStream))
+            while (true) {
+                val line = reader.readLine() ?: break
+                logLines.add(line)
+            }
+
+            // Fallback to files if logcat empty
+            if (logLines.isEmpty()) {
+                val storageManager = Injekt.get<StorageManager>()
+                val logDir = storageManager.getLogsDirectory()
+                val latestLog = logDir?.listFiles()
+                    ?.filter { it.isFile && it.name?.endsWith(".log") == true }
+                    ?.maxByOrNull { it.lastModified() }
+                
+                if (latestLog != null) {
+                    latestLog.openInputStream().bufferedReader().useLines { lines ->
+                        logLines.addAll(lines.takeLast(200).toList())
+                    }
+                }
+            }
+
             var count = 0
             val criticalPatterns = listOf("FATAL EXCEPTION", "NullPointerException", "IllegalStateException", "OutOfMemoryError", "SecurityException", "ANR in", "Crash", "eu.kanade", "app.anizen", "mpv", "ffmpeg", "OkHttp", "Fatal signal", "SIGSEGV")
             val noiseTags = listOf("GmsClient", "MemoryLeakDetector", "AccessibilityBridge", "Surface", "BufferQueue", "SensorManager")
             
-            while (true) {
-                val line = reader.readLine() ?: break
+            for (line in logLines) {
                 if (criticalPatterns.any { line.contains(it, ignoreCase = true) } && !noiseTags.any { line.contains(it, ignoreCase = true) }) {
                     count++
                 }
@@ -313,7 +361,16 @@ class AiManager(
         val geminiContents = messages.map { msg ->
             GeminiContent(parts = listOf(GeminiPart(text = msg.content)), role = if (msg.role == "user") "user" else "model")
         }
-        val requestBody = GeminiRequest(contents = geminiContents, systemInstruction = systemInstruction?.let { GeminiContent(parts = listOf(GeminiPart(text = it))) })
+        val requestBody = GeminiRequest(
+            contents = geminiContents, 
+            systemInstruction = systemInstruction?.let { GeminiContent(parts = listOf(GeminiPart(text = it))) },
+            safetySettings = listOf(
+                GeminiSafetySetting("HARM_CATEGORY_HARASSMENT", "BLOCK_NONE"),
+                GeminiSafetySetting("HARM_CATEGORY_HATE_SPEECH", "BLOCK_NONE"),
+                GeminiSafetySetting("HARM_CATEGORY_SEXUALLY_EXPLICIT", "BLOCK_NONE"),
+                GeminiSafetySetting("HARM_CATEGORY_DANGEROUS_CONTENT", "BLOCK_NONE")
+            )
+        )
         val request = Request.Builder()
             .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=$apiKey")
             .header("Content-Type", "application/json")
@@ -354,7 +411,17 @@ class AiManager(
     data class ChatMessage(val role: String, val content: String)
 
     @Serializable
-    private data class GeminiRequest(val contents: List<GeminiContent>, @kotlinx.serialization.SerialName("system_instruction") val systemInstruction: GeminiContent? = null)
+    private data class GeminiRequest(
+        val contents: List<GeminiContent>, 
+        @kotlinx.serialization.SerialName("system_instruction") val systemInstruction: GeminiContent? = null,
+        val safetySettings: List<GeminiSafetySetting>? = null
+    )
+
+    @Serializable
+    private data class GeminiSafetySetting(
+        val category: String,
+        val threshold: String
+    )
 
     @Serializable
     private data class GeminiContent(val parts: List<GeminiPart>, val role: String? = null)

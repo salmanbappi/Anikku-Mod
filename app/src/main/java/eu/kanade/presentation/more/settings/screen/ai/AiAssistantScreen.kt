@@ -209,12 +209,13 @@ class AiAssistantScreen : Screen() {
                     )
                 },
                 containerColor = MaterialTheme.colorScheme.surface, // Base 60%
-                snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+                snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+                contentWindowInsets = WindowInsets(0) // Handle insets manually
             ) { padding ->
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(padding)
+                        .padding(top = padding.calculateTopPadding())
                         .imePadding() // Follow keyboard
                 ) {
                         DiagnosticHUD(errorCount)
@@ -276,7 +277,8 @@ class AiAssistantScreen : Screen() {
                             onSend = {
                                 screenModel.sendMessage(input)
                                 input = ""
-                            }
+                            },
+                            modifier = Modifier.navigationBarsPadding()
                         )
                     }
                 }
@@ -330,14 +332,15 @@ class AiAssistantScreen : Screen() {
         value: String,
         onValueChange: (String) -> Unit,
         isLoading: Boolean,
-        onSend: () -> Unit
+        onSend: () -> Unit,
+        modifier: Modifier = Modifier
     ) {
         val primaryColor = MaterialTheme.colorScheme.primary // Accent 10%
         val surfaceColor = MaterialTheme.colorScheme.surfaceContainerHigh
 
         Surface(
             tonalElevation = 2.dp,
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
                 .padding(bottom = 4.dp), // Minimal bottom padding
             color = Color.Transparent

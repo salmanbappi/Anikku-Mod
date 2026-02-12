@@ -166,6 +166,12 @@ class AiAssistantScreenModel(
             // 1. Save User Message
             chatRepository.insertMessage(sessionId, "user", query)
             
+            if (query.trim().equals("/reset", ignoreCase = true)) {
+                aiManager.resetCircuitBreaker()
+                chatRepository.insertMessage(sessionId, "model", "Neural stability reset. Circuit breaker cleared.")
+                return@launchIO
+            }
+
             // 2. Update Loading State
             mutableState.update { it.copy(isLoading = true) }
 
