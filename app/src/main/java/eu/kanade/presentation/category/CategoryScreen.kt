@@ -97,9 +97,7 @@ fun CategoryScreen(
         }
 
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .reorderable(reorderableState),
+            modifier = Modifier.fillMaxSize(),
             state = lazyListState,
             contentPadding = paddingValues + topSmallPaddingValues + PaddingValues(
                 horizontal = MaterialTheme.padding.medium,
