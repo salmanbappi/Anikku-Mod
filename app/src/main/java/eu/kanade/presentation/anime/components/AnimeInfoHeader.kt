@@ -1,8 +1,13 @@
 package eu.kanade.presentation.anime.components
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.graphics.res.animatedVectorResource
 import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
 import androidx.compose.animation.graphics.vector.AnimatedImageVector
@@ -576,14 +581,17 @@ private fun AnimeContentInfo(
         }
 
         Spacer(modifier = Modifier.width(4.dp))
+        var isRevealed by remember { mutableStateOf(false) }
+        val displayText = if (isRevealed) sourceName
+        else if (isStubSource) sourceName
+        else if (sourceName.contains("Local")) stringResource(MR.strings.local_source)
+        else "Global"
+
         InfoChip(
             icon = if (isStubSource) Icons.Filled.Warning else if (sourceName.contains("Local")) Icons.Outlined.DoneAll else Icons.Outlined.Public,
-            text = if (isStubSource) sourceName else if (sourceName.contains("Local")) stringResource(MR.strings.local_source) else "Global",
-            iconTint = if (isStubSource) MaterialTheme.colorScheme.error else null,
-            onClick = {
-                context.copyToClipboard(sourceName, sourceName)
-                context.toast(sourceName)
-            }
+            text = displayText,
+            iconTint = if (isStubSource) MaterialTheme.colorScheme.error else if (isRevealed) MaterialTheme.colorScheme.primary else null,
+            onClick = { isRevealed = !isRevealed }
         )
     }
 }
@@ -598,7 +606,8 @@ private fun InfoChip(
     Surface(
         modifier = Modifier
             .clip(MaterialTheme.shapes.small)
-            .clickableNoIndication(onClick = onClick ?: {}),
+            .clickableNoIndication(onClick = onClick ?: {})
+            .animateContentSize(),
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
         shape = MaterialTheme.shapes.small,
     ) {
@@ -613,12 +622,21 @@ private fun InfoChip(
                 modifier = Modifier.size(14.dp),
                 tint = iconTint ?: MaterialTheme.colorScheme.primary
             )
-            Text(
-                text = text,
-                style = MaterialTheme.typography.labelSmall,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            AnimatedContent(
+                targetState = text,
+                transitionSpec = {
+                    (fadeIn() + scaleIn(initialScale = 0.9f))
+                        .togetherWith(fadeOut())
+                },
+                label = "chipText"
+            ) { targetText ->
+                Text(
+                    text = targetText,
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }
