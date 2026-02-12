@@ -3,11 +3,9 @@ package eu.kanade.presentation.category
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.DragHandle
 import androidx.compose.material.icons.outlined.SortByAlpha
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,7 +24,10 @@ import eu.kanade.presentation.components.AppBar
 import eu.kanade.presentation.components.AppBarActions
 import eu.kanade.tachiyomi.ui.category.CategoryScreenState
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
+import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.ReorderableLazyColumn
+import sh.calvin.reorderable.draggableHandle
 import sh.calvin.reorderable.rememberReorderableLazyColumnState
 import tachiyomi.domain.category.model.Category
 import tachiyomi.i18n.MR
@@ -89,7 +90,7 @@ fun CategoryScreen(
         val reorderableState = rememberReorderableLazyColumnState(lazyListState) { from, to ->
             categories = categories.toMutableList().apply {
                 add(to.index, removeAt(from.index))
-            }
+            }.toImmutableList()
             onReorder(categories)
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
         }
@@ -102,9 +103,10 @@ fun CategoryScreen(
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
         ) {
             items(
-                items = categories,
-                key = { category -> "category-${category.id}" },
-            ) { category ->
+                count = categories.size,
+                key = { index -> "category-${categories[index].id}" },
+            ) { index ->
+                val category = categories[index]
                 ReorderableItem(
                     reorderableLazyColumnState = reorderableState,
                     key = "category-${category.id}",
@@ -121,7 +123,7 @@ fun CategoryScreen(
                                 onClick = {},
                             ) {
                                 Icon(
-                                    imageVector = androidx.compose.material.icons.Icons.Outlined.DragHandle,
+                                    imageVector = Icons.Outlined.DragHandle,
                                     contentDescription = null,
                                 )
                             }
