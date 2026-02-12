@@ -189,8 +189,6 @@ class AiAssistantScreenModel(
                 if (userMessages.size == 1) {
                     updateSessionTitle(sessionId, query)
                 }
-            } else {
-                chatRepository.insertMessage(sessionId, "model", "Neural link unstable. Check connection or API Key.")
             }
 
             mutableState.update { it.copy(isLoading = false) }

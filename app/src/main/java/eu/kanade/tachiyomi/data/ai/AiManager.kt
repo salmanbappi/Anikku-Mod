@@ -392,11 +392,12 @@ class AiManager(
         try {
             networkHelper.client.newCall(request).execute().use {
                 val bodyString = it.body.string()
-                if (!it.isSuccessful) return@withIOContext "Error ${it.code}: ${it.message}"
+                if (!it.isSuccessful) return@withIOContext "Gemini Error ${it.code}: ${it.message}"
                 val geminiResponse = json.decodeFromString(GeminiResponse.serializer(), bodyString)
-                geminiResponse.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text?.trim()
+                geminiResponse.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text?.trim() 
+                    ?: "Gemini returned no content. (Safety filters or empty response)"
             }
-        } catch (e: Exception) { "Exception: ${e.message}" }
+        } catch (e: Exception) { "Gemini Exception: ${e.message}" }
     }
 
     private suspend fun callGroq(messages: List<ChatMessage>, apiKey: String, systemInstruction: String? = null): String? = withIOContext {
