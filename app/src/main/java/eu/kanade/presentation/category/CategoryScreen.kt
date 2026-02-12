@@ -30,9 +30,8 @@ import eu.kanade.tachiyomi.ui.category.CategoryScreenState
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import sh.calvin.reorderable.ReorderableItem
-import sh.calvin.reorderable.draggableHandle
 import sh.calvin.reorderable.rememberReorderableLazyListState
-import sh.calvin.reorderable.reorderable
+import sh.calvin.reorderable.detectReorderAfterLongPress
 import tachiyomi.domain.category.model.Category
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.Scaffold
@@ -100,9 +99,7 @@ fun CategoryScreen(
         }
 
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .reorderable(reorderableState),
+            modifier = Modifier.fillMaxSize(),
             state = lazyListState,
             contentPadding = paddingValues + topSmallPaddingValues + PaddingValues(
                 horizontal = MaterialTheme.padding.medium,
@@ -124,15 +121,11 @@ fun CategoryScreen(
                         onDelete = { onClickDelete(category) },
                         onHide = { onClickHide(category) },
                         dragHandle = {
-                            IconButton(
-                                modifier = Modifier.draggableHandle(),
-                                onClick = {},
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.DragHandle,
-                                    contentDescription = null,
-                                )
-                            }
+                            Icon(
+                                imageVector = Icons.Outlined.DragHandle,
+                                contentDescription = null,
+                                modifier = Modifier.detectReorderAfterLongPress(reorderableState)
+                            )
                         },
                     )
                 }
