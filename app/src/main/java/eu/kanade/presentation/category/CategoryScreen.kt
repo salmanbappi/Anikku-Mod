@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.DragHandle
@@ -28,10 +30,8 @@ import eu.kanade.tachiyomi.ui.category.CategoryScreenState
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import sh.calvin.reorderable.ReorderableItem
-import sh.calvin.reorderable.ReorderableLazyColumn
 import sh.calvin.reorderable.rememberReorderableLazyListState
-import sh.calvin.reorderable.items
-import sh.calvin.reorderable.reorderableDragHandle
+import sh.calvin.reorderable.reorderable
 import tachiyomi.domain.category.model.Category
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.Scaffold
@@ -98,9 +98,11 @@ fun CategoryScreen(
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
         }
 
-        ReorderableLazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            state = reorderableState,
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .reorderable(reorderableState),
+            state = lazyListState,
             contentPadding = paddingValues + topSmallPaddingValues + PaddingValues(
                 horizontal = MaterialTheme.padding.medium,
             ),
@@ -111,9 +113,9 @@ fun CategoryScreen(
                 key = { category -> "category-${category.id}" },
             ) { category ->
                 ReorderableItem(
-                    reorderableLazyListState = reorderableState,
+                    state = reorderableState,
                     key = "category-${category.id}",
-                ) {
+                ) { isDragging ->
                     CategoryListItem(
                         modifier = Modifier.animateItem(),
                         category = category,
@@ -124,7 +126,7 @@ fun CategoryScreen(
                             Icon(
                                 imageVector = Icons.Outlined.DragHandle,
                                 contentDescription = null,
-                                modifier = Modifier.reorderableDragHandle()
+                                modifier = Modifier.draggableHandle()
                             )
                         },
                     )
