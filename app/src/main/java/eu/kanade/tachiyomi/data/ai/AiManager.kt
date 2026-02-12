@@ -178,7 +178,7 @@ class AiManager(
             val pinnedBlocks = mutableListOf<List<String>>()
             val currentBlock = mutableListOf<String>()
             
-            val packagePattern = "eu.kanade|app.anizen|mpv|ffmpeg|AndroidRuntime|libc|DEBUG".toRegex()
+            val packagePattern = "(eu\\.kanade|app\\.anizen|mpv|ffmpeg|AndroidRuntime|libc|DEBUG)".toRegex()
             val piiRedaction = "(?i)(?:authorization|cookie|set-cookie):\\s*[^\\n\\r]+|(?<=\\?|&)[^=]+=[^&\\s]*|(?:[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})|(?:auth|token|key|password|secret|sid|session)=[a-zA-Z0-9._-]+".toRegex()
             val traceTrigger = "Exception|Error|Fatal signal|SIGSEGV|abort\\(\\)|Native crash".toRegex(RegexOption.IGNORE_CASE)
             

@@ -49,7 +49,7 @@ class DiscordRPCService : Service() {
         rpc = if (token.isNotBlank()) DiscordRPC(token, status) else null
         if (rpc != null) {
             launchIO {
-                try { // Add a try-catch block here
+                try {
                     if (lastUsedScreen == DiscordScreen.VIDEO) {
                         setAnimeScreen(this@DiscordRPCService, lastUsedScreen)
                     } else if (lastUsedScreen == DiscordScreen.MANGA) {
@@ -61,6 +61,7 @@ class DiscordRPCService : Service() {
             }
             notification(this)
         } else {
+            stopSelf()
             connectionsPreferences.enableDiscordRPC().set(false)
         }
     }
@@ -206,7 +207,7 @@ class DiscordRPCService : Service() {
                 )
             }
 
-            rpc!!.updateRPC(
+            rpc?.updateRPC(
                 activity = Activity(
                     applicationId = RICH_PRESENCE_APPLICATION_ID,
                     name = name,
@@ -270,7 +271,7 @@ class DiscordRPCService : Service() {
                 )
             }
 
-            rpc!!.updateRPC(
+            rpc?.updateRPC(
                 activity = Activity(
                     applicationId = RICH_PRESENCE_APPLICATION_ID,
                     name = name,
