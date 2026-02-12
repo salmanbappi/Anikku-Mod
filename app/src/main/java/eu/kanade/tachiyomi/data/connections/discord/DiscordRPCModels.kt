@@ -17,7 +17,7 @@ import kotlinx.serialization.json.JsonElement
 const val RICH_PRESENCE_TAG = "discord_rpc"
 
 // Constant for application id
-private const val RICH_PRESENCE_APPLICATION_ID = "1471263338934566972"
+const val RICH_PRESENCE_APPLICATION_ID = "1471263338934566972"
 
 const val DOWNLOAD_BUTTON_LABEL = "Download"
 const val DOWNLOAD_BUTTON_URL = "https://github.com/salmanbappi/AniZen/releases/latest"
@@ -80,6 +80,8 @@ data class Presence(
 @Serializable
 data class Identity(
     val token: String,
+    @SerialName("application_id")
+    val applicationId: String? = null,
     val properties: Properties,
     val compress: Boolean,
     val intents: Long,

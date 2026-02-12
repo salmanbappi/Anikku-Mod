@@ -129,7 +129,6 @@ class DiscordRPCService : Service() {
                     value
                 }
             }
-        private const val RICH_PRESENCE_APPLICATION_ID = "1471263338934566972"
         private const val MP_PREFIX = "mp:"
         private const val EXTERNAL_PREFIX = "external/"
         private val json = Json {

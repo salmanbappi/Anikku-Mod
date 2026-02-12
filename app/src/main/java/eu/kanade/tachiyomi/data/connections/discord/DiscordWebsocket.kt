@@ -63,10 +63,11 @@ open class DiscordWebSocketImpl(
             op = 2,
             d = Identity(
                 token = token,
+                applicationId = RICH_PRESENCE_APPLICATION_ID,
                 properties = Identity.Properties(
-                    os = "windows",
-                    browser = "Chrome",
-                    device = "disco",
+                    os = "android",
+                    browser = "Discord Android",
+                    device = "phone",
                 ),
                 compress = false,
                 intents = 0,
