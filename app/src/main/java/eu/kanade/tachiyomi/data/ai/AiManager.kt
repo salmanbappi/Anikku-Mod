@@ -200,8 +200,12 @@ class AiManager(
                     ?.maxByOrNull { it.lastModified() }
                 
                 if (latestLog != null) {
-                    latestLog.openInputStream().bufferedReader().useLines { lines ->
-                        logLines.addAll(lines.takeLast(500).toList())
+                    try {
+                        latestLog.openInputStream().bufferedReader().useLines { lines ->
+                            logLines.addAll(lines.takeLast(500).toList())
+                        }
+                    } catch (e: Exception) {
+                        logLines.add("Error reading internal log file: ${e.message}")
                     }
                 }
             }
@@ -411,7 +415,11 @@ class AiManager(
                 val bodyString = it.body.string()
                 if (!it.isSuccessful) return@withIOContext "Groq Error ${it.code}: ${it.message}\n$bodyString"
                 val groqResponse = json.decodeFromString(GroqResponse.serializer(), bodyString)
-                groqResponse.choices.firstOrNull()?.message?.content?.trim()
+                val answer = groqResponse.choices.firstOrNull()?.message?.content?.trim()
+                if (answer.isNullOrBlank()) {
+                    return@withIOContext "Groq returned an empty response. Please check if the model 'groq/compound-mini' is still active or supported on your account."
+                }
+                answer
             }
         } catch (e: Exception) { "Groq Exception: ${e.message}" }
     }
