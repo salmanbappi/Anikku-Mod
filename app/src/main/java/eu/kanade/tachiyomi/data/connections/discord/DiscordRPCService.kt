@@ -212,7 +212,7 @@ class DiscordRPCService : Service() {
                     name = name,
                     details = details,
                     state = state,
-                    type = 0,
+                    type = 3,
                     timestamps = timestamps,
                     assets = Activity.Assets(
                         largeImage = imageUrl.fixDiscordImage(),
@@ -276,7 +276,7 @@ class DiscordRPCService : Service() {
                     name = name,
                     details = details,
                     state = state,
-                    type = 0,
+                    type = 3,
                     timestamps = Activity.Timestamps(start = sinceTime),
                     assets = Activity.Assets(
                         largeImage = imageUrl.fixDiscordImage(),
