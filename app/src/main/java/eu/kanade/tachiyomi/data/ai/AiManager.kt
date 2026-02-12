@@ -213,8 +213,11 @@ class AiManager(
             }
 
             if (logLines.isEmpty()) {
+                val storageManager = Injekt.get<StorageManager>()
+                val logDir = storageManager.getLogsDirectory()
                 val internalLogDir = File(context.cacheDir, "logs")
-                return "Diagnostic engine active. (No logs found in ${internalLogDir.absolutePath})"
+                val dirInfo = "StorageDir: ${logDir?.uri}, InternalDir: ${internalLogDir.absolutePath}, InternalExists: ${internalLogDir.exists()}"
+                return "Diagnostic engine active. (No logs found. $dirInfo)"
             }
 
             val pinnedBlocks = mutableListOf<List<String>>()

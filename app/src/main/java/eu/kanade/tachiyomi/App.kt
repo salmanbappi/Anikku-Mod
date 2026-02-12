@@ -118,10 +118,11 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
         Injekt.importModule(SYDomainModule())
         Injekt.importModule(KMKDomainModule())
 
+        setupExhLogging()
+        LogcatLogger.install(XLogLogcatLogger())
+
         // Startup Optimization: Initialize non-critical components on background thread
         ProcessLifecycleOwner.get().lifecycleScope.launch(Dispatchers.IO) {
-            setupExhLogging()
-            LogcatLogger.install(XLogLogcatLogger())
             setupNotificationChannels()
             if (!WorkManager.isInitialized()) {
                 WorkManager.initialize(this@App, Configuration.Builder().build())
