@@ -140,15 +140,26 @@ class AppUpdateDownloadJob(private val context: Context, workerParams: WorkerPar
 
             override fun update(bytesRead: Long, contentLength: Long, done: Boolean) {
                 // KMK -->
-                val downloadedSize: Long
-                if (totalSize == 0L) {
-                    totalSize = contentLength
-                    downloadedSize = bytesRead
+                if (totalSize == 0L && contentLength > 0) {
+                    val apkFile = File(context.externalCacheDir, "update.apk")
+                    totalSize = if (apkFile.exists()) {
+                        apkFile.length() + contentLength
+                    } else {
+                        contentLength
+                    }
+                }
+                val apkFile = File(context.externalCacheDir, "update.apk")
+                val downloadedSize = if (apkFile.exists()) {
+                    apkFile.length() + bytesRead
                 } else {
-                    downloadedSize = totalSize - contentLength + bytesRead
+                    bytesRead
                 }
                 // KMK <--
-                val progress = (100 * (downloadedSize.toFloat() / totalSize)).toInt()
+                val progress = if (totalSize > 0) {
+                    (100 * (downloadedSize.toFloat() / totalSize)).toInt()
+                } else {
+                    0
+                }
                 val currentTime = System.currentTimeMillis()
                 if (progress > savedProgress && currentTime - 200 > lastTick) {
                     savedProgress = progress

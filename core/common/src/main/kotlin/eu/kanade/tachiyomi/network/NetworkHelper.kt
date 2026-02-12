@@ -154,9 +154,7 @@ open /* SY <-- */ class NetworkHelper(
                 client.newCachelessCallWithProgress(request, progressListener).execute().use { response ->
                     if (response.isSuccessful || response.code == 206) { // 206 indicates partial content
                         saveResponseToFile(response, outputFile, downloadedBytes)
-                        if (response.isSuccessful) {
-                            return
-                        }
+                        return
                     } else {
                         attempt++
                         android.util.Log.e("NetworkHelper", "Unexpected response code: ${response.code}. Retrying...")
@@ -191,6 +189,7 @@ open /* SY <-- */ class NetworkHelper(
                 while (input.read(buffer).also { bytesRead = it } != -1) {
                     file.write(buffer, 0, bytesRead)
                 }
+                file.fd.sync()
             }
         }
     }
