@@ -226,6 +226,7 @@ class AiManager(
             var lastLine = ""
             var repeatCount = 0
             
+            val sanitizedResult = mutableListOf<String>()
             for (line in logLines) {
                 val sanitizedLine = line.replace(piiRedaction, "[REDACTED]")
                 
@@ -249,8 +250,8 @@ class AiManager(
                         if (sanitizedLine == lastLine) {
                             repeatCount++
                         } else {
-                            if (repeatCount > 0) logLines.add("... [TRUNCATED] repeated $repeatCount times ...")
-                            logLines.add(sanitizedLine)
+                            if (repeatCount > 0) sanitizedResult.add("... [TRUNCATED] repeated $repeatCount times ...")
+                            sanitizedResult.add(sanitizedLine)
                             lastLine = sanitizedLine
                             repeatCount = 0
                         }
@@ -258,7 +259,7 @@ class AiManager(
                 }
             }
             if (currentBlock.isNotEmpty()) pinnedBlocks.add(currentBlock.toList())
-            if (repeatCount > 0) logLines.add("... [TRUNCATED] repeated $repeatCount times ...")
+            if (repeatCount > 0) sanitizedResult.add("... [TRUNCATED] repeated $repeatCount times ...")
             
             val output = StringBuilder()
             if (pinnedBlocks.isNotEmpty()) {
@@ -266,7 +267,7 @@ class AiManager(
                 pinnedBlocks.takeLast(2).forEach { output.append(it.joinToString("\n")).append("\n---\n") }
             }
             output.append("\n### SYSTEM LOG TAIL:\n")
-            output.append(logLines.toList().takeLast(100).joinToString("\n"))
+            output.append(sanitizedResult.takeLast(100).joinToString("\n"))
             output.toString()
         } catch (e: Exception) {
             "Diagnostic retrieval failed: ${e.message}"
@@ -404,7 +405,11 @@ class AiManager(
             .post(json.encodeToString(GeminiRequest.serializer(), requestBody).toRequestBody(jsonMediaType))
             .build()
         try {
-            networkHelper.client.newCall(request).execute().use {
+            val timedClient = networkHelper.client.newBuilder()
+                .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+                .build()
+            timedClient.newCall(request).execute().use {
                 val bodyString = it.body.string()
                 if (!it.isSuccessful) return@withIOContext "Gemini Error ${it.code}: ${it.message}"
                 val geminiResponse = json.decodeFromString(GeminiResponse.serializer(), bodyString)
@@ -426,7 +431,11 @@ class AiManager(
             .post(json.encodeToString(GroqRequest.serializer(), requestBody).toRequestBody(jsonMediaType))
             .build()
         try {
-            networkHelper.client.newCall(request).execute().use {
+            val timedClient = networkHelper.client.newBuilder()
+                .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+                .build()
+            timedClient.newCall(request).execute().use {
                 val bodyString = it.body.string()
                 if (!it.isSuccessful) {
                     val errorMsg = "Groq Error ${it.code}: ${it.message}"
