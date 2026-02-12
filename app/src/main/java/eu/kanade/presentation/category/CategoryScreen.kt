@@ -3,8 +3,6 @@ package eu.kanade.presentation.category
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.DragHandle
@@ -29,9 +27,11 @@ import eu.kanade.tachiyomi.ui.category.CategoryScreenState
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import sh.calvin.reorderable.ReorderableItem
-import sh.calvin.reorderable.rememberReorderableLazyListState
-import sh.calvin.reorderable.reorderable
+import sh.calvin.reorderable.ReorderableLazyColumn
+import sh.calvin.reorderable.rememberReorderableLazyColumnState
 import sh.calvin.reorderable.draggableHandle
+import sh.calvin.reorderable.items
+import androidx.compose.foundation.layout.fillMaxSize
 import tachiyomi.domain.category.model.Category
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.Scaffold
@@ -98,9 +98,9 @@ fun CategoryScreen(
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
         }
 
-        LazyColumn(
-            state = lazyListState,
-            modifier = Modifier.reorderable(reorderableState),
+        ReorderableLazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            state = reorderableState,
             contentPadding = paddingValues + topSmallPaddingValues + PaddingValues(
                 horizontal = MaterialTheme.padding.medium,
             ),
@@ -111,10 +111,11 @@ fun CategoryScreen(
                 key = { category -> "category-${category.id}" },
             ) { category ->
                 ReorderableItem(
-                    state = reorderableState,
+                    reorderableLazyColumnState = reorderableState,
                     key = "category-${category.id}",
                 ) {
                     CategoryListItem(
+                        modifier = Modifier.animateItem(),
                         category = category,
                         onRename = { onClickRename(category) },
                         onDelete = { onClickDelete(category) },
