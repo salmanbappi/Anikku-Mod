@@ -3,6 +3,8 @@ package eu.kanade.presentation.category
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.DragHandle
@@ -18,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.unit.dp
 import eu.kanade.presentation.category.components.CategoryFloatingActionButton
 import eu.kanade.presentation.category.components.CategoryListItem
 import eu.kanade.presentation.components.AppBar
@@ -26,9 +29,8 @@ import eu.kanade.tachiyomi.ui.category.CategoryScreenState
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import sh.calvin.reorderable.ReorderableItem
-import sh.calvin.reorderable.ReorderableLazyColumn
 import sh.calvin.reorderable.draggableHandle
-import sh.calvin.reorderable.rememberReorderableLazyColumnState
+import sh.calvin.reorderable.rememberReorderableLazyListState
 import tachiyomi.domain.category.model.Category
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.Scaffold
@@ -87,7 +89,7 @@ fun CategoryScreen(
         var categories by remember(state.categories) { mutableStateOf(state.categories) }
         val haptic = LocalHapticFeedback.current
 
-        val reorderableState = rememberReorderableLazyColumnState(lazyListState) { from, to ->
+        val reorderableState = rememberReorderableLazyListState(lazyListState) { from, to ->
             categories = categories.toMutableList().apply {
                 add(to.index, removeAt(from.index))
             }.toImmutableList()
@@ -95,24 +97,22 @@ fun CategoryScreen(
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
         }
 
-        ReorderableLazyColumn(
-            state = reorderableState,
+        LazyColumn(
+            state = lazyListState,
             contentPadding = paddingValues + topSmallPaddingValues + PaddingValues(
                 horizontal = MaterialTheme.padding.medium,
             ),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
         ) {
             items(
-                count = categories.size,
-                key = { index -> "category-${categories[index].id}" },
-            ) { index ->
-                val category = categories[index]
+                items = categories,
+                key = { category -> "category-${category.id}" },
+            ) { category ->
                 ReorderableItem(
-                    reorderableLazyColumnState = reorderableState,
+                    state = reorderableState,
                     key = "category-${category.id}",
                 ) {
                     CategoryListItem(
-                        modifier = Modifier.animateItem(),
                         category = category,
                         onRename = { onClickRename(category) },
                         onDelete = { onClickDelete(category) },
