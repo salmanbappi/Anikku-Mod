@@ -32,7 +32,7 @@ import kotlinx.collections.immutable.toImmutableList
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import sh.calvin.reorderable.reorderable
-import sh.calvin.reorderable.draggableHandle
+import sh.calvin.reorderable.detectReorderAfterLongPress
 import tachiyomi.domain.category.model.Category
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.Scaffold
@@ -127,7 +127,7 @@ fun CategoryScreen(
                             Icon(
                                 imageVector = Icons.Outlined.DragHandle,
                                 contentDescription = null,
-                                modifier = Modifier.draggableHandle()
+                                modifier = Modifier.detectReorderAfterLongPress(reorderableState)
                             )
                         },
                     )
