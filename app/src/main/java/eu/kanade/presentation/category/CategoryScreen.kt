@@ -29,8 +29,9 @@ import eu.kanade.tachiyomi.ui.category.CategoryScreenState
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import sh.calvin.reorderable.ReorderableItem
-import sh.calvin.reorderable.draggableHandle
 import sh.calvin.reorderable.rememberReorderableLazyListState
+import sh.calvin.reorderable.reorderable
+import sh.calvin.reorderable.draggableHandle
 import tachiyomi.domain.category.model.Category
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.Scaffold
@@ -99,6 +100,7 @@ fun CategoryScreen(
 
         LazyColumn(
             state = lazyListState,
+            modifier = Modifier.reorderable(reorderableState),
             contentPadding = paddingValues + topSmallPaddingValues + PaddingValues(
                 horizontal = MaterialTheme.padding.medium,
             ),
