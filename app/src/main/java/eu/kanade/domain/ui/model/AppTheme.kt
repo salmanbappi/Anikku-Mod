@@ -24,6 +24,7 @@ enum class AppTheme(val titleRes: StringResource?) {
     TIDAL_WAVE(MR.strings.theme_tidalwave),
     YINYANG(MR.strings.theme_yinyang),
     YOTSUBA(MR.strings.theme_yotsuba),
+    GOLDEN(KMR.strings.theme_golden),
 
     // Deprecated
     DARK_BLUE(null),

@@ -7,9 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Label
-import androidx.compose.material.icons.outlined.ArrowDropDown
-import androidx.compose.material.icons.outlined.ArrowDropUp
-import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.DragHandle
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
@@ -29,14 +27,11 @@ import tachiyomi.presentation.core.i18n.stringResource
 @Composable
 fun CategoryListItem(
     category: Category,
-    canMoveUp: Boolean,
-    canMoveDown: Boolean,
-    onMoveUp: (Category) -> Unit,
-    onMoveDown: (Category) -> Unit,
     onRename: () -> Unit,
     onDelete: () -> Unit,
     onHide: () -> Unit,
     modifier: Modifier = Modifier,
+    dragHandle: @Composable (() -> Unit)? = null,
 ) {
     ElevatedCard(
         modifier = modifier,
@@ -45,34 +40,19 @@ fun CategoryListItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { onRename() }
-                .padding(
-                    start = MaterialTheme.padding.medium,
-                    top = MaterialTheme.padding.medium,
-                    end = MaterialTheme.padding.medium,
-                ),
+                .padding(MaterialTheme.padding.medium),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            if (dragHandle != null) {
+                dragHandle()
+            }
             Icon(imageVector = Icons.AutoMirrored.Outlined.Label, contentDescription = null)
             Text(
                 text = category.name,
                 modifier = Modifier
+                    .weight(1f)
                     .padding(start = MaterialTheme.padding.medium),
             )
-        }
-        Row {
-            IconButton(
-                onClick = { onMoveUp(category) },
-                enabled = canMoveUp,
-            ) {
-                Icon(imageVector = Icons.Outlined.ArrowDropUp, contentDescription = null)
-            }
-            IconButton(
-                onClick = { onMoveDown(category) },
-                enabled = canMoveDown,
-            ) {
-                Icon(imageVector = Icons.Outlined.ArrowDropDown, contentDescription = null)
-            }
-            Spacer(modifier = Modifier.weight(1f))
             IconButton(onClick = onRename) {
                 Icon(
                     imageVector = Icons.Outlined.Edit,

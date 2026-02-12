@@ -9,15 +9,25 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.SortByAlpha
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import eu.kanade.presentation.category.components.CategoryFloatingActionButton
 import eu.kanade.presentation.category.components.CategoryListItem
 import eu.kanade.presentation.components.AppBar
 import eu.kanade.presentation.components.AppBarActions
 import eu.kanade.tachiyomi.ui.category.CategoryScreenState
 import kotlinx.collections.immutable.persistentListOf
+import sh.calvin.reorderable.ReorderableLazyColumn
+import sh.calvin.reorderable.rememberReorderableLazyColumnState
 import tachiyomi.domain.category.model.Category
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.Scaffold
@@ -34,8 +44,7 @@ fun CategoryScreen(
     onClickSortAlphabetically: () -> Unit,
     onClickRename: (Category) -> Unit,
     onClickDelete: (Category) -> Unit,
-    onClickMoveUp: (Category) -> Unit,
-    onClickMoveDown: (Category) -> Unit,
+    onReorder: (List<Category>) -> Unit,
     onClickHide: (Category) -> Unit,
     navigateUp: () -> Unit,
 ) {
@@ -74,52 +83,52 @@ fun CategoryScreen(
             return@Scaffold
         }
 
-        CategoryContent(
-            categories = state.categories,
-            lazyListState = lazyListState,
-            paddingValues = paddingValues + topSmallPaddingValues + PaddingValues(
+        var categories by remember(state.categories) { mutableStateOf(state.categories) }
+        val haptic = LocalHapticFeedback.current
+
+        val reorderableState = rememberReorderableLazyColumnState(lazyListState) { from, to ->
+            categories = categories.toMutableList().apply {
+                add(to.index, removeAt(from.index))
+            }
+            onReorder(categories)
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        }
+
+        ReorderableLazyColumn(
+            state = reorderableState,
+            contentPadding = paddingValues + topSmallPaddingValues + PaddingValues(
                 horizontal = MaterialTheme.padding.medium,
             ),
-            onClickRename = onClickRename,
-            onClickDelete = onClickDelete,
-            onMoveUp = onClickMoveUp,
-            onMoveDown = onClickMoveDown,
-            onClickHide = onClickHide,
-        )
-    }
-}
-
-@Composable
-private fun CategoryContent(
-    categories: List<Category>,
-    lazyListState: LazyListState,
-    paddingValues: PaddingValues,
-    onClickRename: (Category) -> Unit,
-    onClickDelete: (Category) -> Unit,
-    onMoveUp: (Category) -> Unit,
-    onMoveDown: (Category) -> Unit,
-    onClickHide: (Category) -> Unit,
-) {
-    LazyColumn(
-        state = lazyListState,
-        contentPadding = paddingValues,
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
-    ) {
-        itemsIndexed(
-            items = categories,
-            key = { _, category -> "category-${category.id}" },
-        ) { index, category ->
-            CategoryListItem(
-                modifier = Modifier.animateItem(),
-                category = category,
-                canMoveUp = index != 0,
-                canMoveDown = index != categories.lastIndex,
-                onMoveUp = onMoveUp,
-                onMoveDown = onMoveDown,
-                onRename = { onClickRename(category) },
-                onDelete = { onClickDelete(category) },
-                onHide = { onClickHide(category) },
-            )
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
+        ) {
+            items(
+                items = categories,
+                key = { category -> "category-${category.id}" },
+            ) { category ->
+                ReorderableItem(
+                    reorderableLazyColumnState = reorderableState,
+                    key = "category-${category.id}",
+                ) {
+                    CategoryListItem(
+                        modifier = Modifier.animateItem(),
+                        category = category,
+                        onRename = { onClickRename(category) },
+                        onDelete = { onClickDelete(category) },
+                        onHide = { onClickHide(category) },
+                        dragHandle = {
+                            IconButton(
+                                modifier = Modifier.draggableHandle(),
+                                onClick = {},
+                            ) {
+                                Icon(
+                                    imageVector = androidx.compose.material.icons.Icons.Outlined.DragHandle,
+                                    contentDescription = null,
+                                )
+                            }
+                        },
+                    )
+                }
+            }
         }
     }
 }

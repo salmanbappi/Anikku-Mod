@@ -16,6 +16,7 @@ import eu.kanade.presentation.theme.colorscheme.CloudflareColorScheme
 import eu.kanade.presentation.theme.colorscheme.CottoncandyColorScheme
 import eu.kanade.presentation.theme.colorscheme.CustomColorScheme
 import eu.kanade.presentation.theme.colorscheme.DoomColorScheme
+import eu.kanade.presentation.theme.colorscheme.GoldenColorScheme
 import eu.kanade.presentation.theme.colorscheme.GreenAppleColorScheme
 import eu.kanade.presentation.theme.colorscheme.LavenderColorScheme
 import eu.kanade.presentation.theme.colorscheme.MatrixColorScheme
@@ -126,4 +127,5 @@ private val colorSchemes: Map<AppTheme, BaseColorScheme> = mapOf(
     AppTheme.TIDAL_WAVE to TidalWaveColorScheme,
     AppTheme.YINYANG to YinYangColorScheme,
     AppTheme.YOTSUBA to YotsubaColorScheme,
+    AppTheme.GOLDEN to GoldenColorScheme,
 )

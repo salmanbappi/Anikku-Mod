@@ -79,6 +79,7 @@ fun TabbedScreen(
             FlexibleTabRow(
                 scrollable = scrollable,
                 selectedTabIndex = state.currentPage,
+                tabsCount = tabs.size,
             ) {
                 tabs.forEachIndexed { index, tab ->
                     Tab(
@@ -125,9 +126,10 @@ data class TabContent(
 private fun FlexibleTabRow(
     scrollable: Boolean,
     selectedTabIndex: Int,
+    tabsCount: Int,
     block: @Composable () -> Unit,
 ) {
-    return if (scrollable) {
+    return if (scrollable || tabsCount > 3) {
         ScrollableTabRow(
             selectedTabIndex = selectedTabIndex,
             edgePadding = 13.dp,

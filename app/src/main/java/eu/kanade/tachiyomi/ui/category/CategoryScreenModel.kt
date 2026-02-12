@@ -116,6 +116,31 @@ class CategoryScreenModel(
         }
     }
 
+    fun reorder(categories: List<Category>) {
+        screenModelScope.launch {
+            val updates = categories.mapIndexed { index, category ->
+                tachiyomi.domain.category.model.CategoryUpdate(
+                    id = category.id,
+                    order = index.toLong(),
+                )
+            }
+
+            // Update local state immediately for smoother UI
+            mutableState.update { state ->
+                when (state) {
+                    is CategoryScreenState.Success -> state.copy(categories = categories.toImmutableList())
+                    else -> state
+                }
+            }
+
+            try {
+                Injekt.get<tachiyomi.domain.category.repository.CategoryRepository>().updatePartial(updates)
+            } catch (e: Exception) {
+                _events.send(CategoryEvent.InternalError)
+            }
+        }
+    }
+
     fun renameCategory(category: Category, name: String) {
         screenModelScope.launch {
             when (renameCategory.await(category, name)) {
