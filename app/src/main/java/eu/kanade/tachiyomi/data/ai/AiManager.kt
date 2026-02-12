@@ -400,11 +400,11 @@ class AiManager(
         try {
             networkHelper.client.newCall(request).execute().use {
                 val bodyString = it.body.string()
-                if (!it.isSuccessful) return@withIOContext "Error ${it.code}"
+                if (!it.isSuccessful) return@withIOContext "Groq Error ${it.code}: ${it.message}\n$bodyString"
                 val groqResponse = json.decodeFromString(GroqResponse.serializer(), bodyString)
                 groqResponse.choices.firstOrNull()?.message?.content?.trim()
             }
-        } catch (e: Exception) { "Exception: ${e.message}" }
+        } catch (e: Exception) { "Groq Exception: ${e.message}" }
     }
 
     @Serializable
