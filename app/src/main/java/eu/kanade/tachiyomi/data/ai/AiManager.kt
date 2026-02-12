@@ -212,16 +212,19 @@ class AiManager(
                 }
             }
 
-            if (logLines.isEmpty()) return "Diagnostic engine active. (Collecting internal state...)"
+            if (logLines.isEmpty()) {
+                val internalLogDir = File(context.cacheDir, "logs")
+                return "Diagnostic engine active. (No logs found in ${internalLogDir.absolutePath})"
+            }
 
             val pinnedBlocks = mutableListOf<List<String>>()
             val currentBlock = mutableListOf<String>()
             
-            val packagePattern = "(eu\\.kanade|app\\.anizen|mpv|ffmpeg|AndroidRuntime|libc|DEBUG)".toRegex()
+            val packagePattern = "(eu\\.kanade|app\\.anizen|mpv|ffmpeg|AndroidRuntime|libc|DEBUG|System\\.err|XLog|FileUtils|ActivityThread|InputDispatcher)".toRegex()
             val piiRedaction = "(?i)(?:authorization|cookie|set-cookie):\\s*[^\\n\\r]+|(?<=\\?|&)[^=]+=[^&\\s]*|(?:[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})|(?:auth|token|key|password|secret|sid|session)=[a-zA-Z0-9._-]+".toRegex()
             
             // Only trigger analysis on serious events
-            val traceTrigger = "(FATAL EXCEPTION|Native crash|SIGSEGV|SIGABRT|mpv: error)".toRegex(RegexOption.IGNORE_CASE)
+            val traceTrigger = "(FATAL EXCEPTION|Native crash|SIGSEGV|SIGABRT|mpv: error|Check failed)".toRegex(RegexOption.IGNORE_CASE)
             
             var lastLine = ""
             var repeatCount = 0
@@ -374,10 +377,10 @@ class AiManager(
 
             var count = 0
             // Only count CRITICAL failures that affect the user experience
-            val criticalPatterns = listOf("FATAL EXCEPTION", "OutOfMemoryError", "Native crash", "SIGSEGV", "mpv: error")
+            val criticalPatterns = listOf("FATAL EXCEPTION", "OutOfMemoryError", "Native crash", "SIGSEGV", "mpv: error", "Check failed")
             
             for (line in logLines) {
-                if (criticalPatterns.any { line.contains(it, ignoreCase = false) }) {
+                if (criticalPatterns.any { line.contains(it, ignoreCase = true) }) {
                     count++
                 }
             }
