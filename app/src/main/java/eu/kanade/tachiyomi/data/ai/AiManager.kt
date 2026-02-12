@@ -97,11 +97,12 @@ class AiManager(
             val library = getLibraryAnime.await()
             if (library.isEmpty()) return "Library is empty."
             
-            library.joinToString("\n") { anime ->
-                "- ${anime.anime.title} [Status: ${anime.anime.status}, Episodes: ${anime.totalEpisodes}, Seen: ${anime.seenCount}, Score: ${anime.anime.score}]"
+            // Limit to top 50 items to save tokens and prevent blank responses
+            library.take(50).joinToString("\n") { anime ->
+                "- ${anime.anime.title} [Status: ${anime.anime.status}, Seen: ${anime.seenCount}]"
             }
         } catch (e: Exception) {
-            "Failed to retrieve library: ${e.message}"
+            "Failed to retrieve library summary."
         }
     }
 
@@ -264,7 +265,7 @@ class AiManager(
                 pinnedBlocks.takeLast(2).forEach { output.append(it.joinToString("\n")).append("\n---\n") }
             }
             output.append("\n### SYSTEM LOG TAIL:\n")
-            output.append(logLines.takeLast(60).joinToString("\n"))
+            output.append(logLines.takeLast(100).joinToString("\n"))
             output.toString()
         } catch (e: Exception) {
             "Diagnostic retrieval failed: ${e.message}"
@@ -414,15 +415,22 @@ class AiManager(
         try {
             networkHelper.client.newCall(request).execute().use {
                 val bodyString = it.body.string()
-                if (!it.isSuccessful) return@withIOContext "Groq Error ${it.code}: ${it.message}\n$bodyString"
-                val groqResponse = json.decodeFromString(GroqResponse.serializer(), bodyString)
+                if (!it.isSuccessful) {
+                    val errorMsg = "Groq Error ${it.code}: ${it.message}"
+                    return@withIOContext if (bodyString.contains("rate_limit")) "$errorMsg (Rate limited)" else "$errorMsg\n$bodyString"
+                }
+                val groqResponse = try {
+                    json.decodeFromString(GroqResponse.serializer(), bodyString)
+                } catch (e: Exception) {
+                    return@withIOContext "Failed to parse Groq response: ${e.message}\nRaw: $bodyString"
+                }
                 val answer = groqResponse.choices.firstOrNull()?.message?.content?.trim()
                 if (answer.isNullOrBlank()) {
-                    return@withIOContext "Groq returned an empty response. Please check if the model 'groq/compound-mini' is still active or supported on your account."
+                    return@withIOContext "Groq returned a valid JSON but empty message content. Model info: 'groq/compound-mini'."
                 }
                 answer
             }
-        } catch (e: Exception) { "Groq Exception: ${e.message}" }
+        } catch (e: Exception) { "Groq Connection Exception: ${e.message}" }
     }
 
     @Serializable
