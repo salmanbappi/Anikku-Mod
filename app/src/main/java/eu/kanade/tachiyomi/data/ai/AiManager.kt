@@ -296,33 +296,41 @@ class AiManager(
         else installed.joinToString("\n") { "- ${it.name} (${it.pkgName}) v${it.versionName} [Obsolete: ${it.isObsolete}, Update: ${it.hasUpdate}]" }
     }
 
-    private suspend fun callGeminiWithTools(messages: List<ChatMessage>, apiKey: String, systemInstruction: String): String? {
+    private suspend fun callGeminiWithTools(messages: List<ChatMessage>, apiKey: String, systemInstruction: String? = null): String? {
         val lastQuery = messages.last().content.lowercase()
         val toolContext = StringBuilder()
         
         if (lastQuery.contains("""log|error|fail|video|load|setting|where|how|device|black|broke|froze|slow|crash|die|dead""".toRegex())) {
-            toolContext.append("\n[DIAGNOSTICS_DATA]:\n${getSanitizedLogs()}\n")
+            if (aiPreferences.aiAssistantLogs().get()) {
+                toolContext.append("\n[DIAGNOSTICS_DATA]:\n${getSanitizedLogs()}\n")
+            }
             toolContext.append("\n[NAVIGATION_MAP]:\n${getAppMap()}\n")
             toolContext.append("\n[EXTENSIONS_STATUS]:\n${getExtensionStatusSummary()}\n")
             toolContext.append("\n[ENVIRONMENT]: ${getDeviceInfo()}\n")
         }
 
         if (lastQuery.contains("""library|anime|watch|collection|have|my|list|recommend""".toRegex())) {
-            toolContext.append("\n[USER_LIBRARY_DATA]:\n${getLibrarySummary()}\n")
+            if (aiPreferences.aiAssistantLibrary().get()) {
+                toolContext.append("\n[USER_LIBRARY_DATA]:\n${getLibrarySummary()}\n")
+            }
         }
         
         val finalMessages = messages.dropLast(1) + ChatMessage("user", messages.last().content + "\n\n" + toolContext.toString())
         return callGemini(finalMessages, apiKey, systemInstruction)
     }
 
-    private suspend fun callGroqWithTools(messages: List<ChatMessage>, apiKey: String, systemInstruction: String): String? {
+    private suspend fun callGroqWithTools(messages: List<ChatMessage>, apiKey: String, systemInstruction: String? = null): String? {
         val lastQuery = messages.last().content.lowercase()
         val toolContext = StringBuilder()
         if (lastQuery.contains("""log|error|fail|video|load|setting|where|how|device|black|broke|froze|slow|crash""".toRegex())) {
-            toolContext.append("\n[DIAGNOSTICS_DATA]:\n${getSanitizedLogs()}\n")
+            if (aiPreferences.aiAssistantLogs().get()) {
+                toolContext.append("\n[DIAGNOSTICS_DATA]:\n${getSanitizedLogs()}\n")
+            }
         }
         if (lastQuery.contains("""library|anime|watch|collection|have|my|list|recommend""".toRegex())) {
-            toolContext.append("\n[USER_LIBRARY_DATA]:\n${getLibrarySummary()}\n")
+            if (aiPreferences.aiAssistantLibrary().get()) {
+                toolContext.append("\n[USER_LIBRARY_DATA]:\n${getLibrarySummary()}\n")
+            }
         }
         val finalMessages = messages.dropLast(1) + ChatMessage("user", messages.last().content + "\n\n" + toolContext.toString())
         return callGroq(finalMessages, apiKey, systemInstruction)
