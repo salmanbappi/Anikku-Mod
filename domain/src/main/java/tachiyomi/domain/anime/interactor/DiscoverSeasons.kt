@@ -17,73 +17,53 @@ class DiscoverSeasons(
         val originalFullTitle = anime.title
         val rootTitle = SeasonRecognition.getRootTitle(originalFullTitle)
         
-        // 1. Core Signature: The words that define this franchise
-        val originalWords = rootTitle.lowercase()
-            .split(Regex("""[\s\:\-\–\—\(\)\[\]\.]+"""))
-            .filter { it.isNotBlank() && it.length > 1 }
-        
-        if (originalWords.isEmpty()) return emptyList()
-        val firstWord = originalWords.first()
+        if (rootTitle.length < 3) return emptyList()
         
         return try {
             val searchResult = source.getSearchAnime(1, rootTitle, source.getFilterList())
             
-            // 2. Pre-filter by Title (Fast)
-            val titleMatched = searchResult.animes.filter { sAnime ->
+            // 1. Strict Title Filtering
+            val candidates = searchResult.animes.filter { sAnime ->
                 val candidateFullTitle = sAnime.title
-                val candidateRoot = SeasonRecognition.getRootTitle(candidateFullTitle)
                 
+                // HARD LOCK: Must contain the root title as a substring
+                if (!candidateFullTitle.contains(rootTitle, ignoreCase = true)) return@filter false
+                
+                // Block generic noise
                 if (SeasonRecognition.isUnrelated(candidateFullTitle)) return@filter false
                 
-                val candidateWords = candidateFullTitle.lowercase()
-                    .split(Regex("""[\s\:\-\–\—\(\)\[\]\.]+"""))
-                    .filter { it.isNotBlank() }
+                // Sequence check: Ensure first word matches exactly
+                val originalFirstWord = rootTitle.split(Regex("""\s+""")).firstOrNull()?.lowercase()
+                val candidateFirstWord = candidateFullTitle.split(Regex("""\s+""")).firstOrNull()?.lowercase()
+                
+                candidateFirstWord == originalFirstWord && sAnime.url != anime.url
+            }.take(6)
 
-                // MUST start with same first word (kills Attack No.1)
-                if (candidateWords.firstOrNull() != firstWord) return@filter false
-
-                // Sequence Check: Original words must appear in same order
-                var lastIndex = -1
-                val inOrder = originalWords.all { word ->
-                    val index = candidateWords.indexOf(word)
-                    if (index > lastIndex) {
-                        lastIndex = index
-                        true
-                    } else false
-                }
-                if (!inOrder) return@filter false
-
-                val similarity = SeasonRecognition.jaroWinklerSimilarity(rootTitle, candidateRoot)
-                val startsWithRoot = candidateFullTitle.lowercase().startsWith(rootTitle.lowercase())
-
-                (similarity > 0.8 || startsWithRoot) && sAnime.url != anime.url
-            }.take(8) // Limit heavy metadata checks to top 8
-
-            // 3. Metadata Signature Lock (Slow, Accurate)
             val verified = mutableListOf<tachiyomi.domain.anime.model.Anime>()
-            for (sAnime in titleMatched) {
+            
+            // 2. Hard Metadata Signature Verification
+            for (sAnime in candidates) {
                 try {
                     val details = source.getAnimeDetails(sAnime)
                     val candidateAuthor = details.author?.lowercase()?.trim()
                     val originalAuthor = anime.author?.lowercase()?.trim()
+                    val originalArtist = anime.artist?.lowercase()?.trim()
                     
-                    val isAuthorMatch = when {
-                        candidateAuthor.isNullOrBlank() || originalAuthor.isNullOrBlank() -> true
-                        else -> {
-                            val cAuthWords = candidateAuthor.split(Regex("""\s+""")).filter { it.length > 2 }.toSet()
-                            val oAuthWords = originalAuthor.split(Regex("""\s+""")).filter { it.length > 2 }.toSet()
-                            cAuthWords.intersect(oAuthWords).isNotEmpty() || 
-                            candidateAuthor.contains(originalAuthor) || 
-                            originalAuthor.contains(candidateAuthor)
-                        }
-                    }
-                    
-                    if (isAuthorMatch) {
+                    // If original has author info, candidate MUST match it.
+                    val authorMatch = if (!originalAuthor.isNullOrBlank()) {
+                        val oWords = originalAuthor.split(Regex("""\s+""")).filter { it.length > 2 }
+                        val cWords = candidateAuthor?.split(Regex("""\s+"""))?.filter { it.length > 2 } ?: emptyList()
+                        oWords.any { ow -> cWords.contains(ow) } || candidateAuthor?.contains(originalAuthor) == true
+                    } else true
+
+                    if (authorMatch) {
                         verified.add(sAnime.toDomainAnime(anime.source))
                     }
                 } catch (e: Exception) {
-                    // Fallback to title only if network fails
-                    verified.add(sAnime.toDomainAnime(anime.source))
+                    // Only fallback to title if the original has NO author info at all
+                    if (anime.author.isNullOrBlank()) {
+                        verified.add(sAnime.toDomainAnime(anime.source))
+                    }
                 }
             }
 
