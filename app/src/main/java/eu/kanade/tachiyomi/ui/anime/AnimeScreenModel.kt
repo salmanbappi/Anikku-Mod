@@ -433,9 +433,15 @@ class AnimeScreenModel(
             // 0. Franchise & Sequels (Strict Verification)
             launchIO {
                 try {
-                    val virtualSeasons = discoverSeasons.await(anime)
-                    if (virtualSeasons.isNotEmpty()) {
-                        updateSection(SuggestionSection.Type.Franchise, virtualSeasons)
+                    val rawVirtualSeasons = discoverSeasons.await(anime)
+                    if (rawVirtualSeasons.isNotEmpty()) {
+                        val validSeasons = rawVirtualSeasons
+                            .map { networkToLocalAnime.await(it) }
+                            .mapNotNull { getAnime.await(it.id) }
+                        
+                        if (validSeasons.isNotEmpty()) {
+                            updateSection(SuggestionSection.Type.Franchise, validSeasons)
+                        }
                     }
                 } catch (_: Exception) {}
             }
