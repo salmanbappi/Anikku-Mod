@@ -64,16 +64,64 @@ object SeasonRecognition {
         return 2.0 * intersection / (set1.size + set2.size)
     }
 
-    private val negativeKeywords = Regex("""(?i)\b(?:Spin-off|Alternative|Anthology|Recap|Summary|MV|PV|Trailer|Promo|CM|Teaser|Live Action|Stage Play|Remake)\b""")
+    private val negativeKeywords = Regex("""(?i)\b(?:Spin-off|Alternative|Anthology|Recap|Summary|MV|PV|Trailer|Promo|CM|Teaser|Live Action|Stage Play|Remake|No\.?\s*1|Version|Collection|Dub|Sub)\b""")
 
-    fun isUnrelated(title: String): Boolean {
-        return negativeKeywords.containsMatchIn(title)
+    fun jaroWinklerSimilarity(s1: String, s2: String): Double {
+        val str1 = s1.lowercase().trim()
+        val str2 = s2.lowercase().trim()
+        if (str1 == str2) return 1.0
+        if (str1.isEmpty() || str2.isEmpty()) return 0.0
+
+        val len1 = str1.length
+        val len2 = str2.length
+        val matchWindow = (Math.max(len1, len2) / 2) - 1
+        val matches1 = BooleanArray(len1)
+        val matches2 = BooleanArray(len2)
+
+        var matches = 0
+        for (i in 0 until len1) {
+            val start = Math.max(0, i - matchWindow)
+            val end = Math.min(i + matchWindow + 1, len2)
+            for (j in start until end) {
+                if (matches2[j]) continue
+                if (str1[i] == str2[j]) {
+                    matches1[i] = true
+                    matches2[j] = true
+                    matches++
+                    break
+                }
+            }
+        }
+
+        if (matches == 0) return 0.0
+
+        var transpositions = 0
+        var k = 0
+        for (i in 0 until len1) {
+            if (!matches1[i]) continue
+            while (!matches2[k]) k++
+            if (str1[i] != str2[k]) transpositions++
+            k++
+        }
+
+        val m = matches.toDouble()
+        val jaro = (m / len1 + m / len2 + (m - transpositions / 2.0) / m) / 3.0
+        
+        // Winkler adjustment
+        var prefix = 0
+        for (i in 0 until Math.min(4, Math.min(len1, len2))) {
+            if (str1[i] == str2[i]) prefix++ else break
+        }
+        
+        return jaro + prefix * 0.1 * (1.0 - jaro)
     }
 
     fun getRootTitle(title: String): String {
         return title
-            // Only remove explicit season markers, but keep subtitles unless they are explicitly seasons
-            .replace(Regex("""(?i)\s+(?:Season\s+\d+|S\d+|Part\s+\d+|II|III|IV|V|VI|VII|VIII|IX|X|\d+(?:st|nd|rd|th)\s+(?:season|part))\b"""), "")
+            // Aggressively remove common source-specific noise
+            .replace(Regex("""(?i)\s*\[(?:1080p|720p|480p|BD|DVD|Web|Eng-Sub|Softsubs)\]"""), "")
+            // Remove explicit season/part markers
+            .replace(Regex("""(?i)\s+(?:Season\s+\d+|S\d+|Part\s+\d+|II|III|IV|V|VI|VII|VIII|IX|X|\d+(?:st|nd|rd|th)\s+(?:season|part|cour))\b"""), "")
             .replace(Regex("""(?i)\s+\(?(?:TV|OAV|OVA|ONA|Special|Movie|BD|Remux)\)?.*"""), "")
             .replace(Regex("""\s+"""), " ")
             .trim()

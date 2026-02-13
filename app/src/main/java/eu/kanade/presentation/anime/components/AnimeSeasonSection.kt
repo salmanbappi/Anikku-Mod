@@ -115,18 +115,21 @@ private fun SeasonItem(
 ) {
     val seasonLabel = remember(season.seasonNumber, season.anime.title) {
         val title = season.anime.title.lowercase()
-        val isPart = title.contains("part") || title.contains("cour")
         
         when (season.seasonNumber) {
-            -2.0 -> "Movie"
+            -2.0 -> {
+                // Try to extract a short movie title if it exists after a colon
+                val subtitle = season.anime.title.substringAfterLast(":").trim()
+                if (subtitle.length in 1..20 && subtitle.lowercase() != title) subtitle else "Movie"
+            }
             -3.0 -> "OVA"
             -4.0 -> "ONA"
             -5.0 -> "Special"
             else -> {
                 if (season.seasonNumber > 0) {
                     val num = if (season.seasonNumber % 1.0 == 0.0) season.seasonNumber.toInt().toString() else season.seasonNumber.toString()
-                    // If it's 1.0, only show "Season 1" or "Part 1" if the title actually contains a season marker
-                    // otherwise it's just the base title entry.
+                    val isPart = title.contains("part") || title.contains("cour")
+                    
                     if (season.seasonNumber == 1.0 && !title.contains("season") && !title.contains("part") && !title.contains("cour") && !title.contains(" s1")) {
                          "Main"
                     } else if (isPart) {
@@ -135,7 +138,9 @@ private fun SeasonItem(
                         "Season $num"
                     }
                 } else {
-                    "Special"
+                    // Fallback for named sequels without numbers
+                    val subtitle = season.anime.title.substringAfterLast(":").trim()
+                    if (subtitle.length in 1..20 && subtitle.lowercase() != title) subtitle else "Sequel"
                 }
             }
         }
