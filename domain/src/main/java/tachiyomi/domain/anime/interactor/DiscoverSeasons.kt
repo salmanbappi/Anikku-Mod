@@ -17,7 +17,7 @@ class DiscoverSeasons(
         val originalFullTitle = anime.title
         val rootTitle = SeasonRecognition.getRootTitle(originalFullTitle)
         
-        // Extract significant words (ignoring particles like 'of', 'the', etc)
+        // Extract significant words
         val originalWords = rootTitle.lowercase()
             .split(Regex("""\s+"""))
             .filter { it.length > 2 || it.all { char -> char.isDigit() } }
@@ -32,18 +32,27 @@ class DiscoverSeasons(
                     val candidateFullTitle = candidate.title
                     val candidateRoot = SeasonRecognition.getRootTitle(candidateFullTitle)
                     
-                    // 1. Strict Word Coverage: Candidate must contain ALL significant words of the original root
+                    // 1. Block Unrelated Categories (Recaps, Spin-offs, etc)
+                    if (SeasonRecognition.isUnrelated(candidateFullTitle)) return@filter false
+                    
+                    // 2. Strict Word Coverage
                     val candidateWords = candidateFullTitle.lowercase().split(Regex("""\s+""")).toSet()
                     val hasAllWords = originalWords.all { word -> candidateWords.contains(word) }
                     
-                    // 2. Similarity Check
+                    // 3. Word Density check: Candidate shouldn't have too many "extra" significant words
+                    // This prevents "Sword Art Online" matching "Sword Art Online Alternative" if Alternative is not in originalWords
+                    val candidateSignificantWords = candidateRoot.lowercase().split(Regex("""\s+"""))
+                        .filter { it.length > 2 || it.all { char -> char.isDigit() } }
+                    
+                    val extraWordsCount = candidateSignificantWords.size - originalWords.size
+                    
+                    // 4. Similarity and combine
                     val similarity = SeasonRecognition.diceCoefficient(rootTitle, candidateRoot)
                     
-                    // 3. Combine constraints
                     hasAllWords &&
-                    similarity > 0.8 &&
+                    similarity > 0.7 && // Lowered slightly since getRootTitle is now more aggressive
+                    extraWordsCount <= 2 && // Strictly allow only small title variations
                     candidate.url != anime.url &&
-                    // Block dubs/subs versions if they are separate entries
                     !candidateFullTitle.contains("(Dub)", ignoreCase = true) &&
                     !candidateFullTitle.contains("(Sub)", ignoreCase = true)
                 }
