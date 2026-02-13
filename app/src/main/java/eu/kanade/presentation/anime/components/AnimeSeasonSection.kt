@@ -36,6 +36,21 @@ fun AnimeSeasonSection(
 ) {
     if (seasons.size <= 1) return
 
+    // Intuitive Sorting: Seasons/Movies first (positive/0/-2), then OVAs/ONAs/Specials
+    val sortedSeasons = remember(seasons) {
+        seasons.sortedWith(
+            compareBy<Season> { 
+                when {
+                    it.seasonNumber >= 0 -> 0 // Normal seasons
+                    it.seasonNumber == -2.0 -> 1 // Movies
+                    it.seasonNumber == -3.0 -> 2 // OVA
+                    it.seasonNumber == -4.0 -> 3 // ONA
+                    else -> 4 // Specials
+                }
+            }.thenBy { it.seasonNumber }
+        )
+    }
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -80,7 +95,7 @@ fun AnimeSeasonSection(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(
-                    items = seasons,
+                    items = sortedSeasons,
                     key = { it.anime.id }
                 ) { season ->
                     SeasonItem(
@@ -99,10 +114,12 @@ private fun SeasonItem(
     onClick: () -> Unit,
 ) {
     val seasonLabel = remember(season.seasonNumber) {
-        when {
-            season.seasonNumber == -2.0 -> "Movie"
-            season.seasonNumber > 0 -> "Season ${season.seasonNumber.toInt()}"
-            else -> "Special"
+        when (season.seasonNumber) {
+            -2.0 -> "Movie"
+            -3.0 -> "OVA"
+            -4.0 -> "ONA"
+            -5.0 -> "Special"
+            else -> if (season.seasonNumber > 0) "Season ${season.seasonNumber.toInt()}" else "Special"
         }
     }
 
