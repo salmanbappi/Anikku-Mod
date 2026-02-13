@@ -23,9 +23,15 @@ class DiscoverSeasons(
                 .map { it.toDomainAnime(anime.source) }
                 .filter { candidate ->
                     val candidateRoot = SeasonRecognition.getRootTitle(candidate.title)
-                    candidateRoot.equals(rootTitle, ignoreCase = true) &&
-                    candidate.url != anime.url &&
-                    !candidate.title.contains("Movie", ignoreCase = true)
+                    
+                    // 1. Root Similarity: Must be very similar to the original root (e.g. 85%+)
+                    val similarity = SeasonRecognition.diceCoefficient(rootTitle, candidateRoot)
+                    
+                    // 2. Strict Constraints
+                    similarity > 0.8 && // High threshold to block unrelated stuff
+                    candidate.url != anime.url && // Not the same anime
+                    // Ensure the candidate isn't just a completely different series that contains the root words
+                    (candidateRoot.contains(rootTitle, ignoreCase = true) || rootTitle.contains(candidateRoot, ignoreCase = true))
                 }
         } catch (e: Exception) {
             emptyList()

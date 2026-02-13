@@ -12,7 +12,12 @@ object SeasonRecognition {
     /**
      * Ordinal support: 2nd season, 3rd season, etc.
      */
-    private val ordinals = Regex("""(\d+)(?:st|nd|rd|th)\s+season""", RegexOption.IGNORE_CASE)
+    private val ordinals = Regex("""(\d+)(?:st|nd|rd|th)\s+(?:season|part)""", RegexOption.IGNORE_CASE)
+
+    /**
+     * Part support: Part 1, Part 2
+     */
+    private val parts = Regex("""(?<=\bpart) *$NUMBER_PATTERN""", RegexOption.IGNORE_CASE)
 
     /**
      * Format tags support
@@ -46,12 +51,25 @@ object SeasonRecognition {
         "VI" to 6.0, "VII" to 7.0, "VIII" to 8.0, "IX" to 9.0, "X" to 10.0
     )
 
+    fun diceCoefficient(s1: String, s2: String): Double {
+        val str1 = s1.lowercase().replace(Regex("""\s+"""), "")
+        val str2 = s2.lowercase().replace(Regex("""\s+"""), "")
+        if (str1 == str2) return 1.0
+        if (str1.length < 2 || str2.length < 2) return 0.0
+
+        val set1 = str1.zipWithNext { a, b -> "$a$b" }.toSet()
+        val set2 = str2.zipWithNext { a, b -> "$a$b" }.toSet()
+
+        val intersection = set1.intersect(set2).size
+        return 2.0 * intersection / (set1.size + set2.size)
+    }
+
     fun getRootTitle(title: String): String {
         return title
-            .replace(Regex("""(?i)\s+(:|--|–).*"""), "") // Remove subtitles after colons/dashes
-            // Only remove standalone numbers or explicit season markers to avoid breaking titles like "7Seeds"
-            .replace(Regex("""(?i)\s+(?:Season\s+\d+|S\d+|II|III|IV|V|VI|VII|VIII|IX|X)\b"""), "")
-            .replace(Regex("""(?i)\s+\(?(?:TV|OAV|OVA|ONA|Special|Movie|BD|Remux)\)?.*"""), "") // Remove format tags
+            // Only remove explicit season markers, not just colons
+            .replace(Regex("""(?i)\s+(?:Season\s+\d+|S\d+|II|III|IV|V|VI|VII|VIII|IX|X|\d+(?:st|nd|rd|th)\s+season)\b"""), "")
+            .replace(Regex("""(?i)\s+\(?(?:TV|OAV|OVA|ONA|Special|Movie|BD|Remux)\)?.*"""), "")
+            .replace(Regex("""\s+"""), " ")
             .trim()
     }
 
@@ -63,13 +81,20 @@ object SeasonRecognition {
         val rootTitle = getRootTitle(animeTitle)
         val cleanSeasonTitle = getRootTitle(seasonName)
 
-        // UPGRADE: If the name matches the root title exactly, it's Season 1
+        // Only return 1.0 if it's actually the same title as the root
+        // If there are extra words (like "Shippuden"), it's not Season 1
         if (cleanSeasonTitle.equals(rootTitle, ignoreCase = true)) {
-            return 1.0
+            // Check if the ORIGINAL name has a number. If it has "2", it's not 1.0.
+            if (!Regex("""(?i)\b(?:Season\s*1|S1|Part\s*1)\b""").containsMatchIn(seasonName) &&
+                Regex("""(?i)\b(?:Season\s*\d+|S\d+|Part\s*\d+|II|III|IV|V|VI|VII|VIII|IX|X)\b""").containsMatchIn(seasonName)) {
+                // Let it fall through to regex detection
+            } else {
+                return 1.0
+            }
         }
 
         var cleanName = seasonName.lowercase()
-            .replace(animeTitle.lowercase(), "").trim()
+            .replace(rootTitle.lowercase(), "").trim() // Use root title for cleaning
             .replace(',', '.')
             .replace('-', '.')
             .replace(unwantedWhiteSpace, "")
@@ -81,18 +106,23 @@ object SeasonRecognition {
         // Remove resolution numbers (1080, 720, etc) to prevent false matches
         cleanName = cleanName.replace(Regex("""\b\d{3,4}p?\b"""), "")
 
-        // 1. Try Ordinal Detection (2nd Season)
+        // 1. Try Ordinal Detection (2nd Season, 3rd Part)
         ordinals.find(cleanName)?.let {
             return it.groups[1]?.value?.toDoubleOrNull() ?: 1.0
         }
 
-        // 2. Try Upgraded Roman Numeral Detection
+        // 2. Try Part Detection (Part 2)
+        parts.find(cleanName)?.let {
+            return getSeasonNumberFromMatch(it)
+        }
+
+        // 3. Try Upgraded Roman Numeral Detection
         romanNumerals.find(cleanName)?.let {
             val roman = it.groups[1]?.value?.uppercase()
             return romanMap[roman] ?: -1.0
         }
 
-        // 3. Check for specific format tags
+        // 4. Check for specific format tags
         if (cleanName.contains("movie", ignoreCase = true)) return -2.0
         if (cleanName.contains("ova", ignoreCase = true) || cleanName.contains("oav", ignoreCase = true)) return -3.0
         if (cleanName.contains("ona", ignoreCase = true)) return -4.0

@@ -113,13 +113,23 @@ private fun SeasonItem(
     season: Season,
     onClick: () -> Unit,
 ) {
-    val seasonLabel = remember(season.seasonNumber) {
+    val seasonLabel = remember(season.seasonNumber, season.anime.title) {
+        val title = season.anime.title.lowercase()
+        val isPart = title.contains("part") || title.contains("cour")
+        
         when (season.seasonNumber) {
             -2.0 -> "Movie"
             -3.0 -> "OVA"
             -4.0 -> "ONA"
             -5.0 -> "Special"
-            else -> if (season.seasonNumber > 0) "Season ${season.seasonNumber.toInt()}" else "Special"
+            else -> {
+                if (season.seasonNumber > 0) {
+                    val num = if (season.seasonNumber % 1.0 == 0.0) season.seasonNumber.toInt().toString() else season.seasonNumber.toString()
+                    if (isPart) "Part $num" else "Season $num"
+                } else {
+                    "Special"
+                }
+            }
         }
     }
 
