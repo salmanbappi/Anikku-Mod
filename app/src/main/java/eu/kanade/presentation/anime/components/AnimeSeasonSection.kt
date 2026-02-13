@@ -99,15 +99,15 @@ private fun SeasonItem(
     onClick: () -> Unit,
 ) {
     val seasonLabel = remember(season.seasonNumber) {
-        if (season.seasonNumber > 0) {
-            "Season ${season.seasonNumber.toInt()}"
-        } else {
-            "Special"
+        when {
+            season.seasonNumber == -2.0 -> "Movie"
+            season.seasonNumber > 0 -> "Season ${season.seasonNumber.toInt()}"
+            else -> "Special"
         }
     }
 
     Column(
-        modifier = Modifier.width(100.dp),
+        modifier = Modifier.width(104.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -126,8 +126,8 @@ private fun SeasonItem(
                 if (season.isPrimary) {
                     Badge(
                         text = "Current",
-                        color = MaterialTheme.colorScheme.primary,
-                        textColor = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.secondary,
+                        textColor = MaterialTheme.colorScheme.onSecondary
                     )
                 }
             },

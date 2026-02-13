@@ -14,20 +14,21 @@ class DiscoverSeasons(
     suspend fun await(anime: Anime): List<Anime> {
         val source = sourceManager.get(anime.source) as? AnimeCatalogueSource ?: return emptyList()
         
-        // 1. Get Root Title (e.g. "Boku no Hero Academia")
         val rootTitle = getRootTitle(anime.title)
         
         return try {
-            // 2. Search source for root title
             val searchResult = source.getSearchAnime(1, rootTitle, source.getFilterList())
             
-            // 3. Filter results that are actually seasons of this anime
             searchResult.animes
                 .map { it.toDomainAnime(anime.source) }
                 .filter { candidate ->
-                    // Must have same root title and a valid season number
-                    getRootTitle(candidate.title).lowercase() == rootTitle.lowercase() &&
-                    candidate.url != anime.url
+                    val candidateRoot = getRootTitle(candidate.title)
+                    // Upgraded Strictness: Root titles must match almost exactly (ignoring case)
+                    // and must not be the same entry.
+                    candidateRoot.equals(rootTitle, ignoreCase = true) &&
+                    candidate.url != anime.url &&
+                    // Exclude entries that are likely completely different series but share words
+                    !candidate.title.contains("Movie", ignoreCase = true)
                 }
         } catch (e: Exception) {
             emptyList()
@@ -35,7 +36,10 @@ class DiscoverSeasons(
     }
 
     private fun getRootTitle(title: String): String {
-        // Simple logic to remove "Season X", "S2", etc.
-        return title.replace(Regex("""(?i)\s+(?:Season\s+\d+|S\d+|II|III|IV|V|VI|VII|VIII|IX|X).*"""), "").trim()
+        return title
+            .replace(Regex("""(?i)\s+(:|--|–).*"""), "") // Remove subtitles after colons/dashes
+            .replace(Regex("""(?i)\s+(?:Season\s+\d+|S\d+|II|III|IV|V|VI|VII|VIII|IX|X|\d+)(?:\s+|$)"""), "") // Remove season markers
+            .replace(Regex("""(?i)\s+\(?(?:TV|OAV|OVA|ONA|Special|Movie|BD|Remux)\)?.*"""), "") // Remove format tags
+            .trim()
     }
 }

@@ -70,14 +70,17 @@ object SeasonRecognition {
 
         // 5. Try general number detection
         val numberMatches = number.findAll(cleanName)
+        
+        // UPGRADE: If no number is found but the title matches the root, it's likely Season 1
         if (numberMatches.none()) {
-            return existingNumber ?: -1.0
+            return 1.0
         }
 
         // If multiple numbers, filter unwanted tags and try again
         if (numberMatches.count() > 1) {
             val filteredName = unwanted.replace(cleanName, "")
             basic.find(filteredName)?.let { return getSeasonNumberFromMatch(it) }
+            // If still multiple, use the first number found after cleaning
             number.find(filteredName)?.let { return getSeasonNumberFromMatch(it) }
         }
 
