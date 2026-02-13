@@ -20,15 +20,14 @@ class DiscoverSeasons(
         // Split into words for order and coverage check
         val originalWords = rootTitle.lowercase()
             .split(Regex("""[\s\:\-\–\—\(\)\[\]\.]+"""))
-            .filter { it.isNotBlank() && it.length > 1 } // Ignore single chars
+            .filter { it.isNotBlank() && it.length > 1 }
         
         if (originalWords.isEmpty()) return emptyList()
         
         return try {
-            // Search with root title
             val searchResult = source.getSearchAnime(1, rootTitle, source.getFilterList())
             
-            searchResult.animes
+            val candidates = searchResult.animes
                 .map { it.toDomainAnime(anime.source) }
                 .filter { candidate ->
                     val candidateFullTitle = candidate.title
@@ -40,10 +39,8 @@ class DiscoverSeasons(
                         .split(Regex("""[\s\:\-\–\—\(\)\[\]\.]+"""))
                         .filter { it.isNotBlank() }
 
-                    // 1. Strict Prefix Word Check: Candidate MUST start with the first word of original
                     if (candidateWords.firstOrNull() != originalWords.first()) return@filter false
 
-                    // 2. Word Order Enforcer: All original words must appear in the candidate in the same relative order
                     var lastIndex = -1
                     val hasInOrder = originalWords.all { word ->
                         val index = candidateWords.indexOf(word)
@@ -54,10 +51,7 @@ class DiscoverSeasons(
                     }
                     if (!hasInOrder) return@filter false
 
-                    // 3. Advanced Similarity: Use Jaro-Winkler for prefix sensitivity
                     val similarity = SeasonRecognition.jaroWinklerSimilarity(rootTitle, candidateRoot)
-                    
-                    // 4. Inclusive Matching: Allow if candidate starts with original root (common for sequels)
                     val startsWithRoot = candidateFullTitle.lowercase().startsWith(rootTitle.lowercase())
 
                     (similarity > 0.85 || startsWithRoot) &&
@@ -65,7 +59,32 @@ class DiscoverSeasons(
                     !candidateFullTitle.contains("(Dub)", ignoreCase = true) &&
                     !candidateFullTitle.contains("(Sub)", ignoreCase = true)
                 }
-                .sortedBy { it.title.length } // Shortest titles (main seasons) first
+                .take(10) // Only process top 10 candidates to keep it fast
+
+            // 5. Author Signature Check: Fetch details for top candidates to verify author
+            candidates.filter { candidate ->
+                try {
+                    val details = source.getAnimeDetails(candidate.toSAnime())
+                    val candidateAuthor = details.author?.lowercase()?.trim()
+                    val originalAuthor = anime.author?.lowercase()?.trim()
+                    
+                    // If either has no author info, allow it (some sources are incomplete)
+                    // otherwise, they MUST share at least one part of the author's name
+                    if (candidateAuthor.isNullOrBlank() || originalAuthor.isNullOrBlank()) {
+                        true
+                    } else {
+                        val originalAuthorWords = originalAuthor.split(Regex("""\s+""")).filter { it.length > 2 }.toSet()
+                        val candidateAuthorWords = candidateAuthor.split(Regex("""\s+""")).filter { it.length > 2 }.toSet()
+                        
+                        // Check if they share any significant creator name
+                        originalAuthorWords.intersect(candidateAuthorWords).isNotEmpty() ||
+                        candidateAuthor.contains(originalAuthor) || 
+                        originalAuthor.contains(candidateAuthor)
+                    }
+                } catch (e: Exception) {
+                    true // If network fails, don't block
+                }
+            }.sortedBy { it.title.length }
         } catch (e: Exception) {
             emptyList()
         }
