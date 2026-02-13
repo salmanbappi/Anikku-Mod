@@ -206,6 +206,11 @@ object SettingsAppearanceScreen : SearchableSettings {
                     title = "Auto-expand details",
                     subtitle = "Expand anime description by default",
                 ),
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = uiPreferences.showSeasonsSection(),
+                    title = "Show seasons section",
+                    subtitle = "Show series seasons in anime details",
+                ),
                 Preference.PreferenceItem.SliderPreference(
                     value = animeItemSpacing,
                     min = 0,

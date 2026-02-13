@@ -129,6 +129,7 @@ class AnimeScreen(
         }
 
         val autoExpandDescription by uiPreferences.autoExpandAnimeDescription().collectAsState()
+        val showSeasonsSection by uiPreferences.showSeasonsSection().collectAsState()
 
         AnimeScreen(
             state = successState,
@@ -141,6 +142,7 @@ class AnimeScreen(
             alwaysUseExternalPlayer = screenModel.alwaysUseExternalPlayer,
             showFileSize = screenModel.showFileSize,
             autoExpandDescription = autoExpandDescription,
+            showSeasonsSection = showSeasonsSection,
             onBackClicked = { navigator.pop() },
             onEpisodeClicked = { episode, alt ->
                 scope.launchIO {

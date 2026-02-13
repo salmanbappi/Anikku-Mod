@@ -155,6 +155,7 @@ fun AnimeScreen(
     alwaysUseExternalPlayer: Boolean,
     showFileSize: Boolean,
     autoExpandDescription: Boolean,
+    showSeasonsSection: Boolean,
     onBackClicked: () -> Unit,
     onEpisodeClicked: (episode: Episode, alt: Boolean) -> Unit,
     onDownloadEpisode: ((List<EpisodeList.Item>, EpisodeDownloadAction) -> Unit)?,
@@ -212,6 +213,7 @@ fun AnimeScreen(
             alwaysUseExternalPlayer = alwaysUseExternalPlayer,
             showFileSize = showFileSize,
             autoExpandDescription = autoExpandDescription,
+            showSeasonsSection = showSeasonsSection,
             onBackClicked = onBackClicked,
             onEpisodeClicked = onEpisodeClicked,
             onDownloadEpisode = onDownloadEpisode,
@@ -258,6 +260,7 @@ fun AnimeScreen(
             alwaysUseExternalPlayer = alwaysUseExternalPlayer,
             showFileSize = showFileSize,
             autoExpandDescription = autoExpandDescription,
+            showSeasonsSection = showSeasonsSection,
             onBackClicked = onBackClicked,
             onEpisodeClicked = onEpisodeClicked,
             onDownloadEpisode = onDownloadEpisode,
@@ -308,6 +311,7 @@ private fun AnimeScreenSmallImpl(
     alwaysUseExternalPlayer: Boolean,
     showFileSize: Boolean,
     autoExpandDescription: Boolean,
+    showSeasonsSection: Boolean,
     onBackClicked: () -> Unit,
     onEpisodeClicked: (Episode, Boolean) -> Unit,
     onDownloadEpisode: ((List<EpisodeList.Item>, EpisodeDownloadAction) -> Unit)?,
@@ -507,17 +511,18 @@ private fun AnimeScreenSmallImpl(
                                     totalScore = state.totalScore,
                                     sourceName = remember { state.source.getNameForAnimeInfo() },
                                     isStubSource = remember { state.source is StubSource },
-                                    onCoverClick = onCoverClicked,
                                     doSearch = onSearch,
                                 )
                             }
-                            item(key = "season-section", contentType = "season") {
-                                val navigator = LocalNavigator.currentOrThrow
-                                AnimeSeasonSection(
-                                    seasons = state.seasons,
-                                    onSeasonClick = { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(it)) },
-                                    modifier = Modifier.padding(horizontal = 16.dp),
-                                )
+                            if (showSeasonsSection) {
+                                item(key = "season-section", contentType = "season") {
+                                    val navigator = LocalNavigator.currentOrThrow
+                                    AnimeSeasonSection(
+                                        seasons = state.seasons,
+                                        onSeasonClick = { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(it)) },
+                                        modifier = Modifier.padding(horizontal = 16.dp),
+                                    )
+                                }
                             }
                             item(key = AnimeScreenItem.ACTION_ROW, contentType = AnimeScreenItem.ACTION_ROW) {
                                 val isWatching = remember(state.episodes) {
@@ -711,6 +716,7 @@ fun AnimeScreenLargeImpl(
     alwaysUseExternalPlayer: Boolean,
     showFileSize: Boolean,
     autoExpandDescription: Boolean,
+    showSeasonsSection: Boolean,
     onBackClicked: () -> Unit,
     onEpisodeClicked: (Episode, Boolean) -> Unit,
     onDownloadEpisode: ((List<EpisodeList.Item>, EpisodeDownloadAction) -> Unit)?,
@@ -915,12 +921,14 @@ fun AnimeScreenLargeImpl(
                                     onCoverClick = onCoverClicked,
                                     doSearch = onSearch,
                                 )
-                                val navigator = LocalNavigator.currentOrThrow
-                                AnimeSeasonSection(
-                                    seasons = state.seasons,
-                                    onSeasonClick = { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(it)) },
-                                    modifier = Modifier.padding(horizontal = 16.dp),
-                                )
+                                if (showSeasonsSection) {
+                                    val navigator = LocalNavigator.currentOrThrow
+                                    AnimeSeasonSection(
+                                        seasons = state.seasons,
+                                        onSeasonClick = { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(it)) },
+                                        modifier = Modifier.padding(horizontal = 16.dp),
+                                    )
+                                }
                                 val isWatching = remember(state.episodes) {
                                     state.episodes.fastAny { it.episode.seen }
                                 }
