@@ -14,7 +14,14 @@ class DiscoverSeasons(
     suspend fun await(anime: Anime): List<Anime> {
         val source = sourceManager.get(anime.source) as? AnimeCatalogueSource ?: return emptyList()
         
-        val rootTitle = SeasonRecognition.getRootTitle(anime.title)
+        val originalFullTitle = anime.title
+        val rootTitle = SeasonRecognition.getRootTitle(originalFullTitle)
+        
+        // Extract significant words (ignoring particles like 'of', 'the', etc)
+        val originalWords = rootTitle.lowercase()
+            .split(Regex("""\s+"""))
+            .filter { it.length > 2 || it.all { char -> char.isDigit() } }
+            .toSet()
         
         return try {
             val searchResult = source.getSearchAnime(1, rootTitle, source.getFilterList())
@@ -22,16 +29,23 @@ class DiscoverSeasons(
             searchResult.animes
                 .map { it.toDomainAnime(anime.source) }
                 .filter { candidate ->
-                    val candidateRoot = SeasonRecognition.getRootTitle(candidate.title)
+                    val candidateFullTitle = candidate.title
+                    val candidateRoot = SeasonRecognition.getRootTitle(candidateFullTitle)
                     
-                    // 1. Root Similarity: Must be very similar to the original root (e.g. 85%+)
+                    // 1. Strict Word Coverage: Candidate must contain ALL significant words of the original root
+                    val candidateWords = candidateFullTitle.lowercase().split(Regex("""\s+""")).toSet()
+                    val hasAllWords = originalWords.all { word -> candidateWords.contains(word) }
+                    
+                    // 2. Similarity Check
                     val similarity = SeasonRecognition.diceCoefficient(rootTitle, candidateRoot)
                     
-                    // 2. Strict Constraints
-                    similarity > 0.8 && // High threshold to block unrelated stuff
-                    candidate.url != anime.url && // Not the same anime
-                    // Ensure the candidate isn't just a completely different series that contains the root words
-                    (candidateRoot.contains(rootTitle, ignoreCase = true) || rootTitle.contains(candidateRoot, ignoreCase = true))
+                    // 3. Combine constraints
+                    hasAllWords &&
+                    similarity > 0.8 &&
+                    candidate.url != anime.url &&
+                    // Block dubs/subs versions if they are separate entries
+                    !candidateFullTitle.contains("(Dub)", ignoreCase = true) &&
+                    !candidateFullTitle.contains("(Sub)", ignoreCase = true)
                 }
         } catch (e: Exception) {
             emptyList()

@@ -125,7 +125,15 @@ private fun SeasonItem(
             else -> {
                 if (season.seasonNumber > 0) {
                     val num = if (season.seasonNumber % 1.0 == 0.0) season.seasonNumber.toInt().toString() else season.seasonNumber.toString()
-                    if (isPart) "Part $num" else "Season $num"
+                    // If it's 1.0, only show "Season 1" or "Part 1" if the title actually contains a season marker
+                    // otherwise it's just the base title entry.
+                    if (season.seasonNumber == 1.0 && !title.contains("season") && !title.contains("part") && !title.contains("cour") && !title.contains(" s1")) {
+                         "Main"
+                    } else if (isPart) {
+                        "Part $num"
+                    } else {
+                        "Season $num"
+                    }
                 } else {
                     "Special"
                 }

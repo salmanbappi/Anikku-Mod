@@ -79,22 +79,10 @@ object SeasonRecognition {
         }
 
         val rootTitle = getRootTitle(animeTitle)
-        val cleanSeasonTitle = getRootTitle(seasonName)
-
-        // Only return 1.0 if it's actually the same title as the root
-        // If there are extra words (like "Shippuden"), it's not Season 1
-        if (cleanSeasonTitle.equals(rootTitle, ignoreCase = true)) {
-            // Check if the ORIGINAL name has a number. If it has "2", it's not 1.0.
-            if (!Regex("""(?i)\b(?:Season\s*1|S1|Part\s*1)\b""").containsMatchIn(seasonName) &&
-                Regex("""(?i)\b(?:Season\s*\d+|S\d+|Part\s*\d+|II|III|IV|V|VI|VII|VIII|IX|X)\b""").containsMatchIn(seasonName)) {
-                // Let it fall through to regex detection
-            } else {
-                return 1.0
-            }
-        }
-
+        
+        // 1. Clean the name for number detection
         var cleanName = seasonName.lowercase()
-            .replace(rootTitle.lowercase(), "").trim() // Use root title for cleaning
+            .replace(rootTitle.lowercase(), "") // Remove the base title part
             .replace(',', '.')
             .replace('-', '.')
             .replace(unwantedWhiteSpace, "")
@@ -102,50 +90,56 @@ object SeasonRecognition {
         while (tagRegex.containsMatchIn(cleanName)) {
             cleanName = tagRegex.replace(cleanName, "")
         }
-
-        // Remove resolution numbers (1080, 720, etc) to prevent false matches
+        
+        // Remove resolution numbers
         cleanName = cleanName.replace(Regex("""\b\d{3,4}p?\b"""), "")
 
-        // 1. Try Ordinal Detection (2nd Season, 3rd Part)
+        // 2. Try Explicit Detection FIRST
+        // Ordinal Detection (2nd Season, 3rd Part)
         ordinals.find(cleanName)?.let {
             return it.groups[1]?.value?.toDoubleOrNull() ?: 1.0
         }
 
-        // 2. Try Part Detection (Part 2)
+        // Part Detection (Part 2)
         parts.find(cleanName)?.let {
             return getSeasonNumberFromMatch(it)
         }
 
-        // 3. Try Upgraded Roman Numeral Detection
+        // Roman Numeral Detection
         romanNumerals.find(cleanName)?.let {
             val roman = it.groups[1]?.value?.uppercase()
             return romanMap[roman] ?: -1.0
         }
 
-        // 4. Check for specific format tags
+        // Explicit "Season X" or "S X"
+        basic.find(cleanName)?.let {
+            return getSeasonNumberFromMatch(it)
+        }
+
+        // 3. Check for specific format tags
         if (cleanName.contains("movie", ignoreCase = true)) return -2.0
         if (cleanName.contains("ova", ignoreCase = true) || cleanName.contains("oav", ignoreCase = true)) return -3.0
         if (cleanName.contains("ona", ignoreCase = true)) return -4.0
         if (cleanName.contains("special", ignoreCase = true)) return -5.0
 
-        // 4. Try basic detection (Season 2, S02)
-        val basicMatch = basic.find(cleanName)
-        if (basicMatch != null) {
-            return getSeasonNumberFromMatch(basicMatch)
+        // 4. If no explicit number was found, check if it's actually just Season 1
+        // We do this by checking if the root titles match AND no other numbers are left
+        val cleanSeasonTitle = getRootTitle(seasonName)
+        if (cleanSeasonTitle.equals(rootTitle, ignoreCase = true)) {
+            // Final safety check: if the original name has ANY digits we didn't consume, it might be a season we missed
+            val remainingDigits = cleanName.filter { it.isDigit() }
+            if (remainingDigits.isEmpty()) {
+                return 1.0
+            }
         }
 
+        // 5. Fallback to general number detection
         val numberMatches = number.findAll(cleanName)
-        if (numberMatches.none()) {
-            return 1.0
+        if (numberMatches.any()) {
+            return getSeasonNumberFromMatch(numberMatches.first())
         }
 
-        if (numberMatches.count() > 1) {
-            val filteredName = unwanted.replace(cleanName, "")
-            basic.find(filteredName)?.let { return getSeasonNumberFromMatch(it) }
-            number.find(filteredName)?.let { return getSeasonNumberFromMatch(it) }
-        }
-
-        return getSeasonNumberFromMatch(numberMatches.first())
+        return -1.0 // Default to special/unknown if we can't be sure it's S1
     }
 
     private fun getSeasonNumberFromMatch(match: MatchResult): Double {
