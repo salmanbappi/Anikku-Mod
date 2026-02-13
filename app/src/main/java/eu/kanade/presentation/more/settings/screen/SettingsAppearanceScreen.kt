@@ -206,6 +206,17 @@ object SettingsAppearanceScreen : SearchableSettings {
                     title = "Auto-expand details",
                     subtitle = "Expand anime description by default",
                 ),
+                Preference.PreferenceItem.MultiSelectListPreference(
+                    pref = uiPreferences.containerStyles(),
+                    title = "Container Style",
+                    subtitle = "Enable rounded containers for selected screens",
+                    entries = mapOf(
+                        UiPreferences.ContainerStyle.LIBRARY to "Library",
+                        UiPreferences.ContainerStyle.UPDATES to "Updates",
+                        UiPreferences.ContainerStyle.HISTORY to "History",
+                        UiPreferences.ContainerStyle.DETAILS to "Details (Seasons)",
+                    ).toImmutableMap(),
+                ),
                 Preference.PreferenceItem.SwitchPreference(
                     pref = uiPreferences.showSeasonsSection(),
                     title = "Show seasons section",

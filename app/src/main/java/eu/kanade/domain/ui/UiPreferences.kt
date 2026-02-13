@@ -56,12 +56,21 @@ class UiPreferences(
     fun animeItemSpacing() = preferenceStore.getInt("pref_anime_item_spacing", 24)
 
     fun panoramaCover() = preferenceStore.getBoolean("pref_panorama_cover", false)
+
+    fun containerStyles() = preferenceStore.getStringSet("pref_ui_container_styles", emptySet())
     // SY <--
 
     companion object {
         fun dateFormat(format: String): DateTimeFormatter = when (format) {
             "" -> DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)
             else -> DateTimeFormatter.ofPattern(format, Locale.getDefault())
+        }
+
+        object ContainerStyle {
+            const val LIBRARY = "library"
+            const val UPDATES = "updates"
+            const val HISTORY = "history"
+            const val DETAILS = "details"
         }
     }
 }

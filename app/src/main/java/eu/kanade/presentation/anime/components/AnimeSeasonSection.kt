@@ -28,6 +28,12 @@ import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.Badge
 import tachiyomi.presentation.core.i18n.stringResource
 
+import androidx.compose.runtime.getValue
+import eu.kanade.domain.ui.UiPreferences
+import tachiyomi.presentation.core.util.collectAsState
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
+
 @Composable
 fun AnimeSeasonSection(
     seasons: ImmutableList<Season>,
@@ -35,6 +41,10 @@ fun AnimeSeasonSection(
     modifier: Modifier = Modifier,
 ) {
     if (seasons.size <= 1) return
+
+    val uiPreferences = remember { Injekt.get<UiPreferences>() }
+    val containerStyles by uiPreferences.containerStyles().collectAsState()
+    val useContainer = remember(containerStyles) { UiPreferences.ContainerStyle.DETAILS in containerStyles }
 
     // Intuitive Sorting: Seasons/Movies first (positive/0/-2), then OVAs/ONAs/Specials
     val sortedSeasons = remember(seasons) {
@@ -51,14 +61,8 @@ fun AnimeSeasonSection(
         )
     }
 
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
-        shape = MaterialTheme.shapes.medium,
-    ) {
-        Column(modifier = Modifier.padding(vertical = 12.dp)) {
+    val content = @Composable {
+        Column(modifier = if (useContainer) Modifier.padding(vertical = 12.dp) else Modifier) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -104,6 +108,26 @@ fun AnimeSeasonSection(
                     )
                 }
             }
+        }
+    }
+
+    if (useContainer) {
+        Surface(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerLow,
+            shape = MaterialTheme.shapes.medium,
+        ) {
+            content()
+        }
+    } else {
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        ) {
+            content()
         }
     }
 }

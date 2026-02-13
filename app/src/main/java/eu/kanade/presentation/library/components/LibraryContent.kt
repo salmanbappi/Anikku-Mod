@@ -31,6 +31,11 @@ import tachiyomi.domain.library.model.LibraryDisplayMode
 import tachiyomi.presentation.core.components.material.PullRefresh
 import kotlin.time.Duration.Companion.seconds
 
+import eu.kanade.domain.ui.UiPreferences
+import tachiyomi.presentation.core.util.collectAsState
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
+
 @Composable
 fun LibraryContent(
     categories: List<Category>,
@@ -52,6 +57,10 @@ fun LibraryContent(
     getColumnsForOrientation: (Boolean) -> PreferenceMutableState<Int>,
     getAnimeLibraryForPage: (Int) -> List<LibraryItem>,
 ) {
+    val uiPreferences = remember { Injekt.get<UiPreferences>() }
+    val containerStyles by uiPreferences.containerStyles().collectAsState()
+    val useContainer = remember(containerStyles) { UiPreferences.ContainerStyle.LIBRARY in containerStyles }
+
     Column(
         modifier = Modifier.padding(
             top = contentPadding.calculateTopPadding(),
@@ -104,20 +113,37 @@ fun LibraryContent(
             },
             enabled = notSelectionMode,
         ) {
-            LibraryPager(
-                state = pagerState,
-                contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding()),
-                hasActiveFilters = hasActiveFilters,
-                selectedAnime = selection,
-                searchQuery = searchQuery,
-                onGlobalSearchClicked = onGlobalSearchClicked,
-                getDisplayMode = getDisplayMode,
-                getColumnsForOrientation = getColumnsForOrientation,
-                getLibraryForPage = getAnimeLibraryForPage,
-                onClickAnime = onClickAnime,
-                onLongClickAnime = onToggleRangeSelection,
-                onClickContinueWatching = onContinueWatchingClicked,
-            )
+            val pagerContent = @Composable {
+                LibraryPager(
+                    state = pagerState,
+                    contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding()),
+                    hasActiveFilters = hasActiveFilters,
+                    selectedAnime = selection,
+                    searchQuery = searchQuery,
+                    onGlobalSearchClicked = onGlobalSearchClicked,
+                    getDisplayMode = getDisplayMode,
+                    getColumnsForOrientation = getColumnsForOrientation,
+                    getLibraryForPage = getAnimeLibraryForPage,
+                    onClickAnime = onClickAnime,
+                    onLongClickAnime = onToggleRangeSelection,
+                    onClickContinueWatching = onContinueWatchingClicked,
+                )
+            }
+
+            if (useContainer) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    shape = MaterialTheme.shapes.large,
+                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                    tonalElevation = 2.dp
+                ) {
+                    pagerContent()
+                }
+            } else {
+                pagerContent()
+            }
         }
 
         LaunchedEffect(pagerState.currentPage) {

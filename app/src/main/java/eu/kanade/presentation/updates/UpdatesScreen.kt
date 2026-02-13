@@ -46,6 +46,9 @@ import uy.kohesive.injekt.api.get
 import java.time.LocalDate
 import kotlin.time.Duration.Companion.seconds
 
+import eu.kanade.domain.ui.UiPreferences
+import tachiyomi.presentation.core.util.collectAsState
+
 @Composable
 fun UpdateScreen(
     state: UpdatesScreenModel.State,
@@ -67,6 +70,10 @@ fun UpdateScreen(
     onOpenEpisode: (UpdatesItem, altPlayer: Boolean) -> Unit,
     navigateUp: (() -> Unit)?,
 ) {
+    val uiPreferences = remember { Injekt.get<UiPreferences>() }
+    val containerStyles by uiPreferences.containerStyles().collectAsState()
+    val useContainer = remember(containerStyles) { UiPreferences.ContainerStyle.UPDATES in containerStyles }
+
     BackHandler(enabled = state.selectionMode, onBack = { onSelectAll(false) })
 
     Scaffold(
@@ -152,6 +159,7 @@ fun UpdateScreen(
                                 onClickCover = onClickCover,
                                 onClickUpdate = onOpenEpisode,
                                 onDownloadEpisode = onDownloadEpisode,
+                                useContainer = useContainer,
                             )
                         }
                     }
