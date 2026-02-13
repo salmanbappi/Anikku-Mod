@@ -17,11 +17,15 @@ class DiscoverSeasons(
         val originalFullTitle = anime.title
         val rootTitle = SeasonRecognition.getRootTitle(originalFullTitle)
         
-        // Extract significant words
+        // UPGRADE: Keep ALL words. Every word in a title is significant for short titles.
         val originalWords = rootTitle.lowercase()
-            .split(Regex("""\s+"""))
-            .filter { it.length > 2 || it.all { char -> char.isDigit() } }
+            .split(Regex("""[\s\:\-\–\—\(\)\[\]\.]+"""))
+            .filter { it.isNotBlank() }
             .toSet()
+        
+        if (originalWords.isEmpty()) return emptyList()
+
+        val firstWord = originalWords.first()
         
         return try {
             val searchResult = source.getSearchAnime(1, rootTitle, source.getFilterList())
@@ -32,26 +36,28 @@ class DiscoverSeasons(
                     val candidateFullTitle = candidate.title
                     val candidateRoot = SeasonRecognition.getRootTitle(candidateFullTitle)
                     
-                    // 1. Block Unrelated Categories (Recaps, Spin-offs, etc)
                     if (SeasonRecognition.isUnrelated(candidateFullTitle)) return@filter false
                     
-                    // 2. Strict Word Coverage
-                    val candidateWords = candidateFullTitle.lowercase().split(Regex("""\s+""")).toSet()
-                    val hasAllWords = originalWords.all { word -> candidateWords.contains(word) }
+                    val candidateWords = candidateFullTitle.lowercase()
+                        .split(Regex("""[\s\:\-\–\—\(\)\[\]\.]+"""))
+                        .filter { it.isNotBlank() }
+                        .toSet()
                     
-                    // 3. Word Density check: Candidate shouldn't have too many "extra" significant words
-                    // This prevents "Sword Art Online" matching "Sword Art Online Alternative" if Alternative is not in originalWords
-                    val candidateSignificantWords = candidateRoot.lowercase().split(Regex("""\s+"""))
-                        .filter { it.length > 2 || it.all { char -> char.isDigit() } }
+                    // 1. Strict Bidirectional Word Coverage
+                    // Candidate must contain ALL words from the original root
+                    val hasAllOriginalWords = originalWords.all { word -> candidateWords.contains(word) }
                     
-                    val extraWordsCount = candidateSignificantWords.size - originalWords.size
+                    // 2. Strict Prefix Match: Most anime sequels start with the same first word
+                    // This prevents "Attack on Titan" matching "Attack No.1"
+                    val startsWithSameWord = candidateFullTitle.lowercase().trim().startsWith(firstWord)
                     
-                    // 4. Similarity and combine
+                    // 3. Similarity check
                     val similarity = SeasonRecognition.diceCoefficient(rootTitle, candidateRoot)
                     
-                    hasAllWords &&
-                    similarity > 0.7 && // Lowered slightly since getRootTitle is now more aggressive
-                    extraWordsCount <= 2 && // Strictly allow only small title variations
+                    // 4. Combine constraints
+                    hasAllOriginalWords &&
+                    startsWithSameWord &&
+                    similarity > 0.75 &&
                     candidate.url != anime.url &&
                     !candidateFullTitle.contains("(Dub)", ignoreCase = true) &&
                     !candidateFullTitle.contains("(Sub)", ignoreCase = true)

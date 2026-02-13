@@ -71,18 +71,12 @@ object SeasonRecognition {
     }
 
     fun getRootTitle(title: String): String {
-        var root = title
-            // Remove everything after a colon or dash if it's followed by a space (standard subtitle format)
-            .replace(Regex("""(?i)\s*[:\-\–\—].*"""), "")
-            // Remove format tags
-            .replace(Regex("""(?i)\s+\(?(?:TV|OAV|OVA|ONA|Special|Movie|BD|Remux)\)?.*"""), "")
-            // Remove explicit season markers
+        return title
+            // Only remove explicit season markers, but keep subtitles unless they are explicitly seasons
             .replace(Regex("""(?i)\s+(?:Season\s+\d+|S\d+|Part\s+\d+|II|III|IV|V|VI|VII|VIII|IX|X|\d+(?:st|nd|rd|th)\s+(?:season|part))\b"""), "")
+            .replace(Regex("""(?i)\s+\(?(?:TV|OAV|OVA|ONA|Special|Movie|BD|Remux)\)?.*"""), "")
             .replace(Regex("""\s+"""), " ")
             .trim()
-            
-        // If stripping everything left us with nothing or too little, fallback to original
-        return if (root.length < 3) title.trim() else root
     }
 
     fun parseSeasonNumber(animeTitle: String, seasonName: String, existingNumber: Double? = null): Double {
@@ -92,9 +86,9 @@ object SeasonRecognition {
 
         val rootTitle = getRootTitle(animeTitle)
         
-        // 1. Clean the name for number detection
+        // Clean name for regex matching
         var cleanName = seasonName.lowercase()
-            .replace(rootTitle.lowercase(), "") // Remove the base title part
+            .replace(rootTitle.lowercase(), "")
             .replace(',', '.')
             .replace('-', '.')
             .replace(unwantedWhiteSpace, "")
@@ -103,61 +97,48 @@ object SeasonRecognition {
             cleanName = tagRegex.replace(cleanName, "")
         }
         
-        // Remove resolution numbers
         cleanName = cleanName.replace(Regex("""\b\d{3,4}p?\b"""), "")
 
-        // 2. Try Explicit Detection FIRST
-        // Ordinal Detection (2nd Season, 3rd Part)
-        ordinals.find(cleanName)?.let {
-            return it.groups[1]?.value?.toDoubleOrNull() ?: 1.0
-        }
-
-        // Part Detection (Part 2)
-        parts.find(cleanName)?.let {
-            return getSeasonNumberFromMatch(it)
-        }
-
-        // Roman Numeral Detection
+        // 1. Try Explicit Detection
+        ordinals.find(cleanName)?.let { return it.groups[1]?.value?.toDoubleOrNull() ?: 1.0 }
+        parts.find(cleanName)?.let { return getSeasonNumberFromMatch(it) }
         romanNumerals.find(cleanName)?.let {
             val roman = it.groups[1]?.value?.uppercase()
             return romanMap[roman] ?: -1.0
         }
+        basic.find(cleanName)?.let { return getSeasonNumberFromMatch(it) }
 
-        // Explicit "Season X" or "S X"
-        basic.find(cleanName)?.let {
-            return getSeasonNumberFromMatch(it)
-        }
-
-        // 3. Check for specific format tags
+        // 2. Format tags
         if (cleanName.contains("movie", ignoreCase = true)) return -2.0
         if (cleanName.contains("ova", ignoreCase = true) || cleanName.contains("oav", ignoreCase = true)) return -3.0
         if (cleanName.contains("ona", ignoreCase = true)) return -4.0
         if (cleanName.contains("special", ignoreCase = true)) return -5.0
 
-        // 4. If no explicit number was found, check if it's actually just Season 1
-        // We do this by checking if the root titles match AND no other numbers are left
+        // 3. Exact Title Match check
         val cleanSeasonTitle = getRootTitle(seasonName)
         if (cleanSeasonTitle.equals(rootTitle, ignoreCase = true)) {
-            // Check if the FULL titles match (ignoring case/whitespace)
             val fullOriginal = animeTitle.lowercase().replace(Regex("""\s+"""), "")
             val fullCandidate = seasonName.lowercase().replace(Regex("""\s+"""), "")
             
             if (fullOriginal == fullCandidate) {
                 return 1.0
-            } else {
-                // If roots match but full titles don't, and no numbers are found, 
-                // it's likely a named sequel (e.g. Naruto vs Naruto Shippuden)
-                return 2.0 // Assume it's a sequel if it has a different subtitle
             }
         }
 
-        // 5. Fallback to general number detection
+        // 4. Fallback to general number detection
         val numberMatches = number.findAll(cleanName)
         if (numberMatches.any()) {
             return getSeasonNumberFromMatch(numberMatches.first())
         }
 
-        return -1.0 // Default to special/unknown if we can't be sure it's S1
+        // 5. Check if it's a known sequel pattern even without numbers
+        if (seasonName.lowercase().contains("shippuden") || 
+            seasonName.lowercase().contains("zoku") ||
+            seasonName.lowercase().contains("next generations")) {
+            return 2.0
+        }
+
+        return -1.0
     }
 
     private fun getSeasonNumberFromMatch(match: MatchResult): Double {
