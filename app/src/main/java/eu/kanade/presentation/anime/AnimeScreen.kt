@@ -511,6 +511,7 @@ private fun AnimeScreenSmallImpl(
                                     totalScore = state.totalScore,
                                     sourceName = remember { state.source.getNameForAnimeInfo() },
                                     isStubSource = remember { state.source is StubSource },
+                                    onCoverClick = onCoverClicked,
                                     doSearch = onSearch,
                                 )
                             }
