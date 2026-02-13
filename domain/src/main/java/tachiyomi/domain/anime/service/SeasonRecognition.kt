@@ -29,165 +29,94 @@ object SeasonRecognition {
      */
     private val romanNumerals = Regex("""\b(I|II|III|IV|V|VI|VII|VIII|IX|X)\b(?:\s+|$)""", RegexOption.IGNORE_CASE)
 
-        private val romanMap = mapOf(
+    /**
+     * Regex to remove tags
+     */
+    private val tagRegex = Regex("""^\[[^\]]+\]|\[[^\]]+\]\s*${'$'}|^\([^\)]+\)|\([^\)]+\)\s*${'$'}""")
 
-            "I" to 1.0, "II" to 2.0, "III" to 3.0, "IV" to 4.0, "V" to 5.0,
+    /**
+     * Regex used to remove unwanted qualities and year
+     */
+    private val unwanted = Regex("""\b\d+p\b|\d+x\d+|Hi10|\(\d+\)|BD|RE|Remux|Dual.Audio""", RegexOption.IGNORE_CASE)
 
-            "VI" to 6.0, "VII" to 7.0, "VIII" to 8.0, "IX" to 9.0, "X" to 10.0
+    private val unwantedWhiteSpace = Regex("""\s(?=extra|special|omake)""", RegexOption.IGNORE_CASE)
 
-        )
+    private val romanMap = mapOf(
+        "I" to 1.0, "II" to 2.0, "III" to 3.0, "IV" to 4.0, "V" to 5.0,
+        "VI" to 6.0, "VII" to 7.0, "VIII" to 8.0, "IX" to 9.0, "X" to 10.0
+    )
 
-    
+    fun getRootTitle(title: String): String {
+        return title
+            .replace(Regex("""(?i)\s+(:|--|–).*"""), "") // Remove subtitles after colons/dashes
+            // Only remove standalone numbers or explicit season markers to avoid breaking titles like "7Seeds"
+            .replace(Regex("""(?i)\s+(?:Season\s+\d+|S\d+|II|III|IV|V|VI|VII|VIII|IX|X)\b"""), "")
+            .replace(Regex("""(?i)\s+\(?(?:TV|OAV|OVA|ONA|Special|Movie|BD|Remux)\)?.*"""), "") // Remove format tags
+            .trim()
+    }
 
-        fun getRootTitle(title: String): String {
-
-            return title
-
-                .replace(Regex("""(?i)\s+(:|--|–).*"""), "") // Remove subtitles after colons/dashes
-
-                // Only remove standalone numbers or explicit season markers to avoid breaking titles like "7Seeds"
-
-                .replace(Regex("""(?i)\s+(?:Season\s+\d+|S\d+|II|III|IV|V|VI|VII|VIII|IX|X)\b"""), "")
-
-                .replace(Regex("""(?i)\s+\(?(?:TV|OAV|OVA|ONA|Special|Movie|BD|Remux)\)?.*"""), "") // Remove format tags
-
-                .trim()
-
+    fun parseSeasonNumber(animeTitle: String, seasonName: String, existingNumber: Double? = null): Double {
+        if (existingNumber != null && (existingNumber == -2.0 || existingNumber > -1.0)) {
+            return existingNumber
         }
 
-    
-
-        fun parseSeasonNumber(animeTitle: String, seasonName: String, existingNumber: Double? = null): Double {
-
-            if (existingNumber != null && (existingNumber == -2.0 || existingNumber > -1.0)) {
-
-                return existingNumber
-
-            }
-
-    
-
-            val rootTitle = getRootTitle(animeTitle)
-
-            val cleanSeasonTitle = getRootTitle(seasonName)
-
-    
-
-            // UPGRADE: If the name matches the root title exactly, it's Season 1
-
-            if (cleanSeasonTitle.equals(rootTitle, ignoreCase = true)) {
-
-                return 1.0
-
-            }
-
-    
-
-            var cleanName = seasonName.lowercase()
-
-                .replace(animeTitle.lowercase(), "").trim()
-
-                .replace(',', '.')
-
-                .replace('-', '.')
-
-                .replace(unwantedWhiteSpace, "")
-
-    
-
-            while (tagRegex.containsMatchIn(cleanName)) {
-
-                cleanName = tagRegex.replace(cleanName, "")
-
-            }
-
-    
-
-            // Remove resolution numbers (1080, 720, etc) to prevent false matches
-
-            cleanName = cleanName.replace(Regex("""\b\d{3,4}p?\b"""), "")
-
-    
-
-            // 1. Try Ordinal Detection (2nd Season)
-
-            ordinals.find(cleanName)?.let {
-
-                return it.groups[1]?.value?.toDoubleOrNull() ?: 1.0
-
-            }
-
-    
-
-            // 2. Try Upgraded Roman Numeral Detection
-
-            romanNumerals.find(cleanName)?.let {
-
-                val roman = it.groups[1]?.value?.uppercase()
-
-                return romanMap[roman] ?: -1.0
-
-            }
-
-    
-
-            // 3. Check for specific format tags
-
-            if (cleanName.contains("movie", ignoreCase = true)) return -2.0
-
-            if (cleanName.contains("ova", ignoreCase = true) || cleanName.contains("oav", ignoreCase = true)) return -3.0
-
-            if (cleanName.contains("ona", ignoreCase = true)) return -4.0
-
-            if (cleanName.contains("special", ignoreCase = true)) return -5.0
-
-    
-
-            // 4. Try basic detection (Season 2, S02)
-
-            val basicMatch = basic.find(cleanName)
-
-            if (basicMatch != null) {
-
-                return getSeasonNumberFromMatch(basicMatch)
-
-            }
-
-    
-
-            val numberMatches = number.findAll(cleanName)
-
-            if (numberMatches.none()) {
-
-                return 1.0
-
-            }
-
-    
-
-            if (numberMatches.count() > 1) {
-
-                val filteredName = unwanted.replace(cleanName, "")
-
-                basic.find(filteredName)?.let {
-
-                    return getSeasonNumberFromMatch(it)
-
-                }
-
-                number.find(filteredName)?.let {
-
-                    return getSeasonNumberFromMatch(it)
-
-                }
-
-            }
-
-    
-
-            return getSeasonNumberFromMatch(numberMatches.first())
-
+        val rootTitle = getRootTitle(animeTitle)
+        val cleanSeasonTitle = getRootTitle(seasonName)
+
+        // UPGRADE: If the name matches the root title exactly, it's Season 1
+        if (cleanSeasonTitle.equals(rootTitle, ignoreCase = true)) {
+            return 1.0
         }
+
+        var cleanName = seasonName.lowercase()
+            .replace(animeTitle.lowercase(), "").trim()
+            .replace(',', '.')
+            .replace('-', '.')
+            .replace(unwantedWhiteSpace, "")
+
+        while (tagRegex.containsMatchIn(cleanName)) {
+            cleanName = tagRegex.replace(cleanName, "")
+        }
+
+        // Remove resolution numbers (1080, 720, etc) to prevent false matches
+        cleanName = cleanName.replace(Regex("""\b\d{3,4}p?\b"""), "")
+
+        // 1. Try Ordinal Detection (2nd Season)
+        ordinals.find(cleanName)?.let {
+            return it.groups[1]?.value?.toDoubleOrNull() ?: 1.0
+        }
+
+        // 2. Try Upgraded Roman Numeral Detection
+        romanNumerals.find(cleanName)?.let {
+            val roman = it.groups[1]?.value?.uppercase()
+            return romanMap[roman] ?: -1.0
+        }
+
+        // 3. Check for specific format tags
+        if (cleanName.contains("movie", ignoreCase = true)) return -2.0
+        if (cleanName.contains("ova", ignoreCase = true) || cleanName.contains("oav", ignoreCase = true)) return -3.0
+        if (cleanName.contains("ona", ignoreCase = true)) return -4.0
+        if (cleanName.contains("special", ignoreCase = true)) return -5.0
+
+        // 4. Try basic detection (Season 2, S02)
+        val basicMatch = basic.find(cleanName)
+        if (basicMatch != null) {
+            return getSeasonNumberFromMatch(basicMatch)
+        }
+
+        val numberMatches = number.findAll(cleanName)
+        if (numberMatches.none()) {
+            return 1.0
+        }
+
+        if (numberMatches.count() > 1) {
+            val filteredName = unwanted.replace(cleanName, "")
+            basic.find(filteredName)?.let { return getSeasonNumberFromMatch(it) }
+            number.find(filteredName)?.let { return getSeasonNumberFromMatch(it) }
+        }
+
+        return getSeasonNumberFromMatch(numberMatches.first())
+    }
 
     private fun getSeasonNumberFromMatch(match: MatchResult): Double {
         return try {
