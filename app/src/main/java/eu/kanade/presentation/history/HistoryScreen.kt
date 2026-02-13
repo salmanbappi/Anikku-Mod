@@ -120,66 +120,17 @@ private fun HistoryScreenContent(
     FastScrollLazyColumn(
         contentPadding = contentPadding,
     ) {
-        var i = 0
-        while (i < history.size) {
-            val model = history[i]
-            if (model is HistoryUiModel.Header) {
-                item(key = "historyHeader-${model.hashCode()}") {
-                    ListGroupHeader(
-                        modifier = Modifier.animateItemFastScroll(),
-                        text = relativeDateText(model.date),
-                    )
-                }
-                i++
-                val groupItems = mutableListOf<HistoryWithRelations>()
-                while (i < history.size && history[i] is HistoryUiModel.Item) {
-                    groupItems.add((history[i] as HistoryUiModel.Item).item)
-                    i++
-                }
-                item(key = "historyIsland-${model.hashCode()}") {
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 4.dp),
-                        shape = MaterialTheme.shapes.large,
-                        color = MaterialTheme.colorScheme.surfaceContainerLow,
-                        tonalElevation = 2.dp
-                    ) {
-                        Column {
-                            groupItems.forEach { historyItem ->
-                                HistoryItem(
-                                    modifier = Modifier.animateItemFastScroll(),
-                                    history = historyItem,
-                                    onClickCover = { onClickCover(historyItem) },
-                                    onClickResume = { onClickResume(historyItem) },
-                                    onClickDelete = { onClickDelete(historyItem) },
-                                )
-                            }
-                        }
-                    }
-                }
-            } else if (model is HistoryUiModel.Item) {
-                val value = model.item
-                item(key = "history-${value.hashCode()}") {
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 4.dp),
-                        shape = MaterialTheme.shapes.large,
-                        color = MaterialTheme.colorScheme.surfaceContainerLow,
-                        tonalElevation = 2.dp
-                    ) {
-                        HistoryItem(
-                            modifier = Modifier.animateItemFastScroll(),
-                            history = value,
-                            onClickCover = { onClickCover(value) },
-                            onClickResume = { onClickResume(value) },
-                            onClickDelete = { onClickDelete(value) },
-                        )
-                    }
-                }
-                i++
-            }
+        items(
+            items = history.filterIsInstance<HistoryUiModel.Item>(),
+            key = { "history-${it.item.id}" },
+        ) { model ->
+            HistoryItem(
+                modifier = Modifier.animateItemFastScroll(),
+                history = model.item,
+                onClickCover = { onClickCover(model.item) },
+                onClickResume = { onClickResume(model.item) },
+                onClickDelete = { onClickDelete(model.item) },
+            )
         }
     }
 }

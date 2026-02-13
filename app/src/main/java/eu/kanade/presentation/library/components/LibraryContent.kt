@@ -103,29 +103,20 @@ fun LibraryContent(
             },
             enabled = notSelectionMode,
         ) {
-            Surface(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                shape = MaterialTheme.shapes.large,
-                color = MaterialTheme.colorScheme.surfaceContainerLow, // 30% Secondary
-                tonalElevation = 2.dp
-            ) {
-                LibraryPager(
-                    state = pagerState,
-                    contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding()),
-                    hasActiveFilters = hasActiveFilters,
-                    selectedAnime = selection,
-                    searchQuery = searchQuery,
-                    onGlobalSearchClicked = onGlobalSearchClicked,
-                    getDisplayMode = getDisplayMode,
-                    getColumnsForOrientation = getColumnsForOrientation,
-                    getLibraryForPage = getAnimeLibraryForPage,
-                    onClickAnime = onClickAnime,
-                    onLongClickAnime = onToggleRangeSelection,
-                    onClickContinueWatching = onContinueWatchingClicked,
-                )
-            }
+            LibraryPager(
+                state = pagerState,
+                contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding()),
+                hasActiveFilters = hasActiveFilters,
+                selectedAnime = selection,
+                searchQuery = searchQuery,
+                onGlobalSearchClicked = onGlobalSearchClicked,
+                getDisplayMode = getDisplayMode,
+                getColumnsForOrientation = getColumnsForOrientation,
+                getLibraryForPage = getAnimeLibraryForPage,
+                onClickAnime = onClickAnime,
+                onLongClickAnime = onToggleRangeSelection,
+                onClickContinueWatching = onContinueWatchingClicked,
+            )
         }
 
         LaunchedEffect(pagerState.currentPage) {
