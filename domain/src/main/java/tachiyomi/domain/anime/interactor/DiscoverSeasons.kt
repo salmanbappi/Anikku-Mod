@@ -27,10 +27,10 @@ class DiscoverSeasons(
         return try {
             val searchResult = source.getSearchAnime(1, rootTitle, source.getFilterList())
             
-            val candidates = searchResult.animes
-                .map { it.toDomainAnime(anime.source) }
-                .filter { candidate ->
-                    val candidateFullTitle = candidate.title
+            // 5. Combined Title and Author Check
+            searchResult.animes
+                .filter { sAnime ->
+                    val candidateFullTitle = sAnime.title
                     val candidateRoot = SeasonRecognition.getRootTitle(candidateFullTitle)
                     
                     if (SeasonRecognition.isUnrelated(candidateFullTitle)) return@filter false
@@ -55,36 +55,34 @@ class DiscoverSeasons(
                     val startsWithRoot = candidateFullTitle.lowercase().startsWith(rootTitle.lowercase())
 
                     (similarity > 0.85 || startsWithRoot) &&
-                    candidate.url != anime.url &&
+                    sAnime.url != anime.url &&
                     !candidateFullTitle.contains("(Dub)", ignoreCase = true) &&
                     !candidateFullTitle.contains("(Sub)", ignoreCase = true)
                 }
-                .take(10) // Only process top 10 candidates to keep it fast
-
-            // 5. Author Signature Check: Fetch details for top candidates to verify author
-            candidates.filter { candidate ->
-                try {
-                    val details = source.getAnimeDetails(candidate.toSAnime())
-                    val candidateAuthor = details.author?.lowercase()?.trim()
-                    val originalAuthor = anime.author?.lowercase()?.trim()
-                    
-                    // If either has no author info, allow it (some sources are incomplete)
-                    // otherwise, they MUST share at least one part of the author's name
-                    if (candidateAuthor.isNullOrBlank() || originalAuthor.isNullOrBlank()) {
-                        true
-                    } else {
-                        val originalAuthorWords = originalAuthor.split(Regex("""\s+""")).filter { it.length > 2 }.toSet()
-                        val candidateAuthorWords = candidateAuthor.split(Regex("""\s+""")).filter { it.length > 2 }.toSet()
+                .take(10)
+                .filter { sAnime ->
+                    try {
+                        // Fetch details to verify author
+                        val details = source.getAnimeDetails(sAnime)
+                        val candidateAuthor = details.author?.lowercase()?.trim()
+                        val originalAuthor = anime.author?.lowercase()?.trim()
                         
-                        // Check if they share any significant creator name
-                        originalAuthorWords.intersect(candidateAuthorWords).isNotEmpty() ||
-                        candidateAuthor.contains(originalAuthor) || 
-                        originalAuthor.contains(candidateAuthor)
+                        if (candidateAuthor.isNullOrBlank() || originalAuthor.isNullOrBlank()) {
+                            true
+                        } else {
+                            val originalAuthorWords = originalAuthor.split(Regex("""\s+""")).filter { it.length > 2 }.toSet()
+                            val candidateAuthorWords = candidateAuthor.split(Regex("""\s+""")).filter { it.length > 2 }.toSet()
+                            
+                            originalAuthorWords.intersect(candidateAuthorWords).isNotEmpty() ||
+                            candidateAuthor.contains(originalAuthor) || 
+                            originalAuthor.contains(candidateAuthor)
+                        }
+                    } catch (e: Exception) {
+                        true
                     }
-                } catch (e: Exception) {
-                    true // If network fails, don't block
                 }
-            }.sortedBy { it.title.length }
+                .map { it.toDomainAnime(anime.source) }
+                .sortedBy { it.title.length }
         } catch (e: Exception) {
             emptyList()
         }
