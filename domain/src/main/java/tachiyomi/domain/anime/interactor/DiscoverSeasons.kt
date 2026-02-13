@@ -32,17 +32,23 @@ class DiscoverSeasons(
                 // NO-TOLERANCE FILTERS
                 if (SeasonRecognition.isUnrelated(originalFullTitle, candidateFullTitle)) return@filter false
                 
-                // Word Coverage Check: Candidate must contain EVERY word from the original root
-                val candidateWordSet = SeasonRecognition.getWordSet(candidateFullTitle)
-                if (!candidateWordSet.containsAll(originalWordSet)) return@filter false
-                
-                // Sequence check: First word must match
-                val cWords = candidateFullTitle.lowercase().split(Regex("""\s+""")).filter { it.isNotBlank() }
-                val oWords = rootTitle.lowercase().split(Regex("""\s+""")).filter { it.isNotBlank() }
-                if (cWords.firstOrNull() != oWords.firstOrNull()) return@filter false
+                // Smart Fuzzy Match: Allow variations like "Frieren" vs "Sousou no Frieren"
+                // 1. Check if the candidate contains the MAIN keyword (longest word from root)
+                val longestWord = rootTitle.split(Regex("""\s+""")).maxByOrNull { it.length } ?: ""
+                if (longestWord.length > 3 && !candidateFullTitle.contains(longestWord, ignoreCase = true)) {
+                     // If the most unique word isn't there, it's likely wrong.
+                     // Exception: deeply localized titles (ignoring for now to prevent noise)
+                     return@filter false
+                }
 
-                sAnime.url != anime.url
-            }.take(5)
+                // 2. Similarity Check (Dice Coefficient)
+                // We accept > 0.4 because sequels often add many words ("...Season 2 Part 3")
+                // which lowers the score against the short root title.
+                val similarity = SeasonRecognition.diceCoefficient(rootTitle, candidateFullTitle)
+                if (similarity < 0.4 && !candidateFullTitle.contains(rootTitle, ignoreCase = true)) return@filter false
+                
+                true
+            }.take(10)
 
             val verified = mutableListOf<tachiyomi.domain.anime.model.Anime>()
             
