@@ -114,33 +114,30 @@ private fun SeasonItem(
     onClick: () -> Unit,
 ) {
     val seasonLabel = remember(season.seasonNumber, season.anime.title) {
-        val title = season.anime.title.lowercase()
+        val fullTitle = season.anime.title
         
-        when (season.seasonNumber) {
-            -2.0 -> {
-                // Try to extract a short movie title if it exists after a colon
-                val subtitle = season.anime.title.substringAfterLast(":").trim()
-                if (subtitle.length in 1..20 && subtitle.lowercase() != title) subtitle else "Movie"
+        when {
+            // 1. STRICT TV SEASONS -> "Season X"
+            // This keeps your timeline clean as requested.
+            season.seasonNumber > 0 -> {
+                val num = if (season.seasonNumber % 1.0 == 0.0) 
+                    season.seasonNumber.toInt().toString() 
+                else 
+                    season.seasonNumber.toString()
+                "Season $num"
             }
-            -3.0 -> "OVA"
-            -4.0 -> "ONA"
-            -5.0 -> "Special"
+            
+            // 2. MOVIES, OVAS, SPECIALS -> Show the Unique Name
             else -> {
-                if (season.seasonNumber > 0) {
-                    val num = if (season.seasonNumber % 1.0 == 0.0) season.seasonNumber.toInt().toString() else season.seasonNumber.toString()
-                    val isPart = title.contains("part") || title.contains("cour")
-                    
-                    if (season.seasonNumber == 1.0 && !title.contains("season") && !title.contains("part") && !title.contains("cour") && !title.contains(" s1")) {
-                         "Main"
-                    } else if (isPart) {
-                        "Part $num"
-                    } else {
-                        "Season $num"
-                    }
+                // Smart Clean: Remove the "Parent Name" part if it exists to avoid redundancy.
+                // But NEVER return a generic "Movie" label.
+                
+                // Heuristic: If there is a colon, take what's after the FIRST colon, not the last.
+                // This preserves complex subtitles like "Heaven's Feel - I. Presage Flower"
+                if (fullTitle.contains(":")) {
+                    fullTitle.substringAfter(":").trim()
                 } else {
-                    // Fallback for named sequels without numbers
-                    val subtitle = season.anime.title.substringAfterLast(":").trim()
-                    if (subtitle.length in 1..20 && subtitle.lowercase() != title) subtitle else "Sequel"
+                    fullTitle // No colon? Show the full name (e.g., "Spirited Away")
                 }
             }
         }

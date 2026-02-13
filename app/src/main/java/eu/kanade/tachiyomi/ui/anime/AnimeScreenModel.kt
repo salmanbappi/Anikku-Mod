@@ -174,6 +174,7 @@ class AnimeScreenModel(
     private val calculateUserAffinity: CalculateUserAffinity = Injekt.get(),
     private val getLibraryAnime: GetLibraryAnime = Injekt.get(),
     private val getSeasonsByAnimeId: tachiyomi.domain.anime.interactor.GetSeasonsByAnimeId = Injekt.get(),
+    private val discoverSeasons: tachiyomi.domain.anime.interactor.DiscoverSeasons = Injekt.get(),
 ) : StateScreenModel<AnimeScreenModel.State>(State.Loading) {
 
     private val successState: State.Success?
@@ -429,20 +430,14 @@ class AnimeScreenModel(
                 }
             }
 
-            // 0. Franchise & Sequels (Priority 0 - Root Title Probe)
+            // 0. Franchise & Sequels (Strict Verification)
             launchIO {
-                val rootTitle = eu.kanade.tachiyomi.util.lang.StringSimilarity.getRootTitle(anime.title)
-                val probes = listOf(rootTitle, anime.title.split(" ").first()).distinct()
-                val allResults = mutableListOf<Anime>()
-                for (probe in probes) {
-                    if (probe.length < 3) continue
-                    try {
-                        val searchResult = source.getSearchAnime(1, probe, source.getFilterList())
-                        allResults.addAll(searchResult.animes.map { networkToLocalAnime.await(it.toDomainAnime(anime.source)) }.mapNotNull { getAnime.await(it.id) })
-                        if (allResults.size > 15) break
-                    } catch (_: Exception) {}
-                }
-                if (allResults.isNotEmpty()) updateSection(SuggestionSection.Type.Franchise, allResults)
+                try {
+                    val virtualSeasons = discoverSeasons.await(anime)
+                    if (virtualSeasons.isNotEmpty()) {
+                        updateSection(SuggestionSection.Type.Franchise, virtualSeasons)
+                    }
+                } catch (_: Exception) {}
             }
 
             // 1. Similar Media (Broad Search Probe)

@@ -114,16 +114,19 @@ class GetSeasonsByAnimeId(
         }
 
         // 3. Fallback: Virtual Discovery Seasons
+        // Disabled per user request to avoid unrelated suggestions.
+        /*
         if (virtualSeasons.isNotEmpty()) {
             val all = (listOf(anime) + virtualSeasons).distinctBy { it.id }
-            return all.map { 
+            return all.map {
                 Season(
-                    anime = it,
+                    it,
                     seasonNumber = it.seasonNumber ?: SeasonRecognition.parseSeasonNumber(anime.title, it.title),
                     isPrimary = it.id == anime.id
                 )
             }.sortedBy { it.seasonNumber }
         }
+        */
 
         return listOf(Season(anime, SeasonRecognition.parseSeasonNumber(anime.title, anime.title), true))
     }
