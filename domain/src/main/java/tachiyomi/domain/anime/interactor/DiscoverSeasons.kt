@@ -1,7 +1,7 @@
 package tachiyomi.domain.anime.interactor
 
 import eu.kanade.tachiyomi.animesource.AnimeCatalogueSource
-import eu.kanade.tachiyomi.animesource.model.toDomainAnime
+import tachiyomi.domain.anime.model.toDomainAnime
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.anime.repository.AnimeRepository
 import tachiyomi.domain.anime.service.SeasonRecognition
