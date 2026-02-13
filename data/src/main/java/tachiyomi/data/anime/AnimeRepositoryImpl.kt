@@ -125,6 +125,9 @@ class AnimeRepositoryImpl(
                 dateAdded = anime.dateAdded,
                 updateStrategy = anime.updateStrategy,
                 version = anime.version,
+                parentId = anime.parentId,
+                seasonNumber = anime.seasonNumber,
+                seasonOrder = anime.seasonOrder,
             )
             animesQueries.selectLastInsertedRowId()
         }
@@ -176,6 +179,9 @@ class AnimeRepositoryImpl(
                     updateStrategy = value.updateStrategy?.let(UpdateStrategyColumnAdapter::encode),
                     version = value.version,
                     isSyncing = 0,
+                    parentId = value.parentId,
+                    seasonNumber = value.seasonNumber,
+                    seasonOrder = value.seasonOrder,
                 )
             }
         }
