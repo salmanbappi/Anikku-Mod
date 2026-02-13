@@ -66,6 +66,10 @@ object SeasonRecognition {
 
     private val negativeKeywords = Regex("""(?i)\b(?:Spin-off|Alternative|Anthology|Recap|Summary|MV|PV|Trailer|Promo|CM|Teaser|Live Action|Stage Play|Remake|No\.?\s*1|Version|Collection|Dub|Sub)\b""")
 
+    fun isUnrelated(title: String): Boolean {
+        return negativeKeywords.containsMatchIn(title)
+    }
+
     fun jaroWinklerSimilarity(s1: String, s2: String): Double {
         val str1 = s1.lowercase().trim()
         val str2 = s2.lowercase().trim()
