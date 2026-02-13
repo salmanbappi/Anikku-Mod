@@ -90,6 +90,7 @@ fun LibraryContent(
         }
 
         PullRefresh(
+            modifier = Modifier.fillMaxSize(),
             refreshing = isRefreshing,
             onRefresh = {
                 val started = onRefresh(categories[currentPage()])
