@@ -28,7 +28,10 @@ CREATE TABLE animes(
     last_modified_at INTEGER NOT NULL DEFAULT 0,
     favorite_modified_at INTEGER,
     version INTEGER NOT NULL DEFAULT 0,
-    is_syncing INTEGER NOT NULL DEFAULT 0
+    is_syncing INTEGER NOT NULL DEFAULT 0,
+    parent_id INTEGER,
+    season_number REAL,
+    season_order INTEGER
 );
 
 CREATE INDEX library_favorite_index ON animes(favorite) WHERE favorite = 1;
@@ -162,8 +165,8 @@ WHERE favorite = 0 AND source IN :sourceIdsAND AND _id NOT IN (
 );
 
 insert:
-INSERT INTO animes(source, url, artist, author, description, genre, title, status, thumbnail_url, favorite, last_update, next_update, initialized, viewer, episode_flags, cover_last_modified, date_added, update_strategy, calculate_interval, last_modified_at, version)
-VALUES (:source, :url, :artist, :author, :description, :genre, :title, :status, :thumbnailUrl, :favorite, :lastUpdate, :nextUpdate, :initialized, :viewerFlags, :episodeFlags, :coverLastModified, :dateAdded, :updateStrategy, :calculateInterval, 0, :version);
+INSERT INTO animes(source, url, artist, author, description, genre, title, status, thumbnail_url, favorite, last_update, next_update, initialized, viewer, episode_flags, cover_last_modified, date_added, update_strategy, calculate_interval, last_modified_at, version, parent_id, season_number, season_order)
+VALUES (:source, :url, :artist, :author, :description, :genre, :title, :status, :thumbnailUrl, :favorite, :lastUpdate, :nextUpdate, :initialized, :viewerFlags, :episodeFlags, :coverLastModified, :dateAdded, :updateStrategy, :calculateInterval, 0, :version, :parentId, :seasonNumber, :seasonOrder);
 
 update:
 UPDATE animes SET
@@ -187,7 +190,10 @@ UPDATE animes SET
     update_strategy = coalesce(:updateStrategy, update_strategy),
     calculate_interval = coalesce(:calculateInterval, calculate_interval),
     version = coalesce(:version, version),
-    is_syncing = coalesce(:isSyncing, is_syncing)
+    is_syncing = coalesce(:isSyncing, is_syncing),
+    parent_id = coalesce(:parentId, parent_id),
+    season_number = coalesce(:seasonNumber, season_number),
+    season_order = coalesce(:seasonOrder, season_order)
 WHERE _id = :animeId;
 
 selectLastInsertedRowId:
@@ -211,3 +217,9 @@ getIdByUrlAndSource:
 SELECT _id
 FROM animes
 WHERE url = :url AND source = :source;
+
+getSeasonsByParentId:
+SELECT *
+FROM animes
+WHERE parent_id = :parentId
+ORDER BY season_number ASC;

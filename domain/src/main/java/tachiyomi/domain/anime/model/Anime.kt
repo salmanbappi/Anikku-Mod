@@ -38,6 +38,9 @@ data class Anime(
     val lastModifiedAt: Long,
     val favoriteModifiedAt: Long?,
     val version: Long,
+    val parentId: Long? = null,
+    val seasonNumber: Double? = null,
+    val seasonOrder: Long? = null,
 ) : Serializable {
 
     // SY -->
@@ -219,6 +222,9 @@ data class Anime(
             lastModifiedAt = 0L,
             favoriteModifiedAt = null,
             version = 0L,
+            parentId = null,
+            seasonNumber = null,
+            seasonOrder = null,
         )
     }
 }

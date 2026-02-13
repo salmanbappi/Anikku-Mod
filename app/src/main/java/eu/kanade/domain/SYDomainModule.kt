@@ -10,6 +10,7 @@ import tachiyomi.domain.anime.interactor.DeleteAnimeById
 import tachiyomi.domain.anime.interactor.DeleteByMergeId
 import tachiyomi.domain.anime.interactor.DeleteMergeById
 import tachiyomi.domain.anime.interactor.DeleteSeason
+import tachiyomi.domain.anime.interactor.DiscoverSeasons
 import tachiyomi.domain.anime.interactor.GetAllAnime
 import tachiyomi.domain.anime.interactor.GetAnimeBySource
 import tachiyomi.domain.anime.interactor.GetCustomAnimeInfo
@@ -82,6 +83,7 @@ class SYDomainModule : InjektModule {
         addFactory { GetMergedEpisodesByAnimeId(get(), get()) }
         addFactory { GetSeasonsByAnimeId(get(), get()) }
         addFactory { DeleteSeason(get()) }
+        addFactory { DiscoverSeasons(get(), get()) }
 //        addFactory { InsertMergedReference(get()) }
         addFactory { UpdateMergedSettings(get()) }
         addFactory { DeleteByMergeId(get()) }

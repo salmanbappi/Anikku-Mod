@@ -35,6 +35,9 @@ object AnimeMapper {
         version: Long,
         @Suppress("UNUSED_PARAMETER")
         isSyncing: Long,
+        parentId: Long?,
+        seasonNumber: Double?,
+        seasonOrder: Long?,
     ): Anime = Anime(
         id = id,
         source = source,
@@ -61,6 +64,9 @@ object AnimeMapper {
         lastModifiedAt = lastModifiedAt,
         favoriteModifiedAt = favoriteModifiedAt,
         version = version,
+        parentId = parentId,
+        seasonNumber = seasonNumber,
+        seasonOrder = seasonOrder,
     )
 
     fun mapLibraryAnime(
@@ -92,6 +98,9 @@ object AnimeMapper {
         favoriteModifiedAt: Long?,
         version: Long,
         isSyncing: Long,
+        parentId: Long?,
+        seasonNumber: Double?,
+        seasonOrder: Long?,
         totalCount: Long,
         seenCount: Double,
         latestUpload: Long,
@@ -131,6 +140,9 @@ object AnimeMapper {
             favoriteModifiedAt,
             version,
             isSyncing,
+            parentId,
+            seasonNumber,
+            seasonOrder,
         ),
         category = category,
         totalEpisodes = totalCount,

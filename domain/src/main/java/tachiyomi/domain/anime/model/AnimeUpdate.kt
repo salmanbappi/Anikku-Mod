@@ -24,6 +24,9 @@ data class AnimeUpdate(
     val updateStrategy: UpdateStrategy? = null,
     val initialized: Boolean? = null,
     val version: Long? = null,
+    val parentId: Long? = null,
+    val seasonNumber: Double? = null,
+    val seasonOrder: Long? = null,
     // SY -->
     val filteredScanlators: List<String>? = null,
     // SY <--
@@ -54,5 +57,8 @@ fun Anime.toAnimeUpdate(): AnimeUpdate {
         updateStrategy = updateStrategy,
         initialized = initialized,
         version = version,
+        parentId = parentId,
+        seasonNumber = seasonNumber,
+        seasonOrder = seasonOrder,
     )
 }
