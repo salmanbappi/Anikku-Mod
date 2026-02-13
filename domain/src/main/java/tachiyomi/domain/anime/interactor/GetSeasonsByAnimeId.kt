@@ -17,47 +17,65 @@ class GetSeasonsByAnimeId(
 
     suspend fun await(animeId: Long, virtualSeasons: List<Anime> = emptyList()): List<Season> {
         val anime = animeRepository.getAnimeById(animeId) ?: return emptyList()
-        val references = animeMergeRepository.getReferencesById(animeId)
         
-        if (references.isEmpty()) {
-            if (virtualSeasons.isEmpty()) {
-                return listOf(Season(anime, SeasonRecognition.parseSeasonNumber(anime.title, anime.title), true))
-            }
-            // Use virtual seasons from discovery
-            val all = (listOf(anime) + virtualSeasons).distinctBy { it.id }
-            return all.map { 
+        // 1. Get real hierarchical seasons from DB
+        val dbSeasons = animeRepository.getSeasonsByParentId(anime.parentId ?: anime.id)
+        if (dbSeasons.isNotEmpty()) {
+            return dbSeasons.map {
                 Season(
                     anime = it,
-                    seasonNumber = SeasonRecognition.parseSeasonNumber(anime.title, it.title),
+                    seasonNumber = it.seasonNumber ?: SeasonRecognition.parseSeasonNumber(anime.title, it.title),
                     isPrimary = it.id == anime.id
                 )
             }.sortedBy { it.seasonNumber }
         }
 
-        val mergedAnimes = animeMergeRepository.getMergedAnimeById(animeId)
-        
-        return mergedAnimes.map { mergedAnime ->
-            val ref = references.find { it.animeId == mergedAnime.id }
-            Season(
-                anime = mergedAnime,
-                seasonNumber = SeasonRecognition.parseSeasonNumber(anime.title, mergedAnime.title),
-                isPrimary = ref?.isInfoAnime ?: false
-            )
-        }.sortedBy { it.seasonNumber }
+        // 2. Get merged seasons (legacy/compatibility)
+        val references = animeMergeRepository.getReferencesById(animeId)
+        if (references.isNotEmpty()) {
+            val mergedAnimes = animeMergeRepository.getMergedAnimeById(animeId)
+            return mergedAnimes.map { mergedAnime ->
+                val ref = references.find { it.animeId == mergedAnime.id }
+                Season(
+                    anime = mergedAnime,
+                    seasonNumber = mergedAnime.seasonNumber ?: SeasonRecognition.parseSeasonNumber(anime.title, mergedAnime.title),
+                    isPrimary = ref?.isInfoAnime ?: false
+                )
+            }.sortedBy { it.seasonNumber }
+        }
+
+        // 3. Use virtual seasons from auto-discovery as fallback
+        if (virtualSeasons.isNotEmpty()) {
+            val all = (listOf(anime) + virtualSeasons).distinctBy { it.id }
+            return all.map { 
+                Season(
+                    anime = it,
+                    seasonNumber = it.seasonNumber ?: SeasonRecognition.parseSeasonNumber(anime.title, it.title),
+                    isPrimary = it.id == anime.id
+                )
+            }.sortedBy { it.seasonNumber }
+        }
+
+        // 4. Just the anime itself
+        return listOf(Season(anime, SeasonRecognition.parseSeasonNumber(anime.title, anime.title), true))
     }
 
     fun subscribe(animeId: Long, virtualSeasonsFlow: Flow<List<Anime>>? = null): Flow<List<Season>> = flow {
+        val anime = animeRepository.getAnimeById(animeId) ?: return@flow
+        val parentId = anime.parentId ?: anime.id
+        
         val animeFlow = animeRepository.getAnimeByIdAsFlow(animeId)
+        val dbSeasonsFlow = animeRepository.getSeasonsByParentIdAsFlow(parentId)
         val mergedAnimesFlow = animeMergeRepository.subscribeMergedAnimeById(animeId)
         val referencesFlow = animeMergeRepository.subscribeReferencesById(animeId)
 
         val flow = if (virtualSeasonsFlow != null) {
-            combine(animeFlow, mergedAnimesFlow, referencesFlow, virtualSeasonsFlow) { anime, mergedAnimes, references, virtual ->
-                mapToSeasons(anime, mergedAnimes, references, virtual)
+            combine(animeFlow, dbSeasonsFlow, mergedAnimesFlow, referencesFlow, virtualSeasonsFlow) { a, db, merged, refs, virtual ->
+                mapToSeasons(a, db, merged, refs, virtual)
             }
         } else {
-            combine(animeFlow, mergedAnimesFlow, referencesFlow) { anime, mergedAnimes, references ->
-                mapToSeasons(anime, mergedAnimes, references, emptyList())
+            combine(animeFlow, dbSeasonsFlow, mergedAnimesFlow, referencesFlow) { a, db, merged, refs ->
+                mapToSeasons(a, db, merged, refs, emptyList())
             }
         }
         emitAll(flow)
@@ -65,33 +83,48 @@ class GetSeasonsByAnimeId(
 
     private fun mapToSeasons(
         anime: Anime?,
+        dbSeasons: List<Anime>,
         mergedAnimes: List<Anime>,
         references: List<tachiyomi.domain.anime.model.MergedAnimeReference>,
         virtualSeasons: List<Anime>
     ): List<Season> {
         if (anime == null) return emptyList()
         
-        if (references.isEmpty()) {
-            if (virtualSeasons.isEmpty()) {
-                return listOf(Season(anime, SeasonRecognition.parseSeasonNumber(anime.title, anime.title), true))
-            }
-            val all = (listOf(anime) + virtualSeasons).distinctBy { it.id }
-            return all.map { 
+        // 1. Prioritize Hierarchical Seasons
+        if (dbSeasons.isNotEmpty()) {
+            return dbSeasons.map {
                 Season(
                     anime = it,
-                    seasonNumber = SeasonRecognition.parseSeasonNumber(anime.title, it.title),
+                    seasonNumber = it.seasonNumber ?: SeasonRecognition.parseSeasonNumber(anime.title, it.title),
                     isPrimary = it.id == anime.id
                 )
             }.sortedBy { it.seasonNumber }
         }
 
-        return mergedAnimes.map { mergedAnime ->
-            val ref = references.find { it.animeId == mergedAnime.id }
-            Season(
-                anime = mergedAnime,
-                seasonNumber = SeasonRecognition.parseSeasonNumber(anime.title, mergedAnime.title),
-                isPrimary = ref?.isInfoAnime ?: false
-            )
-        }.sortedBy { it.seasonNumber }
+        // 2. Secondary: Merged Seasons
+        if (references.isNotEmpty()) {
+            return mergedAnimes.map { mergedAnime ->
+                val ref = references.find { it.animeId == mergedAnime.id }
+                Season(
+                    anime = mergedAnime,
+                    seasonNumber = mergedAnime.seasonNumber ?: SeasonRecognition.parseSeasonNumber(anime.title, mergedAnime.title),
+                    isPrimary = ref?.isInfoAnime ?: false
+                )
+            }.sortedBy { it.seasonNumber }
+        }
+
+        // 3. Fallback: Virtual Discovery Seasons
+        if (virtualSeasons.isNotEmpty()) {
+            val all = (listOf(anime) + virtualSeasons).distinctBy { it.id }
+            return all.map { 
+                Season(
+                    anime = it,
+                    seasonNumber = it.seasonNumber ?: SeasonRecognition.parseSeasonNumber(anime.title, it.title),
+                    isPrimary = it.id == anime.id
+                )
+            }.sortedBy { it.seasonNumber }
+        }
+
+        return listOf(Season(anime, SeasonRecognition.parseSeasonNumber(anime.title, anime.title), true))
     }
 }

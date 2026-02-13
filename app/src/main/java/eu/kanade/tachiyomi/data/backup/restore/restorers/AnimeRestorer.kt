@@ -149,6 +149,9 @@ class AnimeRestorer(
                 updateStrategy = anime.updateStrategy.let(UpdateStrategyColumnAdapter::encode),
                 version = anime.version,
                 isSyncing = 1,
+                parentId = anime.parentId,
+                seasonNumber = anime.seasonNumber,
+                seasonOrder = anime.seasonOrder,
             )
         }
         return anime
@@ -302,6 +305,9 @@ class AnimeRestorer(
                 dateAdded = anime.dateAdded,
                 updateStrategy = anime.updateStrategy,
                 version = anime.version,
+                parentId = anime.parentId,
+                seasonNumber = anime.seasonNumber,
+                seasonOrder = anime.seasonOrder,
             )
             animesQueries.selectLastInsertedRowId()
         }

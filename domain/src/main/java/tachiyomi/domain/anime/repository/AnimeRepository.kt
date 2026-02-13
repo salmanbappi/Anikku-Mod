@@ -47,5 +47,9 @@ interface AnimeRepository {
     suspend fun deleteAnime(animeId: Long)
 
     suspend fun getSeenAnimeNotInLibraryView(): List<LibraryAnime>
+
+    suspend fun getSeasonsByParentId(parentId: Long): List<Anime>
+
+    fun getSeasonsByParentIdAsFlow(parentId: Long): Flow<List<Anime>>
     // SY <--
 }

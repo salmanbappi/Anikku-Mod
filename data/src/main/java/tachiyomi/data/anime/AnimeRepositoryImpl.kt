@@ -203,5 +203,13 @@ class AnimeRepositoryImpl(
     override suspend fun getSeenAnimeNotInLibraryView(): List<LibraryAnime> {
         return handler.awaitList { libraryViewQueries.seenAnimeNonLibrary(AnimeMapper::mapLibraryAnime) }
     }
+
+    override suspend fun getSeasonsByParentId(parentId: Long): List<Anime> {
+        return handler.awaitList { animesQueries.getSeasonsByParentId(parentId, AnimeMapper::mapAnime) }
+    }
+
+    override fun getSeasonsByParentIdAsFlow(parentId: Long): Flow<List<Anime>> {
+        return handler.subscribeToList { animesQueries.getSeasonsByParentId(parentId, AnimeMapper::mapAnime) }
+    }
     // SY <--
 }
