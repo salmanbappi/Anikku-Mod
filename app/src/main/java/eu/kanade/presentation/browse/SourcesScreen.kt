@@ -46,6 +46,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.util.fastForEach
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import eu.kanade.domain.ui.UiPreferences
+import tachiyomi.presentation.core.util.collectAsState
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
+
 @Composable
 fun SourcesScreen(
     state: SourcesScreenModel.State,
@@ -54,6 +61,10 @@ fun SourcesScreen(
     onClickPin: (Source) -> Unit,
     onLongClickItem: (Source) -> Unit,
 ) {
+    val uiPreferences = remember { Injekt.get<UiPreferences>() }
+    val containerStyles by uiPreferences.containerStyles().collectAsState()
+    val useContainer = remember(containerStyles) { UiPreferences.ContainerStyle.BROWSE in containerStyles }
+
     when {
         state.isLoading -> LoadingScreen(Modifier.padding(contentPadding))
         state.isEmpty -> EmptyScreen(
@@ -88,15 +99,33 @@ fun SourcesScreen(
                             i++
                         }
                         item(key = "island-${model.language}") {
-                            Surface(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 12.dp, vertical = 4.dp),
-                                shape = MaterialTheme.shapes.large,
-                                color = MaterialTheme.colorScheme.surfaceVariant,
-                                tonalElevation = 2.dp
-                            ) {
-                                Column {
+                            if (useContainer) {
+                                Surface(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 12.dp, vertical = 4.dp),
+                                    shape = MaterialTheme.shapes.large,
+                                    color = MaterialTheme.colorScheme.surfaceVariant,
+                                    tonalElevation = 2.dp
+                                ) {
+                                    Column {
+                                        groupItems.forEach { item ->
+                                            SourceItem(
+                                                source = item.source,
+                                                onClickItem = onClickItem,
+                                                onLongClickItem = onLongClickItem,
+                                                onClickPin = onClickPin,
+                                                modifier = Modifier.animateItem()
+                                            )
+                                        }
+                                    }
+                                }
+                            } else {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 12.dp, vertical = 4.dp),
+                                ) {
                                     groupItems.forEach { item ->
                                         SourceItem(
                                             source = item.source,
@@ -112,20 +141,30 @@ fun SourcesScreen(
                     } else if (model is SourceUiModel.Item) {
                         // Handle cases where items might appear before a header (e.g. pinned)
                         item(key = "source-${model.source.key()}") {
-                            Surface(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 12.dp, vertical = 4.dp),
-                                shape = MaterialTheme.shapes.large,
-                                color = MaterialTheme.colorScheme.surfaceVariant,
-                                tonalElevation = 2.dp
-                            ) {
+                            if (useContainer) {
+                                Surface(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 12.dp, vertical = 4.dp),
+                                    shape = MaterialTheme.shapes.large,
+                                    color = MaterialTheme.colorScheme.surfaceVariant,
+                                    tonalElevation = 2.dp
+                                ) {
+                                    SourceItem(
+                                        source = model.source,
+                                        onClickItem = onClickItem,
+                                        onLongClickItem = onLongClickItem,
+                                        onClickPin = onClickPin,
+                                        modifier = Modifier.animateItem()
+                                    )
+                                }
+                            } else {
                                 SourceItem(
                                     source = model.source,
                                     onClickItem = onClickItem,
                                     onLongClickItem = onLongClickItem,
                                     onClickPin = onClickPin,
-                                    modifier = Modifier.animateItem()
+                                    modifier = Modifier.animateItem().padding(horizontal = 12.dp, vertical = 4.dp)
                                 )
                             }
                         }

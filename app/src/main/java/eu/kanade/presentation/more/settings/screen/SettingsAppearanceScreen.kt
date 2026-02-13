@@ -215,6 +215,8 @@ object SettingsAppearanceScreen : SearchableSettings {
                         UiPreferences.ContainerStyle.UPDATES to "Updates",
                         UiPreferences.ContainerStyle.HISTORY to "History",
                         UiPreferences.ContainerStyle.DETAILS to "Details (Seasons)",
+                        UiPreferences.ContainerStyle.SETTINGS to "Settings",
+                        UiPreferences.ContainerStyle.BROWSE to "Browse (Sources/Extensions)",
                     ).toImmutableMap(),
                 ),
                 Preference.PreferenceItem.SwitchPreference(

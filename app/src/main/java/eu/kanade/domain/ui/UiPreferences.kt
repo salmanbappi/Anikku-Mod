@@ -71,6 +71,8 @@ class UiPreferences(
             const val UPDATES = "updates"
             const val HISTORY = "history"
             const val DETAILS = "details"
+            const val SETTINGS = "settings"
+            const val BROWSE = "browse"
         }
     }
 }

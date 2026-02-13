@@ -76,6 +76,11 @@ import tachiyomi.presentation.core.theme.header
 import tachiyomi.presentation.core.util.plus
 import tachiyomi.presentation.core.util.secondaryItemAlpha
 
+import eu.kanade.domain.ui.UiPreferences
+import tachiyomi.presentation.core.util.collectAsState
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
+
 @Composable
 fun ExtensionScreen(
     state: ExtensionsScreenModel.State,
@@ -93,6 +98,9 @@ fun ExtensionScreen(
     onRefresh: () -> Unit,
 ) {
     val navigator = LocalNavigator.currentOrThrow
+    val uiPreferences = remember { Injekt.get<UiPreferences>() }
+    val containerStyles by uiPreferences.containerStyles().collectAsState()
+    val useContainer = remember(containerStyles) { UiPreferences.ContainerStyle.BROWSE in containerStyles }
 
     PullRefresh(
         refreshing = state.isRefreshing,
@@ -132,6 +140,7 @@ fun ExtensionScreen(
                     onTrustExtension = onTrustExtension,
                     onOpenExtension = onOpenExtension,
                     onClickUpdateAll = onClickUpdateAll,
+                    useContainer = useContainer,
                 )
             }
         }
@@ -151,6 +160,7 @@ private fun ExtensionContent(
     onTrustExtension: (Extension.Untrusted) -> Unit,
     onOpenExtension: (Extension.Installed) -> Unit,
     onClickUpdateAll: () -> Unit,
+    useContainer: Boolean,
 ) {
     val context = LocalContext.current
     var trustState by remember { mutableStateOf<Extension.Untrusted?>(null) }
@@ -217,21 +227,61 @@ private fun ExtensionContent(
                 key = { "extension-${it.extension.pkgName}" },
                 contentType = { "extension_item" },
             ) { item ->
-                val isFirst = items.first() == item
-                val isLast = items.last() == item
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp),
-                    shape = RoundedCornerShape(
-                        topStart = if (isFirst) 16.dp else 0.dp,
-                        topEnd = if (isFirst) 16.dp else 0.dp,
-                        bottomStart = if (isLast) 16.dp else 0.dp,
-                        bottomEnd = if (isLast) 16.dp else 0.dp,
-                    ),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    tonalElevation = 2.dp
-                ) {
+                if (useContainer) {
+                    val isFirst = items.first() == item
+                    val isLast = items.last() == item
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp),
+                        shape = RoundedCornerShape(
+                            topStart = if (isFirst) 16.dp else 0.dp,
+                            topEnd = if (isFirst) 16.dp else 0.dp,
+                            bottomStart = if (isLast) 16.dp else 0.dp,
+                            bottomEnd = if (isLast) 16.dp else 0.dp,
+                        ),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        tonalElevation = 2.dp
+                    ) {
+                        ExtensionItem(
+                            modifier = Modifier.animateItemFastScroll(),
+                            item = item,
+                            onClickItem = {
+                                when (it) {
+                                    is Extension.Available -> onInstallExtension(it)
+                                    is Extension.Installed -> onOpenExtension(it)
+                                    is Extension.Untrusted -> {
+                                        trustState = it
+                                    }
+                                }
+                            },
+                            onLongClickItem = onLongClickItem,
+                            onClickItemSecondaryAction = {
+                                when (it) {
+                                    is Extension.Available -> onOpenWebView(it)
+                                    is Extension.Installed -> onOpenExtension(it)
+                                    else -> {}
+                                }
+                            },
+                            onClickItemCancel = onClickItemCancel,
+                            onClickItemAction = {
+                                when (it) {
+                                    is Extension.Available -> onInstallExtension(it)
+                                    is Extension.Installed -> {
+                                        if (it.hasUpdate) {
+                                            onUpdateExtension(it)
+                                        } else {
+                                            onOpenExtension(it)
+                                        }
+                                    }
+                                    is Extension.Untrusted -> {
+                                        trustState = it
+                                    }
+                                }
+                            },
+                        )
+                    }
+                } else {
                     ExtensionItem(
                         modifier = Modifier.animateItemFastScroll(),
                         item = item,
