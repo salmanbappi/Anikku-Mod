@@ -63,11 +63,13 @@ fun LibraryContent(
     val useContainer = remember(containerStyles) { ContainerStyle.LIBRARY in containerStyles }
 
     Column(
-        modifier = Modifier.padding(
-            top = contentPadding.calculateTopPadding(),
-            start = contentPadding.calculateStartPadding(LocalLayoutDirection.current),
-            end = contentPadding.calculateEndPadding(LocalLayoutDirection.current),
-        ),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(
+                top = contentPadding.calculateTopPadding(),
+                start = contentPadding.calculateStartPadding(LocalLayoutDirection.current),
+                end = contentPadding.calculateEndPadding(LocalLayoutDirection.current),
+            ),
     ) {
         val pagerState = rememberPagerState(
             initialPage = remember(categories) { currentPage().coerceAtMost(categories.lastIndex.coerceAtLeast(0)) },
@@ -103,7 +105,7 @@ fun LibraryContent(
             modifier = Modifier.fillMaxSize(),
             refreshing = isRefreshing,
             onRefresh = {
-                val started = onRefresh(categories[currentPage()])
+                val started = onRefresh(categories[pagerState.currentPage])
                 if (!started) return@PullRefresh
                 scope.launch {
                     // Fake refresh status but hide it after a second as it's a long running task
