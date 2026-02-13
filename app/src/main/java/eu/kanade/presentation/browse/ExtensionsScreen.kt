@@ -76,6 +76,7 @@ import tachiyomi.presentation.core.theme.header
 import tachiyomi.presentation.core.util.plus
 import tachiyomi.presentation.core.util.secondaryItemAlpha
 
+import eu.kanade.domain.ui.ContainerStyle
 import eu.kanade.domain.ui.UiPreferences
 import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt
@@ -100,7 +101,7 @@ fun ExtensionScreen(
     val navigator = LocalNavigator.currentOrThrow
     val uiPreferences = remember { Injekt.get<UiPreferences>() }
     val containerStyles by uiPreferences.containerStyles().collectAsState()
-    val useContainer = remember(containerStyles) { UiPreferences.ContainerStyle.BROWSE in containerStyles }
+    val useContainer = remember(containerStyles) { ContainerStyle.BROWSE in containerStyles }
 
     PullRefresh(
         refreshing = state.isRefreshing,

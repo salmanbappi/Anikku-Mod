@@ -46,6 +46,7 @@ import uy.kohesive.injekt.api.get
 import java.time.LocalDate
 import kotlin.time.Duration.Companion.seconds
 
+import eu.kanade.domain.ui.ContainerStyle
 import eu.kanade.domain.ui.UiPreferences
 import tachiyomi.presentation.core.util.collectAsState
 
@@ -72,7 +73,7 @@ fun UpdateScreen(
 ) {
     val uiPreferences = remember { Injekt.get<UiPreferences>() }
     val containerStyles by uiPreferences.containerStyles().collectAsState()
-    val useContainer = remember(containerStyles) { UiPreferences.ContainerStyle.UPDATES in containerStyles }
+    val useContainer = remember(containerStyles) { ContainerStyle.UPDATES in containerStyles }
 
     BackHandler(enabled = state.selectionMode, onBack = { onSelectAll(false) })
 

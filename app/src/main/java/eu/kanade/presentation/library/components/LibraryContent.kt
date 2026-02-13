@@ -31,6 +31,7 @@ import tachiyomi.domain.library.model.LibraryDisplayMode
 import tachiyomi.presentation.core.components.material.PullRefresh
 import kotlin.time.Duration.Companion.seconds
 
+import eu.kanade.domain.ui.ContainerStyle
 import eu.kanade.domain.ui.UiPreferences
 import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt
@@ -59,7 +60,7 @@ fun LibraryContent(
 ) {
     val uiPreferences = remember { Injekt.get<UiPreferences>() }
     val containerStyles by uiPreferences.containerStyles().collectAsState()
-    val useContainer = remember(containerStyles) { UiPreferences.ContainerStyle.LIBRARY in containerStyles }
+    val useContainer = remember(containerStyles) { ContainerStyle.LIBRARY in containerStyles }
 
     Column(
         modifier = Modifier.padding(

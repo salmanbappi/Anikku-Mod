@@ -48,6 +48,7 @@ import androidx.compose.ui.util.fastForEach
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import eu.kanade.domain.ui.ContainerStyle
 import eu.kanade.domain.ui.UiPreferences
 import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt
@@ -63,7 +64,7 @@ fun SourcesScreen(
 ) {
     val uiPreferences = remember { Injekt.get<UiPreferences>() }
     val containerStyles by uiPreferences.containerStyles().collectAsState()
-    val useContainer = remember(containerStyles) { UiPreferences.ContainerStyle.BROWSE in containerStyles }
+    val useContainer = remember(containerStyles) { ContainerStyle.BROWSE in containerStyles }
 
     when {
         state.isLoading -> LoadingScreen(Modifier.padding(contentPadding))

@@ -65,14 +65,14 @@ class UiPreferences(
             "" -> DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)
             else -> DateTimeFormatter.ofPattern(format, Locale.getDefault())
         }
-
-        object ContainerStyle {
-            const val LIBRARY = "library"
-            const val UPDATES = "updates"
-            const val HISTORY = "history"
-            const val DETAILS = "details"
-            const val SETTINGS = "settings"
-            const val BROWSE = "browse"
-        }
     }
+}
+
+object ContainerStyle {
+    const val LIBRARY = "library"
+    const val UPDATES = "updates"
+    const val HISTORY = "history"
+    const val DETAILS = "details"
+    const val SETTINGS = "settings"
+    const val BROWSE = "browse"
 }

@@ -29,6 +29,7 @@ import tachiyomi.presentation.core.components.Badge
 import tachiyomi.presentation.core.i18n.stringResource
 
 import androidx.compose.runtime.getValue
+import eu.kanade.domain.ui.ContainerStyle
 import eu.kanade.domain.ui.UiPreferences
 import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt
@@ -44,7 +45,7 @@ fun AnimeSeasonSection(
 
     val uiPreferences = remember { Injekt.get<UiPreferences>() }
     val containerStyles by uiPreferences.containerStyles().collectAsState()
-    val useContainer = remember(containerStyles) { UiPreferences.ContainerStyle.DETAILS in containerStyles }
+    val useContainer = remember(containerStyles) { ContainerStyle.DETAILS in containerStyles }
 
     // Intuitive Sorting: Seasons/Movies first (positive/0/-2), then OVAs/ONAs/Specials
     val sortedSeasons = remember(seasons) {

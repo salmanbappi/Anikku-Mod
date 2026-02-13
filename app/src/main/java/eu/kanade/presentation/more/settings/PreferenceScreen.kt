@@ -29,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 
 import androidx.compose.runtime.getValue
+import eu.kanade.domain.ui.ContainerStyle
 import eu.kanade.domain.ui.UiPreferences
 import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt
@@ -42,7 +43,7 @@ fun PreferenceScreen(
 ) {
     val uiPreferences = remember { Injekt.get<UiPreferences>() }
     val containerStyles by uiPreferences.containerStyles().collectAsState()
-    val useContainer = remember(containerStyles) { UiPreferences.ContainerStyle.SETTINGS in containerStyles }
+    val useContainer = remember(containerStyles) { ContainerStyle.SETTINGS in containerStyles }
 
     val state = rememberLazyListState()
     val highlightKey = SearchableSettings.highlightKey

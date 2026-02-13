@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import eu.kanade.domain.ui.ContainerStyle
 import eu.kanade.domain.ui.UiPreferences
 import eu.kanade.domain.ui.model.AppTheme
 import eu.kanade.domain.ui.model.NavStyle
@@ -211,12 +212,12 @@ object SettingsAppearanceScreen : SearchableSettings {
                     title = "Container Style",
                     subtitle = "Enable rounded containers for selected screens",
                     entries = mapOf(
-                        UiPreferences.ContainerStyle.LIBRARY to "Library",
-                        UiPreferences.ContainerStyle.UPDATES to "Updates",
-                        UiPreferences.ContainerStyle.HISTORY to "History",
-                        UiPreferences.ContainerStyle.DETAILS to "Details (Seasons)",
-                        UiPreferences.ContainerStyle.SETTINGS to "Settings",
-                        UiPreferences.ContainerStyle.BROWSE to "Browse (Sources/Extensions)",
+                        ContainerStyle.LIBRARY to "Library",
+                        ContainerStyle.UPDATES to "Updates",
+                        ContainerStyle.HISTORY to "History",
+                        ContainerStyle.DETAILS to "Details (Seasons)",
+                        ContainerStyle.SETTINGS to "Settings",
+                        ContainerStyle.BROWSE to "Browse (Sources/Extensions)",
                     ).toImmutableMap(),
                 ),
                 Preference.PreferenceItem.SwitchPreference(
