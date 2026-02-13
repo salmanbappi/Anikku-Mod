@@ -156,3 +156,15 @@ object AnimeMapper {
         lastSeen = lastSeen,
     )
 }
+
+fun Anime.toSAnime(): eu.kanade.tachiyomi.source.model.SAnime = eu.kanade.tachiyomi.source.model.SAnime.create().also {
+    it.url = url
+    it.title = title
+    it.artist = artist
+    it.author = author
+    it.description = description
+    it.genre = genre?.joinToString(", ")
+    it.status = status.toInt()
+    it.thumbnail_url = thumbnailUrl
+    it.initialized = initialized
+}
