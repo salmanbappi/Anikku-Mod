@@ -94,6 +94,7 @@ import eu.kanade.presentation.anime.components.AnimeBottomActionMenu
 import eu.kanade.presentation.anime.components.AnimeEpisodeListItem
 import eu.kanade.presentation.anime.components.AnimeInfoBox
 import eu.kanade.presentation.anime.components.AnimeToolbar
+import eu.kanade.presentation.anime.components.AnimeSeasonSection
 import eu.kanade.presentation.anime.components.EpisodeDownloadAction
 import eu.kanade.presentation.anime.components.EpisodeHeader
 import eu.kanade.presentation.anime.components.ExpandableAnimeDescription
@@ -510,6 +511,14 @@ private fun AnimeScreenSmallImpl(
                                     doSearch = onSearch,
                                 )
                             }
+                            item(key = "season-section", contentType = "season") {
+                                val navigator = LocalNavigator.currentOrThrow
+                                AnimeSeasonSection(
+                                    seasons = state.seasons,
+                                    onSeasonClick = { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(it)) },
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                )
+                            }
                             item(key = AnimeScreenItem.ACTION_ROW, contentType = AnimeScreenItem.ACTION_ROW) {
                                 val isWatching = remember(state.episodes) {
                                     state.episodes.fastAny { it.episode.seen }
@@ -905,6 +914,12 @@ fun AnimeScreenLargeImpl(
                                     isStubSource = remember { state.source is StubSource },
                                     onCoverClick = onCoverClicked,
                                     doSearch = onSearch,
+                                )
+                                val navigator = LocalNavigator.currentOrThrow
+                                AnimeSeasonSection(
+                                    seasons = state.seasons,
+                                    onSeasonClick = { navigator.push(eu.kanade.tachiyomi.ui.anime.AnimeScreen(it)) },
+                                    modifier = Modifier.padding(horizontal = 16.dp),
                                 )
                                 val isWatching = remember(state.episodes) {
                                     state.episodes.fastAny { it.episode.seen }

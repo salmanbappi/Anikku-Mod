@@ -9,6 +9,7 @@ import tachiyomi.data.source.SavedSearchRepositoryImpl
 import tachiyomi.domain.anime.interactor.DeleteAnimeById
 import tachiyomi.domain.anime.interactor.DeleteByMergeId
 import tachiyomi.domain.anime.interactor.DeleteMergeById
+import tachiyomi.domain.anime.interactor.DeleteSeason
 import tachiyomi.domain.anime.interactor.GetAllAnime
 import tachiyomi.domain.anime.interactor.GetAnimeBySource
 import tachiyomi.domain.anime.interactor.GetCustomAnimeInfo
@@ -16,6 +17,7 @@ import tachiyomi.domain.anime.interactor.GetMergedAnime
 import tachiyomi.domain.anime.interactor.GetMergedAnimeById
 import tachiyomi.domain.anime.interactor.GetMergedAnimeForDownloading
 import tachiyomi.domain.anime.interactor.GetMergedReferencesById
+import tachiyomi.domain.anime.interactor.GetSeasonsByAnimeId
 import tachiyomi.domain.anime.interactor.GetSeenAnimeNotInLibraryView
 import tachiyomi.domain.anime.interactor.SetCustomAnimeInfo
 import tachiyomi.domain.anime.interactor.UpdateMergedSettings
@@ -78,6 +80,8 @@ class SYDomainModule : InjektModule {
         addFactory { GetMergedAnimeById(get()) }
         addFactory { GetMergedReferencesById(get()) }
         addFactory { GetMergedEpisodesByAnimeId(get(), get()) }
+        addFactory { GetSeasonsByAnimeId(get(), get()) }
+        addFactory { DeleteSeason(get()) }
 //        addFactory { InsertMergedReference(get()) }
         addFactory { UpdateMergedSettings(get()) }
         addFactory { DeleteByMergeId(get()) }

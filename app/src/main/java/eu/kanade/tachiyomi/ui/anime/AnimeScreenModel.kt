@@ -88,6 +88,7 @@ import tachiyomi.domain.anime.interactor.NetworkToLocalAnime
 import tachiyomi.domain.anime.model.Anime
 import tachiyomi.domain.anime.model.AnimeUpdate
 import tachiyomi.domain.anime.model.CustomAnimeInfo
+import tachiyomi.domain.anime.model.Season
 import tachiyomi.domain.anime.model.applyFilter
 import tachiyomi.domain.anime.model.toAnimeUpdate
 import tachiyomi.domain.anime.repository.AnimeRepository
@@ -171,6 +172,7 @@ class AnimeScreenModel(
     private val getRelatedAnime: GetRelatedAnime = Injekt.get(),
     private val calculateUserAffinity: CalculateUserAffinity = Injekt.get(),
     private val getLibraryAnime: GetLibraryAnime = Injekt.get(),
+    private val getSeasonsByAnimeId: tachiyomi.domain.anime.interactor.GetSeasonsByAnimeId = Injekt.get(),
 ) : StateScreenModel<AnimeScreenModel.State>(State.Loading) {
 
     private val successState: State.Success?
@@ -269,6 +271,7 @@ class AnimeScreenModel(
             
             observeDownloads()
             observeTrackers()
+            observeSeasons()
 
             if (isActive) {
                 val needRefreshInfo = !initialAnime.initialized
@@ -1088,6 +1091,14 @@ class AnimeScreenModel(
         }
     }
 
+    private fun observeSeasons() {
+        getSeasonsByAnimeId.subscribe(animeId)
+            .onEach { seasons ->
+                updateSuccessState { it.copy(seasons = seasons.toImmutableList()) }
+            }
+            .launchIn(screenModelScope)
+    }
+
     private suspend fun updateAiringTime(anime: Anime, trackItems: List<TrackItem>, manualFetch: Boolean) {
         val airingEpisodeData = AniChartApi().loadAiringTime(anime, trackItems, manualFetch)
         setAnimeViewerFlags.awaitSetNextEpisodeAiring(anime.id, airingEpisodeData)
@@ -1140,6 +1151,7 @@ class AnimeScreenModel(
             val nextAiringEpisode: Pair<Int, Long> = Pair(anime.nextEpisodeToAir, anime.nextEpisodeAiringAt),
             val suggestions: ImmutableList<Anime> = persistentListOf(),
             val suggestionSections: ImmutableList<SuggestionSection> = persistentListOf(),
+            val seasons: ImmutableList<Season> = persistentListOf(),
             val discoveryExpanded: Boolean = false,
         ) : State {
             val totalScore: Double? by lazy {
