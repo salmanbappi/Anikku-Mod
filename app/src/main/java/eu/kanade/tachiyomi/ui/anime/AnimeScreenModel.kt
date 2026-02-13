@@ -59,6 +59,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
@@ -1092,7 +1093,13 @@ class AnimeScreenModel(
     }
 
     private fun observeSeasons() {
-        getSeasonsByAnimeId.subscribe(animeId)
+        val virtualSeasonsFlow = state.map { successState ->
+            (successState as? State.Success)?.suggestionSections
+                ?.find { it.type == SuggestionSection.Type.Franchise }
+                ?.items.orEmpty()
+        }.distinctUntilChanged()
+
+        getSeasonsByAnimeId.subscribe(animeId, virtualSeasonsFlow)
             .onEach { seasons ->
                 updateSuccessState { it.copy(seasons = seasons.toImmutableList()) }
             }
