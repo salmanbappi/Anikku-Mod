@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -47,7 +48,7 @@ import tachiyomi.presentation.core.components.material.padding
 
 /**
  * Width of the video timer slots flanking the seekbar.
- * Reused by the player prompt so it can center over the duration timer slot.
+ * Reused by the player prompt so it can align with the duration timer's text.
  */
 internal val videoTimerWidth = 92.dp
 
@@ -76,6 +77,7 @@ fun SeekbarWithTimers(
     timersInverted: Pair<Boolean, Boolean>,
     positionTimerOnClick: () -> Unit,
     durationTimerOnCLick: () -> Unit,
+    onDurationTextLayout: (TextLayoutResult) -> Unit = {},
     chapters: List<Segment>,
     modifier: Modifier = Modifier,
 ) {
@@ -127,6 +129,7 @@ fun SeekbarWithTimers(
                 clickEvent()
                 durationTimerOnCLick()
             },
+            onTextLayout = onDurationTextLayout,
             modifier = Modifier.width(videoTimerWidth),
         )
     }
@@ -138,6 +141,7 @@ fun VideoTimer(
     isInverted: Boolean,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
+    onTextLayout: (TextLayoutResult) -> Unit = {},
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     Text(
@@ -152,6 +156,7 @@ fun VideoTimer(
         text = Utils.prettyTime(value.toInt(), isInverted),
         color = Color.White,
         textAlign = TextAlign.Center,
+        onTextLayout = onTextLayout,
         style = MaterialTheme.typography.labelLarge.copy(
             fontFamily = androidx.compose.ui.text.font.FontFamily.SansSerif,
             fontFeatureSettings = "tnum"
