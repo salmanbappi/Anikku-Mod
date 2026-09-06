@@ -45,6 +45,12 @@ import eu.kanade.tachiyomi.ui.player.controls.LocalPlayerButtonsClickEvent
 import `is`.xyz.mpv.Utils
 import tachiyomi.presentation.core.components.material.padding
 
+/**
+ * Width of the video timer slots flanking the seekbar.
+ * Reused by the player prompt so it can center over the duration timer slot.
+ */
+internal val videoTimerWidth = 92.dp
+
 @Immutable
 data class IndexedSegment(
     val name: String,
@@ -86,7 +92,7 @@ fun SeekbarWithTimers(
                 clickEvent()
                 positionTimerOnClick()
             },
-            modifier = Modifier.width(92.dp),
+            modifier = Modifier.width(videoTimerWidth),
         )
         Seeker(
             value = position.coerceIn(0f, duration),
@@ -121,7 +127,7 @@ fun SeekbarWithTimers(
                 clickEvent()
                 durationTimerOnCLick()
             },
-            modifier = Modifier.width(92.dp),
+            modifier = Modifier.width(videoTimerWidth),
         )
     }
 }
