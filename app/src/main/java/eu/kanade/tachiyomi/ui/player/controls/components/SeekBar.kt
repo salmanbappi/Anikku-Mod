@@ -176,6 +176,6 @@ private fun PreviewSeekBar() {
         Pair(false, true),
         {},
         {},
-        emptyList(),
+        chapters = emptyList(),
     )
 }

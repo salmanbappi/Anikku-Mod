@@ -553,7 +553,8 @@ fun PlayerControls(
                         positionTimerOnClick = {},
                         onDurationTextLayout = { layoutResult ->
                             if (layoutResult.lineCount > 0) {
-                                durationInkWidthPx = layoutResult.lineRight(0) - layoutResult.lineLeft(0)
+                                durationInkWidthPx =
+                                    layoutResult.getLineRight(0) - layoutResult.getLineLeft(0)
                             }
                         },
                         chapters = chaptersList,
