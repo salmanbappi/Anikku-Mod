@@ -151,7 +151,6 @@ fun FilledControlsButton(
 
     Box(
         modifier = modifier
-            .padding(end = MaterialTheme.padding.small)
             .tvFocusHighlight(
                 shape = MaterialTheme.shapes.small,
                 focusedScale = 1.06f,
