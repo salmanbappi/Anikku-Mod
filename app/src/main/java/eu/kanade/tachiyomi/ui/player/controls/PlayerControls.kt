@@ -33,10 +33,12 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.LocalContentColor
@@ -80,6 +82,7 @@ import eu.kanade.tachiyomi.ui.player.controls.components.ControlsButton
 import eu.kanade.tachiyomi.ui.player.controls.components.DoubleSpeedPlayerUpdate
 import eu.kanade.tachiyomi.ui.player.controls.components.FilledControlsButton
 import eu.kanade.tachiyomi.ui.player.controls.components.SeekbarWithTimers
+import eu.kanade.tachiyomi.ui.player.controls.components.videoTimerWidth
 import eu.kanade.tachiyomi.ui.player.controls.components.ThumbnailPreview
 import eu.kanade.tachiyomi.ui.player.controls.components.TextPlayerUpdate
 import eu.kanade.tachiyomi.ui.player.controls.components.VolumeSlider
@@ -447,8 +450,7 @@ fun PlayerControls(
                 ) {
                     Column {
                         // Skip intro prompt / custom action button, anchored to the seekbar:
-                        // it slides in and out with it, right edge flush with the duration timer,
-                        // nudged down to close the gap with the bar
+                        // it slides in and out with it, centered over the duration timer slot
                         val skipIntroButton by viewModel.skipIntroText.collectAsState()
                         val customButtonTitle by viewModel.primaryButtonTitle.collectAsState()
                         val actionButton = customButton
@@ -463,19 +465,26 @@ fun PlayerControls(
                                 .align(Alignment.End)
                                 .offset(y = spacing.small),
                         ) {
-                            val skipIntroLabel = skipIntroButton
-                            if (skipIntroLabel != null) {
-                                FilledControlsButton(
-                                    text = skipIntroLabel,
-                                    onClick = viewModel::onSkipIntro,
-                                    onLongClick = viewModel::onSkipIntro,
-                                )
-                            } else if (actionButton != null && customButtonTitle.isNotEmpty()) {
-                                FilledControlsButton(
-                                    text = customButtonTitle,
-                                    onClick = { actionButton.execute() },
-                                    onLongClick = { actionButton.executeLongPress() },
-                                )
+                            // Reserve the duration timer's slot width so the pill centers
+                            // over the time display; wider labels extend to the left
+                            Box(
+                                modifier = Modifier.widthIn(min = videoTimerWidth),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                val skipIntroLabel = skipIntroButton
+                                if (skipIntroLabel != null) {
+                                    FilledControlsButton(
+                                        text = skipIntroLabel,
+                                        onClick = viewModel::onSkipIntro,
+                                        onLongClick = viewModel::onSkipIntro,
+                                    )
+                                } else if (actionButton != null && customButtonTitle.isNotEmpty()) {
+                                    FilledControlsButton(
+                                        text = customButtonTitle,
+                                        onClick = { actionButton.execute() },
+                                        onLongClick = { actionButton.executeLongPress() },
+                                    )
+                                }
                             }
                         }
 
