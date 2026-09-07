@@ -507,10 +507,9 @@ class Downloader(
 
         // Prepare Destination Directory (Atomic _tmp approach) early to allow direct merging
         val tmpEpisodeDirname = episodeDirname + TMP_DIR_SUFFIX
-        var destDir = animeDir.findFile(tmpEpisodeDirname)
-        if (destDir == null) {
-            destDir = animeDir.createDirectory(tmpEpisodeDirname)!!
-        }
+        val destDir = animeDir.findFile(tmpEpisodeDirname)
+            ?: animeDir.createDirectory(tmpEpisodeDirname)
+            ?: throw IOException("Could not create temporary episode directory: $tmpEpisodeDirname")
 
         val videoFilename = DiskUtil.buildValidFilename(download.episode.name)
 
@@ -523,7 +522,9 @@ class Downloader(
 
             // RECOVERY: Handle interrupted FINALIZING state
             if (previousState == Download.State.FINALIZING && mergedFile.exists()) {
-                finalizeDownload(download, UniFile.fromFile(mergedFile)!!, animeDir, episodeDirname)
+                val recoveredFile = UniFile.fromFile(mergedFile)
+                    ?: throw IOException("Recovered merge file is no longer accessible: ${mergedFile.absolutePath}")
+                finalizeDownload(download, recoveredFile, animeDir, episodeDirname)
                 return
             }
             
@@ -694,36 +695,54 @@ class Downloader(
 
         // Create temporary episode directory
         val tmpFilename = filename + TMP_DIR_SUFFIX
-        var destDir = publicDir.findFile(tmpFilename)
-        if (destDir == null) {
-            destDir = publicDir.createDirectory(tmpFilename)!!
-        }
+        val destDir = publicDir.findFile(tmpFilename)
+            ?: publicDir.createDirectory(tmpFilename)
+            ?: throw IOException("Could not create temporary episode directory: $tmpFilename")
 
         // Check if the file is already in the destination (e.g. direct merge)
-        var destFile = destDir.findFile(finalName)
-        
-        val isAlreadyAtDestination = destFile != null && destFile.uri == videoFile.uri
-        
+        val destFile = destDir.findFile(finalName)
+
+        // Salvage: an interrupted finalize (crash, failed rename) may have already placed the
+        // complete video inside the temp directory. Identical content is reused instead of
+        // copying it again — URI identity is lost across storage zones, so sizes are compared.
+        val isAlreadyAtDestination = (destFile != null && destFile.uri == videoFile.uri) ||
+            (
+                destFile != null && destFile.length() > 0 &&
+                    videoFile.length() > 0 && destFile.length() == videoFile.length()
+                )
+
         if (!isAlreadyAtDestination) {
             // CRITICAL: Prevent file bloating
-            if (destFile != null) destFile.delete()
+            destFile?.delete()
             destDir.findFile("$videoFilename.tmp")?.delete()
 
-            // FAST-PATH: Instant Rename if both are on local storage
+            // FAST-PATH: Instant rename if the destination is a real filesystem path. SAF
+            // documents also expose a filePath, but java.io renames into them fail with EPERM
+            // under scoped storage — those must use the stream copy below instead.
             val localSource = getLocalFile(videoFile)
-            val localDestDir = getLocalFile(destDir)
-            
+            val localDestDir = if (destDir.uri.scheme == "file") getLocalFile(destDir) else null
+
             if (localSource != null && localDestDir != null) {
                 val localDestFile = File(localDestDir, finalName)
                 if (localSource.renameTo(localDestFile)) {
                     logcat(LogPriority.INFO) { "Finalize: Instant rename success: ${localSource.name} -> ${localDestFile.name}" }
                 } else {
                     // Fallback to byte copy if rename fails
-                    copyUniFile(videoFile, destDir.createFile(finalName)!!, download)
+                    copyUniFile(
+                        videoFile,
+                        destDir.createFile(finalName)
+                            ?: throw IOException("Could not create destination file: $finalName"),
+                        download,
+                    )
                 }
             } else {
                 // SAF Path: Direct byte-by-byte copy
-                copyUniFile(videoFile, destDir.createFile(finalName)!!, download)
+                copyUniFile(
+                    videoFile,
+                    destDir.createFile(finalName)
+                        ?: throw IOException("Could not create destination file: $finalName"),
+                    download,
+                )
             }
         }
 
@@ -747,7 +766,24 @@ class Downloader(
         // Finalize: Rename directory to final name
         val finalDir = publicDir.findFile(filename)
         finalDir?.delete() // Cleanup if somehow exists
-        destDir.renameTo(filename)
+        if (!destDir.renameTo(filename)) {
+            // Some SAF documents refuse directory renames. Fall back to creating the final
+            // directory, streaming the children across, and removing the temp directory.
+            logcat(LogPriority.WARN) { "Finalize: directory rename failed, falling back to stream copy: $filename" }
+            val targetDir = publicDir.createDirectory(filename)
+                ?: throw IOException("Could not create episode directory: $filename")
+            for (child in destDir.listFiles().orEmpty()) {
+                val childName = child.name ?: continue
+                val targetFile = targetDir.createFile(childName)
+                    ?: throw IOException("Could not create file while finalizing: $childName")
+                child.openInputStream().use { input ->
+                    targetFile.openOutputStream().use { output ->
+                        input.copyTo(output, 1024 * 1024)
+                    }
+                }
+            }
+            destDir.delete()
+        }
         
         if (isLocalFile(videoFile)) {
             getLocalFile(videoFile)?.parentFile?.deleteRecursively()
@@ -814,14 +850,20 @@ class Downloader(
             )
         }
 
-        val client = networkHelper.downloadClient
+        // Torrent streams only start producing headers/data once the swarm connects, which
+        // regularly takes longer than the default 30s read / 120s call timeouts — that is
+        // normal torrent behaviour, not a failure. Use the patient torrent client and a
+        // single connection, and skip the size probe (the stream endpoint does not expose
+        // a meaningful Content-Length up front either).
+        val isTorrentStream = TorrentServerUtils.isTorrentServerUrl(video.videoUrl)
+        val client = if (isTorrentStream) networkHelper.torrentClient else networkHelper.downloadClient
         val host = Uri.parse(video.videoUrl).host ?: ""
-        val threadCount = calculateDynamicConcurrency(host)
+        val threadCount = if (isTorrentStream) 1 else calculateDynamicConcurrency(host)
         val headers = getHeaders(video)
         
         // Instant Startup: Use cached size if available, otherwise probe in parallel
         var size = download.totalSize
-        if (size <= 0) {
+        if (size <= 0 && !isTorrentStream) {
             try {
                 client.newCall(Request.Builder().url(video.videoUrl).headers(headers).head().build()).execute().use { res ->
                     size = if (res.isSuccessful) res.header("Content-Length")?.toLongOrNull() ?: -1L else -1L

@@ -18,6 +18,12 @@ object TorrentServerApi {
     private val network: NetworkHelper by injectLazy()
     private val hostUrl = TorrentServerUtils.hostUrl
 
+    // Torrent metadata can take minutes to arrive from the swarm; the plain client's
+    // timeouts abort these calls long before that (see NetworkHelper.torrentClient).
+    // echo()/shutdown() stay on the regular client — they are polled in tight loops while
+    // the server starts up and must fail fast.
+    private val client get() = network.torrentClient
+
     @Suppress("TooGenericExceptionCaught")
     fun echo(): String {
         return try {
@@ -56,7 +62,7 @@ object TorrentServerApi {
                 saveToDb = save,
             ).toString()
         val resp =
-            network.client.newCall(
+            client.newCall(
                 POST("$hostUrl/torrents", body = req.toRequestBody("application/json".toMediaTypeOrNull())),
             ).execute()
         return Json.decodeFromString(Torrent.serializer(), resp.body.string())
@@ -65,7 +71,7 @@ object TorrentServerApi {
     fun getTorrent(hash: String): Torrent {
         val req = TorrentRequest("get", hash).toString()
         val resp =
-            network.client.newCall(
+            client.newCall(
                 POST("$hostUrl/torrents", body = req.toRequestBody("application/json".toMediaTypeOrNull())),
             ).execute()
         return Json.decodeFromString(Torrent.serializer(), resp.body.string())
@@ -73,7 +79,7 @@ object TorrentServerApi {
 
     fun remTorrent(hash: String) {
         val req = TorrentRequest("rem", hash).toString()
-        network.client.newCall(
+        client.newCall(
             POST("$hostUrl/torrents", body = req.toRequestBody("application/json".toMediaTypeOrNull())),
         ).execute()
     }
@@ -81,7 +87,7 @@ object TorrentServerApi {
     fun listTorrent(): List<Torrent> {
         val req = TorrentRequest("list").toString()
         val resp =
-            network.client.newCall(
+            client.newCall(
                 POST("$hostUrl/torrents", body = req.toRequestBody("application/json".toMediaTypeOrNull())),
             ).execute()
         return Json.decodeFromString<List<Torrent>>(resp.body.string())

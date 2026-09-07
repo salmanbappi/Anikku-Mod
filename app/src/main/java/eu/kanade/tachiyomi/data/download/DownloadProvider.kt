@@ -22,8 +22,6 @@ import uy.kohesive.injekt.api.get
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-import tachiyomi.domain.episode.service.EpisodeRecognition
-
 /**
  * This class is used to provide the directories where the downloads should be saved.
  * It uses the following path scheme: /<root downloads dir>/<source name>/<anime>/<episode>
@@ -141,37 +139,11 @@ class DownloadProvider(
             val files = animeDir.listFiles().orEmpty()
             return files.firstOrNull { file ->
                 if (!file.hasPlayableVideo()) return@firstOrNull false
-                val name = file.nameWithoutExtension ?: file.name ?: return@firstOrNull false
-                if (name.endsWith(Downloader.TMP_DIR_SUFFIX)) return@firstOrNull false
-                if (!episodeScanlator.isNullOrBlank()) {
-                    val parsedScanlator = name.substringBefore('_', "")
-                    if (parsedScanlator.isNotBlank() && !parsedScanlator.equals(episodeScanlator, ignoreCase = true)) {
-                        return@firstOrNull false
-                    }
-                }
-                val parsedNum = EpisodeRecognition.parseEpisodeNumber(animeTitle, name)
-                parsedNum == episodeNumber
+                val name = file.name ?: return@firstOrNull false
+                parseEpisodeNumberFromDir(animeTitle, name, episodeScanlator) == episodeNumber
             }
         }
         return null
-    }
-
-    /**
-     * A directory alone is not a completed download. External downloaders and failed attempts can
-     * leave empty directories behind, while an incorrectly classified HLS playlist can leave a tiny
-     * text file with an MKV extension. Require a realistically sized video before exposing it as
-     * downloaded.
-     */
-    private fun UniFile.hasPlayableVideo(): Boolean {
-        if (isFile) {
-            val extension = name?.substringAfterLast('.', "")?.lowercase()
-            return extension in setOf("mp4", "mkv") && length() >= MIN_VALID_VIDEO_BYTES
-        }
-        if (!isDirectory) return false
-        return listFiles().orEmpty().any { child ->
-            val extension = child.name?.substringAfterLast('.', "")?.lowercase()
-            child.isFile && extension in setOf("mp4", "mkv") && child.length() >= MIN_VALID_VIDEO_BYTES
-        }
     }
 
     /**
@@ -204,16 +176,8 @@ class DownloadProvider(
 
             if (episode.isRecognizedNumber) {
                 allFiles.firstOrNull { file ->
-                    val name = file.nameWithoutExtension ?: file.name ?: return@firstOrNull false
-                    if (name.endsWith(Downloader.TMP_DIR_SUFFIX)) return@firstOrNull false
-                    if (!episode.scanlator.isNullOrBlank()) {
-                        val parsedScanlator = name.substringBefore('_', "")
-                        if (parsedScanlator.isNotBlank() && !parsedScanlator.equals(episode.scanlator, ignoreCase = true)) {
-                            return@firstOrNull false
-                        }
-                    }
-                    val parsedNum = EpisodeRecognition.parseEpisodeNumber(anime.ogTitle, name)
-                    parsedNum == episode.episodeNumber
+                    val name = file.name ?: return@firstOrNull false
+                    parseEpisodeNumberFromDir(anime.ogTitle, name, episode.scanlator) == episode.episodeNumber
                 }
             } else {
                 null
@@ -325,8 +289,4 @@ class DownloadProvider(
         }
     }
     // <-- AM (FILE_SIZE)
-
-    companion object {
-        private const val MIN_VALID_VIDEO_BYTES = 1024L * 1024L
-    }
 }

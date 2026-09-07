@@ -28,6 +28,15 @@ object TorrentServerUtils {
         return "$hostUrl/stream/${name.urlEncode()}?link=${torr.hash}&index=$index&play"
     }
 
+    /**
+     * Whether [url] points at the embedded torrent server (e.g. a `/stream` play link).
+     * Such URLs need patient timeouts: the server only produces data once peers connect.
+     */
+    fun isTorrentServerUrl(url: String): Boolean {
+        if (!url.startsWith("http", ignoreCase = true)) return false
+        return url == hostUrl || url.startsWith("$hostUrl/")
+    }
+
     private fun findFile(torrent: Torrent, index: Int): FileStat? {
         torrent.file_stats?.forEach {
             if (it.id == index) {

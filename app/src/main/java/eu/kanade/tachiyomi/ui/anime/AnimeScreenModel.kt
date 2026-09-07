@@ -35,6 +35,7 @@ import eu.kanade.tachiyomi.animesource.model.Video
 import eu.kanade.tachiyomi.data.download.DownloadCache
 import eu.kanade.tachiyomi.data.download.DownloadManager
 import eu.kanade.tachiyomi.data.download.model.Download
+import eu.kanade.tachiyomi.data.download.parseEpisodeNumberFromDir
 import eu.kanade.tachiyomi.data.torrentServer.service.TorrentServerService
 import eu.kanade.tachiyomi.data.track.EnhancedTracker
 import eu.kanade.tachiyomi.data.track.TrackerManager
@@ -124,7 +125,6 @@ import tachiyomi.domain.episode.interactor.UpdateEpisode
 import tachiyomi.domain.episode.model.Episode
 import tachiyomi.domain.episode.model.EpisodeUpdate
 import tachiyomi.domain.episode.service.calculateChapterGap
-import tachiyomi.domain.episode.service.EpisodeRecognition
 import tachiyomi.domain.episode.service.getEpisodeSort
 import tachiyomi.domain.episode.service.missingEpisodesCount
 import kotlinx.serialization.json.Json
@@ -1293,15 +1293,11 @@ class AnimeScreenModel(
                 true
             } else if (downloadedEpisodeDirs.isNotEmpty()) {
                 downloadProvider.getValidEpisodeDirNames(episode.name, episode.scanlator).any { it in downloadedEpisodeDirs } ||
-                    (episode.isRecognizedNumber && downloadedEpisodeDirs.any { dirName ->
-                        if (!episode.scanlator.isNullOrBlank()) {
-                            val parsedScanlator = dirName.substringBefore('_', "")
-                            if (parsedScanlator.isNotBlank() && !parsedScanlator.equals(episode.scanlator, ignoreCase = true)) {
-                                return@any false
-                            }
+                    (
+                        episode.isRecognizedNumber && downloadedEpisodeDirs.any { dirName ->
+                            parseEpisodeNumberFromDir(anime.ogTitle, dirName, episode.scanlator) == episode.episodeNumber
                         }
-                        EpisodeRecognition.parseEpisodeNumber(anime.ogTitle, dirName) == episode.episodeNumber
-                    })
+                        )
             } else false
             val downloadState = when {
                 activeDownload != null -> activeDownload.status

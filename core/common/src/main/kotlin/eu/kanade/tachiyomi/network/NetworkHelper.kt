@@ -47,7 +47,23 @@ open /* SY <-- */ class NetworkHelper(
                 },
             )
             .connectionPool(ConnectionPool(256, 5, TimeUnit.MINUTES)) // More aggressive pooling
+            // A download call must survive however long the transfer takes. The 120s
+            // callTimeout inherited from the base client kills large downloads mid-stream
+            // and forces the retry loop to resume from the last byte.
+            .callTimeout(0, TimeUnit.MILLISECONDS)
             .retryOnConnectionFailure(true)
+            .build()
+    }
+
+    /**
+     * Client for the embedded torrent server. TorrServer only starts producing a response
+     * once the torrent swarm connects, so header waits and mid-stream stalls can legitimately
+     * take minutes. Reads are given 10 minutes and there is no overall call deadline.
+     */
+    val torrentClient: OkHttpClient by lazy {
+        client.newBuilder()
+            .readTimeout(10, TimeUnit.MINUTES)
+            .callTimeout(0, TimeUnit.MILLISECONDS)
             .build()
     }
 
